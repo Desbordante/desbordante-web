@@ -118,6 +118,10 @@ public:
      */
     virtual std::vector<Column const*> GetKeys() const;
 
+    std::vector<std::string> getColumnNames();
+
+    std::string getJsonArrayNameValue(int degree = 1, bool withAttr = true);
+
     // считает контрольную сумму Флетчера - нужно для тестирования по хешу
     unsigned int Fletcher16();
 

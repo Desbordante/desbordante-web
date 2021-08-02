@@ -34,18 +34,13 @@ private:
 public:
     CSVParser() = default;
     explicit CSVParser(const std::filesystem::path& path);
-    CSVParser(const std::filesystem::path& path, char separator, bool has_header);
-
-    std::vector<std::string> ParseNext();
-    std::string GetUnparsedLine(const unsigned long long line_index);
-    std::vector<std::string> ParseLine(const unsigned long long line_index);
-    bool GetHasNext() const {
-        return has_next_;
-    }
-    char GetSeparator() const {
-        return separator_;
-    }
-    int GetNumberOfColumns() const { return number_of_columns_; }
-    std::string GetColumnName(int index) const { return column_names_[index]; }
-    std::string GetRelationName() const { return relation_name_; }
+    CSVParser(const std::filesystem::path& path, char separator, bool hasHeader);
+    //bool isSameChar(char separator, char escape);
+    std::vector<std::string> parseNext();
+    bool getHasNext() const { return hasNext;}
+    char getSeparator() const { return separator;}
+    int getNumberOfColumns() const { return numberOfColumns;}
+    std::vector<std::string> getColumnNames() const { return columnNames;}
+    std::string getColumnName(int index) const { return columnNames[index];}
+    std::string getRelationName() const { return relationName; }
 };
