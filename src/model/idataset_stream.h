@@ -11,6 +11,7 @@ public:
     [[nodiscard]] virtual bool HasNextRow() const = 0;
     [[nodiscard]] virtual size_t GetNumberOfColumns() const = 0;
     [[nodiscard]] virtual std::string GetColumnName(int index) const = 0;
+    [[nodiscard]] virtual std::vector<std::string> GetColumnNames() const = 0;
     [[nodiscard]] virtual std::string GetRelationName() const = 0;
     virtual void Reset() = 0;
     virtual ~IDatasetStream() = default;

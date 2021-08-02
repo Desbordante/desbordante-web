@@ -37,6 +37,7 @@ private:
 public:
     CSVParser() = default;
     explicit CSVParser(const std::filesystem::path& path);
+
     CSVParser(const std::filesystem::path& path, char separator, bool has_header);
 
     std::vector<std::string> GetNextRow() override;
@@ -52,4 +53,5 @@ public:
     std::string GetColumnName(int index) const override { return column_names_[index]; }
     std::string GetRelationName() const override { return relation_name_; }
     void Reset() override;
+    std::vector<std::string> GetColumnNames() const override { return column_names_;}
 };

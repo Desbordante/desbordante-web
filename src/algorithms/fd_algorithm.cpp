@@ -1,4 +1,5 @@
 #include "fd_algorithm.h"
+#include "json.hpp"
 
 #include <thread>
 
@@ -6,6 +7,45 @@ unsigned long long FDAlgorithm::Execute() {
     Initialize();
 
     return ExecuteInternal();
+}
+
+std::vector<std::string> FDAlgorithm::GetColumnNames() {
+    return input_generator_->GetColumnNames();
+}
+
+std::string FDAlgorithm::GetJsonArrayNameValue(int degree, bool withAttr) {
+    size_t numberOfColumns = input_generator_->GetNumberOfColumns();
+    auto columnNames = input_generator_->GetColumnNames();
+    std::vector<double> LhsValues(numberOfColumns, 0);
+    std::vector<double> RhsValues(numberOfColumns, 0);
+
+    for (const auto &fd : fd_collection_) {
+        double divisor = std::pow(fd.GetLhs().GetArity(), degree);
+
+        const auto &LhsColumnIndices = fd.GetLhs().GetColumnIndices();
+        for (size_t index = LhsColumnIndices.find_first();
+            index != boost::dynamic_bitset<>::npos;
+            index = LhsColumnIndices.find_next(index)) {
+                LhsValues[index] += 1/divisor;
+        }
+        const auto &RhsColumn = fd.GetRhs();
+        size_t index = RhsColumn.GetIndex();
+        RhsValues[index] += 1/divisor;
+    }
+    nlohmann::json j;
+
+    std::vector<std::pair<nlohmann::json, nlohmann::json>> lhs_array;
+    std::vector<std::pair<nlohmann::json, nlohmann::json>> rhs_array;
+    for (size_t i=0; i!= numberOfColumns; ++i) {
+        auto name = withAttr ? columnNames[i] : std::to_string(i);
+        lhs_array.push_back({{"name", name}, {"value", LhsValues[i]}});
+        rhs_array.push_back({{"name", name}, {"value", RhsValues[i]}});
+    }
+    
+    j["lhs"] = lhs_array;
+    j["rhs"] = rhs_array;
+
+    return j.dump();
 }
 
 void FDAlgorithm::InitConfigParallelism() {
@@ -20,7 +60,7 @@ void FDAlgorithm::InitConfigParallelism() {
     }
 }
 
-std::string FDAlgorithm::GetJsonFDs() const {
+std::string FDAlgorithm::GetJsonFDs() const{
     return FDsToJson(fd_collection_);
 }
 
