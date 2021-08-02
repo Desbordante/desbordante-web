@@ -30,6 +30,7 @@ message(${Boost_INCLUDE_DIRS})
 
 # providing subdirectories for header inclusion
 include_directories(
+    "kafka-consumer/include"
     "src/algorithms"
     "src/algorithms/DFD"
     "src/algorithms/association-rules"
@@ -59,3 +60,9 @@ add_subdirectory("tests")
 
 add_subdirectory("datasets")
 add_subdirectory("cfg")
+add_subdirectory("kafka-consumer")
+
+#target_link_libraries(metanome_cpp PRIVATE "stdc++fs" gmock)
+#target_link_libraries(metanome_cpp PRIVATE "stdc++fs" Boost::container)
+#install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+#install(FILES ${metanome_cpp_src} DESTINATION src)
