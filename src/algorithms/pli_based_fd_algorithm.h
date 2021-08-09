@@ -27,5 +27,5 @@ public:
                                  Config const& config, std::vector<std::string_view> phase_names)
         : FDAlgorithm(config, std::move(phase_names)), relation_(std::move(relation)) {}
 
-    std::vector<Column const*> GetKeys() const override;
+    std::vector<Column const*> GetKeys() const;
 };
