@@ -111,6 +111,14 @@ public:
 
     std::string getJsonArrayNameValue(int degree = 1, bool withAttr = true);
 
+    std::vector<std::string_view> const& getPhaseNames() const noexcept {
+        return phase_names_;
+    }
+    /* Returns pair with current progress state.
+     * Pair has the form <current phase id, current phase progess>
+     */
+    std::pair<uint8_t, double> getProgress() const noexcept;
+
     // считает контрольную сумму Флетчера - нужно для тестирования по хешу
     unsigned int Fletcher16();
 
