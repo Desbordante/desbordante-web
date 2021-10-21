@@ -70,8 +70,14 @@ const Viewer: React.FC = () => {
             setAttributesRHS(data.arraynamevalue.rhs);
             setDependencies(
               data.fds.map((dep: dependencyEncoded) => ({
-                lhs: dep.lhs.map((attrNum) => data.arraynamevalue.lhs[attrNum]),
-                rhs: data.arraynamevalue.rhs[dep.rhs],
+                lhs: dep.lhs.map(
+                  (attrNum) =>
+                    data.arraynamevalue.lhs[attrNum] ||
+                    data.arraynamevalue.lhs[0]
+                ),
+                rhs:
+                  data.arraynamevalue.rhs[dep.rhs] ||
+                  data.arraynamevalue.rhs[0],
               }))
             );
           }
@@ -100,23 +106,15 @@ const Viewer: React.FC = () => {
             <h1>File: "{filename}"</h1>
             <h1>Status: {taskStatus}</h1>
           </div>
-          <Button
-            color="1"
-            onClick={() => {
-              axios.post(`${serverURL}/cancelTask?taskID=${taskID}`);
-              history.push("/");
-            }}
-          >
+          <Button type="button" onClick={() => history.push("/")}>
             Cancel
           </Button>
         </header>
-        <ProgressBar progress={taskProgress} maxWidth={100} thickness={0.5} />
-        <Phasename
-          currentPhase={currentPhase}
-          maxPhase={maxPhase}
-          phaseName={phaseName}
-          progress={taskProgress}
-        ></Phasename>
+        <ProgressBar
+          progress={taskProgress / 100}
+          maxWidth={100}
+          thickness={0.5}
+        />
       </div>
       <Router>
         {/* <Switch> */}
@@ -146,9 +144,19 @@ const Viewer: React.FC = () => {
               />
             </div>
             <footer style={{ opacity: taskFinished(taskStatus) ? 1 : 0 }}>
-              <h1 className="bottom-title">View Dependencies</h1>
+              <h1
+                className="bottom-title"
+                style={{ color: "#000000", fontWeight: 500 }}
+              >
+                View Dependencies
+              </h1>
               <Link to={`/deps/${taskID}`}>
-                <Button color="0" onClick={() => {}}>
+                <Button
+                  type="button"
+                  color="gradient"
+                  glow="always"
+                  onClick={() => {}}
+                >
                   <img src="/icons/nav-down.svg" alt="down" />
                 </Button>
               </Link>
@@ -170,7 +178,12 @@ const Viewer: React.FC = () => {
                 View Attributes
               </h1>
               <Link to={`/attrs/${taskID}`}>
-                <Button color="0" onClick={() => {}}>
+                <Button
+                  type="button"
+                  color="gradient"
+                  glow="always"
+                  onClick={() => {}}
+                >
                   <img src="/icons/nav-up.svg" alt="up" />
                 </Button>
               </Link>
