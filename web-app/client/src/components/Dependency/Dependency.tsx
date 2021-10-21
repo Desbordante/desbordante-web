@@ -27,7 +27,7 @@ const Dependency: React.FC<Props> = ({ dep, isActive, onClick }) => (
     </svg>
 
     <div className={`attribute-name ${isActive ? "active" : ""}`}>
-      {dep.rhs ? dep.rhs.name : "undefined"}
+      {dep.rhs.name}
     </div>
   </div>
 );
