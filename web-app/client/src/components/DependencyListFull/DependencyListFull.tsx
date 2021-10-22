@@ -6,6 +6,7 @@ import "./DependencyListFull.scss";
 import Dependency from "../Dependency/Dependency";
 import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";
+import Snippet from "../Snippet/Snippet";
 import { attribute, dependency } from "../../types";
 
 type sortMethod = "Default" | "LHS" | "RHS";
@@ -14,12 +15,14 @@ interface Props {
   dependencies: dependency[];
   selectedAttributesLHS: attribute[];
   selectedAttributesRHS: attribute[];
+  file: File | null;
 }
 
 const DependencyListFull: React.FC<Props> = ({
   dependencies,
   selectedAttributesLHS,
   selectedAttributesRHS,
+  file,
 }) => {
   const [sortedDependencies, setSortedDependencies] = useState<dependency[]>(
     []
@@ -106,15 +109,20 @@ const DependencyListFull: React.FC<Props> = ({
           onChange={(str) => setSearchString(str)}
         />
       </div>
-      <div className="dependency-list">
-        {sortedDependencies.map((dep, index) => (
-          <Dependency
-            dep={dep}
-            key={index}
-            onClick={() => setChosenDependencyIndex(index)}
-            isActive={index == chosenDependencyIndex}
-          />
-        ))}
+      <div className="dependency-list-wrapper">
+        <div className="dependency-list">
+          {sortedDependencies.map((dep, index) => (
+            <Dependency
+              dep={dep}
+              key={index}
+              onClick={() => setChosenDependencyIndex(index)}
+              isActive={index == chosenDependencyIndex}
+            />
+          ))}
+        </div>
+        <div className="snippet">
+          <Snippet file={file} />
+        </div>
       </div>
     </div>
   );
