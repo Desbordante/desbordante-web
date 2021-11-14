@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 
-// Pool init
-const pool = require('./db/createPool');
+const createPool = require('./db/createPool');
 const createTable = require('./db/createTable');
 const dropTableTasks = require('./db/dropTable');
+const createDB = require('./db/createDB');
 
 // Uploading files:
 const fileUpload = require('express-fileupload'); // Simple Express middleware for uploading files
@@ -17,16 +17,26 @@ var chooseTaskRouter = require('./routes/chooseTask');
 var createTaskRouter = require('./routes/createTask');
 var cancelTaskRouter = require('./routes/cancelTask');
 
+const app = express();
+
 // Configuring DB
-dropTableTasks(pool)
-.then(res => createTable(pool))
+createDB()
+.then(res => { 
+  return createPool()
+})
+.then(pool => {
+  dropTableTasks(pool);
+  return pool;
+})
+.then(pool => { 
+  app.set('pool', pool); 
+  createTable(pool);
+})
 .catch(err => {
   console.log("[Error]: DB configuration incompleted")
   throw err;
 })
 
-const app = express()
-app.set('pool', pool);
 const jsonParser = express.json();
 
 app.use(cors());
