@@ -8,6 +8,7 @@
 #include <vector>
 #include <chrono>
 #include <thread>
+#include <future>
 
 #include <boost/program_options.hpp>
 
@@ -55,10 +56,6 @@ void TaskConsumer::processMsg(nlohmann::json payload,
 
 void TaskConsumer::processTask(TaskConfig const& task, 
                                DBManager const& manager) const {
-    std::vector<std::string> algsWithProgressBar {
-        "FastFDs", "DFD", "Pyro", "TaneX"
-    };
-
     auto algName = task.getAlgName();
     auto datasetPath = task.getDatasetPath();
     auto separator = task.getSeparator();
@@ -105,30 +102,43 @@ void TaskConsumer::processTask(TaskConfig const& task,
         auto maxPhase = phaseNames.size();
         task.setMaxPhase(manager, maxPhase);
         task.updateProgress(manager, 0, phaseNames[0].data(), 1);
-        if (std::find(algsWithProgressBar.begin(), algsWithProgressBar.end(), algName)
-            != algsWithProgressBar.end()) {
-            std::thread progress_listener([&task, &manager, &algorithmInstance, 
-                                           &phaseNames, &maxPhase] {
-                auto [cur_phase, phaseProgress] = algorithmInstance->getProgress();
-                while(!(cur_phase == maxPhase-1 && phaseProgress == 100)) {
-                    std::tie(cur_phase, phaseProgress) = algorithmInstance->getProgress();
-                    task.updateProgress(manager, phaseProgress, 
-                                        phaseNames[cur_phase].data(), cur_phase + 1);
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                }
-            });
-            elapsedTime = algorithmInstance->execute();
-            progress_listener.join();
-        } else {
-            elapsedTime = algorithmInstance->execute();
-            task.updateProgress(manager, 100);
-        }
 
-        task.setElapsedTime(manager, elapsedTime);
-        task.updateJsonFDs(manager, algorithmInstance->getJsonFDs(false));
-        task.updateJsonArrayNameValue(manager, algorithmInstance->getJsonArrayNameValue());
-        task.updateJsonColumnNames(manager, algorithmInstance->getJsonColumnNames());
-        task.updateStatus(manager, "COMPLETED");
+        auto executionThread = std::async(
+            std::launch::async,
+            [&elapsedTime, &algorithmInstance]() -> void {
+                elapsedTime = algorithmInstance->execute();
+            }
+        );
+        std::future_status status;
+        do {
+            status = executionThread.wait_for(std::chrono::seconds(0));
+
+            if (status == std::future_status::ready) {
+                std::cout << "Algorithm was executed" << std::endl;
+                task.updateProgress(manager, 100, phaseNames[maxPhase-1].data(), maxPhase);
+                break;
+            } else if (status == std::future_status::timeout) {
+                if (TaskConfig::isTaskCancelled(manager, task.getTaskID())) {
+                    std::cout << "Task with ID = " << task.getTaskID() 
+                              << " was cancelled." << std::endl;
+                    break;
+                }
+                auto [cur_phase, phaseProgress] = algorithmInstance->getProgress();
+                task.updateProgress(manager, phaseProgress, 
+                                    phaseNames[cur_phase].data(), cur_phase + 1);
+            } else {
+                throw std::runtime_error("Main thread: unknown future_status");
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        } while (status != std::future_status::ready);
+
+        if (!TaskConfig::isTaskCancelled(manager, task.getTaskID())) {
+            task.setElapsedTime(manager, elapsedTime);
+            task.updateJsonFDs(manager, algorithmInstance->getJsonFDs(false));
+            task.updateJsonArrayNameValue(manager, algorithmInstance->getJsonArrayNameValue());
+            task.updateJsonColumnNames(manager, algorithmInstance->getJsonColumnNames());
+            task.updateStatus(manager, "COMPLETED");
+        }  
         return;
     } catch (std::runtime_error& e) {
         std::cout << e.what() << std::endl;
