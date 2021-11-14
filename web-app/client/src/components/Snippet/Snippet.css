@@ -1,0 +1,16 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.snippet {
+    height: 50vh;
+    overflow-y: auto;
+}
+
+td {
+    border: 1px solid black;
+    font-family: var(--font-content);
+    font-weight: 300;
+    font-size: 1.1rem;
+}

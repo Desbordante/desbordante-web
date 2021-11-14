@@ -6,42 +6,48 @@ import "./DependencyListFull.scss";
 import Dependency from "../Dependency/Dependency";
 import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";
-import { attribute, dependency } from "../../types";
+import Snippet from "../Snippet/Snippet";
+import { attribute, dependency, coloredDepedency, coloredAttribute } from "../../types";
 
 type sortMethod = "Default" | "LHS" | "RHS";
 
 interface Props {
-  dependencies: dependency[];
-  selectedAttributesLHS: attribute[];
-  selectedAttributesRHS: attribute[];
+  dependencies: coloredDepedency[];
+  selectedAttributesLHS: coloredAttribute[];
+  selectedAttributesRHS: coloredAttribute[];
+  file: File | null;
 }
 
 const DependencyListFull: React.FC<Props> = ({
   dependencies,
   selectedAttributesLHS,
   selectedAttributesRHS,
+  file,
 }) => {
-  const [sortedDependencies, setSortedDependencies] = useState<dependency[]>(
+  const [sortedDependencies, setSortedDependencies] = useState<coloredDepedency[]>(
     []
   );
-  const [chosenDependencyIndex, setChosenDependencyIndex] = useState(0);
+  const [chosenDependencyIndex, setChosenDependencyIndex] = useState(-1);
   const [sortBy, setSortBy] = useState<sortMethod>("Default");
   const [searchString, setSearchString] = useState("");
   const allowedSortMethods: sortMethod[] = ["Default", "LHS", "RHS"];
+  const [selectedDependency, setSelectedDependency] = useState<coloredDepedency>();
+
+
 
   // update displayed dependencies on search
   useEffect(() => {
     const foundDependencies = (searchString !== ""
       ? dependencies.filter((dep) =>
-          searchString
-            .split(" ")
-            .filter((str) => str)
-            .every(
-              (elem) =>
-                dep.lhs.map((attr) => attr.name).includes(elem) ||
-                dep.rhs.name === elem
-            )
-        )
+        searchString
+          .split(" ")
+          .filter((str) => str)
+          .every(
+            (elem) =>
+              dep.lhs.map((attr) => attr.name).includes(elem) ||
+              dep.rhs.name === elem
+          )
+      )
       : [...dependencies]
     )
       // filter by chosen LHS
@@ -106,15 +112,25 @@ const DependencyListFull: React.FC<Props> = ({
           onChange={(str) => setSearchString(str)}
         />
       </div>
-      <div className="dependency-list">
-        {sortedDependencies.map((dep, index) => (
-          <Dependency
-            dep={dep}
-            key={index}
-            onClick={() => setChosenDependencyIndex(index)}
-            isActive={index == chosenDependencyIndex}
-          />
-        ))}
+      <div className="dependency-list-wrapper">
+        <div className="dependency-list">
+          {sortedDependencies.map((dep, index) => {
+            return (
+              <Dependency
+                dep={dep}
+                key={index}
+                onClick={() => {
+                  setChosenDependencyIndex(index)
+                  setSelectedDependency(dep)
+                }}
+                isActive={index == chosenDependencyIndex}
+              />
+            )
+          })}
+        </div>
+        <div className="snippet">
+          <Snippet file={file} selectedDependency={selectedDependency} />
+        </div>
       </div>
     </div>
   );

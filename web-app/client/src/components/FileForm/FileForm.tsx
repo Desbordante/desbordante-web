@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios, { AxiosResponse } from "axios";
 import { useHistory } from "react-router-dom";
 
@@ -16,7 +16,7 @@ import {
   submitBuiltinDataset,
 } from "../../APIFunctions";
 import { algorithm } from "../../types";
-
+import { DelimeterContext } from "../DelimeterContext/DelimeterContext";
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable max-len */
@@ -27,12 +27,16 @@ interface Props {
   onSubmit: (e: React.MouseEvent<HTMLButtonElement>) => void;
   setUploadProgress: (n: number) => void;
   handleResponse: (res: AxiosResponse) => void;
+  file: File | null;
+  setFile: (file: File | null) => void;
 }
 
 const FileForm: React.FC<Props> = ({
   onSubmit,
   setUploadProgress,
   handleResponse,
+  file,
+  setFile,
 }) => {
   // Allowed field values
   const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] = useState<
@@ -47,9 +51,10 @@ const FileForm: React.FC<Props> = ({
   const [maxfilesize, setMaxFileSize] = useState(5e7);
 
   // Parameters, later sent to the server on execution as JSON
-  const [file, setFile] = useState<File | null>(null);
+
   const [hasHeader, setHasHeader] = useState(true);
-  const [separator, setSeparator] = useState("");
+  // const [separator, setSeparator] = useState("");
+  const delimeterContext = useContext(DelimeterContext);
   const [algorithm, setAlgorithm] = useState<algorithm | null>(null);
   const [errorThreshold, setErrorThreshold] = useState<string>("0.05");
   const [maxLHSAttributes, setMaxLHSAttributes] = useState<string>("5");
@@ -75,7 +80,8 @@ const FileForm: React.FC<Props> = ({
         setAlgorithm(data.algorithmsInfo[0]);
 
         setAllowedSeparators(data.allowedSeparators);
-        setSeparator(data.allowedSeparators[0]);
+        // setSeparator(data.allowedSeparators[0]);
+        delimeterContext?.setDelimeter(data.allowedSeparators[0]);
 
         setMaxFileSize(data.maxFileSize);
       })
@@ -115,7 +121,7 @@ const FileForm: React.FC<Props> = ({
         (fileExistenceValidator(file) &&
           fileSizeValidator(file) &&
           fileFormatValidator(file))) &&
-      separatorValidator(separator) &&
+      separatorValidator(delimeterContext?.delimeter!) &&
       errorValidator(errorThreshold) &&
       maxLHSValidator(maxLHSAttributes)
     );
@@ -143,7 +149,7 @@ const FileForm: React.FC<Props> = ({
         file as File,
         {
           algName: sendAlgName,
-          separator,
+          separator: delimeterContext?.delimeter,
           errorPercent: sendErrorThreshold,
           hasHeader,
           maxLHS: sendMaxLHS,
@@ -163,6 +169,7 @@ const FileForm: React.FC<Props> = ({
             <Toggle
               toggleCondition={builtinDataset === datasetName}
               onClick={() => {
+                setFile(null);
                 setBuiltinDataset(datasetName);
                 setIsWindowShown(false);
               }}
@@ -199,8 +206,8 @@ const FileForm: React.FC<Props> = ({
             </Toggle>
             <h3>separator</h3>
             <Value
-              value={separator}
-              onChange={setSeparator}
+              value={delimeterContext?.delimeter!!}
+              onChange={delimeterContext?.setDelimeter!!}
               size={2}
               inputValidator={separatorValidator}
             />

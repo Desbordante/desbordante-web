@@ -21,12 +21,18 @@ import Phasename from "../Phasename/Phasename";
 import { serverURL } from "../../APIFunctions";
 import {
   taskStatus,
-  attribute,
   dependency,
   dependencyEncoded,
+  coloredAttribute,
+  coloredDepedency,
 } from "../../types";
 
-const Viewer: React.FC = () => {
+interface Props {
+  file: File | null;
+  setFile: (file: File | null) => void;
+}
+
+const Viewer: React.FC<Props> = ({ file, setFile }) => {
   let { taskID } = useParams<{ taskID: string }>();
   const history = useHistory();
 
@@ -37,17 +43,52 @@ const Viewer: React.FC = () => {
   const [taskStatus, setTaskStatus] = useState<taskStatus>("UNSCHEDULED");
   const [filename, setFilename] = useState<string>("");
 
-  const [attributesLHS, setAttributesLHS] = useState<attribute[]>([]);
-  const [attributesRHS, setAttributesRHS] = useState<attribute[]>([]);
+  const [attributesLHS, setAttributesLHS] = useState<coloredAttribute[]>([]);
+  const [attributesRHS, setAttributesRHS] = useState<coloredAttribute[]>([]);
 
   const [selectedAttributesLHS, setSelectedAttributesLHS] = useState<
-    attribute[]
+    coloredAttribute[]
   >([]);
   const [selectedAttributesRHS, setSelectedAttributesRHS] = useState<
-    attribute[]
+    coloredAttribute[]
   >([]);
 
   const [dependencies, setDependencies] = useState<dependency[]>([]);
+
+  const dependencyColors: string[] = [
+    "#ff5757",
+    "#575fff",
+    "#4de3a2",
+    "#edc645",
+    "#d159de",
+    "#32bbc2",
+    "#ffa857",
+    "#8dd44a",
+    "#6298d1",
+    "#969696",
+  ]
+
+  function createColoredDep(dep: dependency, colorsBuffer: string[]): coloredDepedency {
+    return {
+      lhs: dep.lhs.map((attr) => ({
+        name: attr.name,
+        value: attr.value,
+        color: pickRandomColor(colorsBuffer)
+      })),
+      rhs: {
+        name: dep.rhs.name,
+        value: dep.rhs.value,
+        color: pickRandomColor(colorsBuffer)
+      }
+    }
+  }
+
+  const pickRandomColor = (colors: string[]) => {
+    const pickedIndex = Math.floor(Math.random() * colors.length);
+    const pickedElement = colors[pickedIndex];
+    colors.splice(pickedIndex, 1)
+    return pickedElement;
+  }
 
   const taskFinished = (status: taskStatus) =>
     status === "COMPLETED" || status === "SERVER ERROR";
@@ -70,8 +111,14 @@ const Viewer: React.FC = () => {
             setAttributesRHS(data.arraynamevalue.rhs);
             setDependencies(
               data.fds.map((dep: dependencyEncoded) => ({
-                lhs: dep.lhs.map((attrNum) => data.arraynamevalue.lhs[attrNum]),
-                rhs: data.arraynamevalue.rhs[dep.rhs],
+                lhs: dep.lhs.map(
+                  (attrNum) =>
+                    data.arraynamevalue.lhs[attrNum] ||
+                    data.arraynamevalue.lhs[0]
+                ),
+                rhs:
+                  data.arraynamevalue.rhs[dep.rhs] ||
+                  data.arraynamevalue.rhs[0],
               }))
             );
           }
@@ -148,7 +195,7 @@ const Viewer: React.FC = () => {
             <footer style={{ opacity: taskFinished(taskStatus) ? 1 : 0 }}>
               <h1 className="bottom-title">View Dependencies</h1>
               <Link to={`/deps/${taskID}`}>
-                <Button color="0" onClick={() => {}}>
+                <Button color="0" onClick={() => { }}>
                   <img src="/icons/nav-down.svg" alt="down" />
                 </Button>
               </Link>
@@ -158,7 +205,10 @@ const Viewer: React.FC = () => {
         <Route path={`/deps/${taskID}`}>
           <div className="bg-light" style={{ justifyContent: "space-between" }}>
             <DependencyListFull
-              dependencies={dependencies}
+              file={file}
+              dependencies={dependencies.map((dep) => {
+                return createColoredDep(dep, dependencyColors.slice(0))
+              })}
               selectedAttributesLHS={selectedAttributesLHS}
               selectedAttributesRHS={selectedAttributesRHS}
             />
@@ -170,7 +220,7 @@ const Viewer: React.FC = () => {
                 View Attributes
               </h1>
               <Link to={`/attrs/${taskID}`}>
-                <Button color="0" onClick={() => {}}>
+                <Button color="0" onClick={() => { }}>
                   <img src="/icons/nav-up.svg" alt="up" />
                 </Button>
               </Link>
