@@ -1,9 +1,9 @@
 async function dropTableTasks(pool) {
-    await pool.query(`DROP TABLE IF EXISTS ${process.env.DB_TASKS_TABLE_NAME}`)
-    .then((res) => {
+    return pool.query(`DROP TABLE IF EXISTS ${process.env.DB_TASKS_TABLE_NAME}`)
+    .then(async(res) => {
         console.log(`Tables in DB '${process.env.DB_NAME}' was successfully dropped`)
     })
-    .catch((err) => {
+    .catch(async(err) => {
             console.log(`Problem with dropping table ${process.env.DB_TASKS_TABLE_NAME}`)
             console.log(err);
             throw err
