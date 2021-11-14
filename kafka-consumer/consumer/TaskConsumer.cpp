@@ -135,7 +135,7 @@ void TaskConsumer::processTask(TaskConfig const& task,
         if (!TaskConfig::isTaskCancelled(manager, task.getTaskID())) {
             task.setElapsedTime(manager, elapsedTime);
             task.updateJsonFDs(manager, algorithmInstance->getJsonFDs(false));
-            task.updateJsonArrayNameValue(manager, algorithmInstance->getJsonArrayNameValue());
+            task.updateJsonArrayNameValue(manager, algorithmInstance->getJsonArrayNameValue(1, hasHeader));
             task.updateJsonColumnNames(manager, algorithmInstance->getJsonColumnNames());
             task.updateStatus(manager, "COMPLETED");
         } else {

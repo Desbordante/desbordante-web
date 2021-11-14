@@ -1,8 +1,9 @@
 async function createTable(pool) {
     console.log(`Creating table(-es) in DB '${process.env.DB_TASKS_TABLE_NAME}'`)
 
-    // status -- ADDED TO THE TASK QUEUE/IN PROCESS/COMPLETED/INCORRECT INPUT DATA/SERVER ERROR
-    return await pool.query(
+    // status -- ADDED TO THE TASK QUEUE/IN PROCESS/COMPLETED
+    //           /INCORRECT INPUT DATA/SERVER ERROR/CANCELLED
+    return pool.query(
         `CREATE TABLE IF NOT EXISTS ${process.env.DB_TASKS_TABLE_NAME}(\n
         taskID char(40) not null primary key,\n
         createdAt timestamp not null,\n
@@ -27,12 +28,12 @@ async function createTable(pool) {
         columnNames text)
         `
     )
-    .then(res => {
+    .then(async(res) => {
         if (res !== undefined) 
             console.log(`Table '${process.env.DB_TASKS_TABLE_NAME}' was successfully created.`)
         }
     )
-    .catch(err => {
+    .catch(async(err) => {
         console.log('Error with table creation')
         throw err
     })

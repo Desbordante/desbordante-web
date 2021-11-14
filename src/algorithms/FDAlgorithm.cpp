@@ -53,14 +53,13 @@ std::string FDAlgorithm::getJsonArrayNameValue(int degree, bool withAttr) {
     };
 
     nlohmann::json j;
-
     std::vector<std::pair<nlohmann::json, nlohmann::json>> lhs_array;
     std::vector<std::pair<nlohmann::json, nlohmann::json>> rhs_array;
 
     for (size_t i = 0; i != numberOfColumns; ++i) {
-        auto name = withAttr ? columnNames[LhsValues[i].second] : std::string("Attribute " + i);
+        auto name = withAttr ? columnNames[LhsValues[i].second] : std::string("Attr " + std::to_string(i));
         lhs_array.push_back({{"name", name}, {"value", LhsValues[i].first}});
-        name = withAttr ? columnNames[RhsValues[i].second] : std::string("Attribute " + i);
+        name = withAttr ? columnNames[RhsValues[i].second] : std::string("Attr " + std::to_string(i));
         rhs_array.push_back({{"name", name}, {"value", RhsValues[i].first}});
     }
     
