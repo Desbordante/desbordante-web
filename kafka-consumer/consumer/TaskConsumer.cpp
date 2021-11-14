@@ -138,7 +138,9 @@ void TaskConsumer::processTask(TaskConfig const& task,
             task.updateJsonArrayNameValue(manager, algorithmInstance->getJsonArrayNameValue());
             task.updateJsonColumnNames(manager, algorithmInstance->getJsonColumnNames());
             task.updateStatus(manager, "COMPLETED");
-        }  
+        } else {
+            task.updateStatus(manager, "CANCELLED");
+        }
         return;
     } catch (std::runtime_error& e) {
         std::cout << e.what() << std::endl;
