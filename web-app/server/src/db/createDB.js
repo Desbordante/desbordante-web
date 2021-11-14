@@ -8,11 +8,12 @@ async function createDB() {
         host: process.env.DB_HOST,
     }
 
-    await pgtools.createdb(config, process.env.DB_NAME)
-    .then((res) => {
+    return pgtools.createdb(config, process.env.DB_NAME)
+    .then(async(res) => {
             console.log(`Database '${process.env.DB_NAME}' was successfully created`);
         }
-    ).catch((err) => {
+    )
+    .catch(async(err) => {
         if (err.name === 'duplicate_database') {
             console.log(`Database '${process.env.DB_NAME}' already exists`)
         } else {
