@@ -99,9 +99,12 @@ The web application requires the following components:
   You need to install `PostgreSQL`.
 
   After installation, do the following steps:
-  - Create a PostgreSQL role with ability to create databases. You can achive this by executing the following command from psql:
+  - Create a PostgreSQL role with ability to create databases. You can achive this by executing the following commands:
   ```
+  sudo -i -u postgres
+  psql postgres
   $ CREATE USER your_username WITH CREATEDB ENCRYPTED PASSWORD 'your_password'
+  $ ALTER USER your_username WITH PASSWORD 'your_password'
   ```
   - Make changes to the appropriate config files (`/path/to/Desbordante/web-app/server/.env` and `/path/to/Desbordante/cfg/db_config.json`)
 
@@ -115,13 +118,17 @@ The web application requires the following components:
   ```
 
 * ### Web-Client and Web-Server
-  Firstly, you need to install package manager `yarn`. Then you need to install all dependencies for web-server and web-client:
+  Firstly, you need to install package manager `yarn`:
+  ```
+  sudo apt install yarnpkg
+  ```
+  Then you need to install all dependencies for web-server and web-client:
   
   ```
   cd web-app/server
-  yarn
+  yarnpkg
   cd ../client
-  yarn
+  yarnpkg
   ```
 * ### Consumer
 Ensure that you have installed the dependencies required to build the program without a web application. Then you need to install the following dependencies:
@@ -150,15 +157,11 @@ Ensure that you have installed the dependencies required to build the program wi
   cd Desbordante
   ./build.sh -c
   ```
-  <!-- #### Launching the binaries -->
   The script generates the following file structure in `/path/to/Desbordante/build/target`:
   ```bash
   ├───...
   ├───Desbordante_kafka_consumer
   ```
-  <!-- cd build/target
-  ./Desbordante_kafka_consumer
-  ``` -->
 * ### Launching the web application
   Firstly, you need to run kafka server:
   ```
@@ -172,18 +175,18 @@ Ensure that you have installed the dependencies required to build the program wi
   Secondly, you need to run web-server:
   ```
   cd web-app/server 
-  yarn dev
+  yarnpkg dev
   ```
   and web-client:
   ```
   cd web-app/client
-  yarn start
+  yarnpkg start
   ```
   Then, it remains to start the consumer:
   ```
   cd build/target
   ./Desbordante_kafka_consumer
-
+  ```
 # Developers
 
 Kirill Stupakov     &mdash; Client side of the web application
