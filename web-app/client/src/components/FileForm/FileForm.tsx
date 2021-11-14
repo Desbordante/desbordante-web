@@ -167,6 +167,7 @@ const FileForm: React.FC<Props> = ({
             <Toggle
               toggleCondition={builtinDataset === datasetName}
               onClick={() => {
+                setFile(null);
                 setBuiltinDataset(datasetName);
                 setIsWindowShown(false);
               }}
