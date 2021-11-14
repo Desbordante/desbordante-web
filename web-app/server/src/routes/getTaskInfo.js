@@ -8,7 +8,8 @@ router.get('/', function(req, res, next) {
         var answer;
         pool.query(`select status, fileName 
                     from ${process.env.DB_TASKS_TABLE_NAME} 
-                    where taskid = '${req.query.taskID}'`)
+                    where taskid = '${req.query.taskID}' and "status" != 'CANCELLED'
+                   `)
         .then(result => {
             if (result.rows[0] === undefined) {
                 res.status(400).send("Invalid taskID");
