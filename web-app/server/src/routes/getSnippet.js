@@ -42,22 +42,26 @@ router.get('/', function(req, res, next) {
             const arrData = [[]];
             var inputData = bufferFile(datasetPath);
             arrMatches = objPattern.exec(inputData);
+            const maxRows = 100;
             while (arrMatches !== null) {
                 const strMatchedDelimiter = arrMatches[1];
                 if (strMatchedDelimiter.length && strMatchedDelimiter !== delimiter) {
-                  arrData.push([]);
+                    if (arrData.length >= maxRows) {
+                        break;
+                    }
+                    arrData.push([]);
                 }
               
                 let strMatchedValue;
               
                 if (arrMatches[2]) {
-                  strMatchedValue = arrMatches[2].replace(new RegExp("\"\"", "g"), "\"");
+                    strMatchedValue = arrMatches[2].replace(new RegExp("\"\"", "g"), "\"");
                 } else {
-                  strMatchedValue = arrMatches[3];
+                    strMatchedValue = arrMatches[3];
                 }
-              
                 arrData[arrData.length - 1].push(strMatchedValue);
                 arrMatches = objPattern.exec(inputData);
+                
             }
             console.log(JSON.stringify(arrData));
             res.send(JSON.stringify(arrData));
