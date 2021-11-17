@@ -65,7 +65,7 @@ const Snippet: React.FC<Props> = ({ taskId, selectedDependency }) => {
                     key={idx}
                     style={
                       selectedIndices.get(idx) !== undefined
-                        ? { backgroundColor: selectedIndices.get(idx) }
+                        ? { backgroundColor: selectedIndices.get(idx) + "90" }
                         : { backgroundColor: "#ffffff" }
                     }
                   >
