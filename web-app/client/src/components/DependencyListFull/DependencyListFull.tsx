@@ -41,34 +41,32 @@ const DependencyListFull: React.FC<Props> = ({
   const [selectedDependency, setSelectedDependency] = useState<
     coloredDepedency
   >();
-
+  console.log("selectedAttributesLHS", selectedAttributesLHS);
+  console.log("sortedDependencies", sortedDependencies);
+  console.log("dependencies", dependencies);
   // update displayed dependencies on search
   useEffect(() => {
     const foundDependencies = (searchString !== ""
-      ? dependencies.filter((dep) =>
-          searchString
-            .split(" ")
-            .filter((str) => str)
-            .every(
-              (elem) =>
-                dep.lhs.map((attr) => attr.name).includes(elem) ||
-                dep.rhs.name === elem
+            ? dependencies.filter((dep) =>
+                searchString
+                    .split(" ")
+                    .filter((str) => str)
+                    .every((elem) => (dep.lhs.map(attr => attr.name).includes(elem) || dep.rhs.name === elem))
             )
-        )
-      : [...dependencies]
+            : [...dependencies]
     )
-      // filter by chosen LHS
-      .filter((dep) =>
-        selectedAttributesLHS.length > 0
-          ? selectedAttributesLHS.some((attr) => dep.lhs.includes(attr))
-          : true
-      )
-      // filter by chosen RHS
-      .filter((dep) =>
-        selectedAttributesRHS.length > 0
-          ? selectedAttributesRHS.some((attr) => dep.rhs === attr)
-          : true
-      );
+        // filter by chosen LHS
+        .filter((dep) =>
+            selectedAttributesLHS.length > 0
+                ? selectedAttributesLHS.some( (attr) => { console.log("debug", attr, dep.lhs); return dep.lhs.map((attr) => attr.name).includes(attr.name) })
+                : true
+        )
+        // filter by chosen RHS
+        .filter((dep) =>
+            selectedAttributesRHS.length > 0
+                ? selectedAttributesRHS.some((attr) => dep.rhs.name === attr.name)
+                : true
+        );
 
     // sort found dependencies
     const newSortedDependencies = foundDependencies.sort((d1, d2) => {
