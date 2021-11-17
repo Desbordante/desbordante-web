@@ -41,9 +41,6 @@ const DependencyListFull: React.FC<Props> = ({
   const [selectedDependency, setSelectedDependency] = useState<
     coloredDepedency
   >();
-  console.log("selectedAttributesLHS", selectedAttributesLHS);
-  console.log("sortedDependencies", sortedDependencies);
-  console.log("dependencies", dependencies);
   // update displayed dependencies on search
   useEffect(() => {
     const foundDependencies = (searchString !== ""
@@ -58,7 +55,7 @@ const DependencyListFull: React.FC<Props> = ({
         // filter by chosen LHS
         .filter((dep) =>
             selectedAttributesLHS.length > 0
-                ? selectedAttributesLHS.some( (attr) => { console.log("debug", attr, dep.lhs); return dep.lhs.map((attr) => attr.name).includes(attr.name) })
+                ? selectedAttributesLHS.some( (attr) => dep.lhs.map((attr) => attr.name).includes(attr.name) )
                 : true
         )
         // filter by chosen RHS
