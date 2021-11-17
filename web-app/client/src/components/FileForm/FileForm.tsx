@@ -48,7 +48,7 @@ const FileForm: React.FC<Props> = ({
   ]);
   const [allowedSeparators, setAllowedSeparators] = useState<string[]>([]);
   const [allowedAlgorithms, setAllowedAlgorithms] = useState<algorithm[]>([]);
-  const [maxfilesize, setMaxFileSize] = useState(5e7);
+  const [maxfilesize, setMaxFileSize] = useState(1e9);
 
   // Parameters, later sent to the server on execution as JSON
 
