@@ -3,8 +3,6 @@ var router = express.Router();
 var fs = require('fs');
 var path = require('path');
 
-// Buffer mydata
-// var BUFFER = bufferFile('../public/mydata.png');
 function bufferFile(path) {
     return fs.readFileSync(path, { encoding: 'utf8' }); // zzzz....
 }
@@ -45,22 +43,23 @@ router.get('/', function(req, res, next) {
             var inputData = bufferFile(datasetPath);
             arrMatches = objPattern.exec(inputData);
             while (arrMatches !== null) {
-              const strMatchedDelimiter = arrMatches[1];
-              if (strMatchedDelimiter.length && strMatchedDelimiter !== delimiter) {
-                arrData.push([]);
-              }
-        
-              let strMatchedValue;
-        
-              if (arrMatches[2]) {
-                strMatchedValue = arrMatches[2].replace(new RegExp("\"\"", "g"), "\"");
-              } else {
-                strMatchedValue = arrMatches[3];
-              }
-        
-              arrData[arrData.length - 1].push(strMatchedValue);
-              arrMatches = objPattern.exec(inputData);
+                const strMatchedDelimiter = arrMatches[1];
+                if (strMatchedDelimiter.length && strMatchedDelimiter !== delimiter) {
+                  arrData.push([]);
+                }
+              
+                let strMatchedValue;
+              
+                if (arrMatches[2]) {
+                  strMatchedValue = arrMatches[2].replace(new RegExp("\"\"", "g"), "\"");
+                } else {
+                  strMatchedValue = arrMatches[3];
+                }
+              
+                arrData[arrData.length - 1].push(strMatchedValue);
+                arrMatches = objPattern.exec(inputData);
             }
+            console.log(JSON.stringify(arrData));
             res.send(JSON.stringify(arrData));
         })
         .catch(err => {
