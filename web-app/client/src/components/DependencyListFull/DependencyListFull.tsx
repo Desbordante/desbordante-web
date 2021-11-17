@@ -137,7 +137,6 @@ const DependencyListFull: React.FC<Props> = ({
         </div>
         <div className="snippet">
           <Snippet
-            file={file}
             taskId={taskId}
             selectedDependency={selectedDependency}
           />
