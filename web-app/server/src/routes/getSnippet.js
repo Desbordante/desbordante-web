@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
     try{
         const pool = req.app.get('pool')
         var answer;
-        pool.query(`select datasetPath, separator
+        pool.query(`select datasetpath, separator as delimiter, hasheader
                     from ${process.env.DB_TASKS_TABLE_NAME} 
                     where taskid = '${req.query.taskID}'
                    `)
@@ -20,13 +20,10 @@ router.get('/', function(req, res, next) {
                 res.status(400).send("Invalid taskID");
                 return;
             }
-            const datasetPath = result.rows[0].datasetpath;
-            const delimiter = result.rows[0].separator;
-            console.log(datasetPath);
-            return { datasetPath, delimiter };
+            const { datasetpath, delimiter, hasheader } = result.rows[0];
+            return { datasetpath, delimiter, hasheader };
         })
-        .then(({ datasetPath, delimiter }) => {
-            console.log(datasetPath, delimiter);
+        .then(({ datasetpath, delimiter, hasheader }) => {
             const objPattern = new RegExp(
                 "(\\" +
                 delimiter +
@@ -40,9 +37,10 @@ router.get('/', function(req, res, next) {
             
             let arrMatches;
             const arrData = [[]];
-            var inputData = bufferFile(datasetPath);
+            var inputData = bufferFile(datasetpath);
             arrMatches = objPattern.exec(inputData);
             const maxRows = 100;
+            
             while (arrMatches !== null) {
                 const strMatchedDelimiter = arrMatches[1];
                 if (strMatchedDelimiter.length && strMatchedDelimiter !== delimiter) {
@@ -61,9 +59,10 @@ router.get('/', function(req, res, next) {
                 }
                 arrData[arrData.length - 1].push(strMatchedValue);
                 arrMatches = objPattern.exec(inputData);
-                
             }
-            console.log(JSON.stringify(arrData));
+            if (!hasheader) {
+                arrData.unshift([...Array(arrData[0].length)].map((_, index)=>("Attr " + index)));
+            }
             res.send(JSON.stringify(arrData));
         })
         .catch(err => {
