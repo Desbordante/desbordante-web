@@ -2,10 +2,8 @@ var express = require('express');
 var router = express.Router();
 var fs = require('fs');
 var path = require('path');
+var { parse } = require ('csv-parse');
 
-function bufferFile(path) {
-    return fs.readFileSync(path, { encoding: 'utf8' }); // zzzz....
-}
 router.get('/', function(req, res, next) {
     if(!req.query || !req.query.taskID) return res.sendStatus(400);
     try{
@@ -23,47 +21,29 @@ router.get('/', function(req, res, next) {
             const { datasetpath, delimiter, hasheader } = result.rows[0];
             return { datasetpath, delimiter, hasheader };
         })
-        .then(({ datasetpath, delimiter, hasheader }) => {
-            const objPattern = new RegExp(
-                "(\\" +
-                delimiter +
-                "|\\r?\\n|\\r|^)" +
-                "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-                "([^\"\\" +
-                delimiter +
-                "\\r\\n]*))",
-                "gi",
-            );
-            
-            let arrMatches;
-            const arrData = [[]];
-            var inputData = bufferFile(datasetpath);
-            arrMatches = objPattern.exec(inputData);
+        .then(({ datasetpath, delimiter, hasheader }) => {            
+            const arrData = [];
             const maxRows = 100;
-            
-            while (arrMatches !== null) {
-                const strMatchedDelimiter = arrMatches[1];
-                if (strMatchedDelimiter.length && strMatchedDelimiter !== delimiter) {
-                    if (arrData.length >= maxRows) {
-                        break;
-                    }
-                    arrData.push([]);
+            const parser = parse({
+                delimiter,
+                to: maxRows,
+                path
+            });
+            fs.createReadStream(datasetpath)
+            .pipe(parser)
+            .on('data', function(row) {
+                arrData.push(row);
+            })
+            .on('end',function() {
+                if (!hasheader) {
+                    arrData.unshift([...Array(arrData[0].length)].map((_, index)=>("Attr " + index)));
                 }
-              
-                let strMatchedValue;
-              
-                if (arrMatches[2]) {
-                    strMatchedValue = arrMatches[2].replace(new RegExp("\"\"", "g"), "\"");
-                } else {
-                    strMatchedValue = arrMatches[3];
-                }
-                arrData[arrData.length - 1].push(strMatchedValue);
-                arrMatches = objPattern.exec(inputData);
-            }
-            if (!hasheader) {
-                arrData.unshift([...Array(arrData[0].length)].map((_, index)=>("Attr " + index)));
-            }
-            res.send(JSON.stringify(arrData));
+                console.log(JSON.stringify(arrData))
+                res.send(JSON.stringify(arrData));
+            })
+            .on('error', function(err) {
+                res.status(400).send(err);
+            })
         })
         .catch(err => {
             answer = 'SERVER ERROR: ' + err;
