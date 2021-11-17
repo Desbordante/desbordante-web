@@ -13,6 +13,7 @@ var getTaskInfo = require('./routes/getTaskInfo');
 var chooseTaskRouter = require('./routes/chooseTask');
 var createTaskRouter = require('./routes/createTask');
 var cancelTaskRouter = require('./routes/cancelTask');
+var getSnippetRouter = require('./routes/getSnippet');
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.post('/cancelTask', jsonParser, cancelTaskRouter);
 // GET requests
 app.use('/getTaskInfo', getTaskInfo)
 app.use('/algsInfo', algsInfo);
+app.use('/getSnippet', getSnippetRouter);
 app.use('/', (req, res) => {
   res.send('Hello World! (root route)')
 });
