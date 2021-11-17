@@ -67,29 +67,32 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
     "#8dd44a",
     "#6298d1",
     "#969696",
-  ]
+  ];
 
-  function createColoredDep(dep: dependency, colorsBuffer: string[]): coloredDepedency {
+  function createColoredDep(
+    dep: dependency,
+    colorsBuffer: string[]
+  ): coloredDepedency {
     return {
       lhs: dep.lhs.map((attr) => ({
         name: attr.name,
         value: attr.value,
-        color: pickRandomColor(colorsBuffer)
+        color: pickRandomColor(colorsBuffer),
       })),
       rhs: {
         name: dep.rhs.name,
         value: dep.rhs.value,
-        color: pickRandomColor(colorsBuffer)
-      }
-    }
+        color: pickRandomColor(colorsBuffer),
+      },
+    };
   }
 
   const pickRandomColor = (colors: string[]) => {
     const pickedIndex = Math.floor(Math.random() * colors.length);
     const pickedElement = colors[pickedIndex];
-    colors.splice(pickedIndex, 1)
+    colors.splice(pickedIndex, 1);
     return pickedElement;
-  }
+  };
 
   const taskFinished = (status: taskStatus) =>
     status === "COMPLETED" || status === "SERVER ERROR";
@@ -196,12 +199,7 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
                 View Dependencies
               </h1>
               <Link to={`/deps/${taskID}`}>
-                <Button
-                  type="button"
-                  color="gradient"
-                  glow="always"
-                  onClick={() => { }}
-                >
+                <Button color="0" onClick={() => {}}>
                   <img src="/icons/nav-down.svg" alt="down" />
                 </Button>
               </Link>
@@ -211,9 +209,10 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
         <Route path={`/deps/${taskID}`}>
           <div className="bg-light" style={{ justifyContent: "space-between" }}>
             <DependencyListFull
+              taskId={taskID}
               file={file}
               dependencies={dependencies.map((dep) => {
-                return createColoredDep(dep, dependencyColors.slice(0))
+                return createColoredDep(dep, dependencyColors.slice(0));
               })}
               selectedAttributesLHS={selectedAttributesLHS}
               selectedAttributesRHS={selectedAttributesRHS}
@@ -226,12 +225,7 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
                 View Attributes
               </h1>
               <Link to={`/attrs/${taskID}`}>
-                <Button
-                  type="button"
-                  color="gradient"
-                  glow="always"
-                  onClick={() => { }}
-                >
+                <Button color="0" onClick={() => {}}>
                   <img src="/icons/nav-up.svg" alt="up" />
                 </Button>
               </Link>
