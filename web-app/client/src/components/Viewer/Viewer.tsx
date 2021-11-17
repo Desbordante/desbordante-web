@@ -10,6 +10,7 @@ import {
   useHistory,
 } from "react-router-dom";
 import axios from "axios";
+import hslToHex from "hsl-to-hex";
 
 import "./Viewer.scss";
 import PieChartFull from "../PieChartFull/PieChartFull";
@@ -27,6 +28,7 @@ import {
   coloredAttribute,
   coloredDepedency,
 } from "../../types";
+
 
 interface Props {
   file: File | null;
@@ -55,20 +57,19 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
   >([]);
 
   const [dependencies, setDependencies] = useState<dependency[]>([]);
-
-  const dependencyColors: string[] = [
-    "#ff5757",
-    "#575fff",
-    "#4de3a2",
-    "#edc645",
-    "#d159de",
-    "#32bbc2",
-    "#ffa857",
-    "#8dd44a",
-    "#6298d1",
-    "#969696",
-  ];
-
+  const dependencyColors = [...Array(10)].map((_, index) => hslToHex(360 / 9 * index, 40, 45));
+  // const dependencyColors = [
+  //   "#ff5757",
+  //   "#575fff",
+  //   "#4de3a2",
+  //   "#edc645",
+  //   "#d159de",
+  //   "#32bbc2",
+  //   "#ffa857",
+  //   "#8dd44a",
+  //   "#6298d1",
+  //   "#969696",
+  // ];
   function createColoredDep(
     dep: dependency,
     colorsBuffer: string[]
@@ -158,10 +159,12 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
             Cancel
           </Button>
         </header>
-        <ProgressBar
-          progress={taskProgress / 100}
-          maxWidth={100}
-          thickness={0.5}
+        <ProgressBar progress={taskProgress} maxWidth={100} thickness={0.5} />
+        <Phasename
+          currentPhase={currentPhase}
+          maxPhase={maxPhase}
+          phaseName={phaseName}
+          progress={taskProgress}
         />
       </div>
       <Router>
