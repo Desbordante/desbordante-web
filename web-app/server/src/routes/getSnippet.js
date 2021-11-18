@@ -1,8 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var fs = require('fs');
-var path = require('path');
-var { parse } = require ('csv-parse');
+var { parse } = require ('fast-csv');
 
 router.get('/', function(req, res, next) {
     if(!req.query || !req.query.taskID) return res.sendStatus(400);
@@ -22,28 +21,28 @@ router.get('/', function(req, res, next) {
             return { datasetpath, delimiter, hasheader };
         })
         .then(({ datasetpath, delimiter, hasheader }) => {            
-            const arrData = [];
+            var arrData = [];
             const maxRows = 100;
             const parser = parse({
                 delimiter,
-                to: maxRows,
-                path
+                maxRows,
             });
             fs.createReadStream(datasetpath)
             .pipe(parser)
-            .on('data', function(row) {
-                arrData.push(row);
+            .on('error', error => {
+                console.error(error);
+                res.status(400).send(err);
             })
-            .on('end',function() {
+            .on('data', row => {
+                arrData.push(row)
+            })
+            .on('end', rowCount => { 
+                console.log(`Parsed ${rowCount} rows`); 
                 if (!hasheader) {
                     arrData.unshift([...Array(arrData[0].length)].map((_, index)=>("Attr " + index)));
                 }
-                console.log(JSON.stringify(arrData))
                 res.send(JSON.stringify(arrData));
-            })
-            .on('error', function(err) {
-                res.status(400).send(err);
-            })
+            });
         })
         .catch(err => {
             answer = 'SERVER ERROR: ' + err;
