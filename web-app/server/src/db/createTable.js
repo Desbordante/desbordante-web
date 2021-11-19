@@ -21,11 +21,11 @@ async function createTable(pool) {
         fileName text not null,
         FDs text,\n
         hasHeader bool not null,\n
+        renamedHeader text,\n
         maxLHS int not null,\n
         parallelism int not null,\n
         cancelled bool not null,\n
-        arrayNameValue text,\n
-        columnNames text)
+        arrayNameValue text)
         `
     )
     .then(async(res) => {

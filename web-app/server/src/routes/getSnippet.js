@@ -8,7 +8,7 @@ router.get('/', function(req, res, next) {
     try{
         const pool = req.app.get('pool')
         var answer;
-        pool.query(`select datasetpath, separator as delimiter, hasheader
+        pool.query(`select datasetpath, separator as delimiter, hasheader, renamedheader
                     from ${process.env.DB_TASKS_TABLE_NAME} 
                     where taskid = '${req.query.taskID}'
                    `)
@@ -17,10 +17,10 @@ router.get('/', function(req, res, next) {
                 res.status(400).send("Invalid taskID");
                 return;
             }
-            const { datasetpath, delimiter, hasheader } = result.rows[0];
-            return { datasetpath, delimiter, hasheader };
+            const { datasetpath, delimiter, hasheader, renamedheader } = result.rows[0];
+            return { datasetpath, delimiter, hasheader, renamedheader };
         })
-        .then(({ datasetpath, delimiter, hasheader }) => {            
+        .then(({ datasetpath, delimiter, hasheader, renamedheader }) => {            
             var arrData = [];
             const maxRows = 100;
             const parser = parse({
@@ -38,9 +38,11 @@ router.get('/', function(req, res, next) {
             })
             .on('end', rowCount => { 
                 console.log(`Parsed ${rowCount} rows`); 
-                if (!hasheader) {
-                    arrData.unshift([...Array(arrData[0].length)].map((_, index)=>("Attr " + index)));
+                if (hasheader) {
+                    arrData.shift();
                 }
+                // renamedHeader is created by consumer
+                arrData.unshift(JSON.parse(renamedheader));
                 res.send(JSON.stringify(arrData));
             });
         })
