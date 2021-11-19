@@ -144,11 +144,7 @@ public:
     void updateRenamedHeader(DBManager const &manager, 
                              std::vector<std::string> const &columnNames) const{
         try {
-            nlohmann::json j = nlohmann::json::array();
-            for (auto columnName : columnNames) {
-                j.push_back(columnName);
-            }
-            std::string renamedHeader = j.dump();
+            auto renamedHeader = nlohmann::json(columnNames).dump();
             std::string query = "UPDATE " + tableName + " SET renamedHeader = " 
                                 "'" + renamedHeader + "'"
                                 " WHERE taskID = '" + taskID + "'";
@@ -159,6 +155,22 @@ public:
             throw e;
         }
     }
+    
+    // Send a request to DB with JSON array of primary key column positions
+    void updatePKColumnPositions(DBManager const &manager, 
+                                 std::vector<std::size_t> const &positions) const{
+        try {
+            auto PKColumnPositions = nlohmann::json(positions).dump();
+            std::string query = "UPDATE " + tableName + " SET PKColumnPositions = " 
+                                "'" + PKColumnPositions + "'"
+                                " WHERE taskID = '" + taskID + "'";
+            manager.transactionQuery(query);
+        } catch(const std::exception& e) {
+            std::cerr << "Unexpected exception (with updating PK column positions in DB)"
+                      << " caught: " << e.what() << std::endl;
+            throw e;
+        }
+    }    
 
     // Send a request to DB with a set of FDs
     void updateJsonFDs(DBManager const& manager, const std::string& FDs) const {
