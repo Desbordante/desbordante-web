@@ -58,6 +58,8 @@ public:
         fdCollection_.push_back(std::move(fdToRegister));
     }
 
+    static std::vector<size_t> getPKColumnPositions(CSVParser);
+
     // геттер к набору ФЗ - нужно для тестирования
     std::list<FD> const& fdList() const { return fdCollection_; }
 

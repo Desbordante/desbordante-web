@@ -1,8 +1,21 @@
 #include "FDAlgorithm.h"
 #include "json.hpp"
+#include <iostream>
+#include "ColumnLayoutRelationData.h"
 
 std::vector<std::string> FDAlgorithm::getColumnNames() {
     return inputGenerator_.getColumnNames();
+}
+
+std::vector<size_t> FDAlgorithm::getPKColumnPositions(CSVParser inputGenerator) {
+    std::vector<size_t> positions;
+    auto relation_ = ColumnLayoutRelationData::createFrom(inputGenerator, true);
+    for (auto const& col : relation_->getColumnData()) { 
+        if (col.getPositionListIndex()->getNumNonSingletonCluster() == 0) {
+            positions.push_back(col.getColumn()->getIndex());
+        }
+    }
+    return positions;
 }
 
 std::string FDAlgorithm::getJsonFDs(bool withNullLhs) {
@@ -13,8 +26,9 @@ std::string FDAlgorithm::getJsonFDs(bool withNullLhs) {
         if (withNullLhs) {
             j.push_back(fd.toJSON());
         } else {
-            if (fd.getLhs().getArity() != 0)
+            if (fd.getLhs().getArity() != 0) {
                 j.push_back(fd.toJSON());
+            }
         }
     }
     return j.dump();
