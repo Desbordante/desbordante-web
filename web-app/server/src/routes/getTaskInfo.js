@@ -41,8 +41,10 @@ router.get('/', function(req, res, next) {
                     return;
                 });
             } else if (status === 'COMPLETED') {
-                pool.query(`select phaseName, progress, currentPhase, maxPhase, status, fileName, 
-                            fds::json, arrayNameValue::json, renamedHeader::json as columnNames, elapsedTime 
+                pool.query(`select phaseName, progress, currentPhase, maxPhase, 
+                            status, fileName, fds::json, arrayNameValue::json, 
+                            renamedHeader::json as columnNames,
+                            PKColumnPositions::json, elapsedTime
                             from ${process.env.DB_TASKS_TABLE_NAME} 
                             where taskid = '${req.query.taskID}'`)
                 .then(result => { 

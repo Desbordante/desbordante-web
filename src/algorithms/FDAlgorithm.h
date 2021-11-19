@@ -91,13 +91,10 @@ public:
         fd_collection_.push_back(std::move(fd_to_register));
     }
 
-    /* fd_collection_ getter and setter */
-    std::list<FD> const& FdList() const noexcept {
-        return fd_collection_;
-    }
-    std::list<FD>& FdList() noexcept {
-        return fd_collection_;
-    }
+    static std::vector<size_t> getPKColumnPositions(CSVParser);
+
+    // геттер к набору ФЗ - нужно для тестирования
+    std::list<FD> const& fdList() const { return fdCollection_; }
 
     /* возвращает набор ФЗ в виде JSON-а. По сути, это просто представление фиксированного формата для сравнения
      * результатов разных алгоритмов. JSON - на всякий случай, если потом, например, понадобится загрузить список в

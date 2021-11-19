@@ -187,6 +187,9 @@ void TaskConsumer::processTask(TaskConfig const& task,
             auto renamedColumns = generateRenamedColumns(algInstance->getColumnNames(),
                                                          hasHeader);
             task.updateRenamedHeader(manager, renamedColumns);
+            auto PKColumnPositions = algInstance->getPKColumnPositions(
+                                                  CSVParser(datasetPath, separator, hasHeader));
+            task.updatePKColumnPositions(manager, PKColumnPositions);
             task.updateJsonFDs(manager, algInstance->getJsonFDs(false));
             task.updateJsonArrayNameValue(manager,
                                           algInstance->getJsonArrayNameValue(renamedColumns));
