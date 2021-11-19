@@ -113,6 +113,7 @@ public:
     std::vector<std::string> GetColumnNames();
 
     std::string GetJsonArrayNameValue(int degree = 1, bool withAttr = true);
+    std::string GetJsonArrayNameValue(std::vector<std::string> const &colNames, int degree = 1);
     std::string GetJsonColumnNames();
 
     std::vector<std::string_view> const& getPhaseNames() const noexcept {

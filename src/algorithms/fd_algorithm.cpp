@@ -85,6 +85,52 @@ std::string FDAlgorithm::GetJsonArrayNameValue(int degree, bool withAttr) {
     return j.dump();
 }
 
+std::string FDAlgorithm::GetJsonArrayNameValue(std::vector<std::string> const &colNames, int degree) {
+    size_t numberOfColumns = input_generator_->GetNumberOfColumns();
+
+    std::vector<std::pair<double, int>> LhsValues(numberOfColumns);
+    std::vector<std::pair<double, int>> RhsValues(numberOfColumns);
+    
+    for (size_t i = 0; i != numberOfColumns; ++i) {
+        LhsValues[i] = RhsValues[i] = { 0, i };
+    }
+
+    for (const auto &fd : fd_collection_) {
+        double divisor = std::pow(fd.GetLhs().GetArity(), degree);
+
+        const auto &LhsColumnIndices = fd.GetLhs().GetColumnIndices();
+        for (size_t index = LhsColumnIndices.find_first();
+            index != boost::dynamic_bitset<>::npos;
+            index = LhsColumnIndices.find_next(index)) {
+                LhsValues[index].first += 1/divisor;
+        }
+        size_t index = fd.GetRhs().GetIndex();
+
+        if (divisor != 0)
+            RhsValues[index].first += 1/divisor;
+        else
+            RhsValues[index].first = -1;
+    }
+
+    auto pair_greater = [](std::pair<double, int> a, std::pair<double, int> b) {
+        return a.first > b.first;
+    };
+
+    nlohmann::json j;
+    std::vector<std::pair<nlohmann::json, nlohmann::json>> lhs_array;
+    std::vector<std::pair<nlohmann::json, nlohmann::json>> rhs_array;
+
+    for (size_t i = 0; i != numberOfColumns; ++i) {
+        lhs_array.push_back({ { "name", colNames[LhsValues[i].second] }, { "value", LhsValues[i].first } });
+        rhs_array.push_back({ { "name", colNames[LhsValues[i].second] }, { "value", RhsValues[i].first } });
+    }
+    
+    j["lhs"] = lhs_array;
+    j["rhs"] = rhs_array;
+
+    return j.dump();
+}
+
 void FDAlgorithm::InitConfigParallelism() {
     if (config_.parallelism == 0) {
         config_.parallelism = std::thread::hardware_concurrency();
