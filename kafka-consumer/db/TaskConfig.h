@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <algorithm>
-#include <iostream>
 
+#include "json.hpp"
 #include "DBManager.h"
 
 class TaskConfig{
@@ -31,7 +31,7 @@ public:
     auto getSeparator()    const { return separator;    }
     auto getDatasetPath()  const { return datasetPath;  }
     auto getHasHeader()    const { return hasHeader;    }
-    auto getMaxLHS()       const { return maxLHS;       }
+    auto getMaxLhs()       const { return maxLHS;       }
     auto getParallelism()  const { return parallelism;  }
 
     auto& writeInfo(std::ostream& os) const {
@@ -140,6 +140,26 @@ public:
         }
     }
 
+    // Send a request to DB with JSON array of renamed column names
+    void updateRenamedHeader(DBManager const &manager, 
+                             std::vector<std::string> const &columnNames) const{
+        try {
+            nlohmann::json j = nlohmann::json::array();
+            for (auto columnName : columnNames) {
+                j.push_back(columnName);
+            }
+            std::string renamedHeader = j.dump();
+            std::string query = "UPDATE " + tableName + " SET renamedHeader = " 
+                                "'" + renamedHeader + "'"
+                                " WHERE taskID = '" + taskID + "'";
+            manager.transactionQuery(query);
+        } catch(const std::exception& e) {
+            std::cerr << "Unexpected exception (with updating header in DB)"
+                      << " caught: " << e.what() << std::endl;
+            throw e;
+        }
+    }
+
     // Send a request to DB with a set of FDs
     void updateJsonFDs(DBManager const& manager, const std::string& FDs) const {
         try {
@@ -163,20 +183,6 @@ public:
         } catch(const std::exception& e) {
             std::cerr << "Unexpected exception (with sending data to DB)"
                       << " caught: " << e.what() << std::endl;
-            throw e;
-        }
-    }
-
-    // Send a request to DB with JSON array of column names
-    void updateJsonColumnNames(DBManager const& manager, 
-                               const std::string& columnNames) const {
-        try {
-            std::string query = "UPDATE " + tableName + " SET columnNames = '" 
-                                + columnNames + "' WHERE taskID = '" + taskID + "'";
-            manager.transactionQuery(query);
-        } catch(const std::exception& e) {
-            std::cerr << "Unexpected exception (with updating task's attribute "
-                      << "column names in the DB) caught: " << e.what() << std::endl;
             throw e;
         }
     }

@@ -20,9 +20,8 @@ std::string FDAlgorithm::getJsonFDs(bool withNullLhs) {
     return j.dump();
 }
 
-std::string FDAlgorithm::getJsonArrayNameValue(int degree, bool withAttr) {
+std::string FDAlgorithm::getJsonArrayNameValue(std::vector<std::string> const &colNames, int degree) {
     size_t numberOfColumns = inputGenerator_.getNumberOfColumns();
-    auto columnNames = inputGenerator_.getColumnNames();
 
     std::vector<std::pair<double, int>> LhsValues(numberOfColumns);
     std::vector<std::pair<double, int>> RhsValues(numberOfColumns);
@@ -57,10 +56,8 @@ std::string FDAlgorithm::getJsonArrayNameValue(int degree, bool withAttr) {
     std::vector<std::pair<nlohmann::json, nlohmann::json>> rhs_array;
 
     for (size_t i = 0; i != numberOfColumns; ++i) {
-        auto name = withAttr ? columnNames[LhsValues[i].second] : std::string("Attr " + std::to_string(i));
-        lhs_array.push_back({{"name", name}, {"value", LhsValues[i].first}});
-        name = withAttr ? columnNames[RhsValues[i].second] : std::string("Attr " + std::to_string(i));
-        rhs_array.push_back({{"name", name}, {"value", RhsValues[i].first}});
+        lhs_array.push_back({ { "name", colNames[LhsValues[i].second] }, { "value", LhsValues[i].first } });
+        rhs_array.push_back({ { "name", colNames[LhsValues[i].second] }, { "value", RhsValues[i].first } });
     }
     
     j["lhs"] = lhs_array;
