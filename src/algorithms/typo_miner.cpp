@@ -8,8 +8,8 @@ unsigned long long TypoMiner::Execute() {
     precise_algo_->Execute();
     approx_algo_->Execute();
 
-    std::list<FD>& precise_fds = precise_algo_->FdList();
-    std::list<FD>& approx_fds = approx_algo_->FdList();
+    std::list<FD>& precise_fds = precise_algo_->fdList();
+    std::list<FD>& approx_fds = approx_algo_->fdList();
 
     precise_fds.sort(FDLess);
     approx_fds.sort(FDLess);
