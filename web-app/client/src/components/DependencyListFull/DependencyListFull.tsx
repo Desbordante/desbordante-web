@@ -44,26 +44,33 @@ const DependencyListFull: React.FC<Props> = ({
   // update displayed dependencies on search
   useEffect(() => {
     const foundDependencies = (searchString !== ""
-            ? dependencies.filter((dep) =>
-                searchString
-                    .split(" ")
-                    .filter((str) => str)
-                    .every((elem) => (dep.lhs.map(attr => attr.name).includes(elem) || dep.rhs.name === elem))
+      ? dependencies.filter((dep) =>
+          searchString
+            .split(" ")
+            .filter((str) => str)
+            .every(
+              (elem) =>
+                dep.lhs
+                  .map((attr) => attr.name)
+                  .some((attr) => attr.includes(elem)) || dep.rhs.name === elem
             )
-            : [...dependencies]
-    )
-        // filter by chosen LHS
-        .filter((dep) =>
-            selectedAttributesLHS.length > 0
-                ? selectedAttributesLHS.some( (attr) => dep.lhs.map((attr) => attr.name).includes(attr.name) )
-                : true
         )
-        // filter by chosen RHS
-        .filter((dep) =>
-            selectedAttributesRHS.length > 0
-                ? selectedAttributesRHS.some((attr) => dep.rhs.name === attr.name)
-                : true
-        );
+      : [...dependencies]
+    )
+      // filter by chosen LHS
+      .filter((dep) =>
+        selectedAttributesLHS.length > 0
+          ? selectedAttributesLHS.some((attr) =>
+              dep.lhs.map((attr) => attr.name).includes(attr.name)
+            )
+          : true
+      )
+      // filter by chosen RHS
+      .filter((dep) =>
+        selectedAttributesRHS.length > 0
+          ? selectedAttributesRHS.some((attr) => dep.rhs.name === attr.name)
+          : true
+      );
 
     // sort found dependencies
     const newSortedDependencies = foundDependencies.sort((d1, d2) => {
@@ -131,10 +138,7 @@ const DependencyListFull: React.FC<Props> = ({
           })}
         </div>
         <div className="snippet">
-          <Snippet
-            taskId={taskId}
-            selectedDependency={selectedDependency}
-          />
+          <Snippet taskId={taskId} selectedDependency={selectedDependency} />
         </div>
       </div>
     </div>
