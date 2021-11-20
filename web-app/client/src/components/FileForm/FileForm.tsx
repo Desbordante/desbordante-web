@@ -214,13 +214,13 @@ const FileForm: React.FC<Props> = ({
             <Value
               value={errorThreshold}
               onChange={setErrorThreshold}
-              size={4}
+              size={8}
               inputValidator={errorValidator}
             />
             <Slider
               value={errorThreshold}
               onChange={setErrorThreshold}
-              step={0.001}
+              step={1e-6}
               exponential
             />
           </FormItem>
