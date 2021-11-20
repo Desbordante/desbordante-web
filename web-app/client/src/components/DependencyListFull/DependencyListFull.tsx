@@ -43,17 +43,16 @@ const DependencyListFull: React.FC<Props> = ({
   >();
   // update displayed dependencies on search
   useEffect(() => {
+    const keywords = searchString.split(" ").filter((str) => str);
+
     const foundDependencies = (searchString !== ""
       ? dependencies.filter((dep) =>
-          searchString
-            .split(" ")
-            .filter((str) => str)
-            .every(
-              (elem) =>
-                dep.lhs
-                  .map((attr) => attr.name)
-                  .some((attr) => attr.includes(elem)) || dep.rhs.name === elem
-            )
+          keywords.every(
+            (elem) =>
+              dep.lhs
+                .map((attr) => attr.name)
+                .some((attr) => attr.includes(elem)) || dep.rhs.name === elem
+          )
         )
       : [...dependencies]
     )
