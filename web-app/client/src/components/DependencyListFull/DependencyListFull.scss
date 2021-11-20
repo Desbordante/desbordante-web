@@ -25,12 +25,10 @@
   /* hide scrollbar but allow scrolling */
   .dependency-list {
     height: 50vh;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
     overflow-y: scroll;
 
-    &::-webkit-scrollbar {
-      display: none;
-    }
+    // &::-webkit-scrollbar {
+    //   display: none;
+    // }
   }
 }
