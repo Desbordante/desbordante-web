@@ -28,7 +28,6 @@ import {
   coloredDepedency,
 } from "../../types";
 
-
 interface Props {
   file: File | null;
   setFile: (file: File | null) => void;
@@ -56,19 +55,14 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
   >([]);
 
   const [dependencies, setDependencies] = useState<dependency[]>([]);
-  const dependencyColors = [...Array(10)].map((_, index) => hslToHex(360 / 9 * index, 40, 45));
-  // const dependencyColors = [
-  //   "#ff5757",
-  //   "#575fff",
-  //   "#4de3a2",
-  //   "#edc645",
-  //   "#d159de",
-  //   "#32bbc2",
-  //   "#ffa857",
-  //   "#8dd44a",
-  //   "#6298d1",
-  //   "#969696",
-  // ];
+  const dependencyColors = [...Array(10)].map((_, index) =>
+    hslToHex((360 / 9) * index, 40, 45)
+  );
+  const [keys, setKeys] = useState<string[]>([]);
+  const [showKeys, setShowKeys] = useState(true);
+
+  console.log(keys);
+
   function createColoredDep(
     dep: dependency,
     colorsBuffer: string[]
@@ -111,6 +105,11 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
           setMaxPhase(data.maxphase);
           setTaskStatus(data.status);
           if (taskFinished(data.status)) {
+            setKeys(
+              data.pkcolumnpositions.map(
+                (pos: number) => data.arraynamevalue.lhs[pos].name
+              )
+            );
             setAttributesLHS(data.arraynamevalue.lhs);
             setAttributesRHS(data.arraynamevalue.rhs);
             setDependencies(
@@ -211,9 +210,19 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
             <DependencyListFull
               taskId={taskID}
               file={file}
-              dependencies={dependencies.map((dep) => {
-                return createColoredDep(dep, dependencyColors.slice(0));
-              })}
+              setShowKeys={setShowKeys}
+              showKeys={showKeys}
+              dependencies={dependencies
+                .filter(
+                  (dep) =>
+                    showKeys ||
+                    !keys.some(
+                      (key) =>
+                        dep.lhs.map((lhs) => lhs.name).includes(key) ||
+                        dep.rhs.name === key
+                    )
+                )
+                .map((dep) => createColoredDep(dep, dependencyColors.slice(0)))}
               selectedAttributesLHS={selectedAttributesLHS}
               selectedAttributesRHS={selectedAttributesRHS}
             />

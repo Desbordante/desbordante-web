@@ -22,14 +22,17 @@ interface Props {
   selectedAttributesRHS: coloredAttribute[];
   file: File | null;
   taskId: string;
+  showKeys: boolean;
+  setShowKeys: (b: boolean) => void;
 }
 
 const DependencyListFull: React.FC<Props> = ({
   dependencies,
   selectedAttributesLHS,
   selectedAttributesRHS,
-  file,
   taskId,
+  showKeys,
+  setShowKeys,
 }) => {
   const [sortedDependencies, setSortedDependencies] = useState<
     coloredDepedency[]
@@ -119,6 +122,12 @@ const DependencyListFull: React.FC<Props> = ({
           defaultText="Filter dependencies"
           onChange={(str) => setSearchString(str)}
         />
+        <Toggle
+          toggleCondition={showKeys}
+          onClick={() => setShowKeys(!showKeys)}
+        >
+          Display keys
+        </Toggle>
       </div>
       <div className="dependency-list-wrapper">
         <div className="dependency-list">
