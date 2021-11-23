@@ -39,7 +39,7 @@ const FileForm: React.FC<Props> = ({
 }) => {
   // Allowed field values
   const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] = useState<
-    string[]
+  { datasetName : string, datasetSeparator : string } []
   >([]);
   const [allowedFileFormats, setAllowedFileFormats] = useState<string[]>([
     "text/csv",
@@ -72,7 +72,7 @@ const FileForm: React.FC<Props> = ({
       .then((data) => {
         setAllowedFileFormats(data.allowedFileFormats);
 
-        setAllowedBuiltinDatasets(data.availableDatasets);
+        setAllowedBuiltinDatasets(data.allowedBuiltinDatasets);
 
         setAllowedAlgorithms(data.algorithmsInfo);
         setAlgorithm(data.algorithmsInfo[0]);
@@ -134,6 +134,7 @@ const FileForm: React.FC<Props> = ({
         builtinDataset!,
         {
           algName: sendAlgName,
+          separator,
           errorPercent: sendErrorThreshold,
           maxLHS: sendMaxLHS,
           parallelism: threadsCount,
@@ -162,13 +163,14 @@ const FileForm: React.FC<Props> = ({
     <form>
       {isWindowShown && (
         <PopupWindow disable={() => setIsWindowShown(false)}>
-          {allowedBuiltinDatasets.map((datasetName) => (
+          {allowedBuiltinDatasets.map(({ datasetName, datasetSeparator }) => (
             <Toggle
               toggleCondition={builtinDataset === datasetName}
               onClick={() => {
                 setFile(null);
                 setBuiltinDataset(datasetName);
                 setIsWindowShown(false);
+                setSeparator(datasetSeparator);
               }}
               color="1"
               key={datasetName}

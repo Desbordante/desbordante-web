@@ -18,10 +18,9 @@ router.post('/chooseTask', function(req, res){
         console.log("Input data:", json);
 
         const { fileName } = req.body;
-        const { algName, errorPercent, parallelism, maxLHS } = json;
+        const { algName, errorPercent, parallelism, maxLHS, separator } = json;
        
         const hasHeader = true;
-        const separator = ',';
         const status = 'ADDED TO THE TASK QUEUE';
         const progress = 0.0;
 
