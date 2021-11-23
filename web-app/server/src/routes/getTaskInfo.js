@@ -44,7 +44,9 @@ router.get('/', function(req, res, next) {
                 pool.query(`select phaseName, progress, currentPhase, maxPhase, 
                             status, fileName, fds::json, arrayNameValue::json, 
                             renamedHeader::json as columnNames,
-                            PKColumnPositions::json, elapsedTime
+                            PKColumnPositions::json, elapsedTime,
+                            errorPercent, elapsedTime, maxLHS, parallelism, 
+                            trim(algName) as algName
                             from ${process.env.DB_TASKS_TABLE_NAME} 
                             where taskid = '${req.query.taskID}'`)
                 .then(result => { 
