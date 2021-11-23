@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
         { datasetName: "EpicMeds.csv",      datasetSeparator: "|" }, 
         { datasetName: "WDC_age.csv",       datasetSeparator: "," },
         { datasetName: "TestLong.csv",      datasetSeparator: "," },
-        { datasetName: "TestWide.csv",      datasetSeparator: "," },
+        { datasetName: "Workshop.csv",      datasetSeparator: "," },
         { datasetName: "breast_cancer.csv", datasetSeparator: "," }];
     const maxFileSize = 1e10;
     const algorithmsInfo = [
