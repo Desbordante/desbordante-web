@@ -2,7 +2,9 @@ const express = require("express");
 const router = new express.Router();
 
 router.post("/cancelTask", function(req, res) {
-  if (!req.query || !req.query.taskID) {return res.sendStatus(400);}
+  if (!req.query || !req.query.taskID) {
+    return res.sendStatus(400);
+  }
   try {
     const pool = req.app.get("pool");
     const query =
