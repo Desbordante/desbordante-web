@@ -1,7 +1,7 @@
 const express = require("express");
 const router = new express.Router();
 
-router.get("/", function(req, res) {
+router.get("/", (req, res) => {
   const allowedFileFormats = ["text/csv", "application/vnd.ms-excel"];
   const allowedAlgorithms = ["Pyro", "TaneX", "FastFDs", "FD mine", "DFD"];
   const allowedSeparators = [",", "\\t", "\\n", "|", ";"];
@@ -20,12 +20,10 @@ router.get("/", function(req, res) {
     { name: "DFD", props: { errorThreshold: false, maxLHS: false, threads: false } }
   ];
 
-  res.send(
-      JSON.stringify({
-        allowedFileFormats, allowedAlgorithms, algorithmsInfo,
-        allowedSeparators, allowedBuiltinDatasets, maxFileSize
-      })
-  );
+  res.json({
+    allowedFileFormats, allowedAlgorithms, algorithmsInfo,
+    allowedSeparators, allowedBuiltinDatasets, maxFileSize
+  });
 });
 
 module.exports = router;

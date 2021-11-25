@@ -139,6 +139,7 @@ const FileForm: React.FC<Props> = ({
           hasHeader,
           maxLHS: sendMaxLHS,
           parallelism: threadsCount,
+          isBuiltinDataset: true
         },
         handleResponse
       );
@@ -153,6 +154,7 @@ const FileForm: React.FC<Props> = ({
           hasHeader,
           maxLHS: sendMaxLHS,
           parallelism: threadsCount,
+          isBuiltinDataset: false
         },
         setUploadProgress,
         handleResponse

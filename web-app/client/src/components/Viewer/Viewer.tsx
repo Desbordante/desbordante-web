@@ -94,7 +94,7 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
   useEffect(() => {
     const fetchData = async () => {
       axios
-        .get(`${serverURL}/getTaskInfo?taskID=${taskID}`, { timeout: 2000 })
+        .get(`${serverURL}/getTaskInfo/${taskID}`, { timeout: 2000 })
         .then((task) => task.data)
         .then((data) => {
           console.log(data);

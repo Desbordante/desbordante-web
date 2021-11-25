@@ -41,7 +41,7 @@ const Snippet: React.FC<Props> = ({ taskId, selectedDependency }) => {
 
   useEffect(() => {
     axios
-      .get(serverURL + "/getSnippet?taskID=" + taskId)
+      .get(`${serverURL}/getSnippet/${taskId}`)
       .then((res) => setTable(res.data));
   }, []);
 
