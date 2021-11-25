@@ -6,11 +6,11 @@ router.get("/", function(req, res) {
   const allowedAlgorithms = ["Pyro", "TaneX", "FastFDs", "FD mine", "DFD"];
   const allowedSeparators = [",", "\\t", "\\n", "|", ";"];
   const allowedBuiltinDatasets = [
-    { datasetName: "EpicMeds.csv", datasetSeparator: "|" },
-    { datasetName: "WDC_age.csv", datasetSeparator: "," },
-    { datasetName: "TestLong.csv", datasetSeparator: "," },
-    { datasetName: "Workshop.csv", datasetSeparator: "," },
-    { datasetName: "breast_cancer.csv", datasetSeparator: "," }];
+    { datasetName: "EpicMeds.csv", datasetSeparator: "|", datasetHasHeader: true },
+    { datasetName: "WDC_age.csv", datasetSeparator: ",", datasetHasHeader: true },
+    { datasetName: "TestLong.csv", datasetSeparator: ",", datasetHasHeader: true },
+    { datasetName: "Workshop.csv", datasetSeparator: ",", datasetHasHeader: true },
+    { datasetName: "breast_cancer.csv", datasetSeparator: ",", datasetHasHeader: true }];
   const maxFileSize = 1e10;
   const algorithmsInfo = [
     { name: "Pyro", props: { errorThreshold: true, maxLHS: true, threads: true } },

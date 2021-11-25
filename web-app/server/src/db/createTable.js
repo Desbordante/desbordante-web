@@ -9,7 +9,7 @@ async function createTable(pool) {
     algName char(10) not null,
     errorPercent real not null CHECK (errorPercent >= 0 AND errorPercent <= 1),
     separator char(1) not null,
-    progress real not null CHECK (progress >= 0 AND progress <= 100),
+    progress real not null DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
     currentPhase int CHECK (currentPhase >= 1),
     maxPhase int CHECK (maxPhase >=1),
     phaseName text,
