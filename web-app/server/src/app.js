@@ -3,17 +3,11 @@ const createError = require("http-errors");
 const cors = require("cors");
 const configureApp = require("./db/configureApp");
 
-// Uploading files:
-// Simple Express middleware for uploading files
+// Express middleware for uploading files
 const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 
-// Routes
-const algsInfo = require("./routes/algsInfo");
-const getTaskInfo = require("./routes/getTaskInfo");
-const createTaskRouter = require("./routes/createTask");
-const cancelTaskRouter = require("./routes/cancelTask");
-const getSnippetRouter = require("./routes/getSnippet");
+const setEndpoints = require("./routes/endpoints");
 
 const app = express();
 
@@ -26,9 +20,6 @@ configureApp(app)
       throw err;
     });
 
-const jsonParser = express.json();
-
-// TODO
 app.use(cors());
 app.use(express.json());
 
@@ -38,18 +29,7 @@ app.use(fileUpload({
 }));
 
 app.use(morgan("dev"));
-
-// POST requests
-app.post("/createTask", jsonParser, createTaskRouter);
-app.post("/cancelTask", jsonParser, cancelTaskRouter);
-
-// GET requests
-app.use("/getTaskInfo", getTaskInfo);
-app.use("/algsInfo", algsInfo);
-app.use("/getSnippet", getSnippetRouter);
-app.use("/", (req, res) => {
-  res.send("Hello World! (root route)");
-});
+setEndpoints(app);
 
 // Catch 404 and forward to error handler
 app.use(function(req, res, next) {

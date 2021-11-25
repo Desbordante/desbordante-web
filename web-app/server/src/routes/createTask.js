@@ -6,18 +6,17 @@ const { v1: uuidv1 } = require("uuid");
 const sendEvent = require("../producer/sendEvent");
 
 router.post("/createTask", function(req, res) {
-  if (!req.body || !req.files) {
-    return res.sendStatus(400);
+  if (!req.body || !req.files || !req.files.document || !req.files.document.data) {
+    return res.status(400).send("INCORRECT INPUT DATA");
   }
-
+  const json = JSON.parse(req.files.document.data);
   const pool = req.app.get("pool");
   let csvTable;
   let fileName;
-  let isBuiltinDataset;
+  const { isBuiltinDataset } = json;
   try {
     if (!req.body.fileName) {
       console.debug("File Name not provided (=> not builtin dataset)");
-      isBuiltinDataset = false;
       csvTable = req.files.file;
       fileName = uuidv1() + ".csv";
       csvTable
@@ -29,7 +28,6 @@ router.post("/createTask", function(req, res) {
             throw err;
           });
     } else {
-      isBuiltinDataset = true;
       fileName = req.body.fileName;
     }
   } catch (err) {
@@ -39,7 +37,7 @@ router.post("/createTask", function(req, res) {
   }
 
   try {
-    const json = JSON.parse(req.files.document.data);
+    // const json = JSON.parse(req.files.document.data);
     console.debug("Input data:", json);
     if (!isBuiltinDataset) {
       console.debug("File:", csvTable);
