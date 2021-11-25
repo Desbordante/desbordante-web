@@ -1,12 +1,15 @@
-const express = require("express");
-const router = new express.Router();
 
-router.get("/", function(req, res, next) {
-  if (!req.query || !req.query.taskID) {return res.sendStatus(400);}
+const getTaskInfoHandler = (req, res, next) => {
+  // #swagger.tags = ['getTaskInfo']
+  // #swagger.description = 'Endpoint for getting task info.'
+  // #swagger.parameters['taskID'] = { description: 'Unique task identifier.' }
+  if (!req.params || !req.params.taskID) {
+    res.sendStatus(400);
+  }
   try {
     const pool = req.app.get("pool");
     const query = `select status, fileName from ${process.env.DB_TASKS_TABLE_NAME} 
-                   where taskid = '${req.query.taskID}' and "status" != 'CANCELLED'`;
+                   where taskid = '${req.params.taskID}' and "status" != 'CANCELLED'`;
     pool.query(query)
         .then((result) => {
           let selectedAttrs = [];
@@ -47,15 +50,19 @@ router.get("/", function(req, res, next) {
           }
           const query = `select ${selectedAttrs.join(", ")}
                          from ${process.env.DB_TASKS_TABLE_NAME}
-                         where taskid = '${req.query.taskID}'`;
+                         where taskid = '${req.params.taskID}'`;
           switch (res.statusCode) {
             case 200:
+              /* #swagger.responses[200] = {
+               schema: { $ref: "#/definitions/Task" },
+               description: 'Information about task.'
+              } */
               pool.query(query, (err, result) => {
                 if (err) {
                   console.error("Error executing query", err.stack);
                 } else {
                   const debugAnswer = JSON.parse(JSON.stringify(result.rows[0]));
-                  debugAnswer.taskID = req.query.taskID;
+                  debugAnswer.taskID = req.params.taskID;
                   if (debugAnswer.fds) {
                     debugAnswer.fdsCount = debugAnswer.fds.length;
                     delete debugAnswer.fds;
@@ -76,7 +83,7 @@ router.get("/", function(req, res, next) {
               break;
             case 500:
             default:
-              res.status(500).send("SERVER");
+              res.status(500).send("SERVER ERROR");
               break;
           }
         })
@@ -88,7 +95,6 @@ router.get("/", function(req, res, next) {
   catch (err) {
     throw new Error("Unexpected server behavior: " + err);
   }
-});
+};
 
-module.exports = router;
-
+module.exports=getTaskInfoHandler;
