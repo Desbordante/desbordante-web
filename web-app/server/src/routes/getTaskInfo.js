@@ -1,94 +1,80 @@
-var express = require('express');
-var router = express.Router();
+const express = require("express");
+const router = new express.Router();
 
-router.get('/', function(req, res, next) {
-    if(!req.query || !req.query.taskID) return res.sendStatus(400);
-    try{
-        const pool = req.app.get('pool')
-        var answer;
-        pool.query(`select status, fileName 
-                    from ${process.env.DB_TASKS_TABLE_NAME} 
-                    where taskid = '${req.query.taskID}' and "status" != 'CANCELLED'
-                   `)
-        .then(result => {
-            if (result.rows[0] === undefined) {
-                res.status(400).send("Invalid taskID");
-                return;
-            }
+router.get("/", function(req, res, next) {
+  if (!req.query || !req.query.taskID) {return res.sendStatus(400);}
+  try {
+    const pool = req.app.get("pool");
+    const query = `select status, fileName from ${process.env.DB_TASKS_TABLE_NAME} 
+                   where taskid = '${req.query.taskID}' and "status" != 'CANCELLED'`;
+    pool.query(query)
+        .then((result) => {
+          let selectedAttrs = [];
+          if (result.rows[0] === undefined) {
+            res.statusCode = 400;
+          } else {
             const status = result.rows[0].status;
-            if (status === 'SERVER ERROR') {
-                answer = JSON.stringify(result.rows[0]);
-                res.status(500).send(answer);
-                return;
+            switch (status) {
+              case "IN PROCESS":
+              case "ADDED TO THE TASK QUEUE":
+                selectedAttrs = [
+                  "phaseName", "progress", "fileName", "currentPhase", "maxPhase"
+                ];
+                res.statusCode = 200;
+                break;
+              case "COMPLETED":
+                selectedAttrs = [
+                  "phaseName", "progress", "currentPhase", "maxPhase",
+                  "status", "fileName", "fds::json", "arrayNameValue::json",
+                  "renamedHeader::json as columnNames",
+                  "PKColumnPositions::json, elapsedTime",
+                  "errorPercent", "elapsedTime", "maxLHS", "parallelism",
+                  "trim(algName) as algName"
+                ];
+                res.statusCode = 200;
+                break;
+              default:
+              case "SERVER ERROR":
+                console.log(`SERVER ERROR: ${result.rows[0]}`);
+                res.statusCode = 500;
+                break;
+              case "INCORRECT INPUT DATA":
+                selectedAttrs = ["status", "errorStatus", "fileName"];
+                res.statusCode = 400;
+                break;
             }
-            return status;
+          }
+          const query = `select ${selectedAttrs.join(", ")}
+                         from ${process.env.DB_TASKS_TABLE_NAME}
+                         where taskid = '${req.query.taskID}'`;
+          switch (res.statusCode) {
+            case 200:
+              pool.query(query, (err, result) => {
+                if (err) {
+                  console.error("Error executing query", err.stack);
+                } else {
+                  res.json(result.rows[0]);
+                }
+              });
+              break;
+            case 400:
+              res.status(400).send("INCORRECT INPUT DATA");
+              break;
+            case 500:
+            default:
+              res.status(500).send("SERVER");
+              break;
+          }
         })
-        .then(status => {
-            if (status === 'INCORRECT INPUT DATA') {
-                pool.query(`select status, errorStatus, fileName 
-                            from ${process.env.DB_TASKS_TABLE_NAME} 
-                            where taskid = '${req.query.taskID}'`)
-                .then(result => {
-                    answer = JSON.stringify(result.rows[0]);
-                    console.log(answer);
-                    res.status(400).send(answer); 
-                    return;
-                })
-                .catch(err => {
-                    answer = 'SERVER ERROR: ' + err;
-                    console.log(answer);
-                    res.status(500).send(answer);
-                    return;
-                });
-            } else if (status === 'COMPLETED') {
-                pool.query(`select phaseName, progress, currentPhase, maxPhase, 
-                            status, fileName, fds::json, arrayNameValue::json, 
-                            renamedHeader::json as columnNames,
-                            PKColumnPositions::json, elapsedTime,
-                            errorPercent, elapsedTime, maxLHS, parallelism, 
-                            trim(algName) as algName
-                            from ${process.env.DB_TASKS_TABLE_NAME} 
-                            where taskid = '${req.query.taskID}'`)
-                .then(result => { 
-                    answer = JSON.stringify(result.rows[0]);
-                    // console.log(answer);
-                    res.send(answer);
-                    return;
-                })
-                .catch(err => {
-                    answer = 'SERVER ERROR: ' + err;
-                    console.log(answer);
-                    res.status(500).send(answer);
-                    return;
-                });
-            } else if (status === 'IN PROCESS' || status === 'ADDED TO THE TASK QUEUE') {
-                console.log(status)
-                pool.query(`select phaseName, progress, fileName, currentPhase, maxPhase, 
-                            status from ${process.env.DB_TASKS_TABLE_NAME} 
-                            where taskid = '${req.query.taskID}'`)
-                .then(result => { 
-                    answer = JSON.stringify(result.rows[0]);
-                    console.log(answer);
-                    res.send(answer);
-                    return;
-                })
-                .catch(err => {
-                    answer = 'SERVER ERROR: ' + err;
-                    res.status(500).send(answer);
-                    console.log(answer);
-                    return;
-                });
-            }
-        })
-        .catch(err => {
-            answer = 'SERVER ERROR: ' + err;
-            console.log(answer);
-            res.status(500).send(answer);
-            return; 
-        })
-    } catch(err) {
-        throw ('Unexpected server behavior [getTaskInfo]: ' + err);
-    }
+        .catch((err) => {
+          console.debug(`SERVER ERROR [${err}]`);
+          res.status(500).send("SERVER ERROR");
+        });
+  }
+  catch (err) {
+    throw new Error("Unexpected server behavior [getTaskInfo]: " + err);
+  }
 });
 
 module.exports = router;
+
