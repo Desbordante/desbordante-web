@@ -67,7 +67,7 @@ const FileForm: React.FC<Props> = ({
   // Getting allowed field values from server
   useEffect(() => {
     axios
-      .get(`${serverURL}/algsInfo`, { timeout: 2000 })
+      .get(`${serverURL}/getAlgsInfo`, { timeout: 2000 })
       .then((res) => res.data)
       .then((data) => {
         setAllowedFileFormats(data.allowedFileFormats);

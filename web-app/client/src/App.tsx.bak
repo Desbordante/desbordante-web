@@ -62,7 +62,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       // console.log("UPDATE");
-      const task = await getData(`getTaskInfo?taskID=${taskID}`);
+      const task = await getData(`getTaskInfo/${taskID}`);
       // console.log(task);
       setTaskStatus(task.status);
       setTaskProgress(task.progress / 100);

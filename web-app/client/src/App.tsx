@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import "./App.scss";
 import React, { useState } from "react";
 import { Switch, BrowserRouter as Router, Route } from "react-router-dom";
