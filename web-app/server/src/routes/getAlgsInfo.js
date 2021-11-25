@@ -1,7 +1,4 @@
-const express = require("express");
-const router = new express.Router();
-
-router.get("/", (req, res) => {
+const getAlgsInfoHandler = (req, res) => {
   const allowedFileFormats = ["text/csv", "application/vnd.ms-excel"];
   const allowedAlgorithms = ["Pyro", "TaneX", "FastFDs", "FD mine", "DFD"];
   const allowedSeparators = [",", "\\t", "\\n", "|", ";"];
@@ -24,6 +21,6 @@ router.get("/", (req, res) => {
     allowedFileFormats, allowedAlgorithms, algorithmsInfo,
     allowedSeparators, allowedBuiltinDatasets, maxFileSize
   });
-});
+};
 
-module.exports = router;
+module.exports = getAlgsInfoHandler;

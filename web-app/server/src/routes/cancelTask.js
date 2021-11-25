@@ -1,7 +1,4 @@
-const express = require("express");
-const router = new express.Router();
-
-router.post("/cancelTask", function(req, res) {
+const cancelTaskHandler = (req, res) => {
   if (!req.query || !req.query.taskID) {
     return res.sendStatus(400);
   }
@@ -33,6 +30,6 @@ router.post("/cancelTask", function(req, res) {
   } catch (err) {
     res.status(500).send("Unexpected problem caught: " + err);
   }
-});
+};
 
-module.exports = router;
+module.exports = cancelTaskHandler;
