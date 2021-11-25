@@ -38,7 +38,7 @@ export function submitBuiltinDataset(
   data.append("fileName", dataset);
   data.append("document", blob);
 
-  axios.post(`${serverURL}/chooseTask`, data).then((response) => {
+  axios.post(`${serverURL}/createTask`, data).then((response) => {
     onComplete(response);
   });
 }
