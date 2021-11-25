@@ -7,7 +7,12 @@ import Dependency from "../Dependency/Dependency";
 import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";
 import Snippet from "../Snippet/Snippet";
-import { attribute, dependency, coloredDepedency, coloredAttribute } from "../../types";
+import {
+  attribute,
+  dependency,
+  coloredDepedency,
+  coloredAttribute,
+} from "../../types";
 
 type sortMethod = "Default" | "LHS" | "RHS";
 
@@ -16,50 +21,56 @@ interface Props {
   selectedAttributesLHS: coloredAttribute[];
   selectedAttributesRHS: coloredAttribute[];
   file: File | null;
+  taskId: string;
+  showKeys: boolean;
+  setShowKeys: (b: boolean) => void;
 }
 
 const DependencyListFull: React.FC<Props> = ({
   dependencies,
   selectedAttributesLHS,
   selectedAttributesRHS,
-  file,
+  taskId,
+  showKeys,
+  setShowKeys,
 }) => {
-  const [sortedDependencies, setSortedDependencies] = useState<coloredDepedency[]>(
-    []
-  );
+  const [sortedDependencies, setSortedDependencies] = useState<
+    coloredDepedency[]
+  >([]);
   const [chosenDependencyIndex, setChosenDependencyIndex] = useState(-1);
   const [sortBy, setSortBy] = useState<sortMethod>("Default");
   const [searchString, setSearchString] = useState("");
   const allowedSortMethods: sortMethod[] = ["Default", "LHS", "RHS"];
-  const [selectedDependency, setSelectedDependency] = useState<coloredDepedency>();
-
-
-
+  const [selectedDependency, setSelectedDependency] = useState<
+    coloredDepedency
+  >();
   // update displayed dependencies on search
   useEffect(() => {
+    const keywords = searchString.split(" ").filter((str) => str);
+
     const foundDependencies = (searchString !== ""
       ? dependencies.filter((dep) =>
-        searchString
-          .split(" ")
-          .filter((str) => str)
-          .every(
+          keywords.every(
             (elem) =>
-              dep.lhs.map((attr) => attr.name).includes(elem) ||
-              dep.rhs.name === elem
+              dep.lhs
+                .map((attr) => attr.name)
+                .some((attr) => attr.includes(elem)) || dep.rhs.name === elem
           )
-      )
+        )
       : [...dependencies]
     )
       // filter by chosen LHS
       .filter((dep) =>
         selectedAttributesLHS.length > 0
-          ? selectedAttributesLHS.some((attr) => dep.lhs.includes(attr))
+          ? selectedAttributesLHS.some((attr) =>
+              dep.lhs.map((attr) => attr.name).includes(attr.name)
+            )
           : true
       )
       // filter by chosen RHS
       .filter((dep) =>
         selectedAttributesRHS.length > 0
-          ? selectedAttributesRHS.some((attr) => dep.rhs === attr)
+          ? selectedAttributesRHS.some((attr) => dep.rhs.name === attr.name)
           : true
       );
 
@@ -111,6 +122,12 @@ const DependencyListFull: React.FC<Props> = ({
           defaultText="Filter dependencies"
           onChange={(str) => setSearchString(str)}
         />
+        <Toggle
+          toggleCondition={showKeys}
+          onClick={() => setShowKeys(!showKeys)}
+        >
+          Display keys
+        </Toggle>
       </div>
       <div className="dependency-list-wrapper">
         <div className="dependency-list">
@@ -120,16 +137,16 @@ const DependencyListFull: React.FC<Props> = ({
                 dep={dep}
                 key={index}
                 onClick={() => {
-                  setChosenDependencyIndex(index)
-                  setSelectedDependency(dep)
+                  setChosenDependencyIndex(index);
+                  setSelectedDependency(dep);
                 }}
                 isActive={index == chosenDependencyIndex}
               />
-            )
+            );
           })}
         </div>
         <div className="snippet">
-          <Snippet file={file} selectedDependency={selectedDependency} />
+          <Snippet taskId={taskId} selectedDependency={selectedDependency} />
         </div>
       </div>
     </div>

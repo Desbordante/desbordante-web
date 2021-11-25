@@ -8,6 +8,7 @@
 #include <vector>
 #include <chrono>
 #include <thread>
+#include <future>
 
 #include <boost/program_options.hpp>
 
@@ -53,47 +54,94 @@ void TaskConsumer::processMsg(nlohmann::json payload,
     }
 }
 
+std::vector<std::string> generateRenamedColumns(std::vector<std::string> const &colNames, 
+                                                bool hasHeader) {
+    std::vector<std::string> renamedColNames;
+    if (hasHeader) {
+        for (auto colName : colNames) {
+            if (colName[0] == '\"' && colName[colName.size()-1] == '\"') {
+                colName = std::string(colName.begin() + 1, colName.end() - 1);
+            }
+            colName.erase(
+                colName.begin(), 
+                std::find_if(colName.begin(), colName.end(), 
+                             [](unsigned char ch) { return !std::isspace(ch); })
+            );
+            if (colName.size() == 0) {
+                colName = "empty";
+            }
+            TaskConfig::prepareString(colName);
+            renamedColNames.push_back(colName);
+        }
+        // Vector contains information about how many times the given name occurs
+        // (filling goes in ascending order of indices)
+        // For example: { "col1", "col1", "col2", "col1", "col2"} 
+        //           -> { 0,      1,      0,      2,      1     }
+        std::vector<size_t> numberOfOccurrences(renamedColNames.size(), 0);
+        for (size_t i = 1; i < renamedColNames.size(); ++i) {
+            auto lastOccurenceIt = std::find(
+                renamedColNames.rbegin() + (renamedColNames.size() - i),
+                renamedColNames.rend(),
+                renamedColNames[i]
+            );
+            if (lastOccurenceIt == renamedColNames.rend()) {
+                continue;
+            } else {
+                size_t idx = renamedColNames.rend() - lastOccurenceIt - 1;
+                numberOfOccurrences[i] = numberOfOccurrences[idx] + 1;
+            }
+        }
+        for (size_t i = 1; i < renamedColNames.size(); ++i) {
+            if (numberOfOccurrences[i] != 0) {
+                renamedColNames[i] += "_" + std::to_string(numberOfOccurrences[i]);
+            }
+        }
+    } else {
+        for (size_t i = 0; i != colNames.size(); ++i) {
+            renamedColNames.push_back(std::string("Attr " + std::to_string(i)));
+        }
+    }
+    return renamedColNames;
+}
+
 void TaskConsumer::processTask(TaskConfig const& task, 
                                DBManager const& manager) const {
-    std::vector<std::string> algsWithProgressBar {
-        "FastFDs", "DFD", "Pyro", "TaneX"
-    };
-
-    auto algName = task.getAlgName();
+    auto algName     = task.getAlgName();
     auto datasetPath = task.getDatasetPath();
-    auto separator = task.getSeparator();
-    auto hasHeader = task.getHasHeader();
-    auto error = task.getErrorPercent();
-    auto maxLHS = task.getMaxLHS();
-    
-    auto seed = 0;
-    unsigned int parallelism = task.getParallelism();
+    auto separator   = task.getSeparator();
+    auto hasHeader   = task.getHasHeader();
+    auto seed        = 0;
+    auto error       = task.getErrorPercent();
+    auto maxLhs      = task.getMaxLhs();
+    auto parallelism = task.getParallelism();
 
     el::Loggers::configureFromGlobal("logging.conf");
     
-    std::unique_ptr<FDAlgorithm> algorithmInstance;
+    std::unique_ptr<FDAlgorithm> algInstance;
 
     std::cout << "Input: algorithm \"" << algName
               << "\" with seed " << std::to_string(seed)
               << ", error \"" << std::to_string(error)
-              << ", maxLHS \"" << std::to_string(maxLHS)
+              << ", maxLhs \"" << std::to_string(maxLhs)
               << "\" and dataset \"" << datasetPath
               << "\" with separator \'" << separator
               << "\'. Header is " << (hasHeader ? "" : "not ") << "present. " 
               << std::endl;
 
     if (algName == "Pyro") {
-        algorithmInstance = std::make_unique<Pyro>(datasetPath, separator, 
-                            hasHeader, seed, error, maxLHS, parallelism);
+        algInstance = std::make_unique<Pyro>(datasetPath, separator, hasHeader, 
+                                             seed, error, maxLhs, parallelism);
     } else if (algName == "TaneX") {
-        algorithmInstance = std::make_unique<Tane>(datasetPath, separator, 
-                            hasHeader, error, maxLHS);
+        algInstance = std::make_unique<Tane>(datasetPath, separator, hasHeader, 
+                                             error, maxLhs);
     } else if (algName == "FastFDs") {
-        algorithmInstance = std::make_unique<FastFDs>(datasetPath, separator, hasHeader);
+        algInstance = std::make_unique<FastFDs>(datasetPath, separator, hasHeader,
+                                                maxLhs, parallelism);
     } else if (algName == "FD mine") {
-        algorithmInstance = std::make_unique<Fd_mine>(datasetPath, separator, hasHeader);
+        algInstance = std::make_unique<Fd_mine>(datasetPath, separator, hasHeader);
     } else if (algName == "DFD") {
-        algorithmInstance = std::make_unique<DFD>(datasetPath, separator, hasHeader);
+        algInstance = std::make_unique<DFD>(datasetPath, separator, hasHeader,
+                                            parallelism);
     }
 
     try {
@@ -101,34 +149,54 @@ void TaskConsumer::processTask(TaskConfig const& task,
         
         unsigned long long elapsedTime;
 
-        const auto& phaseNames = algorithmInstance->getPhaseNames();
+        const auto& phaseNames = algInstance->getPhaseNames();
         auto maxPhase = phaseNames.size();
         task.setMaxPhase(manager, maxPhase);
         task.updateProgress(manager, 0, phaseNames[0].data(), 1);
-        if (std::find(algsWithProgressBar.begin(), algsWithProgressBar.end(), algName)
-            != algsWithProgressBar.end()) {
-            std::thread progress_listener([&task, &manager, &algorithmInstance, 
-                                           &phaseNames, &maxPhase] {
-                auto [cur_phase, phaseProgress] = algorithmInstance->getProgress();
-                while(!(cur_phase == maxPhase-1 && phaseProgress == 100)) {
-                    std::tie(cur_phase, phaseProgress) = algorithmInstance->getProgress();
-                    task.updateProgress(manager, phaseProgress, 
-                                        phaseNames[cur_phase].data(), cur_phase + 1);
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                }
-            });
-            elapsedTime = algorithmInstance->execute();
-            progress_listener.join();
-        } else {
-            elapsedTime = algorithmInstance->execute();
-            task.updateProgress(manager, 100);
-        }
 
-        task.setElapsedTime(manager, elapsedTime);
-        task.updateJsonFDs(manager, algorithmInstance->getJsonFDs(false));
-        task.updateJsonArrayNameValue(manager, algorithmInstance->getJsonArrayNameValue());
-        task.updateJsonColumnNames(manager, algorithmInstance->getJsonColumnNames());
-        task.updateStatus(manager, "COMPLETED");
+        auto executionThread = std::async(
+            std::launch::async,
+            [&elapsedTime, &algInstance]() -> void {
+                elapsedTime = algInstance->execute();
+            }
+        );
+        std::future_status status;
+        do {
+            status = executionThread.wait_for(std::chrono::seconds(0));
+
+            if (status == std::future_status::ready) {
+                std::cout << "Algorithm was executed" << std::endl;
+                task.updateProgress(manager, 100, phaseNames[maxPhase-1].data(), maxPhase);
+            } else if (status == std::future_status::timeout) {
+                if (TaskConfig::isTaskCancelled(manager, task.getTaskID())) {
+                    std::cout << "Task with ID = " << task.getTaskID() 
+                              << " was cancelled." << std::endl;
+                    break;
+                }
+                auto [cur_phase, phaseProgress] = algInstance->getProgress();
+                task.updateProgress(manager, phaseProgress, 
+                                    phaseNames[cur_phase].data(), cur_phase + 1);
+            } else {
+                throw std::runtime_error("Main thread: unknown future_status");
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        } while (status != std::future_status::ready);
+
+        if (!TaskConfig::isTaskCancelled(manager, task.getTaskID())) {
+            task.setElapsedTime(manager, elapsedTime);
+            auto renamedColumns = generateRenamedColumns(algInstance->getColumnNames(),
+                                                         hasHeader);
+            task.updateRenamedHeader(manager, renamedColumns);
+            auto PKColumnPositions = algInstance->getPKColumnPositions(
+                                                  CSVParser(datasetPath, separator, hasHeader));
+            task.updatePKColumnPositions(manager, PKColumnPositions);
+            task.updateJsonFDs(manager, algInstance->getJsonFDs(false));
+            task.updateJsonArrayNameValue(manager,
+                                          algInstance->getJsonArrayNameValue(renamedColumns));
+            task.updateStatus(manager, "COMPLETED");
+        } else {
+            task.updateStatus(manager, "CANCELLED");
+        }
         return;
     } catch (std::runtime_error& e) {
         std::cout << e.what() << std::endl;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios, { AxiosResponse } from "axios";
 import { useHistory } from "react-router-dom";
 
@@ -16,7 +16,6 @@ import {
   submitBuiltinDataset,
 } from "../../APIFunctions";
 import { algorithm } from "../../types";
-import { DelimeterContext } from "../DelimeterContext/DelimeterContext";
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable max-len */
@@ -40,21 +39,20 @@ const FileForm: React.FC<Props> = ({
 }) => {
   // Allowed field values
   const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] = useState<
-    string[]
+  { datasetName : string, datasetSeparator : string } []
   >([]);
   const [allowedFileFormats, setAllowedFileFormats] = useState<string[]>([
     "text/csv",
     "application/vnd.ms-excel",
   ]);
-  const [allowedSeparators, setAllowedSeparators] = useState<string[]>([]);
+  const [allowedSeparators, setAllowedSeparators] = useState<string[]>([","]);
   const [allowedAlgorithms, setAllowedAlgorithms] = useState<algorithm[]>([]);
-  const [maxfilesize, setMaxFileSize] = useState(5e7);
+  const [maxfilesize, setMaxFileSize] = useState(1e9);
 
   // Parameters, later sent to the server on execution as JSON
 
   const [hasHeader, setHasHeader] = useState(true);
-  // const [separator, setSeparator] = useState("");
-  const delimeterContext = useContext(DelimeterContext);
+  const [separator, setSeparator] = useState(",");
   const [algorithm, setAlgorithm] = useState<algorithm | null>(null);
   const [errorThreshold, setErrorThreshold] = useState<string>("0.05");
   const [maxLHSAttributes, setMaxLHSAttributes] = useState<string>("5");
@@ -74,14 +72,13 @@ const FileForm: React.FC<Props> = ({
       .then((data) => {
         setAllowedFileFormats(data.allowedFileFormats);
 
-        setAllowedBuiltinDatasets(data.availableDatasets);
+        setAllowedBuiltinDatasets(data.allowedBuiltinDatasets);
 
         setAllowedAlgorithms(data.algorithmsInfo);
         setAlgorithm(data.algorithmsInfo[0]);
 
         setAllowedSeparators(data.allowedSeparators);
-        // setSeparator(data.allowedSeparators[0]);
-        delimeterContext?.setDelimeter(data.allowedSeparators[0]);
+        setSeparator(data.allowedSeparators[0]);
 
         setMaxFileSize(data.maxFileSize);
       })
@@ -121,7 +118,7 @@ const FileForm: React.FC<Props> = ({
         (fileExistenceValidator(file) &&
           fileSizeValidator(file) &&
           fileFormatValidator(file))) &&
-      separatorValidator(delimeterContext?.delimeter!) &&
+      separatorValidator(separator) &&
       errorValidator(errorThreshold) &&
       maxLHSValidator(maxLHSAttributes)
     );
@@ -137,6 +134,7 @@ const FileForm: React.FC<Props> = ({
         builtinDataset!,
         {
           algName: sendAlgName,
+          separator,
           errorPercent: sendErrorThreshold,
           maxLHS: sendMaxLHS,
           parallelism: threadsCount,
@@ -149,7 +147,7 @@ const FileForm: React.FC<Props> = ({
         file as File,
         {
           algName: sendAlgName,
-          separator: delimeterContext?.delimeter,
+          separator,
           errorPercent: sendErrorThreshold,
           hasHeader,
           maxLHS: sendMaxLHS,
@@ -165,13 +163,14 @@ const FileForm: React.FC<Props> = ({
     <form>
       {isWindowShown && (
         <PopupWindow disable={() => setIsWindowShown(false)}>
-          {allowedBuiltinDatasets.map((datasetName) => (
+          {allowedBuiltinDatasets.map(({ datasetName, datasetSeparator }) => (
             <Toggle
               toggleCondition={builtinDataset === datasetName}
               onClick={() => {
                 setFile(null);
                 setBuiltinDataset(datasetName);
                 setIsWindowShown(false);
+                setSeparator(datasetSeparator);
               }}
               color="1"
               key={datasetName}
@@ -206,8 +205,8 @@ const FileForm: React.FC<Props> = ({
             </Toggle>
             <h3>separator</h3>
             <Value
-              value={delimeterContext?.delimeter!!}
-              onChange={delimeterContext?.setDelimeter!!}
+              value={separator}
+              onChange={setSeparator}
               size={2}
               inputValidator={separatorValidator}
             />
@@ -217,13 +216,13 @@ const FileForm: React.FC<Props> = ({
             <Value
               value={errorThreshold}
               onChange={setErrorThreshold}
-              size={4}
+              size={8}
               inputValidator={errorValidator}
             />
             <Slider
               value={errorThreshold}
               onChange={setErrorThreshold}
-              step={0.001}
+              step={1e-6}
               exponential
             />
           </FormItem>

@@ -4,6 +4,10 @@ file(GLOB_RECURSE lib_sources "*/*.h*" "*/*.cpp*" "*/*.cc*")
 
 add_library(${BINARY}_consumer_libs STATIC ${lib_sources})
 
+if (SAFE_VERTICAL_HASHING)
+    target_compile_definitions(${BINARY}_consumer_libs PUBLIC SAFE_VERTICAL_HASHING)
+endif(SAFE_VERTICAL_HASHING)
+
 set(run_sources "main.cpp")
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

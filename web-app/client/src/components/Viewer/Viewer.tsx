@@ -10,6 +10,7 @@ import {
   useHistory,
 } from "react-router-dom";
 import axios from "axios";
+import hslToHex from "hsl-to-hex";
 
 import "./Viewer.scss";
 import PieChartFull from "../PieChartFull/PieChartFull";
@@ -54,41 +55,38 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
   >([]);
 
   const [dependencies, setDependencies] = useState<dependency[]>([]);
+  const dependencyColors = [...Array(10)].map((_, index) =>
+    hslToHex((360 / 9) * index, 40, 45)
+  );
+  const [keys, setKeys] = useState<string[]>([]);
+  const [showKeys, setShowKeys] = useState(true);
 
-  const dependencyColors: string[] = [
-    "#ff5757",
-    "#575fff",
-    "#4de3a2",
-    "#edc645",
-    "#d159de",
-    "#32bbc2",
-    "#ffa857",
-    "#8dd44a",
-    "#6298d1",
-    "#969696",
-  ]
+  console.log(keys);
 
-  function createColoredDep(dep: dependency, colorsBuffer: string[]): coloredDepedency {
+  function createColoredDep(
+    dep: dependency,
+    colorsBuffer: string[]
+  ): coloredDepedency {
     return {
       lhs: dep.lhs.map((attr) => ({
         name: attr.name,
         value: attr.value,
-        color: pickRandomColor(colorsBuffer)
+        color: pickRandomColor(colorsBuffer),
       })),
       rhs: {
         name: dep.rhs.name,
         value: dep.rhs.value,
-        color: pickRandomColor(colorsBuffer)
-      }
-    }
+        color: pickRandomColor(colorsBuffer),
+      },
+    };
   }
 
   const pickRandomColor = (colors: string[]) => {
     const pickedIndex = Math.floor(Math.random() * colors.length);
     const pickedElement = colors[pickedIndex];
-    colors.splice(pickedIndex, 1)
+    colors.splice(pickedIndex, 1);
     return pickedElement;
-  }
+  };
 
   const taskFinished = (status: taskStatus) =>
     status === "COMPLETED" || status === "SERVER ERROR";
@@ -107,6 +105,11 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
           setMaxPhase(data.maxphase);
           setTaskStatus(data.status);
           if (taskFinished(data.status)) {
+            setKeys(
+              data.pkcolumnpositions.map(
+                (pos: number) => data.arraynamevalue.lhs[pos].name
+              )
+            );
             setAttributesLHS(data.arraynamevalue.lhs);
             setAttributesRHS(data.arraynamevalue.rhs);
             setDependencies(
@@ -163,7 +166,7 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
           maxPhase={maxPhase}
           phaseName={phaseName}
           progress={taskProgress}
-        ></Phasename>
+        />
       </div>
       <Router>
         {/* <Switch> */}
@@ -195,7 +198,7 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
             <footer style={{ opacity: taskFinished(taskStatus) ? 1 : 0 }}>
               <h1 className="bottom-title">View Dependencies</h1>
               <Link to={`/deps/${taskID}`}>
-                <Button color="0" onClick={() => { }}>
+                <Button color="0" onClick={() => {}}>
                   <img src="/icons/nav-down.svg" alt="down" />
                 </Button>
               </Link>
@@ -205,10 +208,21 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
         <Route path={`/deps/${taskID}`}>
           <div className="bg-light" style={{ justifyContent: "space-between" }}>
             <DependencyListFull
+              taskId={taskID}
               file={file}
-              dependencies={dependencies.map((dep) => {
-                return createColoredDep(dep, dependencyColors.slice(0))
-              })}
+              setShowKeys={setShowKeys}
+              showKeys={showKeys}
+              dependencies={dependencies
+                .filter(
+                  (dep) =>
+                    showKeys ||
+                    !keys.some(
+                      (key) =>
+                        dep.lhs.map((lhs) => lhs.name).includes(key) ||
+                        dep.rhs.name === key
+                    )
+                )
+                .map((dep) => createColoredDep(dep, dependencyColors.slice(0)))}
               selectedAttributesLHS={selectedAttributesLHS}
               selectedAttributesRHS={selectedAttributesRHS}
             />
@@ -220,7 +234,7 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
                 View Attributes
               </h1>
               <Link to={`/attrs/${taskID}`}>
-                <Button color="0" onClick={() => { }}>
+                <Button color="0" onClick={() => {}}>
                   <img src="/icons/nav-up.svg" alt="up" />
                 </Button>
               </Link>

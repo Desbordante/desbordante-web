@@ -10,13 +10,13 @@ EOF
 }
 
 PREFIX=""
-POSTFIX="-DCMAKE_BUILD_TYPE=RELEASE"
+POSTFIX="-DCMAKE_BUILD_TYPE=RELEASE -DSAFE_VERTICAL_HASHING=ON"
 
 for i in "$@"
     do
     case $i in
         -c|--consumer) # Enable consumer compile
-            PREFIX="-D ENABLE_CONSUMER_COMPILE=ON"
+            PREFIX="-D ENABLE_CONSUMER_COMPILE=ON "
             ;;
         -h|--help|*) # Display help.
             usage

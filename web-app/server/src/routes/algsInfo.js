@@ -5,9 +5,13 @@ router.get('/', function(req, res, next) {
     const allowedFileFormats = ["text/csv", "application/vnd.ms-excel"]
     const allowedAlgorithms = ["Pyro", "TaneX", "FastFDs", "FD mine", "DFD"];
     const allowedSeparators = [",", "\\t", "\\n", "|", ";"];
-    // TODO: Choose more suitable datasets
-    const availableDatasets = ["BernoulliRelation.csv", "WDC_age.csv", "TestLong.csv", "TestWide.csv", "WDC_game.csv"];
-    const maxFileSize = 50000000;
+    const allowedBuiltinDatasets = [
+        { datasetName: "EpicMeds.csv",      datasetSeparator: "|" }, 
+        { datasetName: "WDC_age.csv",       datasetSeparator: "," },
+        { datasetName: "TestLong.csv",      datasetSeparator: "," },
+        { datasetName: "Workshop.csv",      datasetSeparator: "," },
+        { datasetName: "breast_cancer.csv", datasetSeparator: "," }];
+    const maxFileSize = 1e10;
     const algorithmsInfo = [
         { name: "Pyro",     props: { errorThreshold: true,  maxLHS: true,   threads: true  } },
         { name: "TaneX",    props: { errorThreshold: true,  maxLHS: true,   threads: false } },
@@ -16,7 +20,7 @@ router.get('/', function(req, res, next) {
         { name: "DFD",      props: { errorThreshold: false, maxLHS: false,  threads: false } }
      ]
    
-    res.send(JSON.stringify({ allowedFileFormats, allowedAlgorithms, algorithmsInfo, allowedSeparators, availableDatasets, maxFileSize }));
+    res.send(JSON.stringify({ allowedFileFormats, allowedAlgorithms, algorithmsInfo, allowedSeparators, allowedBuiltinDatasets, maxFileSize }));
 });
 
 module.exports = router;

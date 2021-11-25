@@ -18,31 +18,16 @@ const Slider: React.FC<Props> = ({
   min = 0,
   max = 1,
   step = 0.005,
-  exponential = false,
-}) => {
-  const exp = Math.log(10) / Math.log(2);
-  const linearToExp = (numberLinear: number) => numberLinear ** (1 / exp);
-  const expToLinear = (numberExp: number) => numberExp ** exp;
-  const stepFunction = (x: number) => step * Math.floor(x / step);
-
-  const changeHandler = (str: string) => {
-    let newValue = exponential ? expToLinear(+str) : +str;
-    newValue = stepFunction(newValue);
-
-    onChange(newValue.toString());
-  };
-
-  return (
-    <input
-      type="range"
-      min={exponential ? linearToExp(min) : min}
-      max={exponential ? linearToExp(max) : max}
-      value={exponential ? linearToExp(+value) : +value}
-      step={step}
-      className="slider"
-      onChange={(e) => changeHandler(e.target.value)}
-    />
-  );
-};
+}) => (
+  <input
+    type="range"
+    min={min}
+    max={max}
+    value={value}
+    step={step}
+    className="slider"
+    onChange={(e) => onChange(e.target.value)}
+  />
+);
 
 export default Slider;

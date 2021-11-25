@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
-import React, { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { coloredDepedency } from "../../types";
-import { DelimeterContext } from "../DelimeterContext/DelimeterContext";
-import "./Snippet.css";
+import "./Snippet.scss";
+
+import { serverURL } from "../../APIFunctions";
 
 interface Props {
-  file: File | null;
+  taskId: string;
   selectedDependency: coloredDepedency | undefined;
 }
 
@@ -17,12 +19,16 @@ const MAX_LENGTH = 100;
 const DISTANCE_BETWEEN_CELLS = 1;
 
 // eslint-disable-next-line max-len
-function getSelectedIndices(dep: coloredDepedency | undefined, header: string[]): Map<number, string> {
+function getSelectedIndices(
+  dep: coloredDepedency | undefined,
+  header: string[]
+): Map<number, string> {
   const selectedIndices = new Map<number, string>();
   if (dep === undefined) {
     return selectedIndices;
   }
-  dep.lhs.forEach((lhs) => selectedIndices.set(header.indexOf(lhs.name), lhs.color));
+  dep.lhs.forEach((lhs) =>
+    selectedIndices.set(header.indexOf(lhs.name), lhs.color));
   selectedIndices.set(header.indexOf(dep.rhs.name), dep.rhs.color);
   return selectedIndices;
 }
@@ -84,20 +90,17 @@ function convertCSVToArray(inputData: string, delimiter: string) {
   return arrData;
 }
 
-const Snippet: React.FC<Props> = ({ file, selectedDependency }) => {
+const Snippet: React.FC<Props> = ({ taskId, selectedDependency }) => {
   const [table, setTable] = useState<string[][]>([[]]);
-  const selectedIndices: Map<number, string> = getSelectedIndices(selectedDependency, table[0]);
-  const delimeterContext = useContext(DelimeterContext);
+  const selectedIndices: Map<number, string> = getSelectedIndices(
+    selectedDependency,
+    table[0]
+  );
 
   useEffect(() => {
-    function readFile() {
-      file!.text().then((buffer) =>
-        setTable(convertCSVToArray(buffer, delimeterContext?.delimeter!)));
-    }
-
-    if (file !== null) {
-      readFile();
-    }
+    axios
+      .get(serverURL + "/getSnippet?taskID=" + taskId)
+      .then((res) => setTable(res.data));
   }, []);
 
   return (

@@ -1,10 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 
-// Pool init
-const pool = require('./db/createPool');
-const createTable = require('./db/createTable');
-const dropTableTasks = require('./db/dropTable');
+const configureApp = require('./db/configureApp');
 
 // Uploading files:
 const fileUpload = require('express-fileupload'); // Simple Express middleware for uploading files
@@ -16,17 +13,19 @@ var getTaskInfo = require('./routes/getTaskInfo');
 var chooseTaskRouter = require('./routes/chooseTask');
 var createTaskRouter = require('./routes/createTask');
 var cancelTaskRouter = require('./routes/cancelTask');
+var getSnippetRouter = require('./routes/getSnippet');
 
-// Configuring DB
-dropTableTasks(pool)
-.then(res => createTable(pool))
+const app = express();
+
+configureApp(app)
+.then(res => {
+  console.log("Application was configured succesfully");
+})
 .catch(err => {
-  console.log("[Error]: DB configuration incompleted")
-  throw err;
+  console.log("Error while configuring the application");
+  process.exit(-1);
 })
 
-const app = express()
-app.set('pool', pool);
 const jsonParser = express.json();
 
 app.use(cors());
@@ -47,6 +46,7 @@ app.post('/cancelTask', jsonParser, cancelTaskRouter);
 // GET requests
 app.use('/getTaskInfo', getTaskInfo)
 app.use('/algsInfo', algsInfo);
+app.use('/getSnippet', getSnippetRouter);
 app.use('/', (req, res) => {
   res.send('Hello World! (root route)')
 });

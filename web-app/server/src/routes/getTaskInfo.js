@@ -8,7 +8,8 @@ router.get('/', function(req, res, next) {
         var answer;
         pool.query(`select status, fileName 
                     from ${process.env.DB_TASKS_TABLE_NAME} 
-                    where taskid = '${req.query.taskID}'`)
+                    where taskid = '${req.query.taskID}' and "status" != 'CANCELLED'
+                   `)
         .then(result => {
             if (result.rows[0] === undefined) {
                 res.status(400).send("Invalid taskID");
@@ -40,13 +41,17 @@ router.get('/', function(req, res, next) {
                     return;
                 });
             } else if (status === 'COMPLETED') {
-                pool.query(`select phaseName, progress, currentPhase, maxPhase, status, fileName, 
-                            fds::json, arrayNameValue::json, columnNames::json, elapsedTime 
+                pool.query(`select phaseName, progress, currentPhase, maxPhase, 
+                            status, fileName, fds::json, arrayNameValue::json, 
+                            renamedHeader::json as columnNames,
+                            PKColumnPositions::json, elapsedTime,
+                            errorPercent, elapsedTime, maxLHS, parallelism, 
+                            trim(algName) as algName
                             from ${process.env.DB_TASKS_TABLE_NAME} 
                             where taskid = '${req.query.taskID}'`)
                 .then(result => { 
                     answer = JSON.stringify(result.rows[0]);
-                    console.log(answer);
+                    // console.log(answer);
                     res.send(answer);
                     return;
                 })
