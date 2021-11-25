@@ -19,7 +19,7 @@ const app = express();
 
 configureApp(app)
     .then(() => {
-      console.debug("Application was configured succesfully");
+      console.debug("Application was configured successfully");
     })
     .catch((err) => {
       console.log(`Error while configuring the application ${err}`);
