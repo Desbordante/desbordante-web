@@ -14,11 +14,18 @@
     "express-fileupload": "^1.2.1",
     "fast-csv": "^4.3.6",
     "morgan": "^1.10.0",
+    "node": "^17.1.0",
     "pg": "^8.6.0",
     "pgtools": "^0.3.2",
+    "swagger": "^0.7.5",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "eslint": "^8.3.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "http-errors": "^1.8.1",
     "node-rdkafka": "^2.10.1",
     "nodemon": "^2.0.12"
   }
