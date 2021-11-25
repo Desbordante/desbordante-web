@@ -1,43 +1,46 @@
 async function createTable(pool) {
-    console.log(`Creating table(-es) in DB '${process.env.DB_TASKS_TABLE_NAME}'`)
+  console.log(`Creating table(-es) in DB '${process.env.DB_TASKS_TABLE_NAME}'`);
+  const tableName = process.env.DB_TASKS_TABLE_NAME;
 
-    // status -- ADDED TO THE TASK QUEUE/IN PROCESS/COMPLETED
-    //           /INCORRECT INPUT DATA/SERVER ERROR/CANCELLED
-    return pool.query(
-        `CREATE TABLE IF NOT EXISTS ${process.env.DB_TASKS_TABLE_NAME}(\n
-        taskID char(40) not null primary key,\n
-        createdAt timestamp not null,\n
-        algName char(10) not null,\n 
-        errorPercent real not null,\n
-        separator char(1) not null,\n
-        progress real not null,\n
-        currentPhase int,\n
-        maxPhase int,\n
-        phaseName text,\n
-        elapsedTime bigint CHECK (elapsedTime >= 0),\n
-        status varchar(30) not null,\n
-        errorStatus text,\n
-        datasetPath text not null,\n
-        fileName text not null,
-        FDs text,\n
-        hasHeader bool not null,\n
-        renamedHeader text,\n
-        PKColumnPositions text,\n
-        maxLHS int not null,\n
-        parallelism int not null,\n
-        cancelled bool not null,\n
-        arrayNameValue text)
-        `
-    )
-    .then(async(res) => {
-        if (res !== undefined) 
-            console.log(`Table '${process.env.DB_TASKS_TABLE_NAME}' was successfully created.`)
+  const query = `
+    CREATE TABLE IF NOT EXISTS ${tableName} (
+    taskID char(40) not null primary key,
+    createdAt timestamp not null,
+    algName char(10) not null,
+    errorPercent real not null CHECK (errorPercent >= 0 AND errorPercent <= 1),
+    separator char(1) not null,
+    progress real not null CHECK (progress >= 0 AND progress <= 100),
+    currentPhase int CHECK (currentPhase >= 1),
+    maxPhase int CHECK (maxPhase >=1),
+    phaseName text,
+    elapsedTime bigint CHECK (elapsedTime >= 0),
+    status varchar(30) not null 
+    CHECK (
+        status in ('ADDED TO THE TASK QUEUE', 'IN PROCESS', 'COMPLETED',
+                   'INCORRECT INPUT DATA', 'SERVER ERROR', 'CANCELLED')
+    ),
+    errorStatus text,
+    datasetPath text not null,
+    fileName text not null,
+    FDs text,
+    hasHeader bool not null,
+    renamedHeader text,
+    PKColumnPositions text,
+    maxLHS int not null,
+    parallelism int not null,
+    cancelled bool not null,
+    arrayNameValue text)
+  `;
+  return pool
+      .query(query)
+      .then(async (res) => {
+        if (res !== undefined) {
+          console.log(`Table '${tableName}' was successfully created.`);
         }
-    )
-    .catch(async(err) => {
-        console.log('Error with table creation')
-        throw err
-    })
+      }).catch(async (err) => {
+        console.log("Error with table creation");
+        throw err;
+      });
 }
 
 module.exports = createTable;
