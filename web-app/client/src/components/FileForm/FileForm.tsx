@@ -32,7 +32,7 @@ interface Props {
 
 const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
   const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] = useState<
-    { datasetName: string; datasetSeparator: string }[]
+  { datasetName : string, datasetSeparator : string, datasetHasHeader : boolean } []
   >([]);
   const [allowedFileFormats, setAllowedFileFormats] = useState<string[]>([
     "text/csv",
@@ -126,6 +126,7 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
           algName: sendAlgName,
           separator,
           errorPercent: sendErrorThreshold,
+          hasHeader,
           maxLHS: sendMaxLHS,
           parallelism: threadsCount,
         },
@@ -156,7 +157,7 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
     >
       {isWindowShown && (
         <PopupWindow disable={() => setIsWindowShown(false)}>
-          {allowedBuiltinDatasets.map(({ datasetName, datasetSeparator }) => (
+          {allowedBuiltinDatasets.map(({ datasetName, datasetSeparator, datasetHasHeader }) => (
             <Toggle
               toggleCondition={builtinDataset === datasetName}
               onClick={() => {
@@ -164,6 +165,7 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
                 setBuiltinDataset(datasetName);
                 setIsWindowShown(false);
                 setSeparator(datasetSeparator);
+                setHasHeader(datasetHasHeader);
               }}
               key={datasetName}
               className="mx-2"

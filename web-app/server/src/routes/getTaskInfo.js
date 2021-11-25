@@ -18,7 +18,8 @@ router.get("/", function(req, res, next) {
               case "IN PROCESS":
               case "ADDED TO THE TASK QUEUE":
                 selectedAttrs = [
-                  "phaseName", "progress", "fileName", "currentPhase", "maxPhase"
+                  "phaseName", "progress", "currentPhase",
+                  "maxPhase", "fileName", "status"
                 ];
                 res.statusCode = 200;
                 break;
@@ -53,6 +54,19 @@ router.get("/", function(req, res, next) {
                 if (err) {
                   console.error("Error executing query", err.stack);
                 } else {
+                  const debugAnswer = JSON.parse(JSON.stringify(result.rows[0]));
+                  debugAnswer.taskID = req.query.taskID;
+                  if (debugAnswer.fds) {
+                    debugAnswer.fdsCount = debugAnswer.fds.length;
+                    delete debugAnswer.fds;
+                  }
+                  if (debugAnswer.arraynamevalue) {
+                    delete debugAnswer.arraynamevalue;
+                  }
+                  if (debugAnswer.columnnames) {
+                    delete debugAnswer.columnnames;
+                  }
+                  console.debug(`Answer (compact):\n${JSON.stringify(debugAnswer)}`);
                   res.json(result.rows[0]);
                 }
               });
@@ -72,7 +86,7 @@ router.get("/", function(req, res, next) {
         });
   }
   catch (err) {
-    throw new Error("Unexpected server behavior [getTaskInfo]: " + err);
+    throw new Error("Unexpected server behavior: " + err);
   }
 });
 
