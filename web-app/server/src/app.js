@@ -11,7 +11,6 @@ const morgan = require("morgan");
 // Routes
 const algsInfo = require("./routes/algsInfo");
 const getTaskInfo = require("./routes/getTaskInfo");
-const chooseTaskRouter = require("./routes/chooseTask");
 const createTaskRouter = require("./routes/createTask");
 const cancelTaskRouter = require("./routes/cancelTask");
 const getSnippetRouter = require("./routes/getSnippet");
@@ -41,7 +40,6 @@ app.use(fileUpload({
 app.use(morgan("dev"));
 
 // POST requests
-app.post("/chooseTask", jsonParser, chooseTaskRouter);
 app.post("/createTask", jsonParser, createTaskRouter);
 app.post("/cancelTask", jsonParser, cancelTaskRouter);
 
