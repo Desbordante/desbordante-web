@@ -7,7 +7,7 @@ const configureApp = require("./db/configureApp");
 const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 
-const setEndpoints = require("./routes/endpoints");
+const setEndpoints = require("./routes/setEndpoints");
 
 const app = express();
 

@@ -1,18 +1,15 @@
-const express = require("express");
-const router = new express.Router();
 const path = require("path");
-
 const { v1: uuidv1 } = require("uuid");
+
 const sendEvent = require("../producer/sendEvent");
 
-router.post("/createTask", function(req, res) {
+const createTaskHandler = (req, res) => {
   if (!req.body || !req.files || !req.files.document || !req.files.document.data) {
     return res.status(400).send("INCORRECT INPUT DATA");
   }
   const json = JSON.parse(req.files.document.data);
   const pool = req.app.get("pool");
-  let csvTable;
-  let fileName;
+  let csvTable; let fileName;
   const { isBuiltinDataset } = json;
   try {
     if (!req.body.fileName) {
@@ -37,7 +34,6 @@ router.post("/createTask", function(req, res) {
   }
 
   try {
-    // const json = JSON.parse(req.files.document.data);
     console.debug("Input data:", json);
     if (!isBuiltinDataset) {
       console.debug("File:", csvTable);
@@ -92,10 +88,8 @@ router.post("/createTask", function(req, res) {
           });
       await sendEvent(topicName, taskID)
           .then(() => {
-            console.debug("Record was added to kafka");
-            const json = JSON.stringify({ taskID, status: "OK" });
-            console.debug("Response: " + json);
-            res.send(json);
+            console.debug(`Record with taskID = ${taskID} was added to kafka`);
+            res.json({ taskID, status: "OK" });
           })
           .catch((err) => {
             console.debug(err);
@@ -105,6 +99,6 @@ router.post("/createTask", function(req, res) {
   } catch (err) {
     res.status(500).send("Unexpected problem caught: " + err);
   }
-});
+};
 
-module.exports = router;
+module.exports = createTaskHandler;

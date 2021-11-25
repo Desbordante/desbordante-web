@@ -1,5 +1,5 @@
-const createTaskRouter = require("./createTask");
-const cancelTaskRouter = require("./cancelTask");
+const createTaskHandler = require("./createTask");
+const cancelTaskHandler = require("./cancelTask");
 const getTaskInfoHandler = require("./getTaskInfo");
 const getAlgsInfoHandler = require("./getAlgsInfo");
 const getSnippetHandler = require("./getSnippet");
@@ -12,8 +12,8 @@ const jsonParser = express.json();
 
 module.exports = (app) => {
   // POST routes
-  app.post("/createTask", jsonParser, createTaskRouter);
-  app.post("/cancelTask", jsonParser, cancelTaskRouter);
+  app.post("/createTask", jsonParser, createTaskHandler);
+  app.post("/cancelTask", jsonParser, cancelTaskHandler);
 
   // GET routes
   app.get("/getTaskInfo/:taskID", getTaskInfoHandler);
