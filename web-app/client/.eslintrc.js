@@ -52,6 +52,8 @@ module.exports = {
       { extensions: [".js", ".jsx", ".tsx"] },
     ],
     "react/button-has-type": "off",
+    "react/require-default-props": "warn",
+    "react/no-unused-prop-types": "warn",
     "no-use-before-define": ["off", "error", { variables: false }],
     "import/prefer-default-export": "off",
     "import/extensions": [
