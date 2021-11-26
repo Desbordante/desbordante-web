@@ -1,9 +1,9 @@
 {
   "name": "application-server",
   "scripts": {
-    "dev": "node ./src/swagger.js && nodemon ./bin/www",
-    "start": "node ./bin/www",
-    "swagger-autogen": "node ./src/swagger.js"
+    "dev": "node ./src/docs/swagger.js && nodemon ./bin/www",
+    "start": "node ./src/docs/swagger.js && node ./bin/www",
+    "swagger-autogen": "node ./src/docs/swagger.js"
   },
   "dependencies": {
     "babel-plugin-add-module-exports": "^1.0.4",
@@ -33,6 +33,8 @@
     "nodemon": "^2.0.12"
   },
   "nodemonConfig": {
-    "ignore": ["src/swagger_output.json"]
+    "ignore": [
+      "src/swagger_output.json"
+    ]
   }
 }

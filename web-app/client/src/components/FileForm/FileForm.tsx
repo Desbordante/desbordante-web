@@ -121,7 +121,6 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
     const sendMaxLHS = maxLHSAttributes === "inf" ? -1 : +maxLHSAttributes;
     if (builtinDataset) {
       submitBuiltinDataset(
-        builtinDataset!,
         {
           algName: sendAlgName,
           separator,
@@ -129,7 +128,7 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
           hasHeader,
           maxLHS: sendMaxLHS,
           parallelism: threadsCount,
-          isBuiltinDataset: true
+          fileName: builtinDataset,
         },
         handleResponse
       );
@@ -144,7 +143,6 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
           hasHeader,
           maxLHS: sendMaxLHS,
           parallelism: threadsCount,
-          isBuiltinDataset: false
         },
         setUploadProgress,
         handleResponse
