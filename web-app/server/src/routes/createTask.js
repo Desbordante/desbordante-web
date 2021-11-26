@@ -4,37 +4,51 @@ const { v1: uuidv1 } = require("uuid");
 const sendEvent = require("../producer/sendEvent");
 
 const createTaskHandler = (req, res) => {
-  if (!req.body || !req.files || !req.files.document || !req.files.document.data) {
+  console.log("files", req.files);
+  if (!req.files || !req.files.json || !req.files.json.data) {
     return res.status(400).send("INCORRECT INPUT DATA");
   }
-  const json = JSON.parse(req.files.document.data);
+  /* #swagger.parameters['TaskConfig'] = {
+               in: 'body',
+               description: 'New task configuration.',
+               required: true,
+               type: 'object',
+               schema: { $ref: "#/definitions/TaskConfig" }
+  } */
+  const json = JSON.parse(req.files.json.data);
+  console.debug("Input data:", json);
   const pool = req.app.get("pool");
-  let csvTable; let fileName;
+  let csvTable;
+  let fileName;
+  if (json.isBuiltinDataset === undefined) {
+    return res.status(400).send("INCORRECT INPUT DATA");
+  }
   const { isBuiltinDataset } = json;
   try {
-    if (!req.body.fileName) {
+    if (json.fileName === undefined) {
       console.debug("File Name not provided (=> not builtin dataset)");
-      csvTable = req.files.file;
+      if (isBuiltinDataset || req.files.table === undefined) {
+        return res.status(400).send("INCORRECT INPUT DATA");
+      }
+      csvTable = req.files.table;
       fileName = uuidv1() + ".csv";
       csvTable
           .mv("./uploads/" + fileName)
-          .then(() => {
+          .then(async () => {
             console.debug(`File ${fileName} was successfully uploaded`);
           })
           .catch((err) => {
             throw err;
           });
     } else {
-      fileName = req.body.fileName;
+      fileName = json.fileName;
     }
   } catch (err) {
     console.error(err);
-    res.status(500).send("Problem with file downloading");
-    return;
+    return res.status(500).send("Problem with file downloading");
   }
 
   try {
-    console.debug("Input data:", json);
     if (!isBuiltinDataset) {
       console.debug("File:", csvTable);
     }
@@ -59,10 +73,9 @@ const createTaskHandler = (req, res) => {
       rootPath.push(fileName); // add file '${fileID}.csv'
     }
     const datasetPath = rootPath.join("/");
-
     const topicName = process.env.KAFKA_TOPIC_NAME;
     const dbTableName = process.env.DB_TASKS_TABLE_NAME;
-    fileName = isBuiltinDataset ? req.body.fileName : csvTable.name;
+    fileName = isBuiltinDataset ? fileName : csvTable.name;
     const query =
         `insert into ${dbTableName}
         (taskID, createdAt, algName, errorPercent, separator, 
@@ -73,7 +86,7 @@ const createTaskHandler = (req, res) => {
 
     (async () => {
       await pool.query(query, params)
-          .then((result) => {
+          .then(async (result) => {
             if (result !== undefined) {
               console.debug(`Success (task [${taskID}] was added to DB)`);
             } else {
@@ -87,13 +100,19 @@ const createTaskHandler = (req, res) => {
             res.status(500).send("Problem with adding task to DB");
           });
       await sendEvent(topicName, taskID)
-          .then(() => {
+          .then(async () => {
             console.debug(`Record with taskID = ${taskID} was added to kafka`);
+            /* #swagger.responses[200] = {
+               schema: { $ref: "#/definitions/NewTask" },
+               description: 'Returns new task ID'
+            } */
             res.json({ taskID, status: "OK" });
           })
           .catch((err) => {
             console.debug(err);
-            res.status(500).send("Problem with adding record to kafka");
+            res.status(500).json({
+              status: "ERROR", msg: "Problem with adding record to kafka"
+            });
           });
     })();
   } catch (err) {

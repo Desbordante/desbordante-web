@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "@benestudioco/react-scrollfade": "^1.0.2",
-    "@skbkontur/react-ui": "^3.3.1",
     "@testing-library/user-event": "^12.8.3",
     "@types/hsl-to-hex": "^1.0.0",
     "@types/jest": "^27.0.1",
@@ -46,7 +45,8 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "root": true
   },
   "browserslist": {
     "production": [

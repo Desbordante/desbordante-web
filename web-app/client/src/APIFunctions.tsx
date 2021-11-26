@@ -21,55 +21,54 @@ type parameters = {
   hasHeader: boolean;
   maxLHS: number;
   parallelism: string;
-  isBuiltinDataset: boolean;
+  // isBuiltinDataset: boolean;
+  fileName?: string;
 };
 
 export function submitBuiltinDataset(
-  dataset: string,
   params: parameters,
   /* eslint-disable-next-line no-unused-vars */
   onComplete: (res: AxiosResponse) => void
 ) {
-  const json = JSON.stringify(params);
+  const json = JSON.stringify({ ...params, isBuiltinDataset: true });
   const blob = new Blob([json], {
     type: "application/json",
   });
 
   const data = new FormData();
-  data.append("fileName", dataset);
-  data.append("document", blob);
+  data.append("json", blob);
 
-  axios.post(`${serverURL}/createTask`, data).then((response) => {
+  axios.post(`${serverURL}/createTask`, data, {
+    headers: { "Content-Type": "multipart/form-data" }
+  }).then((response) => {
     onComplete(response);
   });
 }
 
 export function submitCustomDataset(
-  dataSet: File,
+  CSVTable: File,
   params: parameters,
   /* eslint-disable-next-line no-unused-vars */
   onProgress: (n: number) => void,
   /* eslint-disable-next-line no-unused-vars */
   onComplete: (res: AxiosResponse) => void
 ) {
-  const json = JSON.stringify(params);
+  const json = JSON.stringify({ ...params, isBuiltinDataset: false });
   const blob = new Blob([json], {
     type: "application/json",
   });
 
   const data = new FormData();
+  data.append("json", blob);
 
-  // Update the formData object
-  if (dataSet) {
-    data.append("file", dataSet, dataSet.name);
+  if (!CSVTable) {
+    throw Error("CSVTable not provided, incorrect work");
+  } else {
+    data.append("table", CSVTable, CSVTable.name);
   }
 
-  data.append("document", blob);
-
-  // Request made to the backend api
-  // Send formData object
   const config = {
-    headers: { "Content-Type": "text/csv" },
+    headers: { "Content-Type": "multipart/form-data" },
     onUploadProgress: (progressEvent: ProgressEvent) => {
       onProgress(progressEvent.loaded / progressEvent.total);
     },
