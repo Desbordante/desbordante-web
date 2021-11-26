@@ -74,6 +74,7 @@ const Chart: React.FC<Props> = ({
               maintainAspectRatio: false,
               responsive: true,
               cutout: "50%",
+              // @ts-ignore
               cutoutPercentage: 10,
               layout: {
                 padding: 1 * rem,
