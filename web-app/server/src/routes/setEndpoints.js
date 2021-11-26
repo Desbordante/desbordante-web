@@ -5,15 +5,12 @@ const getAlgsInfoHandler = require("./getAlgsInfo");
 const getSnippetHandler = require("./getSnippet");
 
 const swaggerUI = require("swagger-ui-express");
-const swaggerFile = require("../swagger_output.json");
-
-const express = require("express");
-const jsonParser = express.json();
+const swaggerFile = require("../docs/swagger_output.json");
 
 module.exports = (app) => {
   // POST routes
-  app.post("/createTask", jsonParser, createTaskHandler);
-  app.post("/cancelTask", jsonParser, cancelTaskHandler);
+  app.post("/createTask", createTaskHandler);
+  app.post("/cancelTask", cancelTaskHandler);
 
   // GET routes
   app.get("/getTaskInfo/:taskID", getTaskInfoHandler);
