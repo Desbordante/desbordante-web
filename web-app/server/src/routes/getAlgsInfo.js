@@ -1,3 +1,5 @@
+// #swagger.tags = ['getTaskInfo']
+// #swagger.description = 'Endpoint for getting task info.'
 const getAlgsInfoHandler = (req, res) => {
   const allowedFileFormats = ["text/csv", "application/vnd.ms-excel"];
   const allowedAlgorithms = ["Pyro", "TaneX", "FastFDs", "FD mine", "DFD"];
@@ -16,7 +18,10 @@ const getAlgsInfoHandler = (req, res) => {
     { name: "FD mine", props: { errorThreshold: false, maxLHS: false, threads: false } },
     { name: "DFD", props: { errorThreshold: false, maxLHS: false, threads: false } }
   ];
-
+  /* #swagger.responses[200] = {
+               schema: { $ref: "#/definitions/AlgsInfo" },
+               description: 'Information about algorithms configuration.'
+  } */
   res.json({
     allowedFileFormats, allowedAlgorithms, algorithmsInfo,
     allowedSeparators, allowedBuiltinDatasets, maxFileSize
