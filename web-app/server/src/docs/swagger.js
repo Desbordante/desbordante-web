@@ -1,17 +1,13 @@
 const swaggerAutogen = require("swagger-autogen")();
 
-const outputFile = "./src/swagger_output.json";
-const endpointsFiles = ["./src/routes/endpoints.js"];
+const outputFile = "./src/docs/swagger_output.json";
+const endpointsFiles = ["./src/routes/setEndpoints.js"];
 
 const doc = {
   info: {
     version: "1.0.0",
     title: "APIs Document",
     description: "Desbordante web-server docs",
-    // license: {
-    //   name: "Apache 2.0",
-    //   url: "https://www.apache.org/licenses/LICENSE-2.0.html"
-    // }
   },
   host: "localhost:5000",
   basePath: "/",
@@ -174,7 +170,110 @@ const doc = {
         "3",
         "8"
       ]
-    ]
+    ],
+    AlgsInfo: {
+      allowedFileFormats: [
+        "text/csv",
+        "application/vnd.ms-excel"
+      ],
+      allowedAlgorithms: [
+        "Pyro",
+        "TaneX",
+        "FastFDs",
+        "FD mine",
+        "DFD"
+      ],
+      algorithmsInfo: [
+        {
+          name: "Pyro",
+          props: {
+            errorThreshold: true,
+            maxLHS: true,
+            threads: true
+          }
+        },
+        {
+          name: "TaneX",
+          props: {
+            errorThreshold: true,
+            maxLHS: true,
+            threads: false
+          }
+        },
+        {
+          name: "FastFDs",
+          props: {
+            errorThreshold: false,
+            maxLHS: false,
+            threads: true
+          }
+        },
+        {
+          name: "FD mine",
+          props: {
+            errorThreshold: false,
+            maxLHS: false,
+            threads: false
+          }
+        },
+        {
+          name: "DFD",
+          props: {
+            errorThreshold: false,
+            maxLHS: false,
+            threads: false
+          }
+        }
+      ],
+      allowedSeparators: [
+        ",",
+        "\\t",
+        "\\n",
+        "|",
+        ";"
+      ],
+      allowedBuiltinDatasets: [
+        {
+          datasetName: "EpicMeds.csv",
+          datasetSeparator: "|",
+          datasetHasHeader: true
+        },
+        {
+          datasetName: "WDC_age.csv",
+          datasetSeparator: ",",
+          datasetHasHeader: true
+        },
+        {
+          datasetName: "TestLong.csv",
+          datasetSeparator: ",",
+          datasetHasHeader: true
+        },
+        {
+          datasetName: "Workshop.csv",
+          datasetSeparator: ",",
+          datasetHasHeader: true
+        },
+        {
+          datasetName: "breast_cancer.csv",
+          datasetSeparator: ",",
+          datasetHasHeader: true
+        }
+      ],
+      maxFileSize: 10000000000
+    },
+    NewTask: {
+      taskID: "99c440b0-4e3d-11ec-9c6d-d92e8bc13912",
+      status: "OK"
+    },
+    TaskConfig: {
+      $algName: "Pyro",
+      $separator: ",",
+      $errorPercent: 0,
+      $hasHeader: true,
+      $maxLHS: -1,
+      $parallelism: "1",
+      $isBuiltinDataset: true
+    }
   }
 };
 
