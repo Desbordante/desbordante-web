@@ -1967,6 +1967,11 @@
   resolved "https://registry.npmjs.org/@types/history/-/history-4.7.9.tgz"
   integrity sha512-MUc6zSmU3tEVnkQ78q0peeEjKWPUADMlC/t++2bI8WnAG2tvYRPIgHG8lWkXwqc8MsUF6Z2MOf+Mh5sazOmhiQ==
 
+"@types/hsl-to-hex@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/hsl-to-hex/-/hsl-to-hex-1.0.0.tgz#31d73d564b576077cf562d2796711ec8364fe0d8"
+  integrity sha512-QJOVWDdZF9Dytbt+HdzXKygmK7BNm8fAb7XrLOVChTXIz7DfRbv+w6Xax/GFWpPtze+V2WeGJJn3M8MOOPglTg==
+
 "@types/html-minifier-terser@^5.0.0":
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/@types/html-minifier-terser/-/html-minifier-terser-5.1.2.tgz"
@@ -6421,6 +6426,18 @@ hsl-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/hsl-regex/-/hsl-regex-1.0.0.tgz"
   integrity sha1-1JMwx4ntgZ4nakwNJy3/owsY/m4=
+
+hsl-to-hex@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/hsl-to-hex/-/hsl-to-hex-1.0.0.tgz#c58c826dc6d2f1e0a5ff1da5a7ecbf03faac1352"
+  integrity sha1-xYyCbcbS8eCl/x2lp+y/A/qsE1I=
+  dependencies:
+    hsl-to-rgb-for-reals "^1.1.0"
+
+hsl-to-rgb-for-reals@^1.1.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/hsl-to-rgb-for-reals/-/hsl-to-rgb-for-reals-1.1.1.tgz#e1eb23f6b78016e3722431df68197e6dcdc016d9"
+  integrity sha512-LgOWAkrN0rFaQpfdWBQlv/VhkOxb5AsBjk6NQVx4yEzWS923T07X0M1Y0VNko2H52HeSpZrZNNMJ0aFqsdVzQg==
 
 hsla-regex@^1.0.0:
   version "1.0.0"
