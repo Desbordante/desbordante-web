@@ -11,13 +11,9 @@ interface Props {
   selectedDependency: coloredDepedency | undefined;
 }
 
-/* eslint-disable prefer-template */
-/* eslint-disable no-cond-assign */
-/* eslint-disable prefer-destructuring */
-
 const MAX_LENGTH = 100;
+const DISTANCE_BETWEEN_CELLS = 1;
 
-// eslint-disable-next-line max-len
 function getSelectedIndices(
   dep: coloredDepedency | undefined,
   header: string[]
@@ -32,6 +28,23 @@ function getSelectedIndices(
   return selectedIndices;
 }
 
+function range(start: number, end: number): number[] {
+  return Array.from(Array(end - start + 1), (_, i) => i + start);
+}
+
+function getDotsIndices(selectedIndices: Map<number, string>): number[] {
+  const buffer = Array.from(selectedIndices.keys()).sort();
+  let dotsIndices: number[] = [];
+  buffer.forEach((val, idx) => {
+    if (idx < buffer.length - 1) {
+      if (buffer[idx + 1] - buffer[idx] > DISTANCE_BETWEEN_CELLS) {
+        dotsIndices = dotsIndices.concat(range(buffer[idx] + 1, buffer[idx + 1] - 1));
+      }
+    }
+  });
+  return dotsIndices;
+}
+
 const Snippet: React.FC<Props> = ({ taskId, selectedDependency }) => {
   const [table, setTable] = useState<string[][]>([[]]);
   const selectedIndices: Map<number, string> = getSelectedIndices(
@@ -41,40 +54,38 @@ const Snippet: React.FC<Props> = ({ taskId, selectedDependency }) => {
 
   useEffect(() => {
     axios
-      .get(serverURL + "/getSnippet?taskID=" + taskId)
+      .get(`${serverURL}/getSnippet?taskID=${taskId}`)
       .then((res) => setTable(res.data));
   }, []);
 
   return (
     <table>
-      {table === undefined ? (
-        <></>
-      ) : (
-        table
-          .filter((val, idx) => idx < MAX_LENGTH)
-          .map((value, index) => (
-            <tr
-              // eslint-disable-next-line react/no-array-index-key
-              key={index}
-            >
-              {value
-                .filter((cell, idx) => idx !== value.length - 1 || cell !== "")
-                .map((cell, idx) => (
-                  <td
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={idx}
-                    style={
-                      selectedIndices.get(idx) !== undefined
-                        ? { backgroundColor: selectedIndices.get(idx) + "90" }
-                        : { backgroundColor: "#ffffff" }
-                    }
-                  >
-                    {cell}
-                  </td>
-                ))}
-            </tr>
-          ))
-      )}
+      {
+        table === undefined ?
+          <></>
+          :
+          table
+            .filter((val, idx) => idx < MAX_LENGTH)
+            .map((value, index) => (
+              <tr
+                // eslint-disable-next-line react/no-array-index-key
+                key={index}
+              >
+                {value
+                  .filter((cell, idx) => ((idx !== value.length - 1) || (cell !== "")))
+                  .map((cell, idx) => (
+                    <td
+                      // eslint-disable-next-line react/no-array-index-key
+                      key={idx}
+                      style={selectedIndices.get(idx) !== undefined ? { backgroundColor: `${selectedIndices.get(idx)}90` } : { backgroundColor: "#ffffff" }}
+                    >
+                      {cell}
+                    </td>
+                  ))
+                  .filter((cell, idx) => (!getDotsIndices(selectedIndices).includes(idx)))}
+              </tr>
+            ))
+      }
     </table>
   );
 };
