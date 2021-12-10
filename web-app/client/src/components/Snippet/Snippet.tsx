@@ -34,15 +34,15 @@ function range(start: number, end: number): number[] {
 
 function getDotsIndices(selectedIndices: Map<number, string>): number[] {
   const buffer = Array.from(selectedIndices.keys()).sort();
-  let dotsIndicies: number[] = [];
+  let dotsIndices: number[] = [];
   buffer.forEach((val, idx) => {
     if (idx < buffer.length - 1) {
       if (buffer[idx + 1] - buffer[idx] > DISTANCE_BETWEEN_CELLS) {
-        dotsIndicies = dotsIndicies.concat(range(buffer[idx] + 1, buffer[idx + 1] - 1));
+        dotsIndices = dotsIndices.concat(range(buffer[idx] + 1, buffer[idx + 1] - 1));
       }
     }
   });
-  return dotsIndicies;
+  return dotsIndices;
 }
 
 const Snippet: React.FC<Props> = ({ taskId, selectedDependency }) => {
