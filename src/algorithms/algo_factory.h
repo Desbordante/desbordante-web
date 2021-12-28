@@ -46,6 +46,9 @@ BETTER_ENUM(Algo, char,
     fun,
     aidfd,
 
+    /* Conditional functional dependency mining algorithms */
+    ctane,
+
     /* Association rules mining algorithms */
     apriori,
 
@@ -59,6 +62,7 @@ BETTER_ENUM(Algo, char,
 using StdParamsMap = std::unordered_map<std::string, boost::any>;
 using AlgorithmTypesTuple = std::tuple<Depminer, DFD, FastFDs, FDep, Fd_mine, Pyro, Tane, FUN, Aid>;
 using ArAlgorithmTuplesType = std::tuple<Apriori>;
+using CfdAlgorithm = std::tuple<CTane>;
 
 namespace details {
 
@@ -206,6 +210,15 @@ std::unique_ptr<Primitive> CreateFDAlgorithmInstance(Algo const algo, ParamsMap&
         CreateFDAlgorithmConfigFromMap(std::forward<ParamsMap>(params));
 
     return details::CreatePrimitiveInstanceImpl(algo, config);
+}
+
+template <typename ParamsMap>
+std::unique_ptr<Primitive> CreateCFDAlgorithmInstance(Algo const algo, ParamsMap&& params) {
+    CFDAlgorithm::Config const config =
+        CreateFDAlgorithmConfigFromMap(std::forward<ParamsMap>(params));
+    assert(algo == +Algo::ctane);
+
+    return std::make_unique<CTane>(config);
 }
 
 template <typename ParamsMap>

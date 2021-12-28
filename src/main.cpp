@@ -93,9 +93,11 @@ int main(int argc, char const* argv[]) {
     ushort threads = 0;
     bool is_null_equal_null = true;
 
+    /*Options for AR mining and CFD mining algorithms*/
+    double min_sup = 0.0;
+    double min_conf = 0.0;
+
     /*Options for association rule mining algorithms*/
-    double minsup = 0.0;
-    double minconf = 0.0;
     std::string ar_input_format;
     unsigned tid_column_index = 0;
     unsigned item_column_index = 1;
@@ -110,8 +112,7 @@ int main(int argc, char const* argv[]) {
     unsigned int q = 2;
     bool dist_to_null_infinity = false;
 
-    std::string const algo_desc = "algorithm to use. Available algorithms:\n" +
-                                  EnumToAvailableValues<algos::Algo>() +
+    std::string const algo_desc = "algorithm to use. Available algorithms:\n" + EnumToAvailableValues<algos::Algo>() +
                                   " for FD mining.";
     std::string const task_desc = "type of dependency to mine. Available tasks:\n" +
                                   EnumToAvailableValues<algos::AlgoMiningType>();
@@ -250,12 +251,11 @@ int main(int argc, char const* argv[]) {
                   << "\" and dataset \"" << dataset
                   << "\" with separator \'" << separator
                   << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
-    } else if (task == "ar") {
+    } else if (task == "ar" || task == "cfd") {
         std::cout << "Input: algorithm \"" << algo
-                  << "\" with min. support threshold \"" << std::to_string(minsup)
-                  << "\", min. confidence threshold \"" << std::to_string(minconf)
+                  << "\" with min. support threshold \"" << std::to_string(min_sup)
+                  << "\", min. confidence threshold \"" << std::to_string(min_conf)
                   << "\" and dataset \"" << dataset
-                  << "\". Input type is \"" << ar_input_format
                   << "\" with separator \'" << separator
                   << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
     } else if (task == "metric") {
@@ -277,8 +277,7 @@ int main(int argc, char const* argv[]) {
                   << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
     }
 
-    std::unique_ptr<algos::Primitive> algorithm_instance =
-        algos::CreateAlgorithmInstance(task, algo, vm);
+    std::unique_ptr<algos::Primitive> algorithm_instance = algos::CreateAlgorithmInstance(task, algo, vm);
 
     try {
         unsigned long long elapsed_time = algorithm_instance->Execute();
