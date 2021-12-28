@@ -13,6 +13,7 @@ namespace algos {
 BETTER_ENUM(AlgoMiningType, char,
 #if 1
     fd = 0,
+    cfd,
     typos,
     ar,
     metric
@@ -42,6 +43,9 @@ BETTER_ENUM(Algo, char,
     tane,
     fun,
 
+    /* Conditional functional dependency mining algorithms */
+    ctane,
+
     /* Association rules mining algorithms */
     apriori,
 
@@ -52,6 +56,7 @@ BETTER_ENUM(Algo, char,
 using StdParamsMap = std::unordered_map<std::string, boost::any>;
 using AlgorithmTypesTuple = std::tuple<Depminer, DFD, FastFDs, FDep, Fd_mine, Pyro, Tane, FUN>;
 using ArAlgorithmTuplesType = std::tuple<Apriori>;
+using CfdAlgorithm = std::tuple<CTane>;
 
 namespace details {
 
@@ -189,6 +194,15 @@ std::unique_ptr<Primitive> CreateFDAlgorithmInstance(Algo const algo, ParamsMap&
 }
 
 template <typename ParamsMap>
+std::unique_ptr<Primitive> CreateCFDAlgorithmInstance(Algo const algo, ParamsMap&& params) {
+    CFDAlgorithm::Config const config =
+        CreateFDAlgorithmConfigFromMap(std::forward<ParamsMap>(params));
+    assert(algo == +Algo::ctane);
+
+    return std::make_unique<CTane>(config);
+}
+
+template <typename ParamsMap>
 std::unique_ptr<Primitive> CreateTypoMinerInstance(Algo const algo, ParamsMap&& params) {
     /* Typos miner has FDAlgorithm configuration */
     FDAlgorithm::Config const config =
@@ -234,6 +248,8 @@ std::unique_ptr<Primitive> CreateAlgorithmInstance(AlgoMiningType const task, Al
         return details::CreateTypoMinerInstance(algo, std::forward<ParamsMap>(params));
     case AlgoMiningType::ar:
         return details::CreateArAlgorithmInstance(/*algo, */std::forward<ParamsMap>(params));
+    case AlgoMiningType::cfd:
+        return details::CreateCFDAlgorithmInstance(algo, std::forward<ParamsMap>(params));
     case AlgoMiningType::metric:
         return details::CreateMetricVerifierInstance(std::forward<ParamsMap>(params));
     default:
