@@ -257,7 +257,13 @@ int main(int argc, char const* argv[]) {
                   << "\", min. confidence threshold \"" << std::to_string(min_conf)
                   << "\" and dataset \"" << dataset
                   << "\" with separator \'" << separator
-                  << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
+                  << "\'. Header is " << (has_header ? "" : "not ") << "present. ";
+        if (task == "ar") {
+            std::cout << "\". Input type is \"" << ar_input_format;
+        } else {
+            std::cout << ", max_lhs \"" << std::to_string(max_lhs);
+        }
+        std::cout << "\"" << std::endl;
     } else if (task == "metric") {
         algo = "metric";
         auto get_str = [](std::vector<unsigned> const& vec) {

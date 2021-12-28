@@ -4,7 +4,7 @@
 
 #include "cfd.h"
 #include "fd_algorithm.h"
-#include "column_layout_partial_relation_data.h"
+#include "pattern_column_layout_relation_data.h"
 
 namespace util {
 class AgreeSetFactory;

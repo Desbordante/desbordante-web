@@ -14,6 +14,7 @@ namespace algos {
 BETTER_ENUM(AlgoMiningType, char,
 #if 1
     fd = 0, 
+    cfd,
     typos, 
     ar, 
     metric, 
@@ -273,7 +274,9 @@ std::unique_ptr<Primitive> CreateAlgorithmInstance(AlgoMiningType const task, Al
     case AlgoMiningType::typos:
         return details::CreateTypoMinerInstance(algo, std::forward<ParamsMap>(params));
     case AlgoMiningType::ar:
-        return details::CreateArAlgorithmInstance(/*algo, */ std::forward<ParamsMap>(params));
+        return details::CreateArAlgorithmInstance(/*algo, */std::forward<ParamsMap>(params));
+    case AlgoMiningType::cfd:
+        return details::CreateCFDAlgorithmInstance(algo, std::forward<ParamsMap>(params));
     case AlgoMiningType::metric:
         return details::CreateMetricVerifierInstance(std::forward<ParamsMap>(params));
     case AlgoMiningType::stats:
