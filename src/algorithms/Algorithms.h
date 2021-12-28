@@ -10,8 +10,11 @@
 #include "algorithms/Pyro.h"
 #include "algorithms/TaneX.h"
 
-/*Association rule mining algorithms */
+/* Association rule mining algorithms */
 #include "algorithms/association-rules/Apriori.h"
+
+/* Conditional functional dependency mining algorithms */
+#include "algorithms/CTane/CTane.h"
 
 /* Metric FD verifier */
 #include "algorithms/MetricVerifier.h"

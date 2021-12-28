@@ -76,9 +76,11 @@ int main(int argc, char const* argv[]) {
     ushort threads = 0;
     bool is_null_equal_null = true;
 
+    /*Options for AR mining and CFD mining algorithms*/
+    double min_sup = 0.0;
+    double min_conf = 0.0;
+
     /*Options for association rule mining algorithms*/
-    double minsup = 0.0;
-    double minconf = 0.0;
     std::string ar_input_format;
     unsigned tid_column_index = 0;
     unsigned item_column_index = 1;
@@ -91,8 +93,7 @@ int main(int argc, char const* argv[]) {
     long double parameter = 0;
     bool dist_to_null_infinity = false;
 
-    std::string const algo_desc = "algorithm to use. Available algorithms:\n" +
-                                  EnumToAvailableValues<algos::Algo>() +
+    std::string const algo_desc = "algorithm to use. Available algorithms:\n" + EnumToAvailableValues<algos::Algo>() +
                                   " for FD mining.";
     std::string const task_desc = "type of dependency to mine. Available tasks:\n" +
                                   EnumToAvailableValues<algos::AlgoMiningType>();
@@ -123,9 +124,11 @@ int main(int argc, char const* argv[]) {
         ("is_null_equal_null", po::value<bool>(&is_null_equal_null)->default_value(true),
          "Is NULL value equals another NULL value")
 
+        /*Options for AR and CFD mining algorithms*/
+        ("minsup", po::value<double>(&min_sup), "minimal support value (for AR: between 0 and 1, for CFD: integer more 0)")
+        ("minconf", po::value<double>(&min_conf), "minimal confidence value (between 0 and 1)")
+
         /*Options for association rule mining algorithms*/
-        ("minsup", po::value<double>(&minsup), "minimal support value (between 0 and 1)")
-        ("minconf", po::value<double>(&minconf), "minimal confidence value (between 0 and 1)")
         ("input_format", po::value<string>(&ar_input_format),
          "format of the input dataset. [singular|tabular] for AR mining")
         ("tid_column_index", po::value<unsigned>(&tid_column_index)->default_value(0),
@@ -183,16 +186,20 @@ int main(int argc, char const* argv[]) {
                   << "\" and dataset \"" << dataset
                   << "\" with separator \'" << separator
                   << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
-    } else if (task == "ar") {
+    } else if (task == "ar" || task == "cfd") {
         std::cout << "Input: algorithm \"" << algo
-                  << "\" with min. support threshold \"" << std::to_string(minsup)
-                  << "\", min. confidence threshold \"" << std::to_string(minconf)
+                  << "\" with min. support threshold \"" << std::to_string(min_sup)
+                  << "\", min. confidence threshold \"" << std::to_string(min_conf)
                   << "\" and dataset \"" << dataset
-                  << "\". Input type is \"" << ar_input_format
                   << "\" with separator \'" << separator
-                  << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
-    }
-    else if(task == "metric") {
+                  << "\'. Header is " << (has_header ? "" : "not ") << "present. ";
+        if (task == "ar") {
+            std::cout << "\". Input type is \"" << ar_input_format;
+        } else {
+            std::cout << ", max_lhs \"" << std::to_string(max_lhs);
+        }
+        std::cout << "\"" << std::endl;
+    } else if (task == "metric") {
         algo = "metric";
         std::stringstream stringstream;
         copy(lhs_indices.begin(), lhs_indices.end(), std::ostream_iterator<int>(stringstream, " "));
@@ -207,8 +214,7 @@ int main(int argc, char const* argv[]) {
                   << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
     }
 
-    std::unique_ptr<algos::Primitive> algorithm_instance =
-        algos::CreateAlgorithmInstance(task, algo, vm);
+    std::unique_ptr<algos::Primitive> algorithm_instance = algos::CreateAlgorithmInstance(task, algo, vm);
 
     try {
         unsigned long long elapsed_time = algorithm_instance->Execute();
