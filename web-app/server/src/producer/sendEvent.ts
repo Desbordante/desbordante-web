@@ -1,6 +1,6 @@
-const producer = require("./index");
+import producer from "./index"
 
-async function sendEvent(topicName, taskID) {
+const sendEvent = async(topicName: string, taskID: string ) => {
   const value = Buffer.from(JSON.stringify({ taskID }));
   const key = taskID;
   // use the default partitioner
@@ -11,4 +11,4 @@ async function sendEvent(topicName, taskID) {
   await producer.produce(topicName, partition, value, key, Date.now(), "", headers);
 }
 
-module.exports = sendEvent;
+export = sendEvent;

@@ -1,4 +1,6 @@
-async function createTable(pool) {
+import { Pool } from "pg";
+
+async function createTable(pool : Pool) {
   console.log(`Creating table(-es) in DB '${process.env.DB_TASKS_TABLE_NAME}'`);
   const tableName = process.env.DB_TASKS_TABLE_NAME;
 
@@ -14,7 +16,7 @@ async function createTable(pool) {
     maxPhase int CHECK (maxPhase >=1),
     phaseName text,
     elapsedTime bigint CHECK (elapsedTime >= 0),
-    status varchar(30) not null 
+    status varchar(30) not null
     CHECK (
         status in ('ADDED TO THE TASK QUEUE', 'IN PROCESS', 'COMPLETED',
                    'INCORRECT INPUT DATA', 'SERVER ERROR', 'CANCELLED')
@@ -43,4 +45,4 @@ async function createTable(pool) {
       });
 }
 
-module.exports = createTable;
+export = createTable;
