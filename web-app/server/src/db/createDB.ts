@@ -1,18 +1,19 @@
-const pgtools = require("pgtools");
+// @ts-ignore
+import pgtools  from "pgtools";
 
 async function createDB() {
   const config = {
-    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
-    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
   };
 
   return pgtools.createdb(config, process.env.DB_NAME)
       .then(async () => {
         console.log(`Database '${process.env.DB_NAME}' was successfully created`);
       })
-      .catch(async (err) => {
+      .catch(async (err: any) => {
         if (err.name === "duplicate_database") {
           console.log(`Database '${process.env.DB_NAME}' already exists`);
         } else {
@@ -22,4 +23,4 @@ async function createDB() {
       });
 }
 
-module.exports = createDB;
+export = createDB;
