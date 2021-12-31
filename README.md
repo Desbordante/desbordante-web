@@ -109,9 +109,12 @@ The web application requires the following components:
   - Make changes to the appropriate config files (`/path/to/Desbordante/web-app/server/.env` and `/path/to/Desbordante/cfg/db_config.json`)
 
 * ### Message Broker
-  You need to install `docker-compose`.
+  You need to install `docker-compose` and run message broker:
+  ```
+  sudo apt-get install docker-compose
+  ```
 
-  After installation, write the following line:
+  After installation, write the following lines:
   ```
   cd web-app/kafka-server
   sudo docker-compose up
@@ -174,10 +177,13 @@ Ensure that you have installed the dependencies required to build the program wi
   ```
   Secondly, you need to run web-server:
   ```
-  cd web-app/server 
-  yarnpkg dev
+  cd web-app/server
+  yarnpkg build
+  yarnpkg start
   ```
-  and web-client:
+  The command `yarnpkg build` is needed only for the first launch web-server.
+
+  Next, you need to run web-client:
   ```
   cd web-app/client
   yarnpkg start
