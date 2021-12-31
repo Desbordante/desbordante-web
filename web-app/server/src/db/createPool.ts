@@ -1,4 +1,4 @@
-const { Pool } = require("pg");
+import { Pool } from "pg";
 
 async function createPool() {
   // pools uses environment variables
@@ -8,7 +8,7 @@ async function createPool() {
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    port: parseInt(process.env.DB_PORT),
   });
 
   // the pool will emit an error on behalf of any idle clients
@@ -21,4 +21,4 @@ async function createPool() {
   return pool;
 }
 
-module.exports = createPool;
+export = createPool;

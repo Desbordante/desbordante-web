@@ -1,22 +1,23 @@
+import {RequestHandler} from "express";
+import {Pool} from "pg";
+import queryString from "querystring";
 
-const getTaskInfoHandler = (req, res, next) => {
-  // #swagger.tags = ['getTaskInfo']
-  // #swagger.description = 'Endpoint for getting task info.'
-  // #swagger.parameters['taskID'] = { description: 'Unique task identifier.' }
+const getTaskInfoHandler: RequestHandler<{ taskID: string }, any, any, queryString.ParsedUrlQueryInput>
+    = (req, res) => {
   if (!req.params || !req.params.taskID) {
     res.sendStatus(400);
   }
   try {
-    const pool = req.app.get("pool");
-    const query = `select status, fileName from ${process.env.DB_TASKS_TABLE_NAME} 
-                   where taskid = '${req.params.taskID}' and "status" != 'CANCELLED'`;
+    const pool: Pool = req.app.get("pool");
+    let query = `select status, fileName from ${process.env.DB_TASKS_TABLE_NAME}
+                 where taskid = '${req.params.taskID}' and "status" != 'CANCELLED'`;
     pool.query(query)
-        .then((result) => {
-          let selectedAttrs = [];
-          if (result.rows[0] === undefined) {
+        .then(({ rows}) => {
+          let selectedAttrs: string[];
+          if (rows[0] === undefined) {
             res.statusCode = 400;
           } else {
-            const status = result.rows[0].status;
+            const status = rows[0].status;
             switch (status) {
               case "IN PROCESS":
               case "ADDED TO THE TASK QUEUE":
@@ -39,7 +40,7 @@ const getTaskInfoHandler = (req, res, next) => {
                 break;
               default:
               case "SERVER ERROR":
-                console.log(`SERVER ERROR: ${result.rows[0]}`);
+                console.log(`SERVER ERROR: ${rows[0]}`);
                 res.statusCode = 500;
                 break;
               case "INCORRECT INPUT DATA":
@@ -48,15 +49,11 @@ const getTaskInfoHandler = (req, res, next) => {
                 break;
             }
           }
-          const query = `select ${selectedAttrs.join(", ")}
-                         from ${process.env.DB_TASKS_TABLE_NAME}
-                         where taskid = '${req.params.taskID}'`;
+          query = `select ${selectedAttrs.join(", ")}
+                   from ${process.env.DB_TASKS_TABLE_NAME}
+                   where taskid = '${req.params.taskID}'`;
           switch (res.statusCode) {
             case 200:
-              /* #swagger.responses[200] = {
-               schema: { $ref: "#/definitions/Task" },
-               description: 'Information about task.'
-              } */
               pool.query(query, (err, result) => {
                 if (err) {
                   console.error("Error executing query", err.stack);
@@ -87,7 +84,7 @@ const getTaskInfoHandler = (req, res, next) => {
               break;
           }
         })
-        .catch((err) => {
+        .catch((err: any) => {
           console.debug(`SERVER ERROR [${err}]`);
           res.status(500).send("SERVER ERROR");
         });
@@ -95,6 +92,6 @@ const getTaskInfoHandler = (req, res, next) => {
   catch (err) {
     throw new Error("Unexpected server behavior: " + err);
   }
-};
+}
 
-module.exports=getTaskInfoHandler;
+export = getTaskInfoHandler;

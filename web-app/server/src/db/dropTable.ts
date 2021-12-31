@@ -1,4 +1,6 @@
-async function dropTableTasks(pool) {
+import { Pool } from "pg";
+
+async function dropTableTasks(pool: Pool) {
   return pool.query(`DROP TABLE IF EXISTS ${process.env.DB_TASKS_TABLE_NAME}`)
       .then(async () => {
         console.log(`Tables in DB '${process.env.DB_NAME}' was successfully dropped`);
@@ -9,4 +11,4 @@ async function dropTableTasks(pool) {
       });
 }
 
-module.exports = dropTableTasks;
+export = dropTableTasks;

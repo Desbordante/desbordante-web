@@ -1,9 +1,13 @@
 {
   "name": "application-server",
+  "main": "dist/app.js",
   "scripts": {
-    "dev": "node ./src/docs/swagger.js && nodemon ./bin/www",
-    "start": "node ./src/docs/swagger.js && node ./bin/www",
-    "swagger-autogen": "node ./src/docs/swagger.js"
+    "clean": "rimraf dist/*",
+    "tsc": "tsc",
+    "build": "npm-run-all clean tsc",
+    "start": "node .",
+    "dev:start": "npm-run-all build start",
+    "dev": "nodemon --watch src -e ts --exec npm run dev:start"
   },
   "dependencies": {
     "babel-plugin-add-module-exports": "^1.0.4",
@@ -11,30 +15,32 @@
     "cors": "^2.8.5",
     "debug": "^4.3.2",
     "dotenv": "^10.0.0",
-    "express": "^4.17.1",
+    "express": "4.17.2",
     "express-fileupload": "^1.2.1",
     "fast-csv": "^4.3.6",
     "morgan": "^1.10.0",
     "node": "^17.1.0",
     "pg": "^8.6.0",
     "pgtools": "^0.3.2",
-    "swagger": "^0.7.5",
-    "swagger-autogen": "^2.13.0",
-    "swagger-ui-express": "^4.1.6",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "eslint": "^8.3.0",
-    "eslint-config-google": "^0.14.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-node": "^11.1.0",
+    "@types/cors": "^2.8.12",
+    "@types/debug": "^4.1.7",
+    "@types/express": "4.17.13",
+    "@types/express-fileupload": "^1.2.0",
+    "@types/http-errors": "^1.8.1",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^17.0.5",
+    "@types/pg": "^8.6.3",
+    "@types/uuid": "^8.3.3",
     "http-errors": "^1.8.1",
     "node-rdkafka": "^2.10.1",
-    "nodemon": "^2.0.12"
-  },
-  "nodemonConfig": {
-    "ignore": [
-      "src/swagger_output.json"
-    ]
+    "nodemon": "^2.0.12",
+    "npm-run-all": "^4.1.5",
+    "ts-node": "^10.4.0",
+    "ts-node-dev": "^1.1.8",
+    "tslint": "5.3.0",
+    "typescript": "4.5.4"
   }
 }
