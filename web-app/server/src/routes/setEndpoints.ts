@@ -14,10 +14,6 @@ async function setEndpoints(app: Application) {
   app.get("/getTaskInfo/:taskID",getTaskInfoHandler);
   app.get("/getSnippet/:taskID", getSnippetHandler);
   app.get("/getAlgsInfo", getAlgsInfoHandler);
-  // Home page
-  app.use("/", (req: any, res: any) => {
-    res.send("Root route");
-  });
 }
 
 export = setEndpoints;
