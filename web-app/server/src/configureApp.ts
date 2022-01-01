@@ -4,8 +4,9 @@ import fileUpload from "express-fileupload"
 import morgan from "morgan"
 import express, { Application } from 'express'
 
-import configureDB from "./db/configureDB"
-import setEndpoints from "./routes/setEndpoints"
+import configureDB from "./db/configureDB";
+import setRestApiEndpoints from "./routes/setEndpoints";
+import configureGraphQL from "./graphql/configureGraphQL";
 
 function normalizePort(val: string | undefined) {
     if (val) {
@@ -47,13 +48,24 @@ async function configureApp() {
         })
 
     // Add routes (endpoints)
-    await setEndpoints(app)
+    await setRestApiEndpoints(app)
         .then(() => {
             console.debug("Endpoints were successfully set");
         })
         .catch((err) => {
             console.error(`Error: ${err.message}`);
             throw new Error("Error while setting routes");
+        });
+
+    // const context = { pool: app.get('pool') };
+
+    await configureGraphQL(app)
+        .then(() => {
+            console.debug("GraphQL was successfully configured");
+        })
+        .catch((err) => {
+            console.error(`Error: ${err.message}`);
+            throw new Error("Error while graphql configuring");
         });
 
     // Catch 404 and forward to error handler
