@@ -11,10 +11,10 @@ async function configureDB(app: express.Application) {
         .then(async () => {
             return await createPool();
         })
-        .then(async (pool: Pool) => {
-            await dropTableTasks(pool);
-            return pool;
-        })
+        // .then(async (pool: Pool) => {
+        //     await dropTableTasks(pool);
+        //     return pool;
+        // })
         .then(async (pool: Pool) => {
             app.set("pool", pool);
             await createTable(pool);
