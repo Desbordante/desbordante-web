@@ -1,7 +1,8 @@
 import React, { useRef } from "react";
+
 import "./UploadFile.scss";
-import FileLabel from "../FileLabel/FileLabel";
 import Button from "../Button/Button";
+import FileLabel from "../FileLabel/FileLabel";
 
 /* eslint-disable no-unused-vars */
 interface Props {
@@ -28,8 +29,7 @@ const UploadFile: React.FC<Props> = ({
 }) => {
   // you can only use <input type="file" /> for choosing files,
   // so the reference is used to forward click action
-  // from regular button to hidden input file
-
+  // to hidden input file
   const inputFile = useRef<HTMLInputElement>(null);
 
   return (
@@ -42,10 +42,12 @@ const UploadFile: React.FC<Props> = ({
         fileSizeValidator={fileSizeValidator}
         fileFormatValidator={fileFormatValidator}
         setFile={onClick}
+        className="mx-2"
       />
       <input
         type="file"
         id="file"
+        className="d-none"
         ref={inputFile}
         onChange={(e) => {
           if (e.target.files) {
@@ -56,10 +58,14 @@ const UploadFile: React.FC<Props> = ({
         multiple={false}
         accept=".csv, .CSV"
       />
-      <Button onClick={() => inputFile?.current?.click()} color="1">
+      <Button
+        onClick={() => inputFile?.current?.click()}
+        variant="light"
+        className="mx-2"
+      >
         <img src="/icons/upload.svg" alt="upload" className="upload-icon" />
       </Button>
-      <Button onClick={openPopupWindow} color="1">
+      <Button onClick={openPopupWindow} variant="light" className="mx-2">
         <img src="/icons/choose.svg" alt="choose" className="upload-icon" />
       </Button>
     </>

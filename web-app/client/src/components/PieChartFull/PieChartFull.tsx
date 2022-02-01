@@ -4,9 +4,7 @@ import "./PieChartFull.scss";
 import SearchBar from "../SearchBar/SearchBar";
 import Chart from "./Chart";
 import Button from "../Button/Button";
-import { coloredAttribute } from "../../types";
-
-type attribute = { name: string; value: number; color: string };
+import { attribute } from "../../types";
 
 /* eslint-disable no-unused-vars */
 interface Props {
@@ -28,9 +26,9 @@ const PieChartFull: React.FC<Props> = ({
   setSelectedAttributes,
 }) => {
   const [searchString, setSearchString] = useState("");
-  const [foundAttributes, setFoundAttributes] = useState<coloredAttribute[]>([]);
+  const [foundAttributes, setFoundAttributes] = useState<attribute[]>([]);
   const [depth, setDepth] = useState(0);
-  const [displayAttributes, setDisplayAttributes] = useState<coloredAttribute[]>([]);
+  const [displayAttributes, setDisplayAttributes] = useState<attribute[]>([]);
 
   // Update found attributes if search string changes or attributes change.
   // Keep found attributes sorted.
@@ -62,24 +60,29 @@ const PieChartFull: React.FC<Props> = ({
     });
 
     if (foundAttributes.length > maxItemsShown * (depth + 1)) {
-      newDisplayAttributes.push({ name: "Other", value: newOtherValue, color: "#ffffff" });
+      newDisplayAttributes.push({
+        name: "Other",
+        value: newOtherValue,
+      });
     }
 
     setDisplayAttributes(newDisplayAttributes);
   }, [foundAttributes, foundAttributes, depth, maxItemsShown]);
 
   return (
-    <div className="pie-chart-full">
-      <h1 className="title">{title}</h1>
-      <div className="controls">
+    <div className="pie-chart-full d-flex flex-column align-items-center">
+      <h1 className="title fw-bold mt-5 mb-3">{title}</h1>
+      <div className="d-flex align-items-center">
         <SearchBar
           defaultText="Filter attributes..."
           onChange={setSearchString}
+          className="mx-2"
         />
         <Button
-          color="0"
+          variant="dark"
           onClick={() => setDepth(depth - 1)}
           enabled={depth > 0}
+          className="mx-2"
         >
           <img src="/icons/up-depth.svg" alt="Up" />
         </Button>

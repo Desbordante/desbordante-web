@@ -10,21 +10,16 @@ import FileForm from "../FileForm/FileForm";
 /* eslint-disable no-unused-vars */
 interface Props {
   setUploadProgress: (n: number) => void;
-  file: File | null;
-  setFile: (file: File | null) => void;
 }
 /* eslint-enable no-unused-vars */
 
-const HomeScreen: React.FC<Props> = ({ file, setFile, setUploadProgress }) => {
+const HomeScreen: React.FC<Props> = ({ setUploadProgress }) => {
   const history = useHistory();
 
   return (
-    <div className="home-screen">
+    <div className="bg-dark h-100 flex-grow-1">
       <Header />
-
       <FileForm
-        file={file}
-        setFile={setFile}
         onSubmit={() => history.push("/loading")}
         setUploadProgress={setUploadProgress}
         handleResponse={(res) => {
