@@ -36,6 +36,7 @@ module.exports = {
     "operator-linebreak": "off",
     "@typescript-eslint/brace-style": ["error", "1tbs"],
     "no-console": "error",
+    "no-unused-vars": "warn",
     "react/prop-types": "off",
     quotes: ["error", "double"],
     "jsx-quotes": ["error", "prefer-double"],
