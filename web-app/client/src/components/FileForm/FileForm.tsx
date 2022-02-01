@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios, { AxiosResponse } from "axios";
 import { useHistory } from "react-router-dom";
+import { Container, Row } from "react-bootstrap";
 
 import "./FileForm.scss";
 import Value from "../Value/Value";
@@ -16,6 +17,7 @@ import {
   submitBuiltinDataset,
 } from "../../APIFunctions";
 import { algorithm } from "../../types";
+import { TaskContext } from "../TaskContext/TaskContext";
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable max-len */
@@ -26,20 +28,12 @@ interface Props {
   onSubmit: (e: React.MouseEvent<HTMLButtonElement>) => void;
   setUploadProgress: (n: number) => void;
   handleResponse: (res: AxiosResponse) => void;
-  file: File | null;
-  setFile: (file: File | null) => void;
 }
 
-const FileForm: React.FC<Props> = ({
-  onSubmit,
-  setUploadProgress,
-  handleResponse,
-  file,
-  setFile,
-}) => {
+const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
   // Allowed field values
   const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] = useState<
-  { datasetName : string, datasetSeparator : string } []
+    { datasetName: string; datasetSeparator: string }[]
   >([]);
   const [allowedFileFormats, setAllowedFileFormats] = useState<string[]>([
     "text/csv",
@@ -49,8 +43,9 @@ const FileForm: React.FC<Props> = ({
   const [allowedAlgorithms, setAllowedAlgorithms] = useState<algorithm[]>([]);
   const [maxfilesize, setMaxFileSize] = useState(1e9);
 
-  // Parameters, later sent to the server on execution as JSON
+  const { file, setFile } = useContext(TaskContext)!;
 
+  // Parameters, later sent to the server on execution as JSON
   const [hasHeader, setHasHeader] = useState(true);
   const [separator, setSeparator] = useState(",");
   const [algorithm, setAlgorithm] = useState<algorithm | null>(null);
@@ -82,7 +77,7 @@ const FileForm: React.FC<Props> = ({
 
         setMaxFileSize(data.maxFileSize);
       })
-      .catch((error) => history.push("/error"));
+      .catch(() => history.push("/error"));
   }, [history]);
 
   useEffect(() => {
@@ -160,7 +155,10 @@ const FileForm: React.FC<Props> = ({
   };
 
   return (
-    <form>
+    <Container
+      fluid="md"
+      className="file-form h-100 py-4 flex-shrink-0 d-flex flex-column justify-content-start align-items-center"
+    >
       {isWindowShown && (
         <PopupWindow disable={() => setIsWindowShown(false)}>
           {allowedBuiltinDatasets.map(({ datasetName, datasetSeparator }) => (
@@ -172,118 +170,119 @@ const FileForm: React.FC<Props> = ({
                 setIsWindowShown(false);
                 setSeparator(datasetSeparator);
               }}
-              color="1"
               key={datasetName}
+              className="mx-2"
             >
               {datasetName}
             </Toggle>
           ))}
         </PopupWindow>
       )}
-      <div className="form-column">
-        <div className="form-row">
-          <FormItem>
-            <UploadFile
-              onClick={setFile}
-              file={file}
-              builtinDataset={builtinDataset}
-              fileExistenceValidator={() => fileExistenceValidator(file)}
-              fileSizeValidator={() => fileSizeValidator(file)}
-              fileFormatValidator={() => fileFormatValidator(file)}
-              openPopupWindow={() => setIsWindowShown(true)}
-              disableBuiltinDataset={() => setBuiltinDataset(null)}
-            />
-          </FormItem>
-          <FormItem enabled={!builtinDataset}>
-            <h3>File properties:</h3>
-            <Toggle
-              color="1"
-              onClick={() => setHasHeader(!hasHeader)}
-              toggleCondition={hasHeader}
-            >
-              Header
-            </Toggle>
-            <h3>separator</h3>
-            <Value
-              value={separator}
-              onChange={setSeparator}
-              size={2}
-              inputValidator={separatorValidator}
-            />
-          </FormItem>
-          <FormItem enabled={algorithm?.props.errorThreshold}>
-            <h3>Error threshold:</h3>
-            <Value
-              value={errorThreshold}
-              onChange={setErrorThreshold}
-              size={8}
-              inputValidator={errorValidator}
-            />
-            <Slider
-              value={errorThreshold}
-              onChange={setErrorThreshold}
-              step={1e-6}
-              exponential
-            />
-          </FormItem>
-          <FormItem enabled={algorithm?.props.maxLHS}>
-            <h3>Max LHS attributes:</h3>
-            <Value
-              value={maxLHSAttributes}
-              onChange={setMaxLHSAttributes}
-              size={3}
-              inputValidator={maxLHSValidator}
-            />
-            <Slider
-              value={maxLHSAttributes === "inf" ? "10" : maxLHSAttributes}
-              min={1}
-              max={10}
-              onChange={setMaxLHSAttributes}
-              step={1}
-            />
-          </FormItem>
-
-          <FormItem enabled={algorithm?.props.threads}>
-            <h3>Threads:</h3>
-            <Value
-              value={threadsCount}
-              onChange={setThreadsCount}
-              size={2}
-              inputValidator={maxLHSValidator}
-            />
-            <Slider
-              value={threadsCount}
-              min={1}
-              max={16}
-              onChange={setThreadsCount}
-              step={1}
-            />
-          </FormItem>
-        </div>
-
-        <div className="form-row">
-          <FormItem>
-            <h3>Algorithm:</h3>
+      <Row className="mx-2 mb-3">
+        <FormItem>
+          <h5 className="text-white mb-0 mx-2">File:</h5>
+          <UploadFile
+            onClick={setFile}
+            file={file}
+            builtinDataset={builtinDataset}
+            fileExistenceValidator={() => fileExistenceValidator(file)}
+            fileSizeValidator={() => fileSizeValidator(file)}
+            fileFormatValidator={() => fileFormatValidator(file)}
+            openPopupWindow={() => setIsWindowShown(true)}
+            disableBuiltinDataset={() => setBuiltinDataset(null)}
+          />
+        </FormItem>
+        <FormItem enabled={!builtinDataset}>
+          <h5 className="text-white mb-0 mx-2">File properties:</h5>
+          <Toggle
+            onClick={() => setHasHeader(!hasHeader)}
+            toggleCondition={hasHeader}
+            className="mx-2"
+          >
+            Header
+          </Toggle>
+          <h5 className="text-white mb-0 mx-2">separator</h5>
+          <Value
+            value={separator}
+            onChange={setSeparator}
+            size={2}
+            inputValidator={separatorValidator}
+            className="mx-2"
+          />
+        </FormItem>
+        <FormItem>
+          <h5 className="text-white mb-0 mx-2">Algorithm:</h5>
+          <div className="d-flex flex-wrap align-items-center">
             {allowedAlgorithms.map((algo) => (
               <Toggle
-                color="1"
                 onClick={() => setAlgorithm(algo)}
                 toggleCondition={algorithm === algo}
                 key={algo.name}
+                className="mx-2"
               >
                 {algo.name}
               </Toggle>
             ))}
-          </FormItem>
-        </div>
-      </div>
+          </div>
+        </FormItem>
+        <FormItem enabled={algorithm?.props.errorThreshold}>
+          <h5 className="text-white mb-0 mx-2">Error threshold:</h5>
+          <Value
+            value={errorThreshold}
+            onChange={setErrorThreshold}
+            size={8}
+            inputValidator={errorValidator}
+            className="mx-2"
+          />
+          <Slider
+            value={errorThreshold}
+            onChange={setErrorThreshold}
+            step={1e-6}
+            className="mx-2"
+          />
+        </FormItem>
+        <FormItem enabled={algorithm?.props.maxLHS}>
+          <h5 className="text-white mb-0 mx-2">Max LHS attributes:</h5>
+          <Value
+            value={maxLHSAttributes}
+            onChange={setMaxLHSAttributes}
+            size={3}
+            inputValidator={maxLHSValidator}
+            className="mx-2"
+          />
+          <Slider
+            value={maxLHSAttributes === "inf" ? "10" : maxLHSAttributes}
+            min={1}
+            max={10}
+            onChange={setMaxLHSAttributes}
+            step={1}
+            className="mx-2"
+          />
+        </FormItem>
+        <FormItem enabled={algorithm?.props.threads}>
+          <h5 className="text-white mb-0 mx-2">Threads:</h5>
+          <Value
+            value={threadsCount}
+            onChange={setThreadsCount}
+            size={2}
+            inputValidator={maxLHSValidator}
+            className="mx-2"
+          />
+          <Slider
+            value={threadsCount}
+            min={1}
+            max={16}
+            onChange={setThreadsCount}
+            step={1}
+            className="mx-2"
+          />
+        </FormItem>
+      </Row>
 
-      <div className="form-column">
-        <Button color="1" enabled={isValid()} onClick={submit}>
-          Analyze
-        </Button>
-      </div>
-    </form>
+      <Button enabled={isValid()} onClick={submit}>
+        Analyze
+      </Button>
+    </Container>
   );
 };
 

@@ -34,6 +34,8 @@ module.exports = {
     "jsx-a11y/no-static-element-interactions": "off",
     "jsx-a11y/interactive-supports-focus": "off",
     "operator-linebreak": "off",
+    "function-paren-newline": "off",
+    indent: "off",
     "@typescript-eslint/brace-style": ["error", "1tbs"],
     "no-console": "error",
     "no-unused-vars": "warn",

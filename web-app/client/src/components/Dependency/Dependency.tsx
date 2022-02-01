@@ -1,33 +1,49 @@
 import React from "react";
 
-import "./Dependency.css";
-import { coloredDepedency } from "../../types";
+import { dependency } from "../../types";
+import stringToColor from "../../functions/stringToColor";
+import "./Dependency.scss";
 
 interface Props {
-  dep: coloredDepedency | undefined;
+  dep: dependency;
   isActive: boolean;
   onClick: React.MouseEventHandler<HTMLDivElement>;
+  onActiveClick: React.MouseEventHandler<HTMLDivElement>;
 }
 
-const Dependency: React.FC<Props> = ({ dep, isActive, onClick }) => {
+const Dependency: React.FC<Props> = ({
+  dep,
+  isActive,
+  onClick,
+  onActiveClick,
+}) => {
   if (dep !== undefined) {
     return (
-      <div className="dependency" role="button" tabIndex={0} onClick={onClick}>
-        {
-          dep.lhs.map((attr) => (
-            <div
-              style={isActive ? {
-                backgroundColor: `${attr.color}`,
-              } : {
-                backgroundColor: "#E5E5E5",
-              }}
-              className={`attribute-name ${isActive && "active"}`}
-              key={attr.name}
-            >
-              {attr.name}
-            </div>
-          ))
-        }
+      <div
+        className="dependency d-flex my-1"
+        role="button"
+        tabIndex={0}
+        onClick={isActive ? onActiveClick : onClick}
+      >
+        {dep.lhs.map((attr) => (
+          <div
+            style={
+              isActive
+                ? {
+                    backgroundColor: stringToColor(attr.name, 30, 50),
+                  }
+                : {
+                    backgroundColor: "#E5E5E5",
+                  }
+            }
+            className={`attribute-name d-flex align-items-center px-3 py-2 mx-2 rounded-pill text-${
+              isActive ? "white" : "black"
+            }`}
+            key={attr.name}
+          >
+            {attr.name}
+          </div>
+        ))}
 
         <svg
           className={`arrow ${isActive ? "active" : ""}`}
@@ -39,17 +55,23 @@ const Dependency: React.FC<Props> = ({ dep, isActive, onClick }) => {
         </svg>
 
         <div
-          style={isActive ? {
-            backgroundColor: `${dep.rhs.color}`,
-          } : { backgroundColor: "#E5E5E5" }}
-          className={`attribute-name ${isActive ? "active" : ""}`}
+          style={
+            isActive
+              ? {
+                  backgroundColor: stringToColor(dep.rhs.name, 30, 50),
+                }
+              : { backgroundColor: "#E5E5E5" }
+          }
+          className={`attribute-name d-flex align-items-center px-3 py-2 mx-2 rounded-pill text-${
+            isActive ? "white" : "black"
+          }`}
         >
           {dep.rhs.name}
         </div>
       </div>
     );
   }
-  return (<></>);
+  return <></>;
 };
 
 export default Dependency;

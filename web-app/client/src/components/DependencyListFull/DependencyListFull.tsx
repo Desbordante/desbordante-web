@@ -1,25 +1,21 @@
 /* eslint-disable*/
 
 import React, { useState, useEffect } from "react";
+import { Container, Stack, Row, Col } from "react-bootstrap";
 
 import "./DependencyListFull.scss";
 import Dependency from "../Dependency/Dependency";
 import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";
 import Snippet from "../Snippet/Snippet";
-import {
-  attribute,
-  dependency,
-  coloredDepedency,
-  coloredAttribute,
-} from "../../types";
+import { attribute, dependency } from "../../types";
 
-type sortMethod = "Default" | "LHS" | "RHS";
+type sortMethod = "LHS" | "RHS";
 
 interface Props {
-  dependencies: coloredDepedency[];
-  selectedAttributesLHS: coloredAttribute[];
-  selectedAttributesRHS: coloredAttribute[];
+  dependencies: dependency[];
+  selectedAttributesLHS: attribute[];
+  selectedAttributesRHS: attribute[];
   file: File | null;
   taskId: string;
   showKeys: boolean;
@@ -34,16 +30,19 @@ const DependencyListFull: React.FC<Props> = ({
   showKeys,
   setShowKeys,
 }) => {
-  const [sortedDependencies, setSortedDependencies] = useState<
-    coloredDepedency[]
-  >([]);
+  const [showDependencies, setShowDependencies] = useState(true);
+  const [showDataset, setShowDataset] = useState(false);
+  const [sortedDependencies, setSortedDependencies] = useState<dependency[]>(
+    []
+  );
   const [chosenDependencyIndex, setChosenDependencyIndex] = useState(-1);
-  const [sortBy, setSortBy] = useState<sortMethod>("Default");
+  const [sortBy, setSortBy] = useState<sortMethod>("LHS");
   const [searchString, setSearchString] = useState("");
-  const allowedSortMethods: sortMethod[] = ["Default", "LHS", "RHS"];
-  const [selectedDependency, setSelectedDependency] = useState<
-    coloredDepedency
-  >();
+  const allowedSortMethods: sortMethod[] = ["LHS", "RHS"];
+  const [
+    selectedDependency,
+    setSelectedDependency,
+  ] = useState<dependency | null>(null);
   // update displayed dependencies on search
   useEffect(() => {
     const keywords = searchString.split(" ").filter((str) => str);
@@ -76,15 +75,6 @@ const DependencyListFull: React.FC<Props> = ({
 
     // sort found dependencies
     const newSortedDependencies = foundDependencies.sort((d1, d2) => {
-      if (sortBy === "Default") {
-        if (d1.lhs.length !== d2.lhs.length) {
-          return d1.lhs.length - d2.lhs.length;
-        }
-        return (d1.lhs.join("") + d1.rhs).localeCompare(
-          d2.lhs.join("") + d2.rhs
-        );
-      }
-
       if (sortBy === "LHS") {
         return (d1.lhs.join("") + d1.rhs).localeCompare(
           d2.lhs.join("") + d2.rhs
@@ -104,52 +94,82 @@ const DependencyListFull: React.FC<Props> = ({
   ]);
 
   return (
-    <div className="dependency-list-full">
-      <h1 className="title">Dependencies</h1>
-      <div className="sort">
-        <h3>Sort by</h3>
-        {allowedSortMethods.map((value, index) => (
+    <Container fluid className="p-4 flex-grow-1 d-flex flex-column">
+      <Row>
+        <Col className="col-auto d-flex flex-wrap align-items-center my-2 px-0">
+          <h3 className="mx-2 fw-bold">Sort by</h3>
+          {allowedSortMethods.map((value, index) => (
+            <Toggle
+              onClick={() => setSortBy(value)}
+              toggleCondition={sortBy === value}
+              variant="dark"
+              key={index}
+              className="mx-2"
+            >
+              {value}
+            </Toggle>
+          ))}
+          <SearchBar
+            defaultText="Filter dependencies"
+            onChange={(str) => setSearchString(str)}
+            className="mx-2"
+          />
+        </Col>
+        <Col className="col-auto d-flex flex-wrap align-items-center my-2 px-0">
+          <h3 className="mx-2 fw-bold">Display</h3>
           <Toggle
-            onClick={() => setSortBy(value)}
-            toggleCondition={sortBy === value}
-            color="0"
-            key={index}
+            toggleCondition={showKeys}
+            variant="dark"
+            onClick={() => setShowKeys(!showKeys)}
+            className="mx-2"
           >
-            {value}
+            Keys
           </Toggle>
-        ))}
-        <SearchBar
-          defaultText="Filter dependencies"
-          onChange={(str) => setSearchString(str)}
-        />
-        <Toggle
-          toggleCondition={showKeys}
-          onClick={() => setShowKeys(!showKeys)}
-        >
-          Display keys
-        </Toggle>
-      </div>
-      <div className="dependency-list-wrapper">
-        <div className="dependency-list">
-          {sortedDependencies.map((dep, index) => {
-            return (
-              <Dependency
-                dep={dep}
-                key={index}
-                onClick={() => {
-                  setChosenDependencyIndex(index);
-                  setSelectedDependency(dep);
-                }}
-                isActive={index == chosenDependencyIndex}
-              />
-            );
-          })}
-        </div>
-        <div className="snippet">
+          <Toggle
+            toggleCondition={showDependencies}
+            variant="dark"
+            onClick={() => setShowDependencies(!showDependencies)}
+            className="mx-2"
+          >
+            Dependencies
+          </Toggle>
+          <Toggle
+            toggleCondition={showDataset}
+            variant="dark"
+            onClick={() => setShowDataset(!showDataset)}
+            className="mx-2"
+          >
+            Dataset
+          </Toggle>
+        </Col>
+      </Row>
+      <Row className="flex-grow-1">
+        <Col className={`col-auto ${showDependencies ? "" : "d-none"}`}>
+          <Stack className="my-2 w-100">
+            {sortedDependencies.map((dep, index) => {
+              return (
+                <Dependency
+                  dep={dep}
+                  key={index}
+                  onClick={() => {
+                    setChosenDependencyIndex(index);
+                    setSelectedDependency(dep);
+                  }}
+                  onActiveClick={() => {
+                    setChosenDependencyIndex(-1);
+                    setSelectedDependency(null);
+                  }}
+                  isActive={index == chosenDependencyIndex}
+                />
+              );
+            })}
+          </Stack>
+        </Col>
+        <Col className={`col-auto ${showDataset ? "" : "d-none"}`}>
           <Snippet taskId={taskId} selectedDependency={selectedDependency} />
-        </div>
-      </div>
-    </div>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

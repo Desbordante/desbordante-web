@@ -1,16 +1,22 @@
 import React from "react";
 
 import "./FormItem.scss";
+import { Col } from "react-bootstrap";
 
 interface Props {
   enabled?: boolean;
 }
 
 const FormItem: React.FC<Props> = ({ enabled = true, children }) => (
-  <div className="form-item">
-    {!enabled && <div className="shadow" />}
+  <Col
+    xxl={6}
+    className="form-item my-2 position-relative d-flex align-items-center flex-wrap"
+  >
+    {!enabled && (
+      <div className="form-item-shadow position-absolute w-100 h-100" />
+    )}
     {children}
-  </div>
+  </Col>
 );
 
 export default FormItem;

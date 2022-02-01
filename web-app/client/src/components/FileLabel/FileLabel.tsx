@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import "./FileLabel.scss";
 import { useDropzone } from "react-dropzone";
 
@@ -11,8 +11,8 @@ interface Props {
   onClick: () => void;
   setFile: (file: File) => void;
   builtinDataset: string | null;
+  className: string;
 }
-/* eslint-enable no-unused-vars */
 
 const FileLabel: React.FC<Props> = ({
   file,
@@ -22,80 +22,49 @@ const FileLabel: React.FC<Props> = ({
   onClick,
   setFile,
   builtinDataset,
+  className = "",
 }) => {
-  // Is the input field glowing
-  const [glow, setGlow] = useState(false);
-
-  // Needed for dropzone
   const { getRootProps } = useDropzone({
     onDrop: (acceptedFiles) => setFile(acceptedFiles[0]),
   });
 
-  // Make borders red if error occurs
-  let borderClass = "inactive";
+  let displayText = "";
   if (fileExistenceValidator(file)) {
-    if (fileSizeValidator(file) && fileFormatValidator(file)) {
-      borderClass = "active";
-    } else {
-      borderClass = "error";
+    displayText = file!.name;
+    if (displayText.length > 40) {
+      displayText = displayText.slice(0, 40);
     }
+
+    if (!fileFormatValidator(file)) {
+      displayText = "This format is not supported";
+    }
+
+    if (!fileSizeValidator(file)) {
+      displayText = "This file is too large";
+    }
+  } else {
+    displayText = "Upload your dataset or choose one of ours";
   }
 
-  // show error if can't process file
-  let fileTitle = (
-    <>
-      <span className="highlight-green">Upload</span>
-      {" your dataset, or "}
-      <span className="highlight-purple">choose</span>
-      {" one of ours ... "}
-    </>
-  );
-  if (fileExistenceValidator(file)) {
-    if (fileSizeValidator(file) && fileFormatValidator(file)) {
-      fileTitle = (
-        <div>
-          {file && file.name.length > 40
-            ? `${file?.name.slice(0, 40)}...`
-            : file?.name}
-        </div>
-      );
-    } else if (fileSizeValidator(file)) {
-      fileTitle = (
-        <span className="highlight-red">
-          Error: this format is not supported
-        </span>
-      );
-    } else {
-      fileTitle = (
-        <span className="highlight-red">Error: this file is too large</span>
-      );
-    }
-  }
+  let isError =
+    fileExistenceValidator(file) &&
+    (!fileSizeValidator(file) || !fileFormatValidator(file));
 
   if (builtinDataset) {
-    fileTitle = <span className="highlight-purple">{builtinDataset}</span>;
+    displayText = builtinDataset;
+    isError = false;
   }
 
   return (
-    /* eslint-disable-next-line react/jsx-props-no-spreading */
-    <div className="file-name-wrapper" {...getRootProps()}>
-      <div
-        className={`gradient-fill ${borderClass} glow`}
-        style={{
-          opacity: glow ? 1 : 0,
-        }}
-        onClick={onClick}
-      >
-        {fileTitle}
-      </div>
-      <div
-        className={`gradient-fill outline ${borderClass}`}
-        onClick={onClick}
-        onMouseEnter={() => setGlow(true)}
-        onMouseLeave={() => setGlow(false)}
-      >
-        <div className="filename">{fileTitle}</div>
-      </div>
+    <div
+      className={`file-label rounded-pill px-3 py-2 border border-2 cursor-pointer ${
+        isError ? "border-danger text-danger" : "border-lighter-dark text-grey"
+      } ${className}`}
+      /* eslint-disable-next-line react/jsx-props-no-spreading */
+      {...getRootProps()}
+      onClick={onClick}
+    >
+      {displayText}
     </div>
   );
 };
