@@ -22,5 +22,3 @@ export type algorithm = {
     threads: boolean;
   };
 };
-export type coloredDepedency = { lhs: coloredAttribute[]; rhs: coloredAttribute };
-export type coloredAttribute = { name: string, value: number, color: string };
