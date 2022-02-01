@@ -1,4 +1,4 @@
-@import "../../variables.scss";
+@import "../../_variables.scss";
 
 .slider {
   -webkit-appearance: none;
@@ -7,7 +7,6 @@
   background: $border;
   outline: none;
   opacity: 1;
-  margin: 0rem 0.8rem;
   width: 15rem;
 
   &::-webkit-slider-thumb {
@@ -15,7 +14,7 @@
     appearance: none;
     width: 0.4rem;
     height: 1.5rem;
-    background: $button-white;
+    background-color: $light;
     cursor: pointer;
     outline: none;
     border: none;
@@ -25,7 +24,7 @@
   &::-moz-range-thumb {
     width: 0.4rem;
     height: 1.5rem;
-    background: $button-white;
+    background-color: $light;
     cursor: pointer;
     outline: none;
     border: none;

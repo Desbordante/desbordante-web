@@ -1,56 +1,47 @@
-/* eslint-disable no-console */
-import axios from "axios";
+/* eslint-disable no-console,indent,function-paren-newline */
 import React, { useState, useEffect } from "react";
-import { coloredDepedency } from "../../types";
-import "./Snippet.scss";
+import axios from "axios";
+import { Container } from "react-bootstrap";
 
+import "./Snippet.scss";
+import { dependency } from "../../types";
 import { serverURL } from "../../APIFunctions";
+import Table from "./Table";
 
 interface Props {
   taskId: string;
-  selectedDependency: coloredDepedency | undefined;
-}
-
-const MAX_LENGTH = 100;
-const DISTANCE_BETWEEN_CELLS = 1;
-
-function getSelectedIndices(
-  dep: coloredDepedency | undefined,
-  header: string[]
-): Map<number, string> {
-  const selectedIndices = new Map<number, string>();
-  if (dep === undefined) {
-    return selectedIndices;
-  }
-  dep.lhs.forEach((lhs) =>
-    selectedIndices.set(header.indexOf(lhs.name), lhs.color));
-  selectedIndices.set(header.indexOf(dep.rhs.name), dep.rhs.color);
-  return selectedIndices;
-}
-
-function range(start: number, end: number): number[] {
-  return Array.from(Array(end - start + 1), (_, i) => i + start);
-}
-
-function getDotsIndices(selectedIndices: Map<number, string>): number[] {
-  const buffer = Array.from(selectedIndices.keys()).sort();
-  let dotsIndices: number[] = [];
-  buffer.forEach((val, idx) => {
-    if (idx < buffer.length - 1) {
-      if (buffer[idx + 1] - buffer[idx] > DISTANCE_BETWEEN_CELLS) {
-        dotsIndices = dotsIndices.concat(range(buffer[idx] + 1, buffer[idx + 1] - 1));
-      }
-    }
-  });
-  return dotsIndices;
+  selectedDependency: dependency | null;
 }
 
 const Snippet: React.FC<Props> = ({ taskId, selectedDependency }) => {
   const [table, setTable] = useState<string[][]>([[]]);
-  const selectedIndices: Map<number, string> = getSelectedIndices(
-    selectedDependency,
-    table[0]
-  );
+  const header = table[0];
+
+  const getSelectedAttributeColumns = () => {
+    if (!selectedDependency) {
+      return [];
+    }
+    const lhs = selectedDependency.lhs.map((attr) => header.indexOf(attr.name));
+    const rhs = header.indexOf(selectedDependency.rhs.name);
+    return [...lhs, rhs];
+  };
+
+  const getNonSelectedAttributeColumns = () => {
+    const selectedColumns = getSelectedAttributeColumns();
+    return header
+      .map((_, index) => index)
+      .filter((index) => !selectedColumns.includes(index));
+  };
+
+  const getSelectedTablePart = () => {
+    const selectedColumns = getSelectedAttributeColumns();
+    return table.map((row) => selectedColumns.map((column) => row[column]));
+  };
+
+  const getNonSelectedTablePart = () => {
+    const nonSelectedColumns = getNonSelectedAttributeColumns();
+    return table.map((row) => nonSelectedColumns.map((column) => row[column]));
+  };
 
   useEffect(() => {
     axios
@@ -59,34 +50,12 @@ const Snippet: React.FC<Props> = ({ taskId, selectedDependency }) => {
   }, []);
 
   return (
-    <table>
-      {
-        table === undefined ?
-          <></>
-          :
-          table
-            .filter((val, idx) => idx < MAX_LENGTH)
-            .map((value, index) => (
-              <tr
-                // eslint-disable-next-line react/no-array-index-key
-                key={index}
-              >
-                {value
-                  .filter((cell, idx) => ((idx !== value.length - 1) || (cell !== "")))
-                  .map((cell, idx) => (
-                    <td
-                      // eslint-disable-next-line react/no-array-index-key
-                      key={idx}
-                      style={selectedIndices.get(idx) !== undefined ? { backgroundColor: `${selectedIndices.get(idx)}90` } : { backgroundColor: "#ffffff" }}
-                    >
-                      {cell}
-                    </td>
-                  ))
-                  .filter((cell, idx) => (!getDotsIndices(selectedIndices).includes(idx)))}
-              </tr>
-            ))
-      }
-    </table>
+    <Container className="d-flex">
+      {table && selectedDependency && (
+        <Table data={getSelectedTablePart()} colorize />
+      )}
+      {table && <Table data={getNonSelectedTablePart()} />}
+    </Container>
   );
 };
 

@@ -8,7 +8,7 @@ interface Props {
   min?: number;
   max?: number;
   step?: number;
-  exponential?: boolean;
+  className?: string;
 }
 /* eslint-enable no-unused-vars */
 
@@ -18,6 +18,7 @@ const Slider: React.FC<Props> = ({
   min = 0,
   max = 1,
   step = 0.005,
+  className = "",
 }) => (
   <input
     type="range"
@@ -25,7 +26,7 @@ const Slider: React.FC<Props> = ({
     max={max}
     value={value}
     step={step}
-    className="slider"
+    className={`slider ${className}`}
     onChange={(e) => onChange(e.target.value)}
   />
 );

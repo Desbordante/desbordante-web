@@ -1,6 +1,6 @@
 import React from "react";
 import { Doughnut } from "react-chartjs-2";
-import { coloredAttribute } from "../../types";
+import { attribute } from "../../types";
 
 import AttributeLabel from "../AttributeLabel/AttributeLabel";
 import SelectedAttribute from "../SelectedAttribute/SelectedAttribute";
@@ -8,10 +8,10 @@ import "./PieChartFull.scss";
 
 /* eslint-disable no-unused-vars */
 interface Props {
-  displayAttributes: coloredAttribute[];
+  displayAttributes: attribute[];
   onSelect: (a: any, b: any) => void;
-  selectedAttributes: coloredAttribute[];
-  setSelectedAttributes: (attr: coloredAttribute[]) => void;
+  selectedAttributes: attribute[];
+  setSelectedAttributes: (attr: attribute[]) => void;
 }
 /* eslint-enable no-unused-vars */
 
@@ -39,9 +39,9 @@ const Chart: React.FC<Props> = ({
   ];
 
   return (
-    <div className="chart">
-      <div className="legend-and-canvas">
-        <div className="chart-legend">
+    <>
+      <div className="d-flex">
+        <div className="d-flex flex-column justify-content-center">
           {displayAttributes.map((attr, index) => (
             <AttributeLabel
               text={attr.name}
@@ -114,7 +114,7 @@ const Chart: React.FC<Props> = ({
           />
         </div>
       </div>
-      <div className="selected-attributes">
+      <div className="d-flex flex-wrap justify-content-center">
         {selectedAttributes.map((attr, index) => (
           <SelectedAttribute
             onDelete={() => {
@@ -128,7 +128,7 @@ const Chart: React.FC<Props> = ({
           />
         ))}
       </div>
-    </div>
+    </>
   );
 };
 
