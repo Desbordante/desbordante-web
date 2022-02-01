@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 
-export const serverURL = "http://localhost:5000";
+export const serverURL = `http://${process.env.REACT_APP_SERVER_HOST}:${process.env.REACT_APP_SERVER_PORT}`;
 
 /* eslint-disable no-console */
 /* eslint-disable comma-dangle */
