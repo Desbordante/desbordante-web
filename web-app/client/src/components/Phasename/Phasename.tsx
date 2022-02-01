@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 
 import "./Phasename.scss";
 
@@ -18,11 +18,13 @@ const Phasename: React.FC<Props> = ({
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
   const clamp = (number: number, min: number, max: number) =>
     Math.min(max, Math.max(min, number));
-
   const message = `Phase ${currentPhase} of ${maxPhase}: ${phaseName}...`;
 
+  const titleRef = useRef(null);
   const pointerWidth = 3 * rem;
-  const titleWidth = message.length * 0.65 * rem;
+  const titleWidth = titleRef.current
+    ? parseFloat(getComputedStyle(titleRef.current!).width)
+    : 0;
   const titleBorderRadius = 1 * rem;
   const margin = 1 * rem;
 
@@ -60,25 +62,26 @@ const Phasename: React.FC<Props> = ({
 
   return (
     <div
-      className="phase-name-container"
+      className={`position-absolute flex-column mt-2 d-${
+        opacity ? "flex" : "none"
+      }`}
       style={{
-        marginTop: margin / 2,
         opacity,
       }}
     >
       <img
         src="/icons/progressbar_pointer.svg"
-        alt="I"
+        alt=""
         style={{
           transform: `translateX(${pointerTransform}px)`,
           width: pointerWidth,
         }}
       />
       <div
-        className="phase-name"
+        ref={titleRef}
+        className="phase-name bg-dark text-white text-center px-5 py-3"
         style={{
           transform: `translateX(${titleTransform}px)`,
-          width: titleWidth,
           borderRadius: titleBorderRadius,
         }}
       >

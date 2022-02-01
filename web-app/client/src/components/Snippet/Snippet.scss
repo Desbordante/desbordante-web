@@ -1,17 +1,29 @@
+@import "../../_variables.scss";
+
 table {
-  width: 100%;
-  border-collapse: collapse;
+  thead {
+    tr:first-of-type {
+      th:first-of-type {
+        border-top-left-radius: 2rem;
+      }
+      th:last-of-type {
+        border-top-right-radius: 2rem;
+      }
+    }
+  }
+  tbody {
+    tr:last-of-type {
+      td:first-of-type {
+        border-bottom-left-radius: 1rem;
+      }
+      td:last-of-type {
+        border-bottom-right-radius: 1rem;
+      }
+    }
+  }
 }
 
-.snippet {
-  height: 50vh;
-  overflow-y: auto;
-}
-
+th,
 td {
-  border: 1px solid black;
-  font-family: var(--font-content);
-  font-weight: 300;
-  font-size: 1.1rem;
   transition: 0.15s;
 }

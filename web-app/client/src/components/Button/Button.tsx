@@ -1,27 +1,26 @@
 import React from "react";
+
 import "./Button.scss";
 
 interface Props {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   enabled?: boolean;
-  color?: "0" | "1" | "error";
-  size?: number;
+  variant?: "light" | "dark" | "danger";
+  className?: string;
 }
 
 const Button: React.FC<Props> = ({
   onClick,
   enabled = true,
-  color = "0",
+  variant = "light",
+  className = "",
   children,
-  size = 3,
 }) => (
   <button
     type="button"
-    className={`button ${enabled ? "" : "disabled"} color-${color}`}
-    style={{
-      fontSize: `${size * 0.4}rem`,
-      padding: `${size * 0.25}rem ${size * 0.5}rem`,
-    }}
+    className={`button ${enabled ? "" : "disabled"} bg-${variant} text-${
+      variant === "light" ? "black" : "white"
+    } text-nowrap border-0 outline-0 px-3 py-2 rounded-pill cursor-pointer ${className}`}
     onClick={enabled ? onClick : () => {}}
   >
     {children}

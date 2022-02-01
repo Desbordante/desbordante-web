@@ -7,6 +7,7 @@ interface Props {
   onChange: (str: string) => void;
   inputValidator: (str: string) => boolean;
   size?: number;
+  className?: string;
 }
 /* eslint-enable no-unused-vars */
 
@@ -15,6 +16,7 @@ const Value: React.FC<Props> = ({
   onChange,
   inputValidator,
   size = 5,
+  className = "",
 }) => {
   const [isValid, setIsValid] = useState(inputValidator(value));
 
@@ -30,7 +32,11 @@ const Value: React.FC<Props> = ({
     <input
       type="text"
       value={value}
-      className={`value ${isValid ? "" : "invalid"}`}
+      className={`value ${
+        isValid
+          ? "text-light border-lighter-dark bg-transparent"
+          : "text-danger border-danger bg-danger bg-opacity-10"
+      } text-center border border-2 outline-0 px-2 py-2 rounded-pill cursor-pointer ${className}`}
       size={size}
       onChange={(event) => {
         // eslint-disable-next-line no-console
