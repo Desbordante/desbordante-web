@@ -1,14 +1,19 @@
 var Kafka = require('node-rdkafka');
 
 var producer = new Kafka.Producer(
-  { 'metadata.broker.list': `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}` }, 
+  { 
+    //'debug' : 'all',
+    'metadata.broker.list': `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}` 
+  }, 
   {}, 
-  { topic: `${process.env.TOPIC}` }
+  { 
+    topic: `${process.env.TOPIC}`,
+  }
 );
 
-producer.on('event.log', function(log) {
-    console.log(log);
-});
+ producer.on('event.log', function(log) {
+     console.log(JSON.stringify(log));
+ });
 
 producer.on('event.error', function(err) {
     console.error('Error from producer');
@@ -25,8 +30,9 @@ const client = Kafka.AdminClient.create({
   'metadata.broker.list': `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}`
 });
 
-producer.connect()
+producer
   .on('ready', function(i, metadata) {
+    console.log("Producer ready");
     var is_topic_tasks_created = false
     metadata.topics.forEach((topic) => {
       if (topic.name === `${process.env.DB_TASKS_TABLE_NAME}`) {
@@ -43,7 +49,7 @@ producer.connect()
         topic: `${process.env.DB_TASKS_TABLE_NAME}`,
         num_partitions: 1,
         replication_factor: 1
-      }, function(res) {
+      }, (res) => {
         if (res !== undefined) console.log(res)
         else { 
           console.log(`Topic '${process.env.DB_TASKS_TABLE_NAME}' was created`)
@@ -55,5 +61,29 @@ producer.connect()
   .on('event.error', function(err) {
     console.log(err);
   })
+
+  function connect() {
+      return new Promise((resolve, reject) => {
+          producer.connect({}, (err) => {
+          if (err) {
+              console.log('Error connecting to Broker');
+              console.log(err);
+              reject(err);
+            } else {
+              resolve(producer);
+            }
+          });
+      });
+  }
+
+function connectProducer(producer) {
+     connect()
+      .then(() => {})
+      .catch(err => {
+        setTimeout(() => connectProducer(producer), 2000);
+    });
+};
+
+connectProducer(producer);
 
 module.exports = producer;
