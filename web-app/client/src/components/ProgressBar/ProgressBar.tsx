@@ -12,7 +12,7 @@ const ProgressBar: React.FC<Props> = ({
   progress,
   maxWidth = 100,
   thickness = 5,
-  rounded = true,
+  rounded = false,
 }) => {
   const barWidth = maxWidth * progress;
 
@@ -23,19 +23,12 @@ const ProgressBar: React.FC<Props> = ({
   };
 
   return (
-    <div className="progress-bar" style={style}>
-      <div className="progress-bg" style={style} />
+    <div
+      className="bg-lighter-dark position-relative d-flex align-items-center"
+      style={style}
+    >
       <div
-        className="progress-bg progress-accent"
-        style={{
-          ...style,
-          width: `${barWidth}%`,
-          opacity: "50%",
-          filter: "blur(2rem)",
-        }}
-      />
-      <div
-        className="progress-bg progress-accent"
+        className="progress-accent"
         style={{ ...style, width: `${barWidth}%` }}
       />
     </div>
