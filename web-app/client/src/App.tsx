@@ -31,7 +31,7 @@ const App: React.FC = () => {
             </Route>
 
             {/* View Page */}
-            <Route path="/(attrs|deps)/:taskID/">
+            <Route path="/:taskID/">
               <Viewer />
             </Route>
 
