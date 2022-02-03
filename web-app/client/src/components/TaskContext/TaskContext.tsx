@@ -21,6 +21,8 @@ type TaskContextType = {
   setFileName: React.Dispatch<React.SetStateAction<string>>;
   delimiter: string;
   setDelimiter: React.Dispatch<React.SetStateAction<string>>;
+  table: string[][];
+  setTable: React.Dispatch<React.SetStateAction<string[][]>>;
 };
 
 export const TaskContext = createContext<TaskContextType | null>(null);
@@ -36,6 +38,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [delimiter, setDelimiter] = useState<string>("");
+  const [table, setTable] = useState<string[][]>([[]]);
 
   const outValue = {
     taskId,
@@ -56,6 +59,8 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     setFileName,
     delimiter,
     setDelimiter,
+    table,
+    setTable,
   };
 
   return (
