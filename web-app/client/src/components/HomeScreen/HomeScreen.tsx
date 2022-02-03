@@ -23,7 +23,7 @@ const HomeScreen: React.FC<Props> = ({ setUploadProgress }) => {
         onSubmit={() => history.push("/loading")}
         setUploadProgress={setUploadProgress}
         handleResponse={(res) => {
-          history.push(`/attrs/${res.data.taskID}`);
+          history.push(`/${res.data.taskID}`);
         }}
       />
     </div>
