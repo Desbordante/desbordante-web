@@ -71,7 +71,7 @@ const PieChartFull: React.FC<Props> = ({
 
   return (
     <div className="pie-chart-full d-flex flex-column align-items-center">
-      <h1 className="title fw-bold mt-5 mb-3">{title}</h1>
+      <h1 className="title fw-bold mb-3">{title}</h1>
       <div className="d-flex align-items-center">
         <SearchBar
           defaultText="Filter attributes..."
