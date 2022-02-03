@@ -31,7 +31,6 @@ interface Props {
 }
 
 const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
-  // Allowed field values
   const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] = useState<
     { datasetName: string; datasetSeparator: string }[]
   >([]);
@@ -45,7 +44,6 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
 
   const { file, setFile } = useContext(TaskContext)!;
 
-  // Parameters, later sent to the server on execution as JSON
   const [hasHeader, setHasHeader] = useState(true);
   const [separator, setSeparator] = useState(",");
   const [algorithm, setAlgorithm] = useState<algorithm | null>(null);
@@ -59,7 +57,6 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
 
   const history = useHistory();
 
-  // Getting allowed field values from server
   useEffect(() => {
     axios
       .get(`${serverURL}/algsInfo`, { timeout: 2000 })
@@ -92,7 +89,6 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
     }
   }, [algorithm]);
 
-  // Validator functions for fields
   const fileExistenceValidator = (file: File | null) => !!file;
   const fileSizeValidator = (file: File | null) =>
     !!file && file.size <= maxfilesize;
@@ -106,7 +102,6 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
   const maxLHSValidator = (lhs: string) =>
     lhs === "inf" || (!Number.isNaN(+lhs) && +lhs > 0 && +lhs % 1 === 0);
 
-  // Validator function that ensures every field is correct
   function isValid() {
     return (
       (!!builtinDataset ||

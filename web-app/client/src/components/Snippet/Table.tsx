@@ -21,9 +21,8 @@ const Table: React.FC<Props> = ({
     .map((_, index) => index)
     .filter((index) => !colorizedColumns.includes(index));
 
-  const headerClassName =
-    "px-4 py-3 text-white text-nowrap text-center border-1 border-light";
-  const bodyClassName = "border-1 border-light text-center py-1 px-2";
+  const headerClassName = "px-4 py-3 text-white text-nowrap text-center";
+  const bodyClassName = "text-center py-1 px-2";
 
   return (
     <Container
