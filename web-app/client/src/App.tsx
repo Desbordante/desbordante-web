@@ -16,7 +16,7 @@ const App: React.FC = () => {
 
   return (
     <TaskContextProvider>
-      <div className="App bg-light d-flex flex-column">
+      <div className="App bg-light d-flex flex-column min-vh-100">
         <Router>
           <TopBar />
           <Switch>
