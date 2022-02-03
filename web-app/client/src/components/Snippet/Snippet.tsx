@@ -1,20 +1,21 @@
 /* eslint-disable no-console,indent,function-paren-newline */
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useContext } from "react";
 import { Container } from "react-bootstrap";
 
 import "./Snippet.scss";
+import Toggle from "../Toggle/Toggle";
 import { dependency } from "../../types";
-import { serverURL } from "../../APIFunctions";
 import Table from "./Table";
+import { TaskContext } from "../TaskContext/TaskContext";
 
 interface Props {
-  taskId: string;
   selectedDependency: dependency | null;
+  className?: string;
 }
 
-const Snippet: React.FC<Props> = ({ taskId, selectedDependency }) => {
-  const [table, setTable] = useState<string[][]>([[]]);
+const Snippet: React.FC<Props> = ({ selectedDependency, className = "" }) => {
+  const { table } = useContext(TaskContext)!;
+  const [isNonSelectedPartShown, setIsNonSelectedPartShown] = useState(true);
   const header = table[0];
 
   const getSelectedAttributeColumns = () => {
@@ -26,35 +27,22 @@ const Snippet: React.FC<Props> = ({ taskId, selectedDependency }) => {
     return [...lhs, rhs];
   };
 
-  const getNonSelectedAttributeColumns = () => {
-    const selectedColumns = getSelectedAttributeColumns();
-    return header
-      .map((_, index) => index)
-      .filter((index) => !selectedColumns.includes(index));
-  };
-
-  const getSelectedTablePart = () => {
-    const selectedColumns = getSelectedAttributeColumns();
-    return table.map((row) => selectedColumns.map((column) => row[column]));
-  };
-
-  const getNonSelectedTablePart = () => {
-    const nonSelectedColumns = getNonSelectedAttributeColumns();
-    return table.map((row) => nonSelectedColumns.map((column) => row[column]));
-  };
-
-  useEffect(() => {
-    axios
-      .get(`${serverURL}/getSnippet?taskID=${taskId}`)
-      .then((res) => setTable(res.data));
-  }, []);
-
   return (
-    <Container className="d-flex">
-      {table && selectedDependency && (
-        <Table data={getSelectedTablePart()} colorize />
-      )}
-      {table && <Table data={getNonSelectedTablePart()} />}
+    <Container fluid className={`flex-grow-1 ${className}`}>
+      <Toggle
+        variant="dark"
+        onClick={() => setIsNonSelectedPartShown(!isNonSelectedPartShown)}
+        toggleCondition={isNonSelectedPartShown}
+        isEnabled={!!selectedDependency}
+        className="my-2"
+      >
+        Snow non-selected
+      </Toggle>
+      <Table
+        colorizedColumns={getSelectedAttributeColumns()}
+        showUncolorizedColumns={isNonSelectedPartShown || !selectedDependency}
+        data={table}
+      />
     </Container>
   );
 };
