@@ -42,7 +42,7 @@ const UploadFile: React.FC<Props> = ({
         fileSizeValidator={fileSizeValidator}
         fileFormatValidator={fileFormatValidator}
         setFile={onClick}
-        className="mx-2"
+        className="mx-2 flex-grow-1"
       />
       <input
         type="file"
