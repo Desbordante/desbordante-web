@@ -7,6 +7,7 @@ import "./TopBar.scss";
 import Button from "../Button/Button";
 import { TaskContext } from "../TaskContext/TaskContext";
 import { serverURL } from "../../APIFunctions";
+import { AuthContext } from "../AuthContext";
 
 const TopBar = () => {
   const history = useHistory();
@@ -18,11 +19,12 @@ const TopBar = () => {
     taskStatus,
     setTaskStatus,
   } = useContext(TaskContext)!;
+  const { user } = useContext(AuthContext)!;
 
   return (
     <Navbar variant="dark" bg="dark" sticky="top">
       <Container fluid>
-        <Navbar.Brand>
+        <Navbar.Brand href="/">
           <img
             src="/icons/logo.svg"
             alt="logo"
@@ -40,9 +42,11 @@ const TopBar = () => {
             <p className="mx-1 my-auto text-secondary">{taskStatus}</p>
           )}
         </Container>
-        <Button onClick={() => {}} className="mx-2">
-          Log in
-        </Button>
+        {!user && (
+          <Button onClick={() => history.push("/signup")} className="mx-2">
+            Sign up
+          </Button>
+        )}
         {taskId && (
           <Button
             variant="danger"

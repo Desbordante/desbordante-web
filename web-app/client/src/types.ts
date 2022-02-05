@@ -22,3 +22,7 @@ export type algorithm = {
     threads: boolean;
   };
 };
+export type user = {
+  name: string;
+  isAdmin: boolean;
+};
