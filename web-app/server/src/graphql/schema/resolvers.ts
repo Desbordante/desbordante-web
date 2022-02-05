@@ -1,20 +1,25 @@
-import {QueryResolvers} from "../types/types";
-import merge from "lodash/merge"
-import FDAResultResolvers from "./TaskInfo/resolvers";
+import merge from "lodash/merge";
+import { GraphQLUpload } from "graphql-upload"
 
-// const NumberResolvers: QueryResolvers = {
-//     numberSix: async (obj, { }, context) => {
-//         return 6;
-//     },
-//     numberSeven: async (obj, { }, context) => {
-//         return 7;
-//     }
-// }
+import { Resolvers } from "../types/types";
 
-const resolvers = merge(
-    // NumberResolvers,
-    FDAResultResolvers
+import TaskCreatingResolvers from "./TaskCreating/resolvers";
+import AppConfigResolvers from "./AppConfiguration/resolvers";
+import TaskInfoResolvers from "./TaskInfo/resolvers";
+
+// TODO
+const UserResolvers : Resolvers = {
+    Query: {
+        user: async(parent, { id }, { models, logger }) => {
+            return models.User.findOne({ where: { id: id } });
+        },
+    }
+}
+
+export = merge(
+    AppConfigResolvers,
+    TaskInfoResolvers,
+    TaskCreatingResolvers,
+    { Upload: GraphQLUpload },
+    UserResolvers
 );
-
-
-export = resolvers;

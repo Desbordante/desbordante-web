@@ -1,60 +1,99 @@
 import { gql } from "apollo-server-core";
 
 const typeDefs = gql`
+
+    scalar Upload
+
+    type Table {
+        ID: ID!
+        userID: ID
+        isBuiltInDataset: Boolean!
+        fileName: String!
+        originalFileName: String!
+        mimeType: String
+        encoding: String
+        hasHeader: Boolean!
+        renamedHeader: String!
+        path: String!
+        delimiter: String!
+    }
     
-    type AlgorithmProps {
-        hasErrorThreshold: Boolean!
-        hasArityConstraint: Boolean!
-        isMiltithreaded: Boolean!
+    type User {
+        id: String!
+        email: String!
+        name: String!
+        tasks: [TaskInfo]
     }
     
     type FDAlgorithmProps {
-        baseProperties: AlgorithmProps!
+        hasErrorThreshold: Boolean!
+        hasArityConstraint: Boolean!
+        isMultiThreaded: Boolean!
     }
     
     type CFDAlgorithmProps {
-        baseProperties: AlgorithmProps!
-        hasConfidenceThreshold: Boolean!
+        hasArityConstraint: Boolean!
+        hasSupport: Boolean!
+        hasConfidence: Boolean!
     }
     
     type FDAlgorithmConfig {
         name: String!
         properties: FDAlgorithmProps!
     }
+
+    type CFDAlgorithmConfig {
+        name: String!
+        properties: CFDAlgorithmProps!
+    }
     
     type InputFileConfig {
         allowedFileFormats: [String]!
         allowedSeparators: [String]!
-        maxFileSize: Int!
-    }
-    
-    type InputDatasetConfig {
-        name: String!
-        delimiter: String!
-        hasHeader: Boolean!
+        maxFileSize: Float
     }
     
     type AlgorithmsConfig {
         fileConfig: InputFileConfig!
         allowedFDAlgorithms: [FDAlgorithmConfig]!
-        allowedFDDatasets: [InputDatasetConfig]!
-        allowedCFDAlgorithms: [CFDAlgorithmProps]
-        allowedCFDDatasets: [InputDatasetConfig]!
+        allowedDatasets: [Table]
+        allowedCFDAlgorithms: [CFDAlgorithmConfig]!
     }
     
-    type TaskStatus {
-        phaseName: String!
+    enum TaskType {
+        FDA, CFDA
+    }
+    
+    type TaskInfo {
+        taskID: ID!
+        attemptNumber: Int!
+        type: TaskType!
+        status: String!
+        phaseName: String
+        currentPhase: Int
         progress: Float!
-        currentPhase: Int!
-        msg: String!
+        maxPhase: Int
+        errorMsg: String
+        elapsedTime: Float
     }
     
-    type BaseTaskInfo {
-        ID: ID!
-        status: TaskStatus
-        fileName: String!
+    type BaseTaskConfig {
         algorithmName: String!
-        errorThreshold: Float
+        table: Table!
+    }
+    
+    type FDTaskConfig {
+        baseConfig: BaseTaskConfig!
+        errorThreshold: Float!
+        maxLHS: Int
+        threadsCount: Int!
+    }
+    
+    type CFDTaskConfig {
+        baseConfig: BaseTaskConfig!
+        maxLHS: Int
+        minSupport: Int
+        minConfidence: Float
     }
     
     type Column {
@@ -72,40 +111,106 @@ const typeDefs = gql`
         lhsPatterns: [String]!
         rhsPattern: String!
     }
-    
-    type BaseAlgResInfo {
-        taskInfo: BaseTaskInfo
-        tableHeader: [String]!
-        elapsedTime: Int
-    }
 
     type TaskNotFoundError {
         msg: String!
     }
-
-    union TaskInfoResult = BaseTaskInfo | TaskNotFoundError
-
-    type FDAlgorithm {
-        baseInfo: BaseAlgResInfo!
-        discoveredFDs: [FD]!
-        primaryKeys: [Column]!
-    }
-
-    type CFDAlgorithm {
-        baseInfo: BaseAlgResInfo!
-        discoveredFDs: [CFD]!
+    
+    type InvalidInputError {
+        msg: String!
     }
     
-    union FDAResult = FDAlgorithm | TaskNotFoundError
-#    union CFDAResult = CFDAlgorithm | TaskNotFoundError
+    type InternalServerError {
+        msg: String!
+    }
+    
+    type UnauthorizedError {
+        msg: String!
+    }
+
+    type FDPieChartRow {
+        column: Column!
+        value: Float!
+    }
+
+    type CFDPieChartRow {
+        column: Column!
+        pattern: String
+        value: Float!
+    }
+    
+    type FDAResult {
+        FDs: [FD]
+        PKs: [Column]
+        PieChartData: [FDPieChartRow]
+    }
+    
+    type FDATaskInfo {
+        info: TaskInfo
+        config: FDTaskConfig
+        result: FDAResult
+    }
+
+    type CFDAResult {
+        CFDs: [CFD]
+        PKs: [Column]
+        PieChartData: [CFDPieChartRow]
+    }
+    
+    type CFDATaskInfo {
+        info: TaskInfo
+        config: CFDTaskConfig # Add about file and snippet
+        result: CFDAResult
+    }
+    
+    type Snippet {
+        header: [String]!
+        rows: [[String]]
+        table: Table
+    }
+    
+    union TaskInfoAnswer = FDATaskInfo | CFDATaskInfo
+    union TaskChoosingAnswer = TaskInfo
+    union TaskCreatingAnswer = TaskInfo | UnauthorizedError | InvalidInputError | InternalServerError
     
     type Query {
-        algorithmsConfig: AlgorithmsConfig
-        taskInfo(id: ID!): TaskInfoResult
-        FDAResult(id: ID!): FDAResult
-#        CFDAlgorithmResult(id: ID!): CFDAResult
-        numberSix: Int!
-        numberSeven: Int!
+        user(id: ID!): User
+        snippet(taskID: ID!, from: Int!, limit: Int!): Snippet!
+        algorithmsConfig: AlgorithmsConfig!
+        taskInfo(id: ID!): TaskInfoAnswer!
+    }
+    
+    input ChooseFDTaskProps {
+        algorithmName: String!
+        errorThreshold: Float!
+        maxLHS: Int
+        threadsCount: Int!
+    }
+    
+    input FDTaskProps {
+        algorithmName: String!
+        errorThreshold: Float!
+        maxLHS: Int
+        threadsCount: Int!
+    }
+    
+    input FileProps {
+        delimiter: String!
+        hasHeader: Boolean!
+    }
+
+    input CFDProps {
+        algorithmName: String!
+        maxLHS: Int
+        minSupport: Int
+        minConfidence: Float
+    }
+    
+    type Mutation {
+        chooseFDTask(algProps: FDTaskProps!, fileID: ID!): TaskInfo!
+        # chooseCFDTask(props: CFDTaskProps!, fileID: ID!): TaskInfo!
+        createFDTask(props: FDTaskProps!, fileProps: FileProps!, table: Upload!): TaskInfo!
+        # createCFDTask(props: CFDTaskProps!, fileProps: FileProps!, table: Upload!): TaskInfo!
     }
 `;
 

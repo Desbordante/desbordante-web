@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-import express, {Application} from "express"
+import { Application } from "express"
 import debug from "debug"
 import http from "http"
 
@@ -27,7 +27,7 @@ const configureServer = async(app: Application) => {
     if (error.syscall !== "listen") {
       throw error;
     }
-    // handle specific listen errors with friendly messages
+    
     switch (error.code) {
       case "EACCES":
         console.error(port + " requires elevated privileges");

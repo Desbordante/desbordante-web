@@ -1,12 +1,14 @@
 import cors from "cors"
 import createError from "http-errors"
-import fileUpload from "express-fileupload"
 import morgan from "morgan"
 import express, { Application } from 'express'
+import { Sequelize } from "sequelize"
+import { graphqlUploadExpress } from "graphql-upload"
 
 import configureDB from "./db/configureDB";
-import setRestApiEndpoints from "./routes/setEndpoints";
 import configureGraphQL from "./graphql/configureGraphQL";
+import configureSequelize from "./db/configureSequelize";
+import initBuiltInDatasets from "./db/initBuiltInDatasets";
 
 function normalizePort(val: string | undefined) {
     if (val) {
@@ -21,7 +23,7 @@ function normalizePort(val: string | undefined) {
 
 async function setMiddlewares(app: Application) {
     app.use(cors());
-    app.use(fileUpload({ createParentPath: true }));
+    app.use(graphqlUploadExpress());
     app.use(morgan("dev"));
 }
 
@@ -37,7 +39,36 @@ async function configureApp() {
             throw new Error(`Error while configuring the application ${err}`);
         });
 
-    // Add middlewares
+    const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+        host: process.env.DB_HOST,
+        port: parseInt(process.env.DB_PORT),
+        dialect: 'postgres'
+    });
+
+    await sequelize.authenticate()
+        .then(() => {
+            console.debug("Connection with DB was established");
+        })
+        .catch(err => {
+            throw new Error(`Error while connecting to DB: ${err}`);
+        });
+    
+    await configureSequelize(sequelize)
+        .then(() => {
+            console.debug("Models was configured successfully");
+        })
+        .catch(err => {
+            throw new Error(`Error while configuring models ${err}`);
+        });
+
+    await initBuiltInDatasets(sequelize)
+        .then(() => {
+            console.debug("BuiltIn datasets was initialized");
+        })
+        .catch(err => {
+            throw new Error(`Error while initializing built-in datasets ${err}`);
+        });
+
     await setMiddlewares(app)
         .then(() => {
             console.debug("Middlewares were successfully applied");
@@ -47,19 +78,7 @@ async function configureApp() {
             throw new Error("Error while setting middlewares");
         })
 
-    // Add routes (endpoints)
-    await setRestApiEndpoints(app)
-        .then(() => {
-            console.debug("Endpoints were successfully set");
-        })
-        .catch((err) => {
-            console.error(`Error: ${err.message}`);
-            throw new Error("Error while setting routes");
-        });
-
-    // const context = { pool: app.get('pool') };
-
-    await configureGraphQL(app)
+    await configureGraphQL(app, sequelize)
         .then(() => {
             console.debug("GraphQL was successfully configured");
         })
@@ -80,7 +99,6 @@ async function configureApp() {
         res.locals.message = err.message;
         res.locals.error = req.app.get("env") === "development" ? err : {};
 
-        // Render the error page
         res.status(err.status || 500).send(res.locals.error.message);
     });
 
