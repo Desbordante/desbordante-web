@@ -1,15 +1,16 @@
-import {ApolloServer, ApolloServerExpressConfig} from 'apollo-server-express';
+import { ApolloServer } from 'apollo-server-express';
 import { Application } from "express";
 import { graphqlHTTP } from 'express-graphql';
+import { Sequelize } from 'sequelize/dist';
 
 import schema from './schema/schema'
-import {Pool} from "pg";
 
-const configureGraphQL = async (app: Application) => {
-    const pool: Pool = app.get('pool');
+const configureGraphQL = async (app: Application, { models }: Sequelize) => {
+    const logger = (msg:string) => { console.log(msg); }
+
     const graphqlServer = new ApolloServer({
         schema,
-        context : { pool },
+        context : { models, logger },
         introspection: true
     });
     app.get(
