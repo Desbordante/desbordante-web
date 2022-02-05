@@ -67,7 +67,7 @@ const PieChartFull: React.FC<Props> = ({
     }
 
     setDisplayAttributes(newDisplayAttributes);
-  }, [foundAttributes, foundAttributes, depth, maxItemsShown]);
+  }, [foundAttributes, depth, maxItemsShown]);
 
   return (
     <div className="pie-chart-full d-flex flex-column align-items-center">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./Value.scss";
 
 /* eslint-disable no-unused-vars */
@@ -20,13 +20,13 @@ const Value: React.FC<Props> = ({
 }) => {
   const [isValid, setIsValid] = useState(inputValidator(value));
 
-  const inputHandler = (str: string) => {
+  const inputHandler = useCallback((str: string) => {
     const croppedStr = str.slice(0, size);
     setIsValid(inputValidator(croppedStr));
     onChange(croppedStr);
-  };
+  }, []);
 
-  useEffect(() => inputHandler(value), [value]);
+  useEffect(() => inputHandler(value), [value, inputHandler]);
 
   return (
     <input
