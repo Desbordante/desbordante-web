@@ -10,7 +10,11 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthContextProvider: React.FC = ({ children }) => {
-  const [user, setUser] = useState<user>();
+  const [user, setUser] = useState<user>({
+    name: "Kirill Stupakov",
+    email: "kirill.stupakov.0@gmail.com",
+    isAdmin: false,
+  });
   const [isSignUpShown, setIsSignUpShown] = useState(false);
 
   const outValue = {

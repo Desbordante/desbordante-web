@@ -10,6 +10,7 @@ import ErrorScreen from "./components/ErrorScreen/ErrorScreen";
 import Viewer from "./components/Viewer/Viewer";
 import TopBar from "./components/TopBar/TopBar";
 import SignUpForm from "./components/SignUpForm/SignUpForm";
+import FeedbackForm from "./components/FeedbackForm/FeedbackForm";
 
 const App: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0.0);
@@ -29,6 +30,10 @@ const App: React.FC = () => {
 
           <Route path="/signup">
             <SignUpForm />
+          </Route>
+
+          <Route path="/feedback">
+            <FeedbackForm />
           </Route>
 
           <Route path="/:taskID">

@@ -24,5 +24,6 @@ export type algorithm = {
 };
 export type user = {
   name: string;
+  email: string;
   isAdmin: boolean;
 };
