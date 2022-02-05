@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { Container } from "react-bootstrap";
 import stringToColor from "../../functions/stringToColor";
 
