@@ -42,9 +42,22 @@ const TopBar = () => {
             <p className="mx-1 my-auto text-secondary">{taskStatus}</p>
           )}
         </Container>
+        <Button
+          onClick={() => {
+            window.location.href = "/feedback";
+          }}
+          className="mx-2"
+        >
+          Send Feedback
+        </Button>
         {!user && (
-          <Button onClick={() => history.push("/signup")} className="mx-2">
-            Sign up
+          <Button
+            onClick={() => {
+              window.location.href = "/signup";
+            }}
+            className="mx-2"
+          >
+            Sign Up
           </Button>
         )}
         {taskId && (
