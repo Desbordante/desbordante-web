@@ -24,7 +24,7 @@ const StarRatingPicker: React.FC<Props> = ({ max, onChange, rating }) => {
           /* eslint-disable-next-line react/no-array-index-key */
           key={idx}
           className={`mx-1 bi bi-star${idx < selectedMark ? "-fill" : ""}`}
-          onMouseEnter={() => setSelectedMark(idx)}
+          onMouseEnter={() => setSelectedMark(idx + 1)}
           onClick={() => onChange(idx + 1)}
         />
       ))}
