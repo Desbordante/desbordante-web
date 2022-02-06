@@ -11,14 +11,14 @@ const AppConfigResolvers : Resolvers = {
         user: async(parent, { id }, { models, logger }) => {
             return models.User.findOne({ where: { id: id } });
         },
-
+        // @ts-ignore
         algorithmsConfig: async (parent, {}, { models, logger }) => {
             return {
                 fileConfig: {
                     allowedFileFormats: [
                         "text/csv", "application/vnd.ms-excel"
                     ],
-                    allowedSeparators: [
+                    allowedDelimiters: [
                         ",", "\\t", "\\n", "|", ";"
                     ],
                     maxFileSize: 1e10,
