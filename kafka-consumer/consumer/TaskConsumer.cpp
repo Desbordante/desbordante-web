@@ -1,7 +1,4 @@
 
-#include <algorithm>
-#include <cctype>
-#include <filesystem>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -9,8 +6,6 @@
 #include <chrono>
 #include <thread>
 #include <future>
-
-#include <boost/program_options.hpp>
 
 #include "logging/easylogging++.h"
 
@@ -24,12 +19,18 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-std::string TaskConfig::tableName = "tasks";
+std::string TaskConfig::taskInfoTable = "\"TasksInfo\"";
+std::string TaskConfig::fileInfoTable = "\"FilesInfo\"";
+std::string TaskConfig::taskConfigTable = "\"TasksConfig\"";
+std::string TaskConfig::FDTaskConfigTable = "\"FDTasksConfig\"";
+//std::string TaskConfig::CFDTaskConfigTable = "\"CFDTasksConfig\"";
+std::string TaskConfig::FDTaskResultTable = "\"FDTasksResult\"";
+std::string TaskConfig::CFDTaskResultTable = "\"CFDTasksResult\"";
 
 void TaskConsumer::processMsg(nlohmann::json payload,
                              DBManager const &manager) const {
     auto taskID = std::string(payload["taskID"]);
-    if (!TaskConfig::taskExists(manager, taskID)) {
+    if (!TaskConfig::isTaskExists(manager, taskID)) {
         std::cout << "Task with ID = '" << taskID
                   << "' isn't in the database. (Task wasn't processed (skipped))"
                   << std::endl;
@@ -52,56 +53,6 @@ void TaskConsumer::processMsg(nlohmann::json payload,
                     << "' was successfully processed." << std::endl;
         }
     }
-}
-
-std::vector<std::string> generateRenamedColumns(std::vector<std::string> const &colNames, 
-                                                bool hasHeader) {
-    std::vector<std::string> renamedColNames;
-    if (hasHeader) {
-        for (auto colName : colNames) {
-            if (colName[0] == '\"' && colName[colName.size()-1] == '\"') {
-                colName = std::string(colName.begin() + 1, colName.end() - 1);
-            }
-            colName.erase(
-                colName.begin(), 
-                std::find_if(colName.begin(), colName.end(), 
-                             [](unsigned char ch) { return !std::isspace(ch); })
-            );
-            if (colName.size() == 0) {
-                colName = "empty";
-            }
-            TaskConfig::prepareString(colName);
-            renamedColNames.push_back(colName);
-        }
-        // Vector contains information about how many times the given name occurs
-        // (filling goes in ascending order of indices)
-        // For example: { "col1", "col1", "col2", "col1", "col2"} 
-        //           -> { 0,      1,      0,      2,      1     }
-        std::vector<size_t> numberOfOccurrences(renamedColNames.size(), 0);
-        for (size_t i = 1; i < renamedColNames.size(); ++i) {
-            auto lastOccurenceIt = std::find(
-                renamedColNames.rbegin() + (renamedColNames.size() - i),
-                renamedColNames.rend(),
-                renamedColNames[i]
-            );
-            if (lastOccurenceIt == renamedColNames.rend()) {
-                continue;
-            } else {
-                size_t idx = renamedColNames.rend() - lastOccurenceIt - 1;
-                numberOfOccurrences[i] = numberOfOccurrences[idx] + 1;
-            }
-        }
-        for (size_t i = 1; i < renamedColNames.size(); ++i) {
-            if (numberOfOccurrences[i] != 0) {
-                renamedColNames[i] += "_" + std::to_string(numberOfOccurrences[i]);
-            }
-        }
-    } else {
-        for (size_t i = 0; i != colNames.size(); ++i) {
-            renamedColNames.push_back(std::string("Attr " + std::to_string(i)));
-        }
-    }
-    return renamedColNames;
 }
 
 void TaskConsumer::processTask(TaskConfig const& task, 
@@ -163,7 +114,6 @@ void TaskConsumer::processTask(TaskConfig const& task,
         std::future_status status;
         do {
             status = executionThread.wait_for(std::chrono::seconds(0));
-
             if (status == std::future_status::ready) {
                 std::cout << "Algorithm was executed" << std::endl;
                 task.updateProgress(manager, 100, phaseNames[maxPhase-1].data(), maxPhase);
@@ -184,15 +134,11 @@ void TaskConsumer::processTask(TaskConfig const& task,
 
         if (!TaskConfig::isTaskCancelled(manager, task.getTaskID())) {
             task.setElapsedTime(manager, elapsedTime);
-            auto renamedColumns = generateRenamedColumns(algInstance->getColumnNames(),
-                                                         hasHeader);
-            task.updateRenamedHeader(manager, renamedColumns);
             auto PKColumnPositions = algInstance->getPKColumnPositions(
                                                   CSVParser(datasetPath, separator, hasHeader));
             task.updatePKColumnPositions(manager, PKColumnPositions);
-            task.updateJsonFDs(manager, algInstance->getJsonFDs(false));
-            task.updateJsonArrayNameValue(manager,
-                                          algInstance->getJsonArrayNameValue(renamedColumns));
+            task.updateJsonDeps(manager, algInstance->getJsonFDs(false));
+            task.updatePieChartData(manager, algInstance->getPieChartData());
             task.updateStatus(manager, "COMPLETED");
         } else {
             task.updateStatus(manager, "CANCELLED");
@@ -202,5 +148,4 @@ void TaskConsumer::processTask(TaskConfig const& task,
         std::cout << e.what() << std::endl;
         throw e;
     }
-    throw std::runtime_error("Unexpected behavior during task executing");
 }
