@@ -3,6 +3,8 @@
 
 #include <thread>
 
+#include "column_layout_relation_data.h"
+
 unsigned long long FDAlgorithm::Execute() {
     Initialize();
 
@@ -11,6 +13,17 @@ unsigned long long FDAlgorithm::Execute() {
 
 std::vector<std::string> FDAlgorithm::GetColumnNames() {
     return input_generator_->GetColumnNames();
+}
+
+std::vector<size_t> FDAlgorithm::GetPKColumnPositions(CSVParser inputGenerator) {
+    std::vector<size_t> positions;
+    auto relation_ = ColumnLayoutRelationData::CreateFrom(inputGenerator, true);
+    for (auto const& col : relation_->GetColumnData()) { 
+        if (col.GetPositionListIndex()->GetNumNonSingletonCluster() == 0) {
+            positions.push_back(col.GetColumn()->GetIndex());
+        }
+    }
+    return positions;
 }
 
 std::string FDAlgorithm::GetJsonFDs(bool withNullLhs) {
@@ -123,6 +136,44 @@ std::string FDAlgorithm::GetJsonArrayNameValue(std::vector<std::string> const &c
     for (size_t i = 0; i != numberOfColumns; ++i) {
         lhs_array.push_back({ { "name", colNames[LhsValues[i].second] }, { "value", LhsValues[i].first } });
         rhs_array.push_back({ { "name", colNames[LhsValues[i].second] }, { "value", RhsValues[i].first } });
+    }
+    
+    j["lhs"] = lhs_array;
+    j["rhs"] = rhs_array;
+
+    return j.dump();
+}
+
+std::string FDAlgorithm::GetPieChartData(int degree) {
+    size_t numberOfColumns = input_generator_->GetNumberOfColumns();
+
+    std::vector<double> LhsValues(numberOfColumns, 0);
+    std::vector<double> RhsValues(numberOfColumns, 0);
+
+    for (const auto &fd : fd_collection_) {
+        double divisor = std::pow(fd.GetLhs().GetArity(), degree);
+
+        const auto &LhsColumnIndices = fd.GetLhs().GetColumnIndices();
+        for (size_t index = LhsColumnIndices.find_first();
+            index != boost::dynamic_bitset<>::npos;
+            index = LhsColumnIndices.find_next(index)) {
+                LhsValues[index] += 1 / divisor;
+        }
+        size_t index = fd.GetRhs().GetIndex();
+
+        RhsValues[index] = (divisor == 0)
+                ? -1
+                : RhsValues[index] + 1 / divisor;
+
+    }
+
+    nlohmann::json j;
+    std::vector<std::pair<nlohmann::json, nlohmann::json>> lhs_array;
+    std::vector<std::pair<nlohmann::json, nlohmann::json>> rhs_array;
+
+    for (size_t i = 0; i != numberOfColumns; ++i) {
+        lhs_array.push_back({ { "idx", i }, { "value", LhsValues[i] } });
+        rhs_array.push_back({ { "idx", i }, { "value", RhsValues[i] } });
     }
     
     j["lhs"] = lhs_array;

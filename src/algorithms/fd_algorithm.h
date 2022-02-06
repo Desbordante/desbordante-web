@@ -95,7 +95,7 @@ public:
         fd_collection_.push_back(std::move(fd_to_register));
     }
 
-    static std::vector<size_t> getPKColumnPositions(CSVParser);
+    static std::vector<size_t> GetPKColumnPositions(CSVParser);
 
     // геттер к набору ФЗ - нужно для тестирования
     std::list<FD> const& fdList() const { return fd_collection_; }
@@ -113,6 +113,8 @@ public:
     std::string GetJsonArrayNameValue(int degree = 1, bool withAttr = true);
     std::string GetJsonArrayNameValue(std::vector<std::string> const &colNames, int degree = 1);
     std::string GetJsonColumnNames();
+
+    std::string GetPieChartData(int degree = 1);
 
     std::vector<std::string_view> const& getPhaseNames() const noexcept {
         return phase_names_;
