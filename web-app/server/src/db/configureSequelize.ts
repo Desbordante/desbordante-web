@@ -72,7 +72,7 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
         progress: number;
         maxPhase: number;
         errorMsg: Maybe<string>;
-        elapsedType: number;
+        elapsedTime: number;
     }
 
     const TaskInfo = sequelize.define<TaskInfoInstance>("TaskInfo", {
@@ -110,7 +110,7 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
         errorMsg: {
             type: DataTypes.STRING,
         },
-        elapsedType: {
+        elapsedTime: {
             type: DataTypes.REAL,
         }
     }, {
@@ -292,14 +292,14 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
         taskID: string;
         PKColumnIndices: string,
         FDs: string,
-        PieChartData: string,
+        pieChartData: string,
     }
 
     interface CFDTaskResultInstance extends Model {
         taskID: string,
         PKColumnIndices: string,
         CFDs: string,
-        PieChartData: string,
+        pieChartData: string,
     }
 
     const FDTaskResult = sequelize.define<FDTaskResultInstance>("FDTaskResult", {
@@ -313,7 +313,7 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
         FDs: {
             type: DataTypes.TEXT,
         },
-        PieChartData: {
+        pieChartData: {
             type: DataTypes.TEXT,
         }
     }, {
@@ -332,7 +332,7 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
         CFDs: {
             type: DataTypes.TEXT,
         },
-        PieChartData: {
+        pieChartData: {
             type: DataTypes.TEXT,
         }
     }, {

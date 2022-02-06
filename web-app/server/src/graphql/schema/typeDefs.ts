@@ -102,8 +102,8 @@ const typeDefs = gql`
     }
     
     type FD {
-        lhs: [Column]!
-        rhs: Column!
+        lhs: [Int]! #[Column]!
+        rhs: Int! #Column!
     }
     
     type CFD {
@@ -132,6 +132,11 @@ const typeDefs = gql`
         column: Column!
         value: Float!
     }
+    
+    type FDPieChart {
+        lhs: [FDPieChartRow]
+        rhs: [FDPieChartRow]
+    }
 
     type CFDPieChartRow {
         column: Column!
@@ -142,7 +147,7 @@ const typeDefs = gql`
     type FDAResult {
         FDs: [FD]
         PKs: [Column]
-        PieChartData: [FDPieChartRow]
+        pieChartData: FDPieChart
     }
     
     type FDATaskInfo {
@@ -154,7 +159,7 @@ const typeDefs = gql`
     type CFDAResult {
         CFDs: [CFD]
         PKs: [Column]
-        PieChartData: [CFDPieChartRow]
+        pieChartData: [CFDPieChartRow]
     }
     
     type CFDATaskInfo {
@@ -173,9 +178,15 @@ const typeDefs = gql`
     union TaskChoosingAnswer = TaskInfo
     union TaskCreatingAnswer = TaskInfo | UnauthorizedError | InvalidInputError | InternalServerError
     
+    input DatasetsQueryProps {
+        includeBuiltInDatasets: Boolean!
+        includeDeletedDatasets: Boolean!
+    }
+    
     type Query {
         user(id: ID!): User
-        snippet(taskID: ID!, from: Int!, limit: Int!): Snippet!
+        datasets(props: DatasetsQueryProps): [Table]
+        snippet(taskID: ID!, offset: Int!, limit: Int!): Snippet!
         algorithmsConfig: AlgorithmsConfig!
         taskInfo(id: ID!): TaskInfoAnswer!
     }
@@ -206,8 +217,13 @@ const typeDefs = gql`
         minConfidence: Float
     }
     
+    type DeleteTaskAnswer {
+        message: String!
+    }
+    
     type Mutation {
         chooseFDTask(algProps: FDTaskProps!, fileID: ID!): TaskInfo!
+        deleteTask(taskID: ID!): DeleteTaskAnswer!
         # chooseCFDTask(props: CFDTaskProps!, fileID: ID!): TaskInfo!
         createFDTask(props: FDTaskProps!, fileProps: FileProps!, table: Upload!): TaskInfo!
         # createCFDTask(props: CFDTaskProps!, fileProps: FileProps!, table: Upload!): TaskInfo!
