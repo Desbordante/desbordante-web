@@ -3,7 +3,8 @@ import { Resolvers } from "../../types/types";
 const AppConfigResolvers : Resolvers = {
     AlgorithmsConfig: {
         allowedDatasets: async(parent, args, { models, logger }) => {
-            return models.FileInfo.findAll({ where: { isBuiltInDataset: true } });
+            return models.FileInfo.findAll(
+                { where: { isBuiltInDataset: true } });
         }
     },
     Query: {
@@ -11,8 +12,8 @@ const AppConfigResolvers : Resolvers = {
             return models.User.findOne({ where: { id: id } });
         },
 
-        algorithmsConfig: async (parent, args, { models, logger }) => {
-            const config = {
+        algorithmsConfig: async (parent, {}, { models, logger }) => {
+            return {
                 fileConfig: {
                     allowedFileFormats: [
                         "text/csv", "application/vnd.ms-excel"
@@ -47,9 +48,7 @@ const AppConfigResolvers : Resolvers = {
                 allowedCFDAlgorithms: [
                     { name: "CTane", properties: { hasArityConstraint: true, hasSupport: true, hasConfidence: true } },
                 ],
-
             };
-            return config;
         }
     }
 }
