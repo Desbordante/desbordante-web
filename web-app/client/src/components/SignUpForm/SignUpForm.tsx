@@ -12,7 +12,6 @@ const SignUpForm = () => {
     fullName: "",
     email: "",
     password: "",
-    showAdditional: false,
     country: "",
     company: "",
     occupation: "",
@@ -22,15 +21,29 @@ const SignUpForm = () => {
     if (!values.fullName) {
       errors.fullName = "Required";
     }
+
     if (!values.email) {
       errors.email = "Required";
     } else if (!emailValidator(values.email)) {
       errors.email = "Incorrect email";
     }
+
     if (!values.password) {
       errors.password = "Required";
     } else if (passwordStrength(values.password).id === 0) {
       errors.password = "Password is too weak";
+    }
+
+    if (!values.country) {
+      errors.country = "Required";
+    }
+
+    if (!values.company) {
+      errors.company = "Required";
+    }
+
+    if (!values.occupation) {
+      errors.occupation = "Required";
     }
 
     return errors;
@@ -103,53 +116,56 @@ const SignUpForm = () => {
                 </Form.Control.Feedback>
               </Form.Group>
 
-              <Form.Check
-                type="checkbox"
-                className="mb-3"
-                label="Help us by providing additional information"
-                color="dark"
-                name="showAdditional"
-                onChange={handleChange}
-              />
+              <Form.Group className="mb-3">
+                <Form.Label>Country</Form.Label>
+                <Form.Select
+                  placeholder="Russia"
+                  name="country"
+                  value={values.country}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isInvalid={touched.country && !!errors.country}
+                >
+                  <option>Select country</option>
+                  {Object.entries(countries).map(([_, value]) => (
+                    <option key={value.name}>
+                      {value.emoji} {value.native}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errors.country}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Company / affiliation</Form.Label>
+                <Form.Control
+                  placeholder="XYZ Widget Company"
+                  name="company"
+                  value={values.company}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isInvalid={touched.company && !!errors.company}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.company}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Occupation</Form.Label>
+                <Form.Control
+                  placeholder="Chief director"
+                  name="occupation"
+                  value={values.occupation}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isInvalid={touched.occupation && !!errors.occupation}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.occupation}
+                </Form.Control.Feedback>
+              </Form.Group>
 
-              {values.showAdditional && (
-                <>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Country</Form.Label>
-                    <Form.Select
-                      placeholder="Russia"
-                      name="country"
-                      value={values.country}
-                      onChange={handleChange}
-                    >
-                      <option>Select country</option>
-                      {Object.entries(countries).map(([_, value]) => (
-                        <option key={value.name}>
-                          {value.emoji} {value.native}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Company</Form.Label>
-                    <Form.Control
-                      placeholder="XYZ Widget Company"
-                      name="company"
-                      value={values.company}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Occupation</Form.Label>
-                    <Form.Control
-                      placeholder="Chief director"
-                      name="occupation"
-                      value={values.occupation}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-                </>
-              )}
               <Button
                 variant="outline-primary"
                 type="submit"

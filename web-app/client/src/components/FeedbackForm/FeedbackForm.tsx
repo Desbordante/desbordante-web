@@ -7,7 +7,7 @@ import "./FeedbackForm.scss";
 import { AuthContext } from "../AuthContext";
 import StarRatingPicker from "./StarRatingPicker";
 
-const maxCharactersInFeedback = 1000;
+const maxCharactersInFeedback = 2500;
 
 const FeedbackForm = () => {
   const { user } = useContext(AuthContext)!;
