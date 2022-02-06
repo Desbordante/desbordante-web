@@ -22,7 +22,7 @@ const typeDefs = gql`
         id: String!
         email: String!
         name: String!
-        tasks: [TaskInfo]
+        tasks: [TaskInfo!]
     }
     
     type FDAlgorithmProps {
@@ -48,16 +48,16 @@ const typeDefs = gql`
     }
     
     type InputFileConfig {
-        allowedFileFormats: [String]!
-        allowedSeparators: [String]!
-        maxFileSize: Float
+        allowedFileFormats: [String!]!
+        allowedDelimiters: [String!]!
+        maxFileSize: Float!
     }
     
     type AlgorithmsConfig {
         fileConfig: InputFileConfig!
-        allowedFDAlgorithms: [FDAlgorithmConfig]!
-        allowedDatasets: [Table]
-        allowedCFDAlgorithms: [CFDAlgorithmConfig]!
+        allowedFDAlgorithms: [FDAlgorithmConfig!]!
+        allowedDatasets: [Table!]!
+        allowedCFDAlgorithms: [CFDAlgorithmConfig!]!
     }
     
     enum TaskType {

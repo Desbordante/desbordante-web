@@ -1,3 +1,7 @@
+import {
+  algorithmsConfig_algorithmsConfig_allowedFDAlgorithms_properties
+} from "./operations/queries/__generated__/algorithmsConfig";
+
 export type attribute = { name: string; value: number };
 export type dependencyEncoded = { lhs: number[]; rhs: number };
 export type dependency = { lhs: attribute[]; rhs: attribute };
@@ -14,12 +18,12 @@ export type parameters = {
   hasHeader: boolean;
   maxLHS: number;
 };
-export type algorithm = {
+export type FDAlgorithm = {
   name: string;
-  props: {
-    errorThreshold: boolean;
-    maxLHS: boolean;
-    threads: boolean;
+  properties: {
+    hasArityConstraint: boolean;
+    hasErrorThreshold: boolean;
+    isMultiThreaded: boolean;
   };
 };
 export type user = {

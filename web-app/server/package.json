@@ -11,8 +11,8 @@
     "generate": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
-    "apollo-server-core": "^3.6.0",
-    "apollo-server-express": "^3.6.0",
+    "apollo-server-core": "^3.6.2",
+    "apollo-server-express": "^3.6.2",
     "async": "^3.2.3",
     "babel-plugin-add-module-exports": "^1.0.4",
     "body-parser": "^1.19.0",
@@ -23,7 +23,7 @@
     "express-fileupload": "^1.2.1",
     "express-graphql": "^0.12.0",
     "fast-csv": "^4.3.6",
-    "graphql": "^16.3.0",
+    "graphql": "^15.8.0",
     "lodash": "^4.17.21",
     "morgan": "^1.10.0",
     "node": "16.13.2",
