@@ -1,18 +1,18 @@
 /* eslint-disable */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   BrowserRouter as Router,
   Route,
-  Switch,
   Link,
   useParams,
   useHistory,
 } from "react-router-dom";
 import axios from "axios";
-import hslToHex from "hsl-to-hex";
+import { Col, Container, Row } from "react-bootstrap";
 
 import "./Viewer.scss";
+import Toggle from "../Toggle/Toggle";
 import PieChartFull from "../PieChartFull/PieChartFull";
 import DependencyListFull from "../DependencyListFull/DependencyListFull";
 import StatusDisplay from "../StatusDisplay/StatusDisplay";
@@ -22,71 +22,53 @@ import Phasename from "../Phasename/Phasename";
 import { serverURL } from "../../APIFunctions";
 import {
   taskStatus,
+  attribute,
   dependency,
   dependencyEncoded,
-  coloredAttribute,
-  coloredDepedency,
 } from "../../types";
+import { TaskContext } from "../TaskContext/TaskContext";
+import Snippet from "../Snippet/Snippet";
 
-interface Props {
-  file: File | null;
-  setFile: (file: File | null) => void;
-}
-
-const Viewer: React.FC<Props> = ({ file, setFile }) => {
-  let { taskID } = useParams<{ taskID: string }>();
+const Viewer = () => {
+  const { taskID } = useParams<{ taskID: string }>();
   const history = useHistory();
 
-  const [taskProgress, setTaskProgress] = useState(0);
-  const [phaseName, setPhaseName] = useState("");
-  const [currentPhase, setCurrentPhase] = useState(3);
-  const [maxPhase, setMaxPhase] = useState(5);
-  const [taskStatus, setTaskStatus] = useState<taskStatus>("UNSCHEDULED");
-  const [filename, setFilename] = useState<string>("");
+  const {
+    setTaskId,
+    taskProgress,
+    setTaskProgress,
+    currentPhase,
+    setCurrentPhase,
+    phaseName,
+    setPhaseName,
+    maxPhase,
+    setMaxPhase,
+    taskStatus,
+    setTaskStatus,
+    file,
+    setFileName,
+    setTable,
+  } = useContext(TaskContext)!;
+  setTaskId(taskID);
 
-  const [attributesLHS, setAttributesLHS] = useState<coloredAttribute[]>([]);
-  const [attributesRHS, setAttributesRHS] = useState<coloredAttribute[]>([]);
+  const [partShown, setPartShown] = useState(0);
+  const [attributesLHS, setAttributesLHS] = useState<attribute[]>([]);
+  const [attributesRHS, setAttributesRHS] = useState<attribute[]>([]);
 
   const [selectedAttributesLHS, setSelectedAttributesLHS] = useState<
-    coloredAttribute[]
+    attribute[]
   >([]);
   const [selectedAttributesRHS, setSelectedAttributesRHS] = useState<
-    coloredAttribute[]
+    attribute[]
   >([]);
 
   const [dependencies, setDependencies] = useState<dependency[]>([]);
-  const dependencyColors = [...Array(10)].map((_, index) =>
-    hslToHex((360 / 9) * index, 40, 45)
-  );
+  const [
+    selectedDependency,
+    setSelectedDependency,
+  ] = useState<dependency | null>(null);
   const [keys, setKeys] = useState<string[]>([]);
   const [showKeys, setShowKeys] = useState(true);
-
-  console.log(keys);
-
-  function createColoredDep(
-    dep: dependency,
-    colorsBuffer: string[]
-  ): coloredDepedency {
-    return {
-      lhs: dep.lhs.map((attr) => ({
-        name: attr.name,
-        value: attr.value,
-        color: pickRandomColor(colorsBuffer),
-      })),
-      rhs: {
-        name: dep.rhs.name,
-        value: dep.rhs.value,
-        color: pickRandomColor(colorsBuffer),
-      },
-    };
-  }
-
-  const pickRandomColor = (colors: string[]) => {
-    const pickedIndex = Math.floor(Math.random() * colors.length);
-    const pickedElement = colors[pickedIndex];
-    colors.splice(pickedIndex, 1);
-    return pickedElement;
-  };
 
   const taskFinished = (status: taskStatus) =>
     status === "COMPLETED" || status === "SERVER ERROR";
@@ -97,14 +79,16 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
         .get(`${serverURL}/getTaskInfo/${taskID}`, { timeout: 2000 })
         .then((task) => task.data)
         .then((data) => {
-          console.log(data);
-          setFilename(data.filename);
+          setFileName(data.filename);
           setTaskProgress(data.progress / 100);
           setPhaseName(data.phasename);
           setCurrentPhase(data.currentphase);
           setMaxPhase(data.maxphase);
           setTaskStatus(data.status);
           if (taskFinished(data.status)) {
+            axios
+              .get(`${serverURL}/getSnippet?taskID=${taskID}`)
+              .then((res) => setTable(res.data));
             setKeys(
               data.pkcolumnpositions.map(
                 (pos: number) => data.arraynamevalue.lhs[pos].name
@@ -144,23 +128,7 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
   return (
     <>
       <div className="top-bar">
-        <header>
-          <div className="left">
-            <img src="/icons/logo.svg" alt="logo" className="logo-medium" />
-            <h1>File: "{filename}"</h1>
-            <h1>Status: {taskStatus}</h1>
-          </div>
-          <Button
-            color="1"
-            onClick={() => {
-              axios.post(`${serverURL}/cancelTask?taskID=${taskID}`);
-              history.push("/");
-            }}
-          >
-            Cancel
-          </Button>
-        </header>
-        <ProgressBar progress={taskProgress} maxWidth={100} thickness={0.5} />
+        <ProgressBar progress={taskProgress} maxWidth={100} thickness={0.3} />
         <Phasename
           currentPhase={currentPhase}
           maxPhase={maxPhase}
@@ -168,25 +136,53 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
           progress={taskProgress}
         />
       </div>
-      <Router>
-        {/* <Switch> */}
-        <Route path={`/attrs/${taskID}`}>
-          <div className="bg-light">
-            {taskFinished(taskStatus) ? null : (
-              <StatusDisplay type="loading" text="Loading" />
-            )}
-            <div
-              className="charts-with-controls"
-              style={{
-                opacity: taskFinished(taskStatus) ? 1 : 0,
-              }}
+      {taskFinished(taskStatus) ? (
+        <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">
+          <Container
+            fluid
+            className="d-flex flex-wrap align-items-center mb-2 position-sticky"
+          >
+            <h3 className="mx-2 fw-bold">Display</h3>
+            <Toggle
+              toggleCondition={partShown === 0}
+              variant="dark"
+              onClick={() => setPartShown(0)}
+              className="mx-2"
             >
+              Attributes
+            </Toggle>
+            <Toggle
+              toggleCondition={partShown === 1}
+              variant="dark"
+              onClick={() => setPartShown(1)}
+              className="mx-2"
+            >
+              Dependencies
+            </Toggle>
+            <Toggle
+              toggleCondition={partShown === 2}
+              variant="dark"
+              onClick={() => setPartShown(2)}
+              className="mx-2"
+            >
+              Dataset
+            </Toggle>
+          </Container>
+
+          <Row
+            className={`w-100 flex-grow-1 justify-content-evenly ${
+              partShown === 0 ? "" : "d-none"
+            }`}
+          >
+            <Col xl={6} className="mt-5">
               <PieChartFull
                 title="Left-hand side"
                 attributes={attributesLHS}
                 selectedAttributes={selectedAttributesLHS}
                 setSelectedAttributes={setSelectedAttributesLHS}
               />
+            </Col>
+            <Col xl={6} className="mt-5">
               <PieChartFull
                 title="Right-hand side"
                 attributes={attributesRHS}
@@ -194,55 +190,37 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
                 selectedAttributes={selectedAttributesRHS}
                 setSelectedAttributes={setSelectedAttributesRHS}
               />
-            </div>
-            <footer style={{ opacity: taskFinished(taskStatus) ? 1 : 0 }}>
-              <h1 className="bottom-title">View Dependencies</h1>
-              <Link to={`/deps/${taskID}`}>
-                <Button color="0" onClick={() => {}}>
-                  <img src="/icons/nav-down.svg" alt="down" />
-                </Button>
-              </Link>
-            </footer>
-          </div>
-        </Route>
-        <Route path={`/deps/${taskID}`}>
-          <div className="bg-light" style={{ justifyContent: "space-between" }}>
-            <DependencyListFull
-              taskId={taskID}
-              file={file}
-              setShowKeys={setShowKeys}
-              showKeys={showKeys}
-              dependencies={dependencies
-                .filter(
-                  (dep) =>
-                    showKeys ||
-                    !keys.some(
-                      (key) =>
-                        dep.lhs.map((lhs) => lhs.name).includes(key) ||
-                        dep.rhs.name === key
-                    )
+            </Col>
+          </Row>
+
+          <DependencyListFull
+            file={file}
+            setShowKeys={setShowKeys}
+            showKeys={showKeys}
+            dependencies={dependencies.filter(
+              (dep) =>
+                showKeys ||
+                !keys.some(
+                  (key) =>
+                    dep.lhs.map((lhs) => lhs.name).includes(key) ||
+                    dep.rhs.name === key
                 )
-                .map((dep) => createColoredDep(dep, dependencyColors.slice(0)))}
-              selectedAttributesLHS={selectedAttributesLHS}
-              selectedAttributesRHS={selectedAttributesRHS}
-            />
-            <footer>
-              <h1
-                className="bottom-title"
-                style={{ color: "#000", fontWeight: 500 }}
-              >
-                View Attributes
-              </h1>
-              <Link to={`/attrs/${taskID}`}>
-                <Button color="0" onClick={() => {}}>
-                  <img src="/icons/nav-up.svg" alt="up" />
-                </Button>
-              </Link>
-            </footer>
-          </div>
-        </Route>
-        {/* </Switch> */}
-      </Router>
+            )}
+            selectedAttributesLHS={selectedAttributesLHS}
+            selectedAttributesRHS={selectedAttributesRHS}
+            selectedDependency={selectedDependency}
+            setSelectedDependency={setSelectedDependency}
+            className={partShown === 1 ? "" : "d-none"}
+          />
+
+          <Snippet
+            selectedDependency={selectedDependency}
+            className={partShown === 2 ? "" : "d-none"}
+          />
+        </Container>
+      ) : (
+        <StatusDisplay text="Loading" />
+      )}
     </>
   );
 };

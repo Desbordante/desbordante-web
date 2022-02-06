@@ -6,49 +6,44 @@ import LoadingScreen from "./components/LoadingScreen/LoadingScreen";
 import HomeScreen from "./components/HomeScreen/HomeScreen";
 import ErrorScreen from "./components/ErrorScreen/ErrorScreen";
 import Viewer from "./components/Viewer/Viewer";
-import { DelimeterContextProvider } from "./components/DelimeterContext/DelimeterContext";
+import TopBar from "./components/TopBar/TopBar";
+import SignUpForm from "./components/SignUpForm/SignUpForm";
+import FeedbackForm from "./components/FeedbackForm/FeedbackForm";
 
 const App: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0.0);
-  const [file, setFile] = useState<File | null>(null);
 
   return (
-    <DelimeterContextProvider>
+    <div className="App bg-light d-flex flex-column min-vh-100">
       <Router>
+        <TopBar />
         <Switch>
-          <div className="App">
-            {/* Error Page */}
-            <Route path="/error" exact>
-              <ErrorScreen code="404" message="can't connect to the server." />
-            </Route>
+          <Route path="/error" exact>
+            <ErrorScreen code="404" message="Can't connect to the server." />
+          </Route>
 
-            {/* Loading Page */}
-            <Route path="/loading" exact>
-              <LoadingScreen
-                onComplete={() => { }} // TODO:
-                progress={uploadProgress}
-              />
-            </Route>
+          <Route path="/loading" exact>
+            <LoadingScreen onComplete={() => {}} progress={uploadProgress} />
+          </Route>
 
-            {/* View Page */}
-            <Route path="/(attrs|deps)/:taskID/">
-              <div className="screen">
-                <Viewer file={file} setFile={setFile} />
-              </div>
-            </Route>
+          <Route path="/signup">
+            <SignUpForm />
+          </Route>
 
-            {/* Home Page */}
-            <Route path="/" exact>
-              <HomeScreen
-                file={file}
-                setFile={setFile}
-                setUploadProgress={setUploadProgress}
-              />
-            </Route>
-          </div>
+          <Route path="/feedback">
+            <FeedbackForm />
+          </Route>
+
+          <Route path="/:taskID">
+            <Viewer />
+          </Route>
+
+          <Route path="/" exact>
+            <HomeScreen setUploadProgress={setUploadProgress} />
+          </Route>
         </Switch>
       </Router>
-    </DelimeterContextProvider>
+    </div>
   );
 };
 
