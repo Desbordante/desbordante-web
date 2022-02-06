@@ -54,6 +54,7 @@ module.exports = {
     "react/button-has-type": "off",
     "react/require-default-props": "warn",
     "react/no-unused-prop-types": "warn",
+    "object-curly-newline": "off",
     "no-use-before-define": ["off", "error", { variables: false }],
     "import/prefer-default-export": "off",
     "import/extensions": [
