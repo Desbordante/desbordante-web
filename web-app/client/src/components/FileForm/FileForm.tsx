@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { useHistory } from "react-router-dom";
 import { Container, Row } from "react-bootstrap";
 
 import "./FileForm.scss";
+import { useQuery } from "@apollo/client";
 import Value from "../Value/Value";
 import Toggle from "../Toggle/Toggle";
 import Button from "../Button/Button";
@@ -12,41 +13,40 @@ import UploadFile from "../UploadFile/UploadFile";
 import PopupWindow from "../PopupWindow/PopupWindow";
 import FormItem from "../FormItem/FormItem";
 import {
-  serverURL,
   submitCustomDataset,
   submitBuiltinDataset,
 } from "../../APIFunctions";
-import { algorithm } from "../../types";
+import { FDAlgorithm } from "../../types";
 import { TaskContext } from "../TaskContext/TaskContext";
+import { GET_ALGORITHMS_CONFIG } from "../../operations/queries/getAlgorithmsConfig";
+import { algorithmsConfig } from "../../operations/queries/__generated__/algorithmsConfig";
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 /* eslint-disable no-shadow */
 /* eslint-disable implicit-arrow-linebreak */
-/* eslint-disable comma-dangle */
+
 interface Props {
   onSubmit: (e: React.MouseEvent<HTMLButtonElement>) => void;
   setUploadProgress: (n: number) => void;
   handleResponse: (res: AxiosResponse) => void;
 }
 
-const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
-  const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] = useState<
-  { datasetName : string, datasetSeparator : string, datasetHasHeader : boolean } []
-  >([]);
+function FileForm({ setUploadProgress, handleResponse }:Props) {
+  const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] = useState<{ ID: string, fileName: string, hasHeader: boolean, delimiter: string } []>([]);
   const [allowedFileFormats, setAllowedFileFormats] = useState<string[]>([
     "text/csv",
     "application/vnd.ms-excel",
   ]);
   const [allowedSeparators, setAllowedSeparators] = useState<string[]>([","]);
-  const [allowedAlgorithms, setAllowedAlgorithms] = useState<algorithm[]>([]);
+  const [allowedAlgorithms, setAllowedAlgorithms] = useState<FDAlgorithm[]>([]);
   const [maxfilesize, setMaxFileSize] = useState(1e9);
 
   const { file, setFile } = useContext(TaskContext)!;
 
   const [hasHeader, setHasHeader] = useState(true);
   const [separator, setSeparator] = useState(",");
-  const [algorithm, setAlgorithm] = useState<algorithm | null>(null);
+  const [algorithm, setAlgorithm] = useState<FDAlgorithm | null>(null);
   const [errorThreshold, setErrorThreshold] = useState<string>("0.05");
   const [maxLHSAttributes, setMaxLHSAttributes] = useState<string>("5");
   const [threadsCount, setThreadsCount] = useState<string>("1");
@@ -57,60 +57,59 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
 
   const history = useHistory();
 
+  const { loading, data, error } = useQuery<algorithmsConfig>(GET_ALGORITHMS_CONFIG);
+
   useEffect(() => {
-    axios
-      .get(`${serverURL}/getAlgsInfo`, { timeout: 2000 })
-      .then((res) => res.data)
-      .then((data) => {
-        setAllowedFileFormats(data.allowedFileFormats);
+    if (data) {
+      const { fileConfig, allowedFDAlgorithms, allowedDatasets } = data.algorithmsConfig;
+      const { allowedFileFormats, allowedDelimiters, maxFileSize } = fileConfig;
+      setAllowedFileFormats(allowedFileFormats);
+      setAllowedSeparators(allowedDelimiters);
+      setMaxFileSize(maxFileSize);
+      setSeparator(allowedSeparators[0]);
 
-        setAllowedBuiltinDatasets(data.allowedBuiltinDatasets);
-
-        setAllowedAlgorithms(data.algorithmsInfo);
-        setAlgorithm(data.algorithmsInfo[0]);
-
-        setAllowedSeparators(data.allowedSeparators);
-        setSeparator(data.allowedSeparators[0]);
-
-        setMaxFileSize(data.maxFileSize);
-      })
-      .catch(() => history.push("/error"));
+      setAllowedBuiltinDatasets(allowedDatasets);
+      setAllowedAlgorithms(allowedFDAlgorithms);
+      setAlgorithm(allowedFDAlgorithms[0]);
+    }
   }, [history]);
 
   useEffect(() => {
-    if (!algorithm?.props.errorThreshold) {
-      setErrorThreshold("0");
-    }
-    if (!algorithm?.props.maxLHS) {
-      setMaxLHSAttributes("inf");
-    }
-    if (!algorithm?.props.threads) {
-      setThreadsCount("1");
+    if (algorithm) {
+      if (!algorithm.properties.hasErrorThreshold) {
+        setErrorThreshold("0");
+      }
+      if (!algorithm?.properties.hasArityConstraint) {
+        setMaxLHSAttributes("inf");
+      }
+      if (!algorithm.properties.isMultiThreaded) {
+        setThreadsCount("1");
+      }
     }
   }, [algorithm]);
 
   const fileExistenceValidator = (file: File | null) => !!file;
   const fileSizeValidator = (file: File | null) =>
-    !!file && file.size <= maxfilesize;
+      !!file && file.size <= maxfilesize;
   const fileFormatValidator = (file: File | null) =>
-    !!file && allowedFileFormats.indexOf(file.type) !== -1;
+      !!file && allowedFileFormats.indexOf(file.type) !== -1;
 
   const separatorValidator = (sep: string) =>
-    allowedSeparators.indexOf(sep) !== -1;
+      allowedSeparators.indexOf(sep) !== -1;
   const errorValidator = (err: string) =>
-    !Number.isNaN(+err) && +err >= 0 && +err <= 1;
+      !Number.isNaN(+err) && +err >= 0 && +err <= 1;
   const maxLHSValidator = (lhs: string) =>
-    lhs === "inf" || (!Number.isNaN(+lhs) && +lhs > 0 && +lhs % 1 === 0);
+      lhs === "inf" || (!Number.isNaN(+lhs) && +lhs > 0 && +lhs % 1 === 0);
 
   function isValid() {
     return (
-      (!!builtinDataset ||
-        (fileExistenceValidator(file) &&
-          fileSizeValidator(file) &&
-          fileFormatValidator(file))) &&
-      separatorValidator(separator) &&
-      errorValidator(errorThreshold) &&
-      maxLHSValidator(maxLHSAttributes)
+        (!!builtinDataset ||
+            (fileExistenceValidator(file) &&
+                fileSizeValidator(file) &&
+                fileFormatValidator(file))) &&
+        separatorValidator(separator) &&
+        errorValidator(errorThreshold) &&
+        maxLHSValidator(maxLHSAttributes)
     );
   }
 
@@ -121,34 +120,41 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
     const sendMaxLHS = maxLHSAttributes === "inf" ? -1 : +maxLHSAttributes;
     if (builtinDataset) {
       submitBuiltinDataset(
-        {
-          algName: sendAlgName,
-          separator,
-          errorPercent: sendErrorThreshold,
-          hasHeader,
-          maxLHS: sendMaxLHS,
-          parallelism: threadsCount,
-          fileName: builtinDataset,
-        },
-        handleResponse
+          {
+            algName: sendAlgName,
+            separator,
+            errorPercent: sendErrorThreshold,
+            hasHeader,
+            maxLHS: sendMaxLHS,
+            parallelism: threadsCount,
+            fileName: builtinDataset,
+          },
+          handleResponse
       );
     } else {
       history.push("/loading");
       submitCustomDataset(
-        file as File,
-        {
-          algName: sendAlgName,
-          separator,
-          errorPercent: sendErrorThreshold,
-          hasHeader,
-          maxLHS: sendMaxLHS,
-          parallelism: threadsCount,
-        },
-        setUploadProgress,
-        handleResponse
+          file as File,
+          {
+            algName: sendAlgName,
+            separator,
+            errorPercent: sendErrorThreshold,
+            hasHeader,
+            maxLHS: sendMaxLHS,
+            parallelism: threadsCount,
+          },
+          setUploadProgress,
+          handleResponse
       );
     }
   };
+
+  if (loading) {
+    // Show Loading
+  }
+  if (error) {
+    history.push("/error");
+  }
 
   return (
     <Container
@@ -157,24 +163,26 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
     >
       {isWindowShown && (
         <PopupWindow disable={() => setIsWindowShown(false)}>
-          {allowedBuiltinDatasets.map(({ datasetName, datasetSeparator, datasetHasHeader }) => (
-            <Toggle
-              toggleCondition={builtinDataset === datasetName}
-              onClick={() => {
-                setFile(null);
-                setBuiltinDataset(datasetName);
-                setIsWindowShown(false);
-                setSeparator(datasetSeparator);
-                setHasHeader(datasetHasHeader);
-              }}
-              key={datasetName}
-              className="mx-2"
-            >
-              {datasetName}
-            </Toggle>
-          ))}
+          {allowedBuiltinDatasets.map(
+                  ({ ID, fileName, hasHeader, delimiter }) => (
+                    <Toggle
+                      toggleCondition={builtinDataset === fileName}
+                      onClick={() => {
+                            setFile(null);
+                            setBuiltinDataset(fileName);
+                            setIsWindowShown(false);
+                            setSeparator(delimiter);
+                            setHasHeader(hasHeader);
+                          }}
+                      key={ID}
+                      className="mx-2"
+                    >
+                      {fileName}
+                    </Toggle>
+                  ))}
         </PopupWindow>
-      )}
+        )}
+      (
       <Row className="mx-2 mb-3">
         <FormItem>
           <h5 className="text-white mb-0 mx-2">File:</h5>
@@ -219,10 +227,10 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
               >
                 {algo.name}
               </Toggle>
-            ))}
+              ))}
           </div>
         </FormItem>
-        <FormItem enabled={algorithm?.props.errorThreshold}>
+        <FormItem enabled={algorithm?.properties.hasErrorThreshold}>
           <h5 className="text-white mb-0 mx-2">Error threshold:</h5>
           <Value
             value={errorThreshold}
@@ -238,7 +246,7 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
             className="mx-2"
           />
         </FormItem>
-        <FormItem enabled={algorithm?.props.maxLHS}>
+        <FormItem enabled={algorithm?.properties.hasArityConstraint}>
           <h5 className="text-white mb-0 mx-2">Max LHS attributes:</h5>
           <Value
             value={maxLHSAttributes}
@@ -256,7 +264,7 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
             className="mx-2"
           />
         </FormItem>
-        <FormItem enabled={algorithm?.props.threads}>
+        <FormItem enabled={algorithm?.properties.isMultiThreaded}>
           <h5 className="text-white mb-0 mx-2">Threads:</h5>
           <Value
             value={threadsCount}
@@ -274,13 +282,12 @@ const FileForm: React.FC<Props> = ({ setUploadProgress, handleResponse }) => {
             className="mx-2"
           />
         </FormItem>
-      </Row>
-
+      </Row>)
       <Button enabled={isValid()} onClick={submit}>
         Analyze
       </Button>
     </Container>
   );
-};
+}
 
 export default FileForm;
