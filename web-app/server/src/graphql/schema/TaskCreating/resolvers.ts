@@ -1,4 +1,4 @@
-import { ApolloError } from "apollo-server-core";
+import {ApolloError, UserInputError} from "apollo-server-core";
 import path from "path";
 import { finished } from "stream/promises";
 
@@ -17,7 +17,7 @@ const getPathToUploadedDataset = (fileName: string) => {
 const TaskCreatingResolvers : Resolvers = {
     Mutation: {
         chooseFDTask: async (
-            _obj, { algProps, fileID }, { models }) => {
+            parent, { algProps, fileID }, { models }) => {
 
             const { algorithmName, errorThreshold, maxLHS, threadsCount } = algProps;
 
@@ -126,6 +126,24 @@ const TaskCreatingResolvers : Resolvers = {
             } catch (e) {
                 throw new ApolloError("INTERNAL SERVER ERROR", e);
             }
+        },
+        deleteTask: async (parent, { taskID }, { models, logger }) => {
+            return await models.TaskInfo.findByPk(taskID)
+                .then(async (taskInfo: any) => {
+                    return await taskInfo.destroy()
+                        .then((res: any) => {
+                            logger(JSON.stringify(res));
+                            return { message: "Task was deleted" };
+                        })
+                        .catch((e : any) => {
+                            logger(e);
+                            throw new ApolloError("INTERNAL SERVER ERROR");
+                        })
+                })
+                .catch(async (e: any) => {
+                    logger(e);
+                    throw new UserInputError("Invalid TaskID");
+                })
         }
     }
 }

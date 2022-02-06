@@ -106,7 +106,7 @@ public:
 
     std::string getJsonColumnNames();
 
-    std::string getJsonArrayNameValue(std::vector<std::string> const &colNames, int degree = 1);
+    std::string getPieChartData(int degree = 1);
 
     std::vector<std::string_view> const& getPhaseNames() const noexcept {
         return phase_names_;

@@ -20,7 +20,7 @@ std::vector<size_t> FDAlgorithm::getPKColumnPositions(CSVParser inputGenerator) 
 
 std::string FDAlgorithm::getJsonFDs(bool withNullLhs) {
     nlohmann::json j = nlohmann::json::array();
-
+    std::cout << "FDs " << fdCollection_.size() << std::endl;
     fdCollection_.sort();
     for (auto& fd : fdCollection_) {
         if (withNullLhs) {
@@ -34,15 +34,11 @@ std::string FDAlgorithm::getJsonFDs(bool withNullLhs) {
     return j.dump();
 }
 
-std::string FDAlgorithm::getJsonArrayNameValue(std::vector<std::string> const &colNames, int degree) {
+std::string FDAlgorithm::getPieChartData(int degree) {
     size_t numberOfColumns = inputGenerator_.getNumberOfColumns();
 
-    std::vector<std::pair<double, int>> LhsValues(numberOfColumns);
-    std::vector<std::pair<double, int>> RhsValues(numberOfColumns);
-    
-    for (size_t i = 0; i != numberOfColumns; ++i) {
-        LhsValues[i] = RhsValues[i] = { 0, i };
-    }
+    std::vector<double> LhsValues(numberOfColumns, 0);
+    std::vector<double> RhsValues(numberOfColumns, 0);
 
     for (const auto &fd : fdCollection_) {
         double divisor = std::pow(fd.getLhs().getArity(), degree);
@@ -51,27 +47,23 @@ std::string FDAlgorithm::getJsonArrayNameValue(std::vector<std::string> const &c
         for (size_t index = LhsColumnIndices.find_first();
             index != boost::dynamic_bitset<>::npos;
             index = LhsColumnIndices.find_next(index)) {
-                LhsValues[index].first += 1/divisor;
+                LhsValues[index] += 1 / divisor;
         }
         size_t index = fd.getRhs().getIndex();
 
-        if (divisor != 0)
-            RhsValues[index].first += 1/divisor;
-        else
-            RhsValues[index].first = -1;
-    }
+        RhsValues[index] = (divisor == 0)
+                ? -1
+                : RhsValues[index] + 1 / divisor;
 
-    auto pair_greater = [](std::pair<double, int> a, std::pair<double, int> b) {
-        return a.first > b.first;
-    };
+    }
 
     nlohmann::json j;
     std::vector<std::pair<nlohmann::json, nlohmann::json>> lhs_array;
     std::vector<std::pair<nlohmann::json, nlohmann::json>> rhs_array;
 
     for (size_t i = 0; i != numberOfColumns; ++i) {
-        lhs_array.push_back({ { "name", colNames[LhsValues[i].second] }, { "value", LhsValues[i].first } });
-        rhs_array.push_back({ { "name", colNames[LhsValues[i].second] }, { "value", RhsValues[i].first } });
+        lhs_array.push_back({ { "idx", i }, { "value", LhsValues[i] } });
+        rhs_array.push_back({ { "idx", i }, { "value", RhsValues[i] } });
     }
     
     j["lhs"] = lhs_array;
