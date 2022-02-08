@@ -2,9 +2,11 @@ import { Resolvers } from "../../types/types";
 
 const AppConfigResolvers : Resolvers = {
     AlgorithmsConfig: {
+        // TODO (Check)
         allowedDatasets: async(parent, args, { models, logger }) => {
-            return models.FileInfo.findAll(
-                { where: { isBuiltInDataset: true } });
+            return await models.FileInfo.findAll(
+                { where: { isBuiltIn: true }, attributes: [["ID", "fileID"]] })
+                .then((files: any[]) => files.map(file => file.dataValues));
         }
     },
     Query: {
