@@ -4,10 +4,10 @@ const typeDefs = gql`
 
     scalar Upload
 
-    type Table {
+    type TableInfo {
         ID: ID!
         userID: ID
-        isBuiltInDataset: Boolean!
+        isBuiltIn: Boolean!
         fileName: String!
         originalFileName: String!
         mimeType: String
@@ -56,7 +56,7 @@ const typeDefs = gql`
     type AlgorithmsConfig {
         fileConfig: InputFileConfig!
         allowedFDAlgorithms: [FDAlgorithmConfig!]!
-        allowedDatasets: [Table!]!
+        allowedDatasets: [DatasetInfo!]! # TODO CHECK
         allowedCFDAlgorithms: [CFDAlgorithmConfig!]!
     }
     
@@ -64,22 +64,22 @@ const typeDefs = gql`
         FDA, CFDA
     }
     
-    type TaskInfo {
+    type TaskState {
         taskID: ID!
         attemptNumber: Int!
-        type: TaskType!
         status: String!
         phaseName: String
         currentPhase: Int
         progress: Float!
         maxPhase: Int
         errorMsg: String
+        isExecuted: Boolean!
         elapsedTime: Float
     }
     
     type BaseTaskConfig {
         algorithmName: String!
-        table: Table!
+        type: TaskType!
     }
     
     type FDTaskConfig {
@@ -102,25 +102,17 @@ const typeDefs = gql`
     }
     
     type FD {
-        lhs: [Int]! #[Column]!
+        lhs: [Int!]! #[Column]!
         rhs: Int! #Column!
     }
     
     type CFD {
         fd: FD!
-        lhsPatterns: [String]!
+        lhsPatterns: [String!]!
         rhsPattern: String!
     }
 
     type TaskNotFoundError {
-        msg: String!
-    }
-    
-    type InvalidInputError {
-        msg: String!
-    }
-    
-    type InternalServerError {
         msg: String!
     }
     
@@ -144,58 +136,70 @@ const typeDefs = gql`
         value: Float!
     }
     
-    type FDAResult {
+    type FDResult {
         FDs: [FD]
         PKs: [Column]
         pieChartData: FDPieChart
     }
     
-    type FDATaskInfo {
-        info: TaskInfo
-        config: FDTaskConfig
-        result: FDAResult
-    }
-
-    type CFDAResult {
+    type CFDResult {
         CFDs: [CFD]
         PKs: [Column]
         pieChartData: [CFDPieChartRow]
     }
     
-    type CFDATaskInfo {
-        info: TaskInfo
-        config: CFDTaskConfig # Add about file and snippet
-        result: CFDAResult
+    type FDTask {
+        config: FDTaskConfig
+        result: FDResult
     }
+    
+    type CFDTask {
+        config: CFDTaskConfig
+        result: CFDResult
+    }
+    
+    union TaskData = FDTask | CFDTask
+    
+    type TaskInfo {
+        state: TaskState!
+        data: TaskData
+        dataset: DatasetInfo!
+    }
+    
+    union TaskInfoAnswer = TaskInfo | TaskNotFoundError
     
     type Snippet {
         header: [String]!
-        rows: [[String]]
-        table: Table
+        rows: [[String!]!]
+        datasetInfo: DatasetInfo!
     }
     
-    union TaskInfoAnswer = FDATaskInfo | CFDATaskInfo
-    union TaskChoosingAnswer = TaskInfo
-    union TaskCreatingAnswer = TaskInfo | UnauthorizedError | InvalidInputError | InternalServerError
-    
     input DatasetsQueryProps {
-        includeBuiltInDatasets: Boolean!
-        includeDeletedDatasets: Boolean!
+        includeBuiltInDatasets: Boolean = true
+        includeDeletedDatasets: Boolean = false
+        offset: Int = 1
+        limit: Int = 10
+    }
+    
+    input TasksInfoFilter {
+        includeExecutedTasks: Boolean = true
+        includeCurrentTasks: Boolean = true
+        includeTasksWithError: Boolean = true
+        includeTasksWithoutError: Boolean = true
+    }
+    
+    type DatasetInfo {
+        tableInfo: TableInfo!
+        snippet(offset: Int!, limit: Int!): Snippet!
+        tasks(filter: TasksInfoFilter!): [TaskInfo!]
     }
     
     type Query {
-        user(id: ID!): User
-        datasets(props: DatasetsQueryProps): [Table]
-        snippet(taskID: ID!, offset: Int!, limit: Int!): Snippet!
         algorithmsConfig: AlgorithmsConfig!
+        datasets(props: DatasetsQueryProps!): [DatasetInfo!]
+        datasetInfo(fileID: ID!): DatasetInfo
         taskInfo(id: ID!): TaskInfoAnswer!
-    }
-    
-    input ChooseFDTaskProps {
-        algorithmName: String!
-        errorThreshold: Float!
-        maxLHS: Int
-        threadsCount: Int!
+        user(id: ID!): User
     }
     
     input FDTaskProps {
@@ -222,10 +226,10 @@ const typeDefs = gql`
     }
     
     type Mutation {
-        chooseFDTask(algProps: FDTaskProps!, fileID: ID!): TaskInfo!
+        chooseFDTask(props: FDTaskProps!, fileID: ID!): TaskInfo!
         deleteTask(taskID: ID!): DeleteTaskAnswer!
         # chooseCFDTask(props: CFDTaskProps!, fileID: ID!): TaskInfo!
-        createFDTask(props: FDTaskProps!, fileProps: FileProps!, table: Upload!): TaskInfo!
+        createFDTask(props: FDTaskProps!, datasetProps: FileProps!, table: Upload!): TaskInfo!
         # createCFDTask(props: CFDTaskProps!, fileProps: FileProps!, table: Upload!): TaskInfo!
     }
 `;
