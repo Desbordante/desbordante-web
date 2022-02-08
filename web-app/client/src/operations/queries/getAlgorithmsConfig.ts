@@ -4,10 +4,12 @@ export const GET_ALGORITHMS_CONFIG = gql`
     query algorithmsConfig {
         algorithmsConfig {
             allowedDatasets {
-                ID
-                fileName
-                hasHeader
-                delimiter
+                tableInfo {
+                    ID
+                    fileName
+                    hasHeader
+                    delimiter
+                }
             }
             allowedFDAlgorithms {
                 name
@@ -24,7 +26,7 @@ export const GET_ALGORITHMS_CONFIG = gql`
                     hasSupport
                 }
             }
-            fileConfig{
+            fileConfig {
                 allowedFileFormats
                 allowedDelimiters
                 maxFileSize

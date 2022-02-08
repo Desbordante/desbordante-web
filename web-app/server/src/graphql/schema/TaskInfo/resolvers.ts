@@ -2,71 +2,68 @@ import {ApolloError, UserInputError} from "apollo-server-core";
 import { CsvParserStream, parse } from "fast-csv";
 import { Row } from "@fast-csv/parse";
 import fs from "fs";
+import {Op} from "sequelize";
 
 import { Resolvers } from "../../types/types";
 
 const resolvers: Resolvers = {
-    TaskInfoAnswer: {
+    TaskData: {
         // @ts-ignore
         __resolveType({ type }, { models, logger }, info) {
             switch (type) {
                  case "FDA":
-                    return "FDATaskInfo";
+                    return "FDTask";
                  case "CFDA":
-                     return "CFDATaskInfo";
+                     return "CFDATask";
                  default:
                      return null;
             }
         }
     },
-    BaseTaskConfig: {
-        // @ts-ignore
-        table: async({ taskID }, {}, { models, logger }) => {
-            const { fileID } = await models.TaskConfig.findByPk(taskID);
-            return await models.FileInfo.findByPk(fileID);
-        }
-    },
     FDTaskConfig: {
         // @ts-ignore
         baseConfig: async({ taskID }, {}, { models, logger }) => {
-            return models.TaskConfig.findByPk(taskID);
+            return await models.TaskConfig.findByPk(taskID);
         }
     },
-    Snippet: {
+    TaskInfo: {
         // @ts-ignore
-        table: async({ fileID }, {}, { models, logger }) => {
-            return await models.FileInfo.findByPk(fileID);
-        }
-    },
-    FDATaskInfo: {
-        // @ts-ignore
-        result: async ({ taskID }, {}, { models, logger }) => {
-            const { fileID } = await models.TaskConfig.findByPk(
-                taskID, { attributes: ["fileID"] });
-            return { taskID, fileID };
+        data: async ({ taskID }, {}, { models, logger }) => {
+            return await models.TaskConfig.findByPk(taskID,
+                { attributes: ["type", "taskID", "fileID"] });
         },
         // @ts-ignore
-        info: async ({ taskID }, {}, { models, logger }) => {
+        state: async ({ taskID }, {}, { models, logger }) => {
             return await models.TaskInfo.findByPk(taskID);
+        },
+    },
+    FDTask: {
+        // @ts-ignore
+        result: async (parent, {}, { models, logger }) => {
+            // @ts-ignore
+            const { isExecuted } = await models.TaskInfo.findByPk(parent.taskID, {
+                attributes: ["isExecuted"]
+            });
+            return isExecuted ? parent : null;
         },
         // @ts-ignore
         config: async({ taskID }, {}, { models, logger }) => {
             return await models.FDTaskConfig.findByPk(taskID);
         }
     },
-    FDAResult: {
+    FDResult: {
         // @ts-ignore
         FDs: async ({ taskID }, {}, { models, logger }) => {
             const result = await models.FDTaskResult.findByPk(
                 taskID, { attributes: ["FDs"] });
-            logger(JSON.stringify(result));
             return JSON.parse(result.FDs);
         },
         // @ts-ignore
         PKs: async ({ taskID, fileID }, {}, { models, logger }) => {
             const result = await models.FDTaskResult.findByPk(
                 taskID, { attributes: ["PKColumnIndices"] });
-            const indices: number[] = JSON.parse(result.PKColumnIndices);
+            const indices: number[] = JSON.parse(result.PKColumnIndices) || [];
+            logger(fileID);
             const { renamedHeader } = await models.FileInfo.findByPk(
                 fileID, { attributes: ["renamedHeader"] }
             );
@@ -92,32 +89,24 @@ const resolvers: Resolvers = {
             return { lhs:  lhs.map(transform), rhs: rhs.map(transform) };
         }
     },
-    Query: {
-        taskInfo: async (parent, { id }, { models, logger }) => {
-            return await models.TaskInfo.findByPk(id, { attributes: ["type"] })
-                .then(({ type }: { type: string }) => ({ taskID: id, type }) )
-                .catch((e: any) => {
-                    throw new UserInputError("Invalid TaskID");
-                })
-        },
-        snippet: async (parent, { taskID, offset, limit}, { models, logger }) => {
+    DatasetInfo: {
+        // @ts-ignore
+        snippet: async ({ fileID }, { taskID, offset, limit}, { models, logger }) => {
             try {
-                const { fileID } = await models.TaskConfig.findByPk(taskID);
-
-                const fileInfo = await models.FileInfo.findByPk(fileID);
+                const fileInfo = await models.FileInfo.findByPk(fileID,
+                    {}, { attributes: [ "path", "delimiter", "hasHeader", "renamedHeader" ]});
                 const { path, delimiter, hasHeader, renamedHeader } = fileInfo;
 
                 const rows: any[] = [];
                 if (hasHeader === true) {
                     offset += 1;
                 }
-                const maxRows = limit - offset;
 
                 return await new Promise(resolve => {
                     const parser: CsvParserStream<Row, Row> = parse({
                         delimiter,
                         skipRows: offset,
-                        maxRows,
+                        maxRows: limit,
                     });
 
                     fs.createReadStream(path)
@@ -134,8 +123,49 @@ const resolvers: Resolvers = {
                         });
                 })
             } catch (e) {
-                throw new ApolloError("INTERNAL SERVER ERROR", e);
+                throw new UserInputError("BAD USER INPUT", e);
             }
+        },
+        // @ts-ignore
+        tableInfo: async({ fileID }, args, { models, logger }) => {
+            return models.FileInfo.findByPk(fileID);
+        },
+        // @ts-ignore
+        tasks: async({ fileID }, { filter }, { models, logger }) => {
+            const { includeExecutedTasks, includeCurrentTasks,
+                includeTasksWithError, includeTasksWithoutError } = filter;
+            let where = {};
+            if (!includeExecutedTasks && ! includeCurrentTasks
+                || !includeTasksWithoutError && !includeTasksWithError) {
+                throw new UserInputError("INVALID INPUT");
+            }
+            if (includeExecutedTasks !== includeCurrentTasks) {
+                where = { ...where, isExecuted: includeExecutedTasks };
+            }
+            if (includeTasksWithError !== includeTasksWithoutError) {
+                where = {
+                    ...where,
+                    errorMsg: {
+                        [includeTasksWithError ? Op.not : Op.is]: null
+                    }
+                };
+            }
+            return await models.TaskInfo.findAll({ where });
+        }
+    },
+
+    Query: {
+        // @ts-ignore
+        taskInfo: async (parent, { id }, { models, logger }) => {
+            await models.TaskConfig.findByPk(id, { attributes: ["taskID", "fileID", "type"] })
+                .then((res:any) => res)
+                .catch((e: any) => {
+                    throw new UserInputError("Invalid TaskID");
+                })
+        },
+        // @ts-ignore
+        datasetInfo: async (parent, { fileID }, { models, logger }) => {
+            return { fileID };
         }
     }
 }
