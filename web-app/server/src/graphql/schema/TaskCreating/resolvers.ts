@@ -16,16 +16,16 @@ const getPathToUploadedDataset = (fileName: string) => {
 
 const TaskCreatingResolvers : Resolvers = {
     Mutation: {
+        // @ts-ignore
         chooseFDTask: async (
-            parent, { algProps, fileID }, { models }) => {
+            parent, { props, fileID }, { models }) => {
 
-            const { algorithmName, errorThreshold, maxLHS, threadsCount } = algProps;
+            const { algorithmName, errorThreshold, maxLHS, threadsCount } = props;
 
             // TODO: Check user input
 
             try {
                 const taskInfo = await models.TaskInfo.create({
-                    type: "FDA",
                     status: "ADDING TO DB",
                 });
                 const { taskID } = taskInfo
@@ -33,6 +33,7 @@ const TaskCreatingResolvers : Resolvers = {
                 const taskConfig = await taskInfo.createTaskConfig({
                     taskID,
                     algorithmName,
+                    type: "FDA",
                     fileID
                 })
                 const fdTaskConfig = await taskInfo.createFDTaskConfig({
@@ -59,10 +60,10 @@ const TaskCreatingResolvers : Resolvers = {
             }
         },
         createFDTask: async (
-            parent, { props, fileProps, table }, { models, logger }) => {
+            parent, { props, datasetProps, table }, { models, logger }) => {
 
             const { algorithmName, errorThreshold, maxLHS, threadsCount } = props;
-            const { delimiter, hasHeader } = fileProps;
+            const { delimiter, hasHeader } = datasetProps;
 
             // TODO: Check user input
 

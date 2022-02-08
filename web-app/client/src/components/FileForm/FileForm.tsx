@@ -33,7 +33,9 @@ interface Props {
 }
 
 function FileForm({ setUploadProgress, handleResponse }:Props) {
-  const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] = useState<{ ID: string, fileName: string, hasHeader: boolean, delimiter: string } []>([]);
+  type tableInfo = { ID: string, fileName: string, hasHeader: boolean, delimiter: string };
+  const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] =
+      useState<tableInfo[]>([]);
   const [allowedFileFormats, setAllowedFileFormats] = useState<string[]>([
     "text/csv",
     "application/vnd.ms-excel",
@@ -68,7 +70,8 @@ function FileForm({ setUploadProgress, handleResponse }:Props) {
       setMaxFileSize(maxFileSize);
       setSeparator(allowedSeparators[0]);
 
-      setAllowedBuiltinDatasets(allowedDatasets);
+      setAllowedBuiltinDatasets(allowedDatasets
+          .map((info) => info.tableInfo));
       setAllowedAlgorithms(allowedFDAlgorithms);
       setAlgorithm(allowedFDAlgorithms[0]);
     }

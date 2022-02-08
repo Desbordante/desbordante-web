@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { Application } from "express";
 import { graphqlHTTP } from 'express-graphql';
-import { Sequelize } from 'sequelize/dist';
+import { Sequelize } from 'sequelize';
 
 import schema from './schema/schema'
 
