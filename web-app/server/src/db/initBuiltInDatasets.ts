@@ -35,7 +35,7 @@ const initBuiltInDatasets = async (sequelize: Sequelize) => {
                 defaults: {
                     fileName,
                     originalFileName: fileName,
-                    isBuiltInDataset: true,
+                    isBuiltIn: true,
                     hasHeader,
                     delimiter
                 }

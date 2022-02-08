@@ -72,6 +72,7 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
         progress: number;
         maxPhase: number;
         errorMsg: Maybe<string>;
+        isExecuted: boolean;
         elapsedTime: number;
     }
 
@@ -85,10 +86,6 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
             allowNull: false,
             defaultValue: 0,
             type: DataTypes.INTEGER,
-        },
-        type: {
-            allowNull: false,
-            type: DataTypes.STRING,
         },
         status: {
             allowNull: false,
@@ -110,6 +107,11 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
         errorMsg: {
             type: DataTypes.STRING,
         },
+        isExecuted: {
+            allowNull: false,
+            defaultValue: false,
+            type: DataTypes.BOOLEAN,
+        },
         elapsedTime: {
             type: DataTypes.REAL,
         }
@@ -124,7 +126,7 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
 
     interface FileInfoInstance extends Model {
         ID: string;
-        isBuiltInDataset: Boolean;
+        isBuiltIn: Boolean;
         mimeType: string;
         encoding: string;
         fileName: string;
@@ -142,7 +144,7 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
         },
-        isBuiltInDataset: {
+        isBuiltIn: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
         },
@@ -187,6 +189,7 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
     interface TaskConfigInstance extends Model {
         algorithmName: string;
         fileID: string;
+        type: string;
     }
 
     const TaskConfig = sequelize.define<TaskConfigInstance>("TaskConfig", {
@@ -195,6 +198,10 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
             type: DataTypes.UUID,
         },
         algorithmName: { 
+            allowNull: false,
+            type: DataTypes.STRING,
+        },
+        type: {
             allowNull: false,
             type: DataTypes.STRING,
         }
@@ -354,9 +361,8 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
         foreignKey: "taskID",
     });
 
-
     const force = Boolean(process.env.DB_FORCE_TABLES_RECREATION);
-    await sequelize.sync({ force : force });
+    //await sequelize.sync({ force : force });
 }
 
 export = configureSequelizeModels;
