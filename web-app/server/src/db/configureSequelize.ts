@@ -65,7 +65,6 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
     interface TaskInfoInstance extends Model {
         taskID: string;
         attemptNumber: number;
-        type: Maybe<string>;
         status: string;
         phaseName: string;
         currentPhase: number;
