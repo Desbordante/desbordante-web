@@ -361,8 +361,8 @@ const configureSequelizeModels = async (sequelize: Sequelize) => {
         foreignKey: "taskID",
     });
 
-    const force = Boolean(process.env.DB_FORCE_TABLES_RECREATION);
-    //await sequelize.sync({ force : force });
+    const force = process.env.DB_FORCE_TABLES_RECREATION === "true";
+    await sequelize.sync({ force });
 }
 
 export = configureSequelizeModels;
