@@ -36,6 +36,10 @@ const resolvers: Resolvers = {
         state: async ({ taskID }, {}, { models, logger }) => {
             return await models.TaskInfo.findByPk(taskID);
         },
+        // @ts-ignore
+        dataset: async ({ taskID, fileID }, {}, { models, logger }) => {
+            return { fileID };
+        }
     },
     FDTask: {
         // @ts-ignore
@@ -47,7 +51,7 @@ const resolvers: Resolvers = {
             return isExecuted ? parent : null;
         },
         // @ts-ignore
-        config: async({ taskID }, {}, { models, logger }) => {
+        config: async ({ taskID }, {}, { models, logger }) => {
             return await models.FDTaskConfig.findByPk(taskID);
         }
     },
@@ -119,7 +123,7 @@ const resolvers: Resolvers = {
                         })
                         .on("end", () => {
                             // @ts-ignore
-                            resolve({ rows, "header": JSON.parse(renamedHeader), fileID });
+                            resolve({ rows, header: JSON.parse(renamedHeader), fileID });
                         });
                 })
             } catch (e) {
@@ -156,17 +160,17 @@ const resolvers: Resolvers = {
 
     Query: {
         // @ts-ignore
-        taskInfo: async (parent, { id }, { models, logger }) => {
-            await models.TaskConfig.findByPk(id, { attributes: ["taskID", "fileID", "type"] })
-                .then((res:any) => res)
-                .catch((e: any) => {
-                    throw new UserInputError("Invalid TaskID");
-                })
-        },
-        // @ts-ignore
         datasetInfo: async (parent, { fileID }, { models, logger }) => {
             return { fileID };
-        }
+        },
+        // @ts-ignore
+        taskInfo: async (parent, { id }, { models, logger }) => {
+            return await models.TaskConfig.findByPk(id, { attributes: ["taskID", "fileID", "type"] })
+                .then((res: any) => res)
+                .catch((e: any) => {
+                    throw new UserInputError("Invalid TaskID");
+                });
+        },
     }
 }
 
