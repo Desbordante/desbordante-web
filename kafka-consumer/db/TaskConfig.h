@@ -93,7 +93,7 @@ public:
 
     static TaskConfig getTaskConfig(DBManager const &manager, std::string taskID) {
         std::string postfix = " WHERE \"taskID\" = '" + taskID + "'";
-        std::string query = "SELECT \"type\" from " + taskInfoTable + postfix;
+        std::string query = "SELECT \"type\" from " + taskConfigTable + postfix;
         auto rows = manager.defaultQuery(query);
         std::string type = rows[0]["\"type\""].c_str();
         
