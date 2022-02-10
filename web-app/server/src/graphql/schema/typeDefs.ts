@@ -198,14 +198,14 @@ const typeDefs = gql`
         algorithmsConfig: AlgorithmsConfig!
         datasets(props: DatasetsQueryProps!): [DatasetInfo!]
         datasetInfo(fileID: ID!): DatasetInfo
-        taskInfo(id: ID!): TaskInfoAnswer!
+        taskInfo(id: ID!): TaskInfo!
         user(id: ID!): User
     }
     
     input FDTaskProps {
         algorithmName: String!
         errorThreshold: Float!
-        maxLHS: Int
+        maxLHS: Int = -1
         threadsCount: Int!
     }
     
