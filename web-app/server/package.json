@@ -11,6 +11,7 @@
     "generate": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@types/sequelize": "^4.28.11",
     "apollo-server-core": "^3.6.2",
     "apollo-server-express": "^3.6.2",
     "async": "^3.2.3",
@@ -29,7 +30,7 @@
     "node": "16.13.2",
     "pg": "^8.6.0",
     "pgtools": "^0.3.2",
-    "sequelize": "^6.15.0",
+    "sequelize": "^6.16.0",
     "uuid": "8.3.2"
   },
   "devDependencies": {

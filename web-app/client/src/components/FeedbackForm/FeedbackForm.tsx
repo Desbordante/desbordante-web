@@ -6,11 +6,12 @@ import { validate as emailValidator } from "email-validator";
 import "./FeedbackForm.scss";
 import { AuthContext } from "../AuthContext";
 import StarRatingPicker from "./StarRatingPicker";
+import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";
 
 const maxCharactersInFeedback = 2500;
 
 const FeedbackForm = () => {
-  const { user } = useContext(AuthContext)!;
+  const { user, setIsFeedbackShown } = useContext(AuthContext)!;
   const initialValues = {
     fullName: user ? user.name : "",
     email: user ? user.email : "",
@@ -35,10 +36,7 @@ const FeedbackForm = () => {
   };
 
   return (
-    <Container
-      fluid
-      className="w-100 flex-grow-1 bg-dark d-flex justify-content-center align-items-center p-0"
-    >
+    <PopupWindowContainer onOutsideClick={() => setIsFeedbackShown(false)}>
       <Container className="form-container bg-light p-4 m-4 p-sm-5 m-sm-5 rounded-3 w-auto shadow-lg">
         <h1 className="text-center fw-bold mb-4">Send Feedback</h1>
         <Formik
@@ -129,7 +127,7 @@ const FeedbackForm = () => {
           )}
         </Formik>
       </Container>
-    </Container>
+    </PopupWindowContainer>
   );
 };
 

@@ -19,7 +19,7 @@ interface Props {
   setSelectedDependency: React.Dispatch<
     React.SetStateAction<dependency | null>
   >;
-  file: File | null;
+  file?: File;
   showKeys: boolean;
   setShowKeys: (b: boolean) => void;
   className?: string;
@@ -46,16 +46,17 @@ const DependencyListFull: React.FC<Props> = ({
   useEffect(() => {
     const keywords = searchString.split(" ").filter((str) => str);
 
-    const foundDependencies = (searchString !== ""
-      ? dependencies.filter((dep) =>
-          keywords.every(
-            (elem) =>
-              dep.lhs
-                .map((attr) => attr.name)
-                .some((attr) => attr.includes(elem)) || dep.rhs.name === elem
+    const foundDependencies = (
+      searchString !== ""
+        ? dependencies.filter((dep) =>
+            keywords.every(
+              (elem) =>
+                dep.lhs
+                  .map((attr) => attr.name)
+                  .some((attr) => attr.includes(elem)) || dep.rhs.name === elem
+            )
           )
-        )
-      : [...dependencies]
+        : [...dependencies]
     )
       // filter by chosen LHS
       .filter((dep) =>
