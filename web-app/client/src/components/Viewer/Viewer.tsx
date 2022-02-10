@@ -1,14 +1,5 @@
-/* eslint-disable */
-
 import React, { useState, useEffect, useContext } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Link,
-  useParams,
-  useHistory,
-} from "react-router-dom";
-import axios from "axios";
+import { useParams } from "react-router-dom";
 import { Col, Container, Row } from "react-bootstrap";
 
 import "./Viewer.scss";
@@ -16,10 +7,8 @@ import Toggle from "../Toggle/Toggle";
 import PieChartFull from "../PieChartFull/PieChartFull";
 import DependencyListFull from "../DependencyListFull/DependencyListFull";
 import StatusDisplay from "../StatusDisplay/StatusDisplay";
-import Button from "../Button/Button";
 import ProgressBar from "../ProgressBar/ProgressBar";
 import Phasename from "../Phasename/Phasename";
-import { serverURL } from "../../APIFunctions";
 import {
   taskStatus,
   attribute,
@@ -30,26 +19,18 @@ import { TaskContext } from "../TaskContext/TaskContext";
 import Snippet from "../Snippet/Snippet";
 
 const Viewer = () => {
-  const { taskID } = useParams<{ taskID: string }>();
-  const history = useHistory();
+  const { taskID } = useParams();
 
   const {
     setTaskId,
     taskProgress,
-    setTaskProgress,
     currentPhase,
-    setCurrentPhase,
     phaseName,
-    setPhaseName,
     maxPhase,
-    setMaxPhase,
     taskStatus,
-    setTaskStatus,
     file,
-    setFileName,
-    setTable,
   } = useContext(TaskContext)!;
-  setTaskId(taskID);
+  setTaskId(taskID!);
 
   const [partShown, setPartShown] = useState(0);
   const [attributesLHS, setAttributesLHS] = useState<attribute[]>([]);
@@ -63,10 +44,8 @@ const Viewer = () => {
   >([]);
 
   const [dependencies, setDependencies] = useState<dependency[]>([]);
-  const [
-    selectedDependency,
-    setSelectedDependency,
-  ] = useState<dependency | null>(null);
+  const [selectedDependency, setSelectedDependency] =
+    useState<dependency | null>(null);
   const [keys, setKeys] = useState<string[]>([]);
   const [showKeys, setShowKeys] = useState(true);
 
@@ -74,47 +53,7 @@ const Viewer = () => {
     status === "COMPLETED" || status === "SERVER ERROR";
 
   useEffect(() => {
-    const fetchData = async () => {
-      axios
-        .get(`${serverURL}/getTaskInfo/${taskID}`, { timeout: 2000 })
-        .then((task) => task.data)
-        .then((data) => {
-          setFileName(data.filename);
-          setTaskProgress(data.progress / 100);
-          setPhaseName(data.phasename);
-          setCurrentPhase(data.currentphase);
-          setMaxPhase(data.maxphase);
-          setTaskStatus(data.status);
-          if (taskFinished(data.status)) {
-            axios
-              .get(`${serverURL}/getSnippet?taskID=${taskID}`)
-              .then((res) => setTable(res.data));
-            setKeys(
-              data.pkcolumnpositions.map(
-                (pos: number) => data.arraynamevalue.lhs[pos].name
-              )
-            );
-            setAttributesLHS(data.arraynamevalue.lhs);
-            setAttributesRHS(data.arraynamevalue.rhs);
-            setDependencies(
-              data.fds.map((dep: dependencyEncoded) => ({
-                lhs: dep.lhs.map(
-                  (attrNum) =>
-                    data.arraynamevalue.lhs[attrNum] ||
-                    data.arraynamevalue.lhs[0]
-                ),
-                rhs:
-                  data.arraynamevalue.rhs[dep.rhs] ||
-                  data.arraynamevalue.rhs[0],
-              }))
-            );
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-          history.push("/error");
-        });
-    };
+    const fetchData = async () => {};
 
     const timer = setInterval(() => {
       if (!taskFinished(taskStatus)) {
@@ -123,7 +62,7 @@ const Viewer = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  });
+  }, [taskID]);
 
   return (
     <>

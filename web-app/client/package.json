@@ -6,10 +6,13 @@
     "@apollo/client": "^3.5.8",
     "@benestudioco/react-scrollfade": "^1.0.2",
     "@testing-library/user-event": "^12.8.3",
+    "@types/apollo-upload-client": "^17.0.0",
     "@types/hsl-to-hex": "^1.0.0",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.6.1",
     "@types/react-dom": "^17.0.9",
+    "@types/react-outside-click-handler": "^1.3.1",
+    "apollo-upload-client": "^17.0.0",
     "axios": "^0.21.1",
     "body-scroll-lock": "^4.0.0-beta.0",
     "bootstrap": "^5.1.3",
@@ -33,8 +36,11 @@
     "react-dom": "^17.0.2",
     "react-dropzone": "^11.3.4",
     "react-motion": "^0.5.2",
+    "react-outside-click-handler": "^1.3.0",
+    "react-router": "^6.2.1",
     "react-router-dom": "^5.3.0",
     "react-scripts": "^5.0.0",
+    "react-spring": "^9.4.2",
     "react-transition-group": "1.x",
     "recharts": "^2.0.10",
     "sass": "^1.43.2",
@@ -43,12 +49,11 @@
   },
   "scripts": {
     "download-schema": "apollo service:download --endpoint=http://localhost:5000/graphql graphql-schema.json",
-    "codegen": "npm run download-schema && apollo codegen:generate --localSchemaFile=graphql-schema.json --target=typescript --tagName=gql",
-    "start": "npm run codegen && react-scripts start",
-    "build": "npm run codegen && react-scripts build",
-    "test": "npm run codegen && react-scripts test",
-    "eject": "npm run codegen && react-scripts eject",
-    "server": "json-server --watch db.json --port 5000"
+    "codegen": "yarn download-schema && apollo codegen:generate --localSchemaFile=graphql-schema.json --target=typescript --tagName=gql",
+    "start": "yarn codegen && react-scripts start",
+    "build": "yarn codegen && react-scripts build",
+    "test": "yarn codegen && react-scripts test",
+    "eject": "yarn codegen && react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
