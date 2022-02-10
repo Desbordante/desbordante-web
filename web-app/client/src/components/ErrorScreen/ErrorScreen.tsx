@@ -1,31 +1,24 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Container } from "react-bootstrap";
 
 import "./ErrorScreen.scss";
-import Button from "../Button/Button";
+import { ErrorContext } from "../ErrorContext";
+import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";
 
-interface Props {
-  code: string;
-  message: string;
-}
+const ErrorScreen = () => {
+  const { error, hideError } = useContext(ErrorContext)!;
 
-const ErrorScreen: React.FC<Props> = ({ code, message }) => (
-  <Container
-    fluid
-    className="bg-dark h-100 flex-grow-1 d-flex flex-column align-items-center justify-content-center"
-  >
-    <h1 className="text-white my-3">
-      <span className="text-danger">Error {code}: </span>
-      {message}
-    </h1>
-    <Button
-      onClick={() => {
-        window.location.href = "/";
-      }}
-    >
-      Try again
-    </Button>
-  </Container>
-);
+  return (
+    <PopupWindowContainer onOutsideClick={hideError}>
+      <Container className="p-5 bg-light w-auto rounded-3 shadow">
+        <h3>
+          <span className="text-danger">Error {error!.code}:</span>{" "}
+          {error!.message}
+        </h3>
+        {error!.suggestion && <p className="mb-0">{error!.suggestion}</p>}
+      </Container>
+    </PopupWindowContainer>
+  );
+};
 
 export default ErrorScreen;

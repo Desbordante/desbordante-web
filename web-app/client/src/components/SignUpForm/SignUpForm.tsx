@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Formik } from "formik";
 import { Container, Form, Button } from "react-bootstrap";
 import { countries } from "countries-list";
@@ -6,8 +6,11 @@ import { validate as emailValidator } from "email-validator";
 import { passwordStrength } from "check-password-strength";
 
 import "./SignUpForm.scss";
+import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";
+import { AuthContext } from "../AuthContext";
 
 const SignUpForm = () => {
+  const { setIsSignUpShown } = useContext(AuthContext)!;
   const initialValues = {
     fullName: "",
     email: "",
@@ -50,10 +53,7 @@ const SignUpForm = () => {
   };
 
   return (
-    <Container
-      fluid
-      className="w-100 flex-grow-1 bg-dark d-flex justify-content-center align-items-center p-0"
-    >
+    <PopupWindowContainer onOutsideClick={() => setIsSignUpShown(false)}>
       <Container className="form-container bg-light p-4 m-4 p-sm-5 m-sm-5 rounded-3 w-auto shadow-lg">
         <h1 className="text-center fw-bold mb-4">Sign Up</h1>
         <Formik
@@ -178,7 +178,7 @@ const SignUpForm = () => {
           )}
         </Formik>
       </Container>
-    </Container>
+    </PopupWindowContainer>
   );
 };
 
