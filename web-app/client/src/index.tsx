@@ -1,26 +1,37 @@
 import "./index.scss";
 import React from "react";
 import ReactDOM from "react-dom";
-import {
- ApolloClient, InMemoryCache, ApolloProvider
-} from "@apollo/client";
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import { createUploadLink } from "apollo-upload-client";
+
 import App from "./App";
 import { AuthContextProvider } from "./components/AuthContext";
 import { TaskContextProvider } from "./components/TaskContext/TaskContext";
+import { ErrorContextProvider } from "./components/ErrorContext";
 import { graphQLEndpoint } from "./APIFunctions";
+import { AlgorithmConfigContextProvider } from "./components/AlgorithmConfigContext";
+import { customFetch } from "./customFetch";
 
 const client = new ApolloClient({
+  uri: graphQLEndpoint,
+  cache: new InMemoryCache(),
+  link: createUploadLink({
     uri: graphQLEndpoint,
-    cache: new InMemoryCache()
+    fetch: customFetch as any,
+  }),
 });
 
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <AuthContextProvider>
-      <TaskContextProvider>
-        <App />
-      </TaskContextProvider>
-    </AuthContextProvider>
+    <ErrorContextProvider>
+      <AuthContextProvider>
+        <TaskContextProvider>
+          <AlgorithmConfigContextProvider>
+            <App />
+          </AlgorithmConfigContextProvider>
+        </TaskContextProvider>
+      </AuthContextProvider>
+    </ErrorContextProvider>
   </ApolloProvider>,
   document.getElementById("root")
 );

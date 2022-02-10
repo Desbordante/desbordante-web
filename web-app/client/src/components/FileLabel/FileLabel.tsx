@@ -1,45 +1,39 @@
-import React from "react";
+import React, { useContext } from "react";
 import "./FileLabel.scss";
 import { useDropzone } from "react-dropzone";
+import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
+import { TaskContext } from "../TaskContext/TaskContext";
 
 /* eslint-disable no-unused-vars */
 interface Props {
-  file: File | null;
-  fileExistenceValidator: (file: File | null) => boolean;
-  fileSizeValidator: (file: File | null) => boolean;
-  fileFormatValidator: (file: File | null) => boolean;
   onClick: () => void;
-  setFile: (file: File) => void;
-  builtinDataset: string | null;
+  builtinDataset?: string;
   className: string;
 }
 
 const FileLabel: React.FC<Props> = ({
-  file,
-  fileExistenceValidator,
-  fileSizeValidator,
-  fileFormatValidator,
   onClick,
-  setFile,
   builtinDataset,
   className = "",
 }) => {
+  const { file, setFile } = useContext(TaskContext)!;
+  const { validators } = useContext(AlgorithmConfigContext)!;
   const { getRootProps } = useDropzone({
     onDrop: (acceptedFiles) => setFile(acceptedFiles[0]),
   });
 
   let displayText = "";
-  if (fileExistenceValidator(file)) {
+  if (validators.fileExistenceValidator(file)) {
     displayText = file!.name;
     if (displayText.length > 40) {
       displayText = displayText.slice(0, 40);
     }
 
-    if (!fileFormatValidator(file)) {
+    if (!validators.fileFormatValidator(file)) {
       displayText = "This format is not supported";
     }
 
-    if (!fileSizeValidator(file)) {
+    if (!validators.fileSizeValidator(file)) {
       displayText = "This file is too large";
     }
   } else {
@@ -47,8 +41,9 @@ const FileLabel: React.FC<Props> = ({
   }
 
   let isError =
-    fileExistenceValidator(file) &&
-    (!fileSizeValidator(file) || !fileFormatValidator(file));
+    validators.fileExistenceValidator(file) &&
+    (!validators.fileSizeValidator(file) ||
+      !validators.fileFormatValidator(file));
 
   if (builtinDataset) {
     displayText = builtinDataset;
