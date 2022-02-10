@@ -2,9 +2,9 @@ import {ApolloError, UserInputError} from "apollo-server-core";
 import path from "path";
 import { finished } from "stream/promises";
 
-import { Resolvers } from "../../types/types";
-import { generateHeaderByFileID }  from "./generateHeader";
 import sendEvent from "../../../producer/sendEvent";
+import { Resolvers } from "../../types/types";
+import { generateHeaderByFileID } from "./generateHeader";
 
 const getPathToUploadedDataset = (fileName: string) => {
     const rootPath = path.dirname(require.main.filename).split("/");
@@ -12,9 +12,9 @@ const getPathToUploadedDataset = (fileName: string) => {
     rootPath.push("uploads"); // add folder 'uploads'
     rootPath.push(fileName); // add file '${fileID}.csv'
     return rootPath.join("/");
-}
+};
 
-const TaskCreatingResolvers : Resolvers = {
+const TaskCreatingResolvers: Resolvers = {
     Mutation: {
         // @ts-ignore
         chooseFDTask: async (
@@ -28,30 +28,30 @@ const TaskCreatingResolvers : Resolvers = {
                 const taskInfo = await models.TaskInfo.create({
                     status: "ADDING TO DB",
                 });
-                const { taskID } = taskInfo
+                const { taskID } = taskInfo;
 
                 const taskConfig = await taskInfo.createTaskConfig({
-                    taskID,
                     algorithmName,
-                    type: "FDA",
-                    fileID
-                })
-                const fdTaskConfig = await taskInfo.createFDTaskConfig({
+                    fileID,
                     taskID,
+                    type: "FDA",
+                });
+                const fdTaskConfig = await taskInfo.createFDTaskConfig({
                     errorThreshold,
                     maxLHS,
+                    taskID,
                     threadsCount,
-                })
+                });
                 const fdTaskResult = await taskInfo.createFDTaskResult({
                     taskID,
                 });
 
-                await taskInfo.update({ status: "ADDED TO THE DB"})
+                await taskInfo.update({ status: "ADDED TO THE DB"});
 
                 const topicName = process.env.KAFKA_TOPIC_NAME;
 
                 await sendEvent(topicName, taskID);
-                await taskInfo.update({ status: "ADDED TO THE TASK QUEUE"})
+                await taskInfo.update({ status: "ADDED TO THE TASK QUEUE"});
 
                 return taskInfo;
 
@@ -69,59 +69,59 @@ const TaskCreatingResolvers : Resolvers = {
 
             try {
                 const taskInfo = await models.TaskInfo.create({
-                    type: "FDA",
                     status: "ADDING TO DB && DOWNLOADING FILE",
                 });
-                const { taskID } = taskInfo
+                const { taskID } = taskInfo;
                 const { createReadStream, filename, mimetype, encoding } = await table;
 
                 const stream = createReadStream();
 
                 const file = await models.FileInfo.create({
-                    mimeType: mimetype,
-                    encoding,
-                    originalFileName: filename,
-                    hasHeader,
                     delimiter,
-                })
+                    encoding,
+                    hasHeader,
+                    mimeType: mimetype,
+                    originalFileName: filename,
+                });
 
                 const fileID = file.ID;
                 const fileName = `${fileID}.csv`;
 
                 await file.update({ fileName, path: getPathToUploadedDataset(fileName) });
 
-                const out = require('fs').createWriteStream(`uploads/${fileName}`);
+                const out = require("fs").createWriteStream(`uploads/${fileName}`);
                 stream.pipe(out);
                 await finished(out);
 
                 await file.update({ renamedHeader: JSON.stringify(await generateHeaderByFileID(models, fileID)) });
 
-                await taskInfo.update({ status: "ADDING TO DB"})
+                await taskInfo.update({ status: "ADDING TO DB"});
 
                 // TODO: USER!
                 const taskConfig = await taskInfo.createTaskConfig({
-                    taskID,
                     algorithmName,
                     delimiter,
-                    fileID
-                })
+                    fileID,
+                    taskID,
+                    type: "FDA",
+                });
 
                 const fdTaskConfig = await taskInfo.createFDTaskConfig({
-                    taskID,
                     errorThreshold,
                     maxLHS,
+                    taskID,
                     threadsCount,
-                })
+                });
 
                 const fdTaskResult = await taskInfo.createFDTaskResult({
                     taskID,
                 });
 
-                await taskInfo.update({ status: "ADDED TO THE DB" })
+                await taskInfo.update({ status: "ADDED TO THE DB" });
 
                 const topicName = process.env.KAFKA_TOPIC_NAME;
                 await sendEvent(topicName, taskID);
-                await taskInfo.update({ status: "ADDED TO THE TASK QUEUE"})
+                await taskInfo.update({ status: "ADDED TO THE TASK QUEUE"});
 
                 return taskInfo;
             } catch (e) {
@@ -136,17 +136,17 @@ const TaskCreatingResolvers : Resolvers = {
                             logger(JSON.stringify(res));
                             return { message: "Task was deleted" };
                         })
-                        .catch((e : any) => {
+                        .catch((e: any) => {
                             logger(e);
                             throw new ApolloError("INTERNAL SERVER ERROR");
-                        })
+                        });
                 })
                 .catch(async (e: any) => {
                     logger(e);
                     throw new UserInputError("Invalid TaskID");
-                })
+                });
         }
     }
-}
+};
 
 export = TaskCreatingResolvers;
