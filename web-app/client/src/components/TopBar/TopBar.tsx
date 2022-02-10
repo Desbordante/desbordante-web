@@ -11,18 +11,12 @@ import { AuthContext } from "../AuthContext";
 
 const TopBar = () => {
   const history = useHistory();
-  const {
-    fileName,
-    setFileName,
-    taskId,
-    setTaskId,
-    taskStatus,
-    setTaskStatus,
-  } = useContext(TaskContext)!;
-  const { user } = useContext(AuthContext)!;
+  const { fileName, taskId, taskStatus } = useContext(TaskContext)!;
+  const { user, setIsSignUpShown, setIsFeedbackShown } =
+    useContext(AuthContext)!;
 
   return (
-    <Navbar variant="dark" bg="dark" sticky="top">
+    <Navbar variant="dark" bg="dark" sticky="top" className="position-relative">
       <Container fluid>
         <Navbar.Brand href="/">
           <img
@@ -42,21 +36,11 @@ const TopBar = () => {
             <p className="mx-1 my-auto text-secondary">{taskStatus}</p>
           )}
         </Container>
-        <Button
-          onClick={() => {
-            window.location.href = "/feedback";
-          }}
-          className="mx-2"
-        >
+        <Button onClick={() => setIsFeedbackShown(true)} className="mx-2">
           Send Feedback
         </Button>
         {!user && (
-          <Button
-            onClick={() => {
-              window.location.href = "/signup";
-            }}
-            className="mx-2"
-          >
+          <Button onClick={() => setIsSignUpShown(true)} className="mx-2">
             Sign Up
           </Button>
         )}
@@ -66,9 +50,6 @@ const TopBar = () => {
             onClick={() => {
               axios.post(`${serverURL}/cancelTask?taskID=${taskId}`);
               history.push("/");
-              setFileName("");
-              setTaskId("");
-              setTaskStatus("UNSCHEDULED");
             }}
             className="mx-2"
           >

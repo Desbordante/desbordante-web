@@ -38,6 +38,8 @@ module.exports = {
     indent: "off",
     "@typescript-eslint/brace-style": ["error", "1tbs"],
     "no-console": "error",
+    "react/function-component-definition": "off",
+    "react/jsx-no-constructed-context-values": "off",
     "no-shadow": "off",
     "no-unused-vars": "warn",
     "react/prop-types": "off",

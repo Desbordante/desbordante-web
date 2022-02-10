@@ -1,7 +1,3 @@
-import {
-  algorithmsConfig_algorithmsConfig_allowedFDAlgorithms_properties
-} from "./operations/queries/__generated__/algorithmsConfig";
-
 export type attribute = { name: string; value: number };
 export type dependencyEncoded = { lhs: number[]; rhs: number };
 export type dependency = { lhs: attribute[]; rhs: attribute };
@@ -30,4 +26,15 @@ export type user = {
   name: string;
   email: string;
   isAdmin: boolean;
+};
+export type tableInfo = {
+  ID: string;
+  fileName: string;
+  hasHeader: boolean;
+  delimiter: string;
+};
+export type error = {
+  code: number;
+  message: string;
+  suggestion?: string;
 };
