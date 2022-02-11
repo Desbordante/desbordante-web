@@ -26,8 +26,8 @@ const Snippet: React.FC<Props> = ({ selectedDependency, className = "" }) => {
     if (!selectedDependency) {
       return [];
     }
-    const lhs = selectedDependency.lhs.map((attr) => header.indexOf(attr.name));
-    const rhs = header.indexOf(selectedDependency.rhs.name);
+    const lhs = selectedDependency.lhs.map((attr) => header.indexOf(attr));
+    const rhs = header.indexOf(selectedDependency.rhs);
     return [...lhs, rhs];
   };
 
