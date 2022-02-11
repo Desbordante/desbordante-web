@@ -143,6 +143,7 @@ void TaskConsumer::processTask(TaskConfig const& task,
         } else {
             task.updateStatus(manager, "CANCELLED");
         }
+        task.setIsExecuted(manager);
         return;
     } catch (std::runtime_error& e) {
         std::cout << e.what() << std::endl;

@@ -181,7 +181,20 @@ public:
                       << " caught: " << e.what() << std::endl;
             throw e;
         }
-    }    
+    }
+
+    void setIsExecuted(DBManager const& manager) const {
+        try {
+            std::string query = "UPDATE " + taskInfoTable + " SET "
+                              + " \"isExecuted\" = true"
+                              + " WHERE \"taskID\" = '" + taskID + "'";
+            manager.transactionQuery(query);
+        } catch(const std::exception& e) {
+            std::cerr << "Unexpected exception (with updating isExecuted attr in DB)"
+                      << " caught: " << e.what() << std::endl;
+            throw e;
+        }
+    }
 
     // Send a request to DB with a set of FDs
     void updateJsonDeps(DBManager const& manager, const std::string& deps) const {
