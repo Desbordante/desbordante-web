@@ -23,6 +23,7 @@ type TaskContextType = {
   snippet: taskInfo_taskInfo_dataset_snippet | undefined;
   pieChartData: pieChartData | undefined;
   dependencies: dependency[] | undefined;
+  keys: string[] | undefined;
 };
 
 export const TaskContext = createContext<TaskContextType | null>(null);
@@ -44,10 +45,11 @@ export const TaskContextProvider: React.FC = ({ children }) => {
 
   const [pieChartData, setPieChartData] = useState<pieChartData>();
   const [dependencies, setDependencies] = useState<dependency[]>();
+  const [keys, setKeys] = useState<string[]>();
 
   const isExecuted = progress === 1;
 
-  const { data, loading, error } = useQuery<taskInfo>(GET_TASK_INFO, {
+  const { data, error } = useQuery<taskInfo>(GET_TASK_INFO, {
     variables: { id: taskId },
     skip: !taskId || isExecuted,
     pollInterval: 500,
@@ -85,6 +87,11 @@ export const TaskContextProvider: React.FC = ({ children }) => {
           })
         )
       );
+      setKeys(
+        (data.taskInfo.data as taskInfo_taskInfo_data_FDTask).result?.PKs?.map(
+          (attr) => attr?.name!
+        ) || undefined
+      );
     }
   }, [data]);
 
@@ -92,13 +99,13 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     if (error) {
       showError({ message: error.message });
     }
-  }, [error]);
+  }, [error, showError]);
 
   useEffect(() => {
     if (errorMsg) {
       showError({ message: errorMsg });
     }
-  }, [errorMsg]);
+  }, [errorMsg, showError]);
 
   const outValue = {
     taskId,
@@ -113,6 +120,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     snippet,
     pieChartData,
     dependencies,
+    keys,
   };
 
   return (

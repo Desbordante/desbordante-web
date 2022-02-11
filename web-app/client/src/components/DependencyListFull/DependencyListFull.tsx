@@ -1,6 +1,6 @@
 /* eslint-disable*/
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Container, Stack } from "react-bootstrap";
 
 import "./DependencyListFull.scss";
@@ -8,11 +8,11 @@ import Dependency from "../Dependency/Dependency";
 import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";
 import { attribute, dependency } from "../../types";
+import { TaskContext } from "../TaskContext/TaskContext";
 
 type sortMethod = "LHS" | "RHS";
 
 interface Props {
-  dependencies: dependency[];
   selectedAttributesLHS: attribute[];
   selectedAttributesRHS: attribute[];
   selectedDependency: dependency | null;
@@ -23,13 +23,14 @@ interface Props {
 }
 
 const DependencyListFull: React.FC<Props> = ({
-  dependencies,
   selectedAttributesLHS,
   selectedAttributesRHS,
   selectedDependency,
   setSelectedDependency,
   className = "",
 }) => {
+  const { dependencies, keys } = useContext(TaskContext)!;
+
   const [sortedDependencies, setSortedDependencies] = useState<dependency[]>(
     []
   );
@@ -40,16 +41,22 @@ const DependencyListFull: React.FC<Props> = ({
 
   // update displayed dependencies on search
   useEffect(() => {
+    const dependenciesWithoutKeys =
+      (showKeys
+        ? dependencies
+        : dependencies?.filter((dep) =>
+            keys?.some((key) => dep.lhs.includes(key) || dep.rhs === key)
+          )) || [];
     const foundDependencies = (
       searchString
-        ? dependencies.filter((dep) =>
+        ? dependenciesWithoutKeys.filter((dep) =>
             dep.lhs
               .concat(dep.rhs)
               .join("")
               .toLowerCase()
               .includes(searchString.toLowerCase())
           )
-        : [...dependencies]
+        : dependenciesWithoutKeys
     )
       // filter by chosen LHS
       .filter((dep) =>
@@ -80,6 +87,7 @@ const DependencyListFull: React.FC<Props> = ({
     selectedAttributesRHS,
     searchString,
     sortBy,
+    showKeys,
   ]);
 
   return (
@@ -105,7 +113,7 @@ const DependencyListFull: React.FC<Props> = ({
         <Toggle
           toggleCondition={showKeys}
           variant="dark"
-          onClick={() => setShowKeys(!showKeys)}
+          onClick={() => setShowKeys((prevShowKeys) => !prevShowKeys)}
           className="mx-2"
         >
           Show Keys
