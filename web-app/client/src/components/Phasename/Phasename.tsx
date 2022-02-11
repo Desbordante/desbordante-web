@@ -1,20 +1,12 @@
-import React, { useRef } from "react";
+import React, { useContext, useRef } from "react";
+import { TaskContext } from "../TaskContext/TaskContext";
 
 import "./Phasename.scss";
 
-interface Props {
-  phaseName: string;
-  progress: number;
-  currentPhase: number;
-  maxPhase: number;
-}
+const Phasename = () => {
+  const { currentPhase, maxPhase, phaseName, progress } =
+    useContext(TaskContext)!;
 
-const Phasename: React.FC<Props> = ({
-  phaseName,
-  progress,
-  currentPhase,
-  maxPhase,
-}) => {
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
   const clamp = (number: number, min: number, max: number) =>
     Math.min(max, Math.max(min, number));

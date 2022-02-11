@@ -5,19 +5,21 @@ import { Container } from "react-bootstrap";
 import stringToColor from "../../functions/stringToColor";
 
 interface Props {
-  data: string[][];
+  header: string[];
+  rows: string[][];
   colorizedColumns: number[];
   showUncolorizedColumns?: boolean;
   className?: string;
 }
 
 const Table: React.FC<Props> = ({
-  data,
+  header,
+  rows,
   colorizedColumns,
   showUncolorizedColumns = true,
   className = "",
 }) => {
-  const uncolorizedColumns = [...Array(data[0].length)]
+  const uncolorizedColumns = [...Array(header.length)]
     .map((_, index) => index)
     .filter((index) => !colorizedColumns.includes(index));
 
@@ -34,32 +36,32 @@ const Table: React.FC<Props> = ({
           <tr className="bg-light">
             {colorizedColumns.map((index) => (
               <th
-                key={data[0][index]}
+                key={header[index]}
                 className={headerClassName}
                 style={{
-                  backgroundColor: stringToColor(data[0][index], 40, 40),
+                  backgroundColor: stringToColor(header[index], 40, 40),
                 }}
               >
-                {data[0][index]}
+                {header[index]}
               </th>
             ))}
             {showUncolorizedColumns &&
               uncolorizedColumns.map((index) => (
                 <th
-                  key={data[0][index]}
+                  key={header[index]}
                   className={headerClassName}
                   style={{
                     backgroundColor: "#17151a",
                   }}
                 >
-                  {data[0][index]}
+                  {header[index]}
                 </th>
               ))}
           </tr>
         </thead>
 
         <tbody>
-          {data.slice(1).map((row, rowIndex) => (
+          {rows.slice(1).map((row, rowIndex) => (
             <tr key={rowIndex}>
               {colorizedColumns.map((index) => (
                 <td
@@ -67,7 +69,7 @@ const Table: React.FC<Props> = ({
                   className={bodyClassName}
                   style={{
                     backgroundColor: stringToColor(
-                      data[0][index],
+                      header[index],
                       40,
                       rowIndex % 2 ? 75 : 85
                     ),
