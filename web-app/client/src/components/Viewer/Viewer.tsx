@@ -16,7 +16,7 @@ import Navigation from "./Navigation";
 const Viewer = () => {
   const { taskID } = useParams();
 
-  const { setTaskId, isExecuted, progress, pieChartData, dependencies } =
+  const { setTaskId, isExecuted, progress, pieChartData } =
     useContext(TaskContext)!;
   setTaskId(taskID!);
 
@@ -40,7 +40,6 @@ const Viewer = () => {
       {isExecuted ? (
         <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">
           <Navigation partShown={partShown} setPartShown={setPartShown} />
-
           <Row
             className={`w-100 flex-grow-1 justify-content-evenly ${
               partShown === 0 ? "" : "d-none"
@@ -65,16 +64,13 @@ const Viewer = () => {
             </Col>
           </Row>
 
-          {dependencies && (
-            <DependencyListFull
-              dependencies={dependencies}
-              selectedAttributesLHS={selectedAttributesLHS}
-              selectedAttributesRHS={selectedAttributesRHS}
-              selectedDependency={selectedDependency}
-              setSelectedDependency={setSelectedDependency}
-              className={partShown === 1 ? "" : "d-none"}
-            />
-          )}
+          <DependencyListFull
+            selectedAttributesLHS={selectedAttributesLHS}
+            selectedAttributesRHS={selectedAttributesRHS}
+            selectedDependency={selectedDependency}
+            setSelectedDependency={setSelectedDependency}
+            className={partShown === 1 ? "" : "d-none"}
+          />
 
           <Snippet
             selectedDependency={selectedDependency}
