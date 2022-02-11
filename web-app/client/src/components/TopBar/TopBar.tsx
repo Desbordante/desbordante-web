@@ -1,24 +1,28 @@
 import React, { useContext } from "react";
 import { Container, Navbar } from "react-bootstrap";
-import axios from "axios";
 import { useHistory } from "react-router-dom";
 
 import "./TopBar.scss";
 import Button from "../Button/Button";
 import { TaskContext } from "../TaskContext/TaskContext";
-import { serverURL } from "../../APIFunctions";
 import { AuthContext } from "../AuthContext";
 
 const TopBar = () => {
   const history = useHistory();
-  const { fileName, taskId, status } = useContext(TaskContext)!;
+
+  const { fileName, taskId, status, setTaskId } = useContext(TaskContext)!;
   const { user, setIsSignUpShown, setIsFeedbackShown } =
     useContext(AuthContext)!;
+
+  const backToHome = () => {
+    setTaskId(undefined);
+    history.push("/");
+  };
 
   return (
     <Navbar variant="dark" bg="dark" sticky="top" className="position-relative">
       <Container fluid>
-        <Navbar.Brand href="/">
+        <Navbar.Brand onClick={backToHome}>
           <img
             src="/icons/logo.svg"
             alt="logo"
@@ -45,14 +49,7 @@ const TopBar = () => {
           </Button>
         )}
         {taskId && (
-          <Button
-            variant="danger"
-            onClick={() => {
-              axios.post(`${serverURL}/cancelTask?taskID=${taskId}`);
-              history.push("/");
-            }}
-            className="mx-2"
-          >
+          <Button variant="danger" onClick={backToHome} className="mx-2">
             Cancel
           </Button>
         )}
