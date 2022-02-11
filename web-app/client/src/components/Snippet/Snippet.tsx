@@ -14,9 +14,13 @@ interface Props {
 }
 
 const Snippet: React.FC<Props> = ({ selectedDependency, className = "" }) => {
-  const { table } = useContext(TaskContext)!;
+  const { snippet } = useContext(TaskContext)!;
+  const header =
+    snippet && snippet.header
+      ? snippet.header.map((elem) => elem || "null")
+      : [];
+  const rows = snippet && snippet.rows ? snippet.rows : [[]];
   const [isNonSelectedPartShown, setIsNonSelectedPartShown] = useState(true);
-  const header = table[0];
 
   const getSelectedAttributeColumns = () => {
     if (!selectedDependency) {
@@ -41,7 +45,8 @@ const Snippet: React.FC<Props> = ({ selectedDependency, className = "" }) => {
       <Table
         colorizedColumns={getSelectedAttributeColumns()}
         showUncolorizedColumns={isNonSelectedPartShown || !selectedDependency}
-        data={table}
+        rows={rows}
+        header={header}
       />
     </Container>
   );

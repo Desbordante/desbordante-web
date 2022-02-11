@@ -1,4 +1,20 @@
-export type attribute = { name: string; value: number };
+import {
+  taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs,
+  taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs,
+} from "./operations/queries/__generated__/taskInfo";
+
+export type attribute = {
+  column: { name: string; index?: number };
+  value: number;
+};
+export type pieChartData = {
+  lhs:
+    | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
+    | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[];
+  rhs:
+    | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
+    | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[];
+};
 export type dependencyEncoded = { lhs: number[]; rhs: number };
 export type dependency = { lhs: attribute[]; rhs: attribute };
 export type taskStatus =
@@ -34,7 +50,7 @@ export type tableInfo = {
   delimiter: string;
 };
 export type error = {
-  code: number;
+  code?: number;
   message: string;
   suggestion?: string;
 };

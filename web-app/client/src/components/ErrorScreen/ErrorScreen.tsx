@@ -12,7 +12,9 @@ const ErrorScreen = () => {
     <PopupWindowContainer onOutsideClick={hideError}>
       <Container className="p-5 bg-light w-auto rounded-3 shadow">
         <h3>
-          <span className="text-danger">Error {error!.code}:</span>{" "}
+          <span className="text-danger">
+            Error{error!.code && ` ${error!.code}`}:{" "}
+          </span>{" "}
           {error!.message}
         </h3>
         {error!.suggestion && <p className="mb-0">{error!.suggestion}</p>}

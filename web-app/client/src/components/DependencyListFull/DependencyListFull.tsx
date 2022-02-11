@@ -1,7 +1,7 @@
 /* eslint-disable*/
 
 import React, { useState, useEffect } from "react";
-import { Container, Stack, Col } from "react-bootstrap";
+import { Container, Stack } from "react-bootstrap";
 
 import "./DependencyListFull.scss";
 import Dependency from "../Dependency/Dependency";
@@ -19,9 +19,6 @@ interface Props {
   setSelectedDependency: React.Dispatch<
     React.SetStateAction<dependency | null>
   >;
-  file?: File;
-  showKeys: boolean;
-  setShowKeys: (b: boolean) => void;
   className?: string;
 }
 
@@ -31,8 +28,6 @@ const DependencyListFull: React.FC<Props> = ({
   selectedAttributesRHS,
   selectedDependency,
   setSelectedDependency,
-  showKeys,
-  setShowKeys,
   className = "",
 }) => {
   const [sortedDependencies, setSortedDependencies] = useState<dependency[]>(
@@ -40,6 +35,7 @@ const DependencyListFull: React.FC<Props> = ({
   );
   const [sortBy, setSortBy] = useState<sortMethod>("LHS");
   const [searchString, setSearchString] = useState("");
+  const [showKeys, setShowKeys] = useState(true);
   const allowedSortMethods: sortMethod[] = ["LHS", "RHS"];
 
   // update displayed dependencies on search

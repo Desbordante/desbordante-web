@@ -11,7 +11,6 @@ import Slider from "../Slider/Slider";
 import UploadFile from "../UploadFile/UploadFile";
 import BuiltinDatasetSelector from "../BuiltinDatasetSelector/BuiltinDatasetSelector";
 import FormItem from "../FormItem/FormItem";
-import { TaskContext } from "../TaskContext/TaskContext";
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
 import { FDAlgorithm } from "../../types";
 import { CREATE_FD_TASK } from "../../operations/mutations/createFDTask";
@@ -20,11 +19,11 @@ import { ErrorContext } from "../ErrorContext";
 import LoadingScreen from "../LoadingScreen/LoadingScreen";
 
 const FileForm = () => {
-  const { file, setFile } = useContext(TaskContext)!;
   const { allowedValues, validators } = useContext(AlgorithmConfigContext)!;
   const { showError } = useContext(ErrorContext)!;
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  const [file, setFile] = useState<File>();
   const [hasHeader, setHasHeader] = useState(true);
   const [separator, setSeparator] = useState<string>();
   const [algorithm, setAlgorithm] = useState<FDAlgorithm>();
@@ -136,6 +135,8 @@ const FileForm = () => {
         <FormItem>
           <h5 className="text-white mb-0 mx-2">File:</h5>
           <UploadFile
+            file={file}
+            setFile={setFile}
             builtinDataset={builtinDataset}
             openBuiltinDatasetSelector={() => setIsWindowShown(true)}
             disableBuiltinDataset={() => setBuiltinDataset(undefined)}
