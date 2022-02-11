@@ -7,7 +7,7 @@ import {
   taskInfo_taskInfo_dataset_snippet,
   taskInfo_taskInfo_data_FDTask,
 } from "../../operations/queries/__generated__/taskInfo";
-import { pieChartData } from "../../types";
+import { dependency, pieChartData } from "../../types";
 import { ErrorContext } from "../ErrorContext";
 
 type TaskContextType = {
@@ -22,6 +22,7 @@ type TaskContextType = {
   fileName: string | undefined;
   snippet: taskInfo_taskInfo_dataset_snippet | undefined;
   pieChartData: pieChartData | undefined;
+  dependencies: dependency[] | undefined;
 };
 
 export const TaskContext = createContext<TaskContextType | null>(null);
@@ -42,6 +43,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   const [snippet, setSnippet] = useState<taskInfo_taskInfo_dataset_snippet>();
 
   const [pieChartData, setPieChartData] = useState<pieChartData>();
+  const [dependencies, setDependencies] = useState<dependency[]>();
 
   const isExecuted = progress === 1;
 
@@ -72,6 +74,17 @@ export const TaskContextProvider: React.FC = ({ children }) => {
         (data.taskInfo.data as taskInfo_taskInfo_data_FDTask).result
           ?.pieChartData || undefined
       );
+      setDependencies(
+        (data.taskInfo.data as taskInfo_taskInfo_data_FDTask).result?.FDs?.map(
+          (dep) => ({
+            lhs:
+              dep?.lhs.map(
+                (index) => data.taskInfo.dataset.snippet.header[index] || "null"
+              ) || [],
+            rhs: data.taskInfo.dataset.snippet.header[dep?.rhs || 0] || "null",
+          })
+        )
+      );
     }
   }, [data]);
 
@@ -99,6 +112,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     fileName,
     snippet,
     pieChartData,
+    dependencies,
   };
 
   return (
