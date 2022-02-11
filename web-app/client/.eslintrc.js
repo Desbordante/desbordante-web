@@ -39,6 +39,7 @@ module.exports = {
     "@typescript-eslint/brace-style": ["error", "1tbs"],
     "no-console": "error",
     "react/function-component-definition": "off",
+    camelcase: "off",
     "react/jsx-no-constructed-context-values": "off",
     "no-shadow": "off",
     "no-unused-vars": "warn",

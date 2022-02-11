@@ -11,7 +11,7 @@ import { AuthContext } from "../AuthContext";
 
 const TopBar = () => {
   const history = useHistory();
-  const { fileName, taskId, taskStatus } = useContext(TaskContext)!;
+  const { fileName, taskId, status } = useContext(TaskContext)!;
   const { user, setIsSignUpShown, setIsFeedbackShown } =
     useContext(AuthContext)!;
 
@@ -32,8 +32,8 @@ const TopBar = () => {
           {fileName && (
             <p className="mx-1 my-auto text-secondary">{fileName}</p>
           )}
-          {taskStatus !== "UNSCHEDULED" && (
-            <p className="mx-1 my-auto text-secondary">{taskStatus}</p>
+          {status !== "UNSCHEDULED" && (
+            <p className="mx-1 my-auto text-secondary">{status}</p>
           )}
         </Container>
         <Button onClick={() => setIsFeedbackShown(true)} className="mx-2">

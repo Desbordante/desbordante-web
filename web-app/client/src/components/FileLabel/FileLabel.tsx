@@ -9,14 +9,17 @@ interface Props {
   onClick: () => void;
   builtinDataset?: string;
   className: string;
+  file?: File;
+  setFile: React.Dispatch<React.SetStateAction<File | undefined>>;
 }
 
 const FileLabel: React.FC<Props> = ({
   onClick,
   builtinDataset,
   className = "",
+  file,
+  setFile,
 }) => {
-  const { file, setFile } = useContext(TaskContext)!;
   const { validators } = useContext(AlgorithmConfigContext)!;
   const { getRootProps } = useDropzone({
     onDrop: (acceptedFiles) => setFile(acceptedFiles[0]),
