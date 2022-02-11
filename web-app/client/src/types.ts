@@ -16,7 +16,7 @@ export type pieChartData = {
     | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[];
 };
 export type dependencyEncoded = { lhs: number[]; rhs: number };
-export type dependency = { lhs: attribute[]; rhs: attribute };
+export type dependency = { lhs: string[]; rhs: string };
 export type taskStatus =
   | "UNSCHEDULED"
   | "PROCESSING"

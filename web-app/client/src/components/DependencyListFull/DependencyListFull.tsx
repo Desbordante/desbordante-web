@@ -40,33 +40,26 @@ const DependencyListFull: React.FC<Props> = ({
 
   // update displayed dependencies on search
   useEffect(() => {
-    const keywords = searchString.split(" ").filter((str) => str);
-
     const foundDependencies = (
-      searchString !== ""
+      searchString
         ? dependencies.filter((dep) =>
-            keywords.every(
-              (elem) =>
-                dep.lhs
-                  .map((attr) => attr.name)
-                  .some((attr) => attr.includes(elem)) || dep.rhs.name === elem
-            )
+            dep.lhs
+              .concat(dep.rhs)
+              .join("")
+              .toLowerCase()
+              .includes(searchString.toLowerCase())
           )
         : [...dependencies]
     )
       // filter by chosen LHS
       .filter((dep) =>
-        selectedAttributesLHS.length > 0
-          ? selectedAttributesLHS.some((attr) =>
-              dep.lhs.map((attr) => attr.name).includes(attr.name)
-            )
-          : true
+        selectedAttributesLHS.every((attr) =>
+          dep.lhs.includes(attr.column.name)
+        )
       )
       // filter by chosen RHS
       .filter((dep) =>
-        selectedAttributesRHS.length > 0
-          ? selectedAttributesRHS.some((attr) => dep.rhs.name === attr.name)
-          : true
+        selectedAttributesRHS.every((attr) => dep.rhs === attr.column.name)
       );
 
     // sort found dependencies
@@ -77,7 +70,7 @@ const DependencyListFull: React.FC<Props> = ({
         );
       }
 
-      return d1.rhs.name.localeCompare(d2.rhs.name);
+      return d1.rhs.localeCompare(d2.rhs);
     });
 
     setSortedDependencies(newSortedDependencies);

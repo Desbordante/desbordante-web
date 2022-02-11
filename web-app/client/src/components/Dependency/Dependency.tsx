@@ -28,7 +28,7 @@ const Dependency: React.FC<Props> = ({
         style={
           isActive
             ? {
-                backgroundColor: stringToColor(attr.name, 30, 50),
+                backgroundColor: stringToColor(attr, 30, 50),
               }
             : {
                 backgroundColor: "#E5E5E5",
@@ -37,9 +37,9 @@ const Dependency: React.FC<Props> = ({
         className={`attribute-name d-flex align-items-center px-3 py-2 mx-2 rounded-pill text-${
           isActive ? "white" : "black"
         }`}
-        key={attr.name}
+        key={attr}
       >
-        {attr.name}
+        {attr}
       </div>
     ))}
 
@@ -56,7 +56,7 @@ const Dependency: React.FC<Props> = ({
       style={
         isActive
           ? {
-              backgroundColor: stringToColor(dep.rhs.name, 30, 50),
+              backgroundColor: stringToColor(dep.rhs, 30, 50),
             }
           : { backgroundColor: "#E5E5E5" }
       }
@@ -64,7 +64,7 @@ const Dependency: React.FC<Props> = ({
         isActive ? "white" : "black"
       }`}
     >
-      {dep.rhs.name}
+      {dep.rhs}
     </div>
   </div>
 );

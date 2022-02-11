@@ -16,7 +16,7 @@ import Navigation from "./Navigation";
 const Viewer = () => {
   const { taskID } = useParams();
 
-  const { setTaskId, isExecuted, progress, pieChartData } =
+  const { setTaskId, isExecuted, progress, pieChartData, dependencies } =
     useContext(TaskContext)!;
   setTaskId(taskID!);
 
@@ -28,7 +28,6 @@ const Viewer = () => {
     attribute[]
   >([]);
 
-  const [dependencies, setDependencies] = useState<dependency[]>([]);
   const [selectedDependency, setSelectedDependency] =
     useState<dependency | null>(null);
 
@@ -66,14 +65,16 @@ const Viewer = () => {
             </Col>
           </Row>
 
-          {/* <DependencyListFull
-            dependencies={dependencies}
-            selectedAttributesLHS={selectedAttributesLHS}
-            selectedAttributesRHS={selectedAttributesRHS}
-            selectedDependency={selectedDependency}
-            setSelectedDependency={setSelectedDependency}
-            className={partShown === 1 ? "" : "d-none"}
-          /> */}
+          {dependencies && (
+            <DependencyListFull
+              dependencies={dependencies}
+              selectedAttributesLHS={selectedAttributesLHS}
+              selectedAttributesRHS={selectedAttributesRHS}
+              selectedDependency={selectedDependency}
+              setSelectedDependency={setSelectedDependency}
+              className={partShown === 1 ? "" : "d-none"}
+            />
+          )}
 
           <Snippet
             selectedDependency={selectedDependency}
