@@ -2146,8 +2146,8 @@
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "UNION",
-                "name": "TaskInfoAnswer",
+                "kind": "OBJECT",
+                "name": "TaskInfo",
                 "ofType": null
               }
             },
@@ -2236,7 +2236,7 @@
               "name": "Int",
               "ofType": null
             },
-            "defaultValue": null,
+            "defaultValue": "-1",
             "isDeprecated": false,
             "deprecationReason": null
           },
