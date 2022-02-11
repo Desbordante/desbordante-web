@@ -24,20 +24,17 @@ export const GET_TASK_INFO = gql`
               }
               PKs {
                 name
-                index
               }
               pieChartData {
                 lhs {
                   column {
                     name
-                    index
                   }
                   value
                 }
                 rhs {
                   column {
                     name
-                    index
                   }
                   value
                 }

@@ -11,6 +11,8 @@ interface Props {
   openBuiltinDatasetSelector: () => void;
   builtinDataset?: string;
   disableBuiltinDataset: () => void;
+  file?: File;
+  setFile: React.Dispatch<React.SetStateAction<File | undefined>>;
 }
 /* eslint-enable no-unused-vars */
 
@@ -18,16 +20,19 @@ const UploadFile: React.FC<Props> = ({
   openBuiltinDatasetSelector,
   builtinDataset,
   disableBuiltinDataset,
+  file,
+  setFile,
 }) => {
   // you can only use <input type="file" /> for choosing files,
   // so the reference is used to forward click action
   // to hidden input file
   const inputFile = useRef<HTMLInputElement>(null);
-  const { setFile } = useContext(TaskContext)!;
 
   return (
     <>
       <FileLabel
+        file={file}
+        setFile={setFile}
         builtinDataset={builtinDataset}
         onClick={() => inputFile?.current?.click()}
         className="mx-2"

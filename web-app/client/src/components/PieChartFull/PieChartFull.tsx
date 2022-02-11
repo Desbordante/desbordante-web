@@ -5,11 +5,17 @@ import SearchBar from "../SearchBar/SearchBar";
 import Chart from "./Chart";
 import Button from "../Button/Button";
 import { attribute } from "../../types";
+import {
+  taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs,
+  taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs,
+} from "../../operations/queries/__generated__/taskInfo";
 
 /* eslint-disable no-unused-vars */
 interface Props {
   title: string;
-  attributes: attribute[];
+  attributes?:
+    | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
+    | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[];
   maxItemsShown?: number;
   maxItemsSelected?: number;
   selectedAttributes: attribute[];
@@ -19,7 +25,7 @@ interface Props {
 
 const PieChartFull: React.FC<Props> = ({
   title,
-  attributes,
+  attributes = [],
   maxItemsShown = 9,
   maxItemsSelected = 9,
   selectedAttributes = [],
@@ -34,7 +40,7 @@ const PieChartFull: React.FC<Props> = ({
   // Keep found attributes sorted.
   useEffect(() => {
     const newFoundAttributes = searchString
-      ? attributes.filter((attr) => attr.name.includes(searchString))
+      ? attributes.filter((attr) => attr.column.name.includes(searchString))
       : attributes;
 
     setFoundAttributes(
@@ -54,15 +60,27 @@ const PieChartFull: React.FC<Props> = ({
       maxItemsShown * (depth + 1)
     );
 
-    let newOtherValue = 0;
-    foundAttributes.slice(maxItemsShown * (depth + 1)).forEach((attr) => {
-      newOtherValue += attr.value;
-    });
+    const newOtherValue = foundAttributes
+      .slice(maxItemsShown * (depth + 1))
+      .reduce((sum, attr) => sum + attr.value, 0);
 
     if (foundAttributes.length > maxItemsShown * (depth + 1)) {
       newDisplayAttributes.push({
-        name: "Other",
+        column: {
+          name: "Other",
+          index: -1,
+        },
         value: newOtherValue,
+      });
+    }
+
+    while (newDisplayAttributes.length < maxItemsShown + 1) {
+      newDisplayAttributes.push({
+        column: {
+          name: "",
+          index: -1,
+        },
+        value: 0,
       });
     }
 
@@ -87,25 +105,34 @@ const PieChartFull: React.FC<Props> = ({
           <img src="/icons/up-depth.svg" alt="Up" />
         </Button>
       </div>
-      <Chart
-        onSelect={(_, item) => {
-          if (item.length > 0) {
+      {selectedAttributes && displayAttributes && (
+        <Chart
+          onSelect={(_, item) => {
+            if (!item.length) {
+              return;
+            }
             if (item[0].index === maxItemsShown) {
               setDepth(depth + 1);
-            } else {
+            } else if (selectedAttributes.length < maxItemsSelected) {
               setSelectedAttributes(
-                selectedAttributes
-                  .concat(item.length ? [displayAttributes[item[0].index]] : [])
-                  /* eslint-disable-next-line comma-dangle */
-                  .slice(0, maxItemsSelected)
+                selectedAttributes.concat(displayAttributes[item[0].index])
               );
             }
+          }}
+          displayAttributes={
+            displayAttributes as
+              | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
+              | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[]
           }
-        }}
-        displayAttributes={displayAttributes}
-        selectedAttributes={selectedAttributes}
-        setSelectedAttributes={setSelectedAttributes}
-      />
+          selectedAttributes={
+            selectedAttributes as
+              | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
+              | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[]
+              | undefined
+          }
+          setSelectedAttributes={setSelectedAttributes}
+        />
+      )}
     </div>
   );
 };

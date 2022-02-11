@@ -1,16 +1,25 @@
 import React from "react";
 import { Doughnut } from "react-chartjs-2";
-import { attribute } from "../../types";
+import { animated } from "react-spring";
 
+import { attribute } from "../../types";
+import "./PieChartFull.scss";
 import AttributeLabel from "../AttributeLabel/AttributeLabel";
 import SelectedAttribute from "../SelectedAttribute/SelectedAttribute";
-import "./PieChartFull.scss";
+import {
+  taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs,
+  taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs,
+} from "../../operations/queries/__generated__/taskInfo";
 
 /* eslint-disable no-unused-vars */
 interface Props {
-  displayAttributes: attribute[];
+  displayAttributes:
+    | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
+    | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[];
   onSelect: (a: any, b: any) => void;
-  selectedAttributes: attribute[];
+  selectedAttributes?:
+    | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
+    | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[];
   setSelectedAttributes: (attr: attribute[]) => void;
 }
 /* eslint-enable no-unused-vars */
@@ -38,26 +47,29 @@ const Chart: React.FC<Props> = ({
     "#969696",
   ];
 
+  const AnimatedDoughnut = animated(Doughnut);
   return (
     <>
       <div className="d-flex">
         <div className="d-flex flex-column justify-content-center">
-          {displayAttributes.map((attr, index) => (
-            <AttributeLabel
-              text={attr.name}
-              labelColor={colors[index]}
-              key={attr.name}
-            />
-          ))}
+          {displayAttributes
+            .filter((attr) => attr.value)
+            .map((attr, index) => (
+              <AttributeLabel
+                text={attr.column.name}
+                labelColor={colors[index]}
+                key={attr.column.name}
+              />
+            ))}
         </div>
         <div className="chart-canvas">
-          <Doughnut
+          <AnimatedDoughnut
             style={{
               position: "absolute",
               backgroundColor: "#00000000",
             }}
             data={{
-              labels: displayAttributes.map((attr) => attr.name),
+              labels: displayAttributes.map((attr) => attr.column.name),
               datasets: [
                 {
                   data: displayAttributes.map((attr) => attr.value),
@@ -116,18 +128,18 @@ const Chart: React.FC<Props> = ({
         </div>
       </div>
       <div className="d-flex flex-wrap justify-content-center">
-        {selectedAttributes.map((attr, index) => (
-          <SelectedAttribute
-            onDelete={() => {
-              setSelectedAttributes(
-                /* eslint-disable-next-line comma-dangle */
-                selectedAttributes.filter((_, idx) => index !== idx)
-              );
-            }}
-            key={attr.name}
-            text={attr.name}
-          />
-        ))}
+        {selectedAttributes &&
+          selectedAttributes.map((attr, index) => (
+            <SelectedAttribute
+              onDelete={() => {
+                setSelectedAttributes(
+                  selectedAttributes.filter((_, idx) => index !== idx)
+                );
+              }}
+              key={attr.column.name}
+              text={attr.column.name}
+            />
+          ))}
       </div>
     </>
   );
