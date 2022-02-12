@@ -24,6 +24,7 @@ type TaskContextType = {
   pieChartData: pieChartData | undefined;
   dependencies: dependency[] | undefined;
   keys: string[] | undefined;
+  resetTask: () => void;
 };
 
 export const TaskContext = createContext<TaskContextType | null>(null);
@@ -32,7 +33,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   const { showError } = useContext(ErrorContext)!;
 
   const [taskId, setTaskId] = useState<string>();
-  // const [isExecuted, setIsExecuted] = useState<boolean>();
+  const [isExecuted, setIsExecuted] = useState<boolean>();
   const [status, setStatus] = useState<string>();
   const [progress, setProgress] = useState<number>(0);
   const [phaseName, setPhaseName] = useState<string>();
@@ -47,7 +48,23 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   const [dependencies, setDependencies] = useState<dependency[]>();
   const [keys, setKeys] = useState<string[]>();
 
-  const isExecuted = progress === 1;
+  const resetTask = () => {
+    setTaskId(undefined);
+    setIsExecuted(undefined);
+    setStatus(undefined);
+    setProgress(0);
+    setPhaseName(undefined);
+    setCurrentPhase(undefined);
+    setMaxPhase(undefined);
+    setErrorMsg(undefined);
+
+    setFileName(undefined);
+    setSnippet(undefined);
+
+    setPieChartData(undefined);
+    setDependencies(undefined);
+    setKeys(undefined);
+  };
 
   const { data, error } = useQuery<taskInfo>(GET_TASK_INFO, {
     variables: { id: taskId },
@@ -56,11 +73,8 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   });
 
   useEffect(() => {
-    /* eslint-disable-next-line no-console */
-    // console.log(data);
-
     if (data) {
-      // setIsExecuted(data.taskInfo.state.isExecuted);
+      setIsExecuted(data.taskInfo.state.isExecuted);
       setStatus(data.taskInfo.state.status);
       setProgress(data.taskInfo.state.progress / 100);
       setPhaseName(data.taskInfo.state.phaseName || undefined);
@@ -68,7 +82,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
       setMaxPhase(data.taskInfo.state.maxPhase || undefined);
       setErrorMsg(data.taskInfo.state.errorMsg || undefined);
 
-      setFileName(data.taskInfo.dataset.tableInfo.fileName);
+      setFileName(data.taskInfo.dataset.tableInfo.originalFileName);
       setSnippet(data.taskInfo.dataset.snippet);
 
       setPieChartData(
@@ -121,6 +135,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     pieChartData,
     dependencies,
     keys,
+    resetTask,
   };
 
   return (

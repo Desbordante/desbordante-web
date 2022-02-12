@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Col, Container, Row } from "react-bootstrap";
 
@@ -18,7 +18,8 @@ const Viewer = () => {
 
   const { setTaskId, isExecuted, progress, pieChartData } =
     useContext(TaskContext)!;
-  setTaskId(taskID!);
+
+  useEffect(() => setTaskId(taskID), []);
 
   const [partShown, setPartShown] = useState(0);
   const [selectedAttributesLHS, setSelectedAttributesLHS] = useState<

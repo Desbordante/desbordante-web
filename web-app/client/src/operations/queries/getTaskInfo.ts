@@ -44,7 +44,7 @@ export const GET_TASK_INFO = gql`
         }
         dataset {
           tableInfo {
-            fileName
+            originalFileName
           }
           snippet(offset: 0, limit: 100) {
             header

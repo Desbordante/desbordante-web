@@ -86,8 +86,6 @@ const PieChartFull: React.FC<Props> = ({
 
     setDisplayAttributes(newDisplayAttributes);
   }, [foundAttributes, depth, maxItemsShown]);
-  /* eslint-disable */
-  console.log("update");
 
   return (
     <div className="pie-chart-full d-flex flex-column align-items-center">
