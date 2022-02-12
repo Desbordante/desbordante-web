@@ -28,7 +28,7 @@ const Dependency: React.FC<Props> = ({
         style={
           isActive
             ? {
-                backgroundColor: stringToColor(attr, 30, 50),
+                backgroundColor: stringToColor(attr, 60, 70),
               }
             : {
                 backgroundColor: "#E5E5E5",
@@ -56,7 +56,7 @@ const Dependency: React.FC<Props> = ({
       style={
         isActive
           ? {
-              backgroundColor: stringToColor(dep.rhs, 30, 50),
+              backgroundColor: stringToColor(dep.rhs, 60, 70),
             }
           : { backgroundColor: "#E5E5E5" }
       }
