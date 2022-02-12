@@ -1,17 +1,10 @@
-/* eslint-disable */
-
+/* eslint-disable no-bitwise */
 import { colord } from "colord";
+// @ts-ignore
+import stringHash from "string-hash";
 
 export default function (str: string, s: number, v: number): string {
-  let hash = 0;
-
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-
-  const h = Math.round((Math.sin(hash) + 1) * 180);
-
+  const maxValue = 4294967295;
+  const h = (stringHash(str) / maxValue) * 360;
   return colord({ h, s, v }).toHex();
 }
