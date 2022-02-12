@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Container, Row } from "react-bootstrap";
-import { useMutation } from "@apollo/client";
+import { DefaultContext, useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 
 import "./FileForm.scss";
@@ -12,11 +12,12 @@ import UploadFile from "../UploadFile/UploadFile";
 import BuiltinDatasetSelector from "../BuiltinDatasetSelector/BuiltinDatasetSelector";
 import FormItem from "../FormItem/FormItem";
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
-import { FDAlgorithm } from "../../types";
+import { builtinDataset, FDAlgorithm } from "../../types";
 import { CREATE_FD_TASK } from "../../operations/mutations/createFDTask";
 import { FDTaskProps, FileProps } from "../../../__generated__/globalTypes";
 import { ErrorContext } from "../ErrorContext";
 import LoadingScreen from "../LoadingScreen/LoadingScreen";
+import { CHOOSE_FD_TASK } from "../../operations/mutations/chooseFDTask";
 
 const FileForm = () => {
   const { allowedValues, validators } = useContext(AlgorithmConfigContext)!;
@@ -31,9 +32,9 @@ const FileForm = () => {
   const [maxLHSAttributes, setMaxLHSAttributes] = useState("5");
   const [threadsCount, setThreadsCount] = useState("1");
 
-  // Builtin datasets
+  // Builtin createTaskDatasets
   const [isWindowShown, setIsWindowShown] = useState(false);
-  const [builtinDataset, setBuiltinDataset] = useState<string>();
+  const [builtinDataset, setBuiltinDataset] = useState<builtinDataset>();
 
   useEffect(() => {
     setSeparator(
@@ -45,7 +46,6 @@ const FileForm = () => {
   }, [allowedValues]);
 
   const isValid = () =>
-    Boolean(file && separator && algorithm) &&
     (!!builtinDataset ||
       (validators.fileExistenceValidator(file) &&
         validators.fileSizeValidator(file) &&
@@ -54,16 +54,37 @@ const FileForm = () => {
     validators.errorValidator(errorThreshold) &&
     validators.maxLHSValidator(maxLHSAttributes);
 
-  const [mutate, { data, loading, error }] = useMutation(CREATE_FD_TASK);
+  const [
+    createTask,
+    {
+      data: createTaskData,
+      loading: createTaskLoading,
+      error: createTaskError,
+    },
+  ] = useMutation(CREATE_FD_TASK);
+  const [
+    chooseTask,
+    {
+      data: chooseTaskData,
+      loading: chooseTaskLoading,
+      error: chooseTaskError,
+    },
+  ] = useMutation(CHOOSE_FD_TASK);
+  const data =
+    (createTaskData && createTaskData.createFDTask) ||
+    (chooseTaskData && chooseTaskData.chooseFDTask);
+  const loading = createTaskLoading || chooseTaskLoading;
+  const error = createTaskError || chooseTaskError;
+
   const history = useHistory();
   useEffect(() => {
     if (error) {
-      showError({ code: 404, message: error.message });
+      showError({ message: error.message });
     }
   }, [error]);
   useEffect(() => {
     if (data) {
-      history.push(`/${data.createFDTask.state.taskID}`);
+      history.push(`/${data.state.taskID}`);
     }
   }, [data]);
 
@@ -83,22 +104,30 @@ const FileForm = () => {
         delimiter: separator!,
         hasHeader,
       };
-
-      mutate({
-        variables: {
-          props,
-          datasetProps,
-          table: file,
-        },
-        context: {
-          fetchOptions: {
-            useUpload: true,
-            onProgress: (ev: ProgressEvent) => {
-              setUploadProgress(ev.loaded / ev.total);
-            },
+      const context: DefaultContext = {
+        fetchOptions: {
+          useUpload: true,
+          onProgress: (ev: ProgressEvent) => {
+            setUploadProgress(ev.loaded / ev.total);
           },
         },
-      });
+      };
+
+      if (file) {
+        createTask({
+          variables: {
+            props,
+            datasetProps,
+            table: file,
+          },
+          context,
+        });
+      } else {
+        chooseTask({
+          variables: { props, fileID: builtinDataset!.ID },
+          context,
+        });
+      }
     }
   };
 
@@ -111,24 +140,21 @@ const FileForm = () => {
       {isWindowShown && (
         <BuiltinDatasetSelector disable={() => setIsWindowShown(false)}>
           {allowedValues.allowedBuiltinDatasets &&
-            allowedValues.allowedBuiltinDatasets.map(
-              ({ ID, fileName, hasHeader, delimiter }) => (
-                <Toggle
-                  toggleCondition={builtinDataset === fileName}
-                  onClick={() => {
-                    setFile(undefined);
-                    setBuiltinDataset(fileName);
-                    setIsWindowShown(false);
-                    setSeparator(delimiter);
-                    setHasHeader(hasHeader);
-                  }}
-                  key={ID}
-                  className="mx-2"
-                >
-                  {fileName}
-                </Toggle>
-              )
-            )}
+            allowedValues.allowedBuiltinDatasets.map((dataset) => (
+              <Toggle
+                toggleCondition={builtinDataset === dataset}
+                onClick={() => {
+                  setFile(undefined);
+                  setBuiltinDataset(dataset);
+                  setSeparator(dataset.delimiter);
+                  setHasHeader(dataset.hasHeader);
+                }}
+                key={dataset.ID}
+                className="mx-2"
+              >
+                {dataset.fileName}
+              </Toggle>
+            ))}
         </BuiltinDatasetSelector>
       )}
       <Row className="mx-2 mb-3">
@@ -137,7 +163,7 @@ const FileForm = () => {
           <UploadFile
             file={file}
             setFile={setFile}
-            builtinDataset={builtinDataset}
+            builtinDataset={builtinDataset?.fileName}
             openBuiltinDatasetSelector={() => setIsWindowShown(true)}
             disableBuiltinDataset={() => setBuiltinDataset(undefined)}
           />
