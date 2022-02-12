@@ -77,7 +77,7 @@ export type taskInfo_taskInfo_data = taskInfo_taskInfo_data_CFDTask | taskInfo_t
 
 export interface taskInfo_taskInfo_dataset_tableInfo {
   __typename: "TableInfo";
-  fileName: string;
+  originalFileName: string;
 }
 
 export interface taskInfo_taskInfo_dataset_snippet {
