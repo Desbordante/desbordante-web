@@ -1,12 +1,8 @@
 /* eslint-disable */
 
-import hslToHex from "hsl-to-hex";
+import { colord } from "colord";
 
-export default function(
-  str: string,
-  saturation: number,
-  lightness: number
-): string {
+export default function (str: string, s: number, v: number): string {
   let hash = 0;
 
   for (let i = 0; i < str.length; i++) {
@@ -15,7 +11,7 @@ export default function(
     hash = hash & hash;
   }
 
-  const hue = Math.round((Math.sin(hash) + 1) * 180);
+  const h = Math.round((Math.sin(hash) + 1) * 180);
 
-  return hslToHex(hue, saturation, lightness);
+  return colord({ h, s, v }).toHex();
 }
