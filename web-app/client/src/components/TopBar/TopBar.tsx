@@ -10,12 +10,12 @@ import { AuthContext } from "../AuthContext";
 const TopBar = () => {
   const history = useHistory();
 
-  const { fileName, taskId, status, setTaskId } = useContext(TaskContext)!;
+  const { fileName, taskId, status, resetTask } = useContext(TaskContext)!;
   const { user, setIsSignUpShown, setIsFeedbackShown } =
     useContext(AuthContext)!;
 
   const backToHome = () => {
-    setTaskId(undefined);
+    resetTask();
     history.push("/");
   };
 

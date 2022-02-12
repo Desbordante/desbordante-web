@@ -40,6 +40,7 @@ module.exports = {
     "no-console": "error",
     "react/function-component-definition": "off",
     camelcase: "off",
+    "react/no-array-index-key": "off",
     "react/jsx-no-constructed-context-values": "off",
     "no-shadow": "off",
     "no-unused-vars": "warn",

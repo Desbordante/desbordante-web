@@ -32,7 +32,7 @@ const FileForm = () => {
   const [maxLHSAttributes, setMaxLHSAttributes] = useState("5");
   const [threadsCount, setThreadsCount] = useState("1");
 
-  // Builtin createTaskDatasets
+  // Builtin kDatasets
   const [isWindowShown, setIsWindowShown] = useState(false);
   const [builtinDataset, setBuiltinDataset] = useState<builtinDataset>();
 

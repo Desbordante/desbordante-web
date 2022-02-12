@@ -1,5 +1,3 @@
-/* eslint-disable*/
-
 import React, { useState, useEffect, useContext } from "react";
 import { Container, Stack } from "react-bootstrap";
 
@@ -120,23 +118,21 @@ const DependencyListFull: React.FC<Props> = ({
         </Toggle>
       </Container>
       <Stack className="my-2 w-100">
-        {sortedDependencies.map((dep, index) => {
-          return (
-            <Dependency
-              dep={dep}
-              key={index}
-              onClick={() => {
-                setSelectedDependency(dep);
-              }}
-              onActiveClick={() => {
-                setSelectedDependency(null);
-              }}
-              isActive={
-                JSON.stringify(dep) === JSON.stringify(selectedDependency)
-              }
-            />
-          );
-        })}
+        {sortedDependencies.map((dep, index) => (
+          <Dependency
+            dep={dep}
+            key={index}
+            onClick={() => {
+              setSelectedDependency(dep);
+            }}
+            onActiveClick={() => {
+              setSelectedDependency(null);
+            }}
+            isActive={
+              JSON.stringify(dep) === JSON.stringify(selectedDependency)
+            }
+          />
+        ))}
       </Stack>
     </Container>
   );
