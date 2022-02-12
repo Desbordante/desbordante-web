@@ -39,7 +39,7 @@ const Table: React.FC<Props> = ({
                 key={header[index]}
                 className={headerClassName}
                 style={{
-                  backgroundColor: stringToColor(header[index], 40, 40),
+                  backgroundColor: stringToColor(header[index], 60, 70),
                 }}
               >
                 {header[index]}
@@ -70,8 +70,8 @@ const Table: React.FC<Props> = ({
                   style={{
                     backgroundColor: stringToColor(
                       header[index],
-                      40,
-                      rowIndex % 2 ? 75 : 85
+                      15,
+                      rowIndex % 2 ? 80 : 90
                     ),
                   }}
                 >
@@ -84,7 +84,11 @@ const Table: React.FC<Props> = ({
                     key={index}
                     className={bodyClassName}
                     style={{
-                      backgroundColor: `#17151a${rowIndex % 2 ? "35" : "15"}`,
+                      backgroundColor: stringToColor(
+                        header[index],
+                        0,
+                        rowIndex % 2 ? 80 : 90
+                      ),
                     }}
                   >
                     {row[index]}

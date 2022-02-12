@@ -54,3 +54,7 @@ export type error = {
   message: string;
   suggestion?: string;
 };
+export type builtinDataset = {
+  fileName: string;
+  ID: string;
+};
