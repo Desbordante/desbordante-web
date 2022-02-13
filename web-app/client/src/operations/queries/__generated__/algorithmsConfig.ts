@@ -35,6 +35,7 @@ export interface algorithmsConfig_algorithmsConfig_allowedFDAlgorithms {
 
 export interface algorithmsConfig_algorithmsConfig_allowedCFDAlgorithms_properties {
   __typename: "CFDAlgorithmProps";
+  hasArityConstraint: boolean;
   hasConfidence: boolean;
   hasSupport: boolean;
 }
