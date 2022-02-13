@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useQuery } from "@apollo/client";
 
-import { tableInfo, FDAlgorithm } from "../types";
+import { tableInfo, FDAlgorithm, allowedAlgorithms } from "../types";
 import { GET_ALGORITHMS_CONFIG } from "../operations/queries/getAlgorithmsConfig";
 import { algorithmsConfig } from "../operations/queries/__generated__/algorithmsConfig";
 import { ErrorContext } from "./ErrorContext";
@@ -9,7 +9,7 @@ import { ErrorContext } from "./ErrorContext";
 type AlgorithmConfigContextType = {
   allowedValues: {
     allowedSeparators?: string[];
-    allowedAlgorithms?: FDAlgorithm[];
+    allowedAlgorithms?: allowedAlgorithms;
     allowedBuiltinDatasets?: tableInfo[];
   };
   validators: {
@@ -32,7 +32,8 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
     useState<tableInfo[]>();
   const [allowedFileFormats, setAllowedFileFormats] = useState<string[]>();
   const [allowedSeparators, setAllowedSeparators] = useState<string[]>();
-  const [allowedAlgorithms, setAllowedAlgorithms] = useState<FDAlgorithm[]>();
+  const [allowedAlgorithms, setAllowedAlgorithms] =
+    useState<allowedAlgorithms>();
   const [maxfilesize, setMaxFileSize] = useState<number>();
 
   const { loading, data, error } = useQuery<algorithmsConfig>(
@@ -41,15 +42,19 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     if (data) {
-      const { fileConfig, allowedFDAlgorithms, allowedDatasets } =
-        data.algorithmsConfig;
+      const {
+        fileConfig,
+        allowedFDAlgorithms,
+        allowedCFDAlgorithms,
+        allowedDatasets,
+      } = data.algorithmsConfig;
       const { allowedFileFormats, allowedDelimiters, maxFileSize } = fileConfig;
       setAllowedFileFormats(allowedFileFormats);
       setAllowedSeparators(allowedDelimiters);
       setMaxFileSize(maxFileSize);
 
       setAllowedBuiltinDatasets(allowedDatasets.map((info) => info.tableInfo));
-      setAllowedAlgorithms(allowedFDAlgorithms);
+      setAllowedAlgorithms({ allowedFDAlgorithms, allowedCFDAlgorithms });
     }
   }, [data]);
 
