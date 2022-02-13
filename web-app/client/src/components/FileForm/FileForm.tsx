@@ -255,7 +255,7 @@ const FileForm = () => {
           />
         </FormItem>
       </Row>
-      <Button enabled={isValid()} onClick={submit}>
+      <Button enabled={isValid()} onClick={submit} variant="primary">
         Analyze
       </Button>
     </Container>
