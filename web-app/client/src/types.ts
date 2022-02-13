@@ -38,6 +38,18 @@ export type FDAlgorithm = {
     isMultiThreaded: boolean;
   };
 };
+export type CFDAlgorithm = {
+  name: string;
+  properties: {
+    hasArityConstraint: boolean;
+    hasSupport: boolean;
+    hasConfidence: boolean;
+  };
+};
+export type allowedAlgorithms = {
+  allowedFDAlgorithms: FDAlgorithm[];
+  allowedCFDAlgorithms: CFDAlgorithm[];
+};
 export type user = {
   name: string;
   email: string;
