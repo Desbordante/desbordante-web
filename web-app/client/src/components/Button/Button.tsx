@@ -1,11 +1,12 @@
 import React from "react";
+import { Button as Btn } from "react-bootstrap";
 
 import "./Button.scss";
 
 interface Props {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   enabled?: boolean;
-  variant?: "light" | "dark" | "danger";
+  variant?: "light" | "dark" | "danger" | "primary";
   className?: string;
 }
 
