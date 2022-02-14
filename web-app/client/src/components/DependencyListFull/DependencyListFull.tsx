@@ -42,8 +42,10 @@ const DependencyListFull: React.FC<Props> = ({
     const dependenciesWithoutKeys =
       (showKeys
         ? dependencies
-        : dependencies?.filter((dep) =>
-            keys?.some((key) => dep.lhs.includes(key) || dep.rhs === key)
+        : dependencies?.filter(
+            (dep) =>
+              !keys?.length ||
+              keys?.some((key) => dep.lhs.includes(key) || dep.rhs === key)
           )) || [];
     const foundDependencies = (
       searchString
