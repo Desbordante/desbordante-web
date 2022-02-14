@@ -1,5 +1,11 @@
-import { useQuery } from "@apollo/client";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { useLazyQuery } from "@apollo/client";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { GET_TASK_INFO } from "../../operations/queries/getTaskInfo";
 import {
@@ -66,11 +72,27 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     setKeys(undefined);
   };
 
-  const { data, error } = useQuery<taskInfo>(GET_TASK_INFO, {
+  const [query, { data, error }] = useLazyQuery<taskInfo>(GET_TASK_INFO, {
     variables: { id: taskId },
-    skip: !taskId || isExecuted,
-    pollInterval: 500,
   });
+
+  const queryRef = useRef<NodeJS.Timer>();
+
+  useEffect(() => {
+    queryRef.current = setInterval(() => {
+      if (taskId && !isExecuted) {
+        query();
+      }
+    }, 500);
+
+    return () => clearInterval(queryRef.current!);
+  }, [taskId]);
+
+  useEffect(() => {
+    if (!taskId || isExecuted) {
+      clearInterval(queryRef.current!);
+    }
+  }, [taskId, isExecuted]);
 
   useEffect(() => {
     if (data) {
