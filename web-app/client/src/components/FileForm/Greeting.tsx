@@ -19,6 +19,7 @@ const Greeting: React.FC<Props> = ({ dependencyType, setDependencyType }) => (
     {dependencyTypes.map((type, index) => (
       <Toggle
         className="mx-2"
+        key={type}
         toggleCondition={dependencyType === index}
         onClick={() => setDependencyType(index)}
       >
