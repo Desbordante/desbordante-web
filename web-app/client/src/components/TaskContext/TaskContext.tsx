@@ -1,4 +1,4 @@
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import React, {
   createContext,
   useContext,
@@ -6,6 +6,8 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { DELETE_TASK } from "../../operations/mutations/deleteTask";
+import { deleteTask } from "../../operations/mutations/__generated__/deleteTask";
 
 import { GET_TASK_INFO } from "../../operations/queries/getTaskInfo";
 import {
@@ -31,6 +33,7 @@ type TaskContextType = {
   dependencies: dependency[] | undefined;
   keys: string[] | undefined;
   resetTask: () => void;
+  deleteTask: () => Promise<any>;
 };
 
 export const TaskContext = createContext<TaskContextType | null>(null);
@@ -45,7 +48,6 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   const [phaseName, setPhaseName] = useState<string>();
   const [currentPhase, setCurrentPhase] = useState<number>();
   const [maxPhase, setMaxPhase] = useState<number>();
-  const [errorMsg, setErrorMsg] = useState<string>();
 
   const [fileName, setFileName] = useState<string>();
   const [snippet, setSnippet] = useState<taskInfo_taskInfo_dataset_snippet>();
@@ -54,7 +56,10 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   const [dependencies, setDependencies] = useState<dependency[]>();
   const [keys, setKeys] = useState<string[]>();
 
-  const resetTask = () => {
+  // eslint-disable-next-line no-console
+  // console.log(taskId, "rerender");
+
+  const resetTask = async () => {
     setTaskId(undefined);
     setIsExecuted(undefined);
     setStatus(undefined);
@@ -62,7 +67,6 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     setPhaseName(undefined);
     setCurrentPhase(undefined);
     setMaxPhase(undefined);
-    setErrorMsg(undefined);
 
     setFileName(undefined);
     setSnippet(undefined);
@@ -72,24 +76,30 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     setKeys(undefined);
   };
 
-  const [query, { data, error }] = useLazyQuery<taskInfo>(GET_TASK_INFO, {
-    variables: { id: taskId },
-  });
+  const [query, { data, error }] = useLazyQuery<taskInfo>(GET_TASK_INFO);
+  const [deleteTask, { error: deleteError }] = useMutation<deleteTask>(
+    DELETE_TASK,
+    {
+      variables: {
+        taskID: taskId,
+      },
+    }
+  );
 
   const queryRef = useRef<NodeJS.Timer>();
 
   useEffect(() => {
-    queryRef.current = setInterval(() => {
-      if (taskId && !isExecuted) {
-        query();
-      }
-    }, 500);
-
-    return () => clearInterval(queryRef.current!);
+    queryRef.current = setInterval(
+      () =>
+        query({
+          variables: { id: taskId },
+        }),
+      500
+    );
   }, [taskId]);
 
   useEffect(() => {
-    if (!taskId || isExecuted) {
+    if (!taskId || isExecuted || error) {
       clearInterval(queryRef.current!);
     }
   }, [taskId, isExecuted]);
@@ -102,7 +112,6 @@ export const TaskContextProvider: React.FC = ({ children }) => {
       setPhaseName(data.taskInfo.state.phaseName || undefined);
       setCurrentPhase(data.taskInfo.state.currentPhase || undefined);
       setMaxPhase(data.taskInfo.state.maxPhase || undefined);
-      setErrorMsg(data.taskInfo.state.errorMsg || undefined);
 
       setFileName(data.taskInfo.dataset.tableInfo.originalFileName);
       setSnippet(data.taskInfo.dataset.snippet);
@@ -135,13 +144,13 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     if (error) {
       showError({ message: error.message });
     }
-  }, [error, showError]);
+  }, [error]);
 
   useEffect(() => {
-    if (errorMsg) {
-      showError({ message: errorMsg });
+    if (deleteError) {
+      showError({ message: deleteError.message });
     }
-  }, [errorMsg, showError]);
+  }, [deleteError]);
 
   const outValue = {
     taskId,
@@ -158,6 +167,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     dependencies,
     keys,
     resetTask,
+    deleteTask,
   };
 
   return (

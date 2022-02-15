@@ -16,6 +16,10 @@ $theme-colors: (
   "grey": $grey,
 );
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 @import "../node_modules/bootstrap/scss/bootstrap";
 
 $utilities: map-merge(

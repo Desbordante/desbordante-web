@@ -10,19 +10,19 @@ import { AuthContext } from "../AuthContext";
 const TopBar = () => {
   const history = useHistory();
 
-  const { fileName, taskId, status, resetTask } = useContext(TaskContext)!;
-  const { user, setIsSignUpShown, setIsFeedbackShown } =
+  const { fileName, status, resetTask } = useContext(TaskContext)!;
+  const { user, setIsSignUpShown, setIsFeedbackShown, setIsLogInShown } =
     useContext(AuthContext)!;
-
-  const backToHome = () => {
-    resetTask();
-    history.push("/");
-  };
 
   return (
     <Navbar variant="dark" bg="dark" sticky="top" className="position-relative">
       <Container fluid>
-        <Navbar.Brand onClick={backToHome}>
+        <Navbar.Brand
+          onClick={() => {
+            resetTask();
+            history.push("/");
+          }}
+        >
           <img
             src="/icons/logo.svg"
             alt="logo"
@@ -40,17 +40,25 @@ const TopBar = () => {
             <p className="mx-1 my-auto text-secondary">{status}</p>
           )}
         </Container>
-        <Button onClick={() => setIsFeedbackShown(true)} className="mx-2">
+        <Button
+          variant="outline-light"
+          onClick={() => setIsFeedbackShown(true)}
+          className="mx-2"
+        >
           Send Feedback
         </Button>
         {!user && (
-          <Button onClick={() => setIsSignUpShown(true)} className="mx-2">
-            Sign Up
+          <Button
+            variant="outline-light"
+            onClick={() => setIsLogInShown(true)}
+            className="mx-2"
+          >
+            Log In
           </Button>
         )}
-        {taskId && (
-          <Button variant="danger" onClick={backToHome} className="mx-2">
-            Cancel
+        {!user && (
+          <Button onClick={() => setIsSignUpShown(true)} className="mx-2">
+            Sign Up
           </Button>
         )}
       </Container>
