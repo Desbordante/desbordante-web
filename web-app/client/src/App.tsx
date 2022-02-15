@@ -10,10 +10,12 @@ import SignUpForm from "./components/SignUpForm/SignUpForm";
 import FeedbackForm from "./components/FeedbackForm/FeedbackForm";
 import { ErrorContext } from "./components/ErrorContext";
 import { AuthContext } from "./components/AuthContext";
+import LogInForm from "./components/LogInForm/LogInForm";
 
 const App: React.FC = () => {
   const { isErrorShown } = useContext(ErrorContext)!;
-  const { isSignUpShown, isFeedbackShown } = useContext(AuthContext)!;
+  const { isSignUpShown, isFeedbackShown, isLogInShown } =
+    useContext(AuthContext)!;
 
   return (
     <div className="App bg-light d-flex flex-column min-vh-100">
@@ -22,6 +24,7 @@ const App: React.FC = () => {
         {isErrorShown && <ErrorScreen />}
         {isSignUpShown && <SignUpForm />}
         {isFeedbackShown && <FeedbackForm />}
+        {isLogInShown && <LogInForm />}
         <Switch>
           <Route path="/:taskID">
             <Viewer />
