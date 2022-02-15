@@ -3,7 +3,7 @@ import "./Value.scss";
 
 /* eslint-disable no-unused-vars */
 interface Props {
-  value?: string;
+  value: string;
   onChange: (str: string) => void;
   inputValidator: (str?: string) => boolean;
   size?: number;
@@ -20,11 +20,14 @@ const Value: React.FC<Props> = ({
 }) => {
   const [isValid, setIsValid] = useState(inputValidator(value));
 
-  const inputHandler = (str?: string) => {
-    const croppedStr = (str && str.slice(0, size)) || "";
-    setIsValid(inputValidator(croppedStr));
-    onChange(croppedStr);
-  };
+  const inputHandler = useCallback(
+    (str?: string) => {
+      const croppedStr = (str && str.slice(0, size)) || "";
+      setIsValid(inputValidator(croppedStr));
+      onChange(croppedStr);
+    },
+    [setIsValid, inputValidator, onChange]
+  );
 
   useEffect(() => inputHandler(value), [value, inputHandler]);
 
@@ -39,7 +42,6 @@ const Value: React.FC<Props> = ({
       } text-center border border-2 outline-0 px-2 py-2 rounded-pill cursor-pointer ${className}`}
       size={size}
       onChange={(event) => {
-        // eslint-disable-next-line no-console
         inputHandler(event.target.value);
       }}
     />
