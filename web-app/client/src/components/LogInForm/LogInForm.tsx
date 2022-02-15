@@ -8,7 +8,7 @@ import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";
 import { AuthContext } from "../AuthContext";
 
 const LogInForm = () => {
-  const { setIsSignUpShown } = useContext(AuthContext)!;
+  const { setIsLogInShown } = useContext(AuthContext)!;
   const initialValues = {
     email: "",
     password: "",
@@ -32,9 +32,9 @@ const LogInForm = () => {
   };
 
   return (
-    <PopupWindowContainer onOutsideClick={() => setIsSignUpShown(false)}>
+    <PopupWindowContainer onOutsideClick={() => setIsLogInShown(false)}>
       <Container className="form-container bg-light p-4 m-4 p-sm-5 m-sm-5 rounded-3 w-auto shadow-lg">
-        <h1 className="text-center fw-bold mb-4">Sign Up</h1>
+        <h1 className="text-center fw-bold mb-4">Log In</h1>
         <Formik
           initialValues={initialValues}
           validate={validate}
