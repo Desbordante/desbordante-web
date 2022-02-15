@@ -7,6 +7,8 @@ type AuthContextType = {
   setIsSignUpShown: React.Dispatch<React.SetStateAction<boolean>>;
   isFeedbackShown: boolean;
   setIsFeedbackShown: React.Dispatch<React.SetStateAction<boolean>>;
+  isLogInShown: boolean;
+  setIsLogInShown: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -19,6 +21,7 @@ export const AuthContextProvider: React.FC = ({ children }) => {
   //   isAdmin: false,
   // });
   const [isSignUpShown, setIsSignUpShown] = useState(false);
+  const [isLogInShown, setIsLogInShown] = useState(false);
   const [isFeedbackShown, setIsFeedbackShown] = useState(false);
 
   const outValue = {
@@ -27,6 +30,8 @@ export const AuthContextProvider: React.FC = ({ children }) => {
     setIsSignUpShown,
     isFeedbackShown,
     setIsFeedbackShown,
+    isLogInShown,
+    setIsLogInShown,
   };
 
   return (
