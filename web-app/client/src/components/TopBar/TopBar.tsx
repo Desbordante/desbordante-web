@@ -47,19 +47,23 @@ const TopBar = () => {
         >
           Send Feedback
         </Button>
-        {!user && (
-          <Button
-            variant="outline-light"
-            onClick={() => setIsLogInShown(true)}
-            className="mx-2"
-          >
-            Log In
+        {user ? (
+          <Button variant="outline-danger" onClick={() => {}} className="mx-2">
+            Sign Out
           </Button>
-        )}
-        {!user && (
-          <Button onClick={() => setIsSignUpShown(true)} className="mx-2">
-            Sign Up
-          </Button>
+        ) : (
+          <>
+            <Button
+              variant="outline-light"
+              onClick={() => setIsLogInShown(true)}
+              className="mx-2"
+            >
+              Log In
+            </Button>
+            <Button onClick={() => setIsSignUpShown(true)} className="mx-2">
+              Sign Up
+            </Button>
+          </>
         )}
       </Container>
     </Navbar>
