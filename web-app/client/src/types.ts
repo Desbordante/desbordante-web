@@ -53,7 +53,10 @@ export type allowedAlgorithms = {
 export type user = {
   name: string;
   email: string;
-  isAdmin: boolean;
+  canChooseTask: boolean;
+  canCreateTask: boolean;
+  canViewInfo: boolean;
+  canManageSessions: boolean;
 };
 export type tableInfo = {
   ID: string;
@@ -69,4 +72,9 @@ export type error = {
 export type builtinDataset = {
   fileName: string;
   ID: string;
+};
+export type associationRule = {
+  lhs: string[];
+  rhs: string[];
+  confidence: number;
 };
