@@ -1,0 +1,25 @@
+@import "../../variables.scss";
+
+.association-rule {
+  transition: 0.3s;
+  * {
+    transition: 0.3s;
+  }
+
+  &:hover {
+    transform: translateX(0.5rem);
+  }
+
+  .arrow {
+    width: 5rem;
+    stroke: $light;
+
+    &.active {
+      stroke: $button-black;
+    }
+  }
+
+  p {
+    font-size: 0.8rem;
+  }
+}
