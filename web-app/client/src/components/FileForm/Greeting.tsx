@@ -10,7 +10,7 @@ interface Props {
 const dependencyTypes = [
   "Functional Dependencies",
   "Conditional Functional Dependencies",
-  "Associative Rules",
+  "Association Rules",
   "Error Detection",
 ];
 

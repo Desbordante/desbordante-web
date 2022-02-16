@@ -6,7 +6,7 @@ import LoadingScreen from "../LoadingScreen/LoadingScreen";
 import Greeting from "./Greeting";
 import FunctionalDependencies from "./FunctionalDependencies";
 import ConditionalFunctionalDependencies from "./ConditionalFunctionalDependencies";
-import AssociativeRules from "./AssociativeRules";
+import AssociationRules from "./AssociationRules";
 import ErrorDetectionPipeline from "./ErrorDetectionPipeline";
 
 const FileForm = () => {
@@ -32,7 +32,7 @@ const FileForm = () => {
         />
       )}
       {dependencyType === 2 && (
-        <AssociativeRules setUploadProgress={setUploadProgress} />
+        <AssociationRules setUploadProgress={setUploadProgress} />
       )}
       {dependencyType === 3 && (
         <ErrorDetectionPipeline setUploadProgress={setUploadProgress} />

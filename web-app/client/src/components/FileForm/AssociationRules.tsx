@@ -21,7 +21,7 @@ interface Props {
   setUploadProgress: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const AssociativeRules: React.FC<Props> = ({ setUploadProgress }) => {
+const AssociationRules: React.FC<Props> = ({ setUploadProgress }) => {
   const { allowedValues, validators } = useContext(AlgorithmConfigContext)!;
   const { showError } = useContext(ErrorContext)!;
   const [file, setFile] = useState<File>();
@@ -257,4 +257,4 @@ const AssociativeRules: React.FC<Props> = ({ setUploadProgress }) => {
   );
 };
 
-export default AssociativeRules;
+export default AssociationRules;

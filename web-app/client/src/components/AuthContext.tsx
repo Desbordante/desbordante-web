@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { user } from "../types";
 
 type AuthContextType = {
@@ -15,11 +15,18 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthContextProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<user>();
-  // setUser({
-  //   name: "Kirill Stupakov",
-  //   email: "kirill.stupakov.0@gmail.com",
-  //   isAdmin: false,
-  // });
+  useEffect(
+    () =>
+      setUser({
+        name: "Kirill Stupakov",
+        email: "kirill.stupakov.0@gmail.com",
+        canChooseTask: false,
+        canCreateTask: false,
+        canViewInfo: false,
+        canManageSessions: false,
+      }),
+    []
+  );
   const [isSignUpShown, setIsSignUpShown] = useState(false);
   const [isLogInShown, setIsLogInShown] = useState(false);
   const [isFeedbackShown, setIsFeedbackShown] = useState(false);
