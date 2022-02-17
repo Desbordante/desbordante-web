@@ -9,8 +9,8 @@ const FeedbackButton = () => {
 
   return (
     <Button
-      variant="success"
-      className="feedback-button position-absolute text-light"
+      variant="primary"
+      className="feedback-button position-absolute fw-bold"
       onClick={() => setIsFeedbackShown(true)}
     >
       Feedback
