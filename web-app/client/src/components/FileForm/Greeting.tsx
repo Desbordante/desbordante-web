@@ -15,10 +15,10 @@ const dependencyTypes = [
 ];
 
 const Greeting: React.FC<Props> = ({ dependencyType, setDependencyType }) => (
-  <Container fluid className="text-center py-4">
+  <Container fluid className="text-center py-3">
     {dependencyTypes.map((type, index) => (
       <Toggle
-        className="mx-2"
+        className="mx-2 my-2"
         key={type}
         toggleCondition={dependencyType === index}
         onClick={() => setDependencyType(index)}
