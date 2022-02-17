@@ -11,6 +11,7 @@ import FeedbackForm from "./components/FeedbackForm/FeedbackForm";
 import { ErrorContext } from "./components/ErrorContext";
 import { AuthContext } from "./components/AuthContext";
 import LogInForm from "./components/LogInForm/LogInForm";
+import FeedbackButton from "./components/FeedbackButton/FeedbackButton";
 
 const App: React.FC = () => {
   const { isErrorShown } = useContext(ErrorContext)!;
@@ -25,6 +26,7 @@ const App: React.FC = () => {
         {isSignUpShown && <SignUpForm />}
         {isFeedbackShown && <FeedbackForm />}
         {isLogInShown && <LogInForm />}
+        <FeedbackButton />
         <Switch>
           <Route path="/:taskID">
             <Viewer />
