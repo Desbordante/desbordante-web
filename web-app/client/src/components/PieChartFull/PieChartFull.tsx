@@ -102,7 +102,7 @@ const PieChartFull: React.FC<Props> = ({
           enabled={depth > 0}
           className="mx-2"
         >
-          <img src="/icons/up-depth.svg" alt="Up" />
+          <i className="bi bi-layer-forward" />
         </Button>
       </div>
       {selectedAttributes && displayAttributes && (
