@@ -11,8 +11,7 @@ const TopBar = () => {
   const history = useHistory();
 
   const { fileName, status, resetTask } = useContext(TaskContext)!;
-  const { user, setIsSignUpShown, setIsFeedbackShown, setIsLogInShown } =
-    useContext(AuthContext)!;
+  const { user, setIsSignUpShown, setIsLogInShown } = useContext(AuthContext)!;
 
   return (
     <Navbar variant="dark" bg="dark" sticky="top" className="position-relative">
@@ -40,17 +39,19 @@ const TopBar = () => {
             <p className="mx-1 my-auto text-secondary">{status}</p>
           )}
         </Container>
-        <Button
-          variant="outline-light"
-          onClick={() => setIsFeedbackShown(true)}
-          className="mx-2"
-        >
-          Send Feedback
-        </Button>
         {user ? (
-          <Button variant="outline-danger" onClick={() => {}} className="mx-2">
-            Sign Out
-          </Button>
+          <>
+            <p className="mb-0 mx-2 text-light text-nowrap">
+              Logged in as <span className="fw-bold">{user.name}</span>
+            </p>
+            <Button
+              variant="outline-danger"
+              onClick={() => {}}
+              className="mx-2"
+            >
+              Sign Out
+            </Button>
+          </>
         ) : (
           <>
             <Button
