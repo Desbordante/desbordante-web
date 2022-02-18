@@ -1,10 +1,12 @@
 import React, { useContext, useRef } from "react";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 import "./UploadFile.scss";
 import Button from "../Button/Button";
 import FileLabel from "../FileLabel/FileLabel";
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
 import { TaskContext } from "../TaskContext/TaskContext";
+import { AuthContext } from "../AuthContext";
 
 /* eslint-disable no-unused-vars */
 interface Props {
@@ -27,6 +29,7 @@ const UploadFile: React.FC<Props> = ({
   // so the reference is used to forward click action
   // to hidden input file
   const inputFile = useRef<HTMLInputElement>(null);
+  const { user } = useContext(AuthContext)!;
 
   return (
     <>
@@ -51,13 +54,20 @@ const UploadFile: React.FC<Props> = ({
         multiple={false}
         accept=".csv, .CSV"
       />
-      <Button
-        onClick={() => inputFile?.current?.click()}
-        variant="light"
-        className="mx-2"
+      <OverlayTrigger
+        overlay={user ? <></> : <Tooltip>Sign up to upload files</Tooltip>}
       >
-        <i className="bi bi-file-earmark-arrow-up" />
-      </Button>
+        <span className="d-inline-block mx-2">
+          <Button
+            onClick={() => inputFile?.current?.click()}
+            enabled={!!user}
+            variant="light"
+            style={{ pointerEvents: user ? "auto" : "none" }}
+          >
+            <i className="bi bi-file-earmark-arrow-up" />
+          </Button>
+        </span>
+      </OverlayTrigger>
       <Button
         onClick={openBuiltinDatasetSelector}
         variant="light"
