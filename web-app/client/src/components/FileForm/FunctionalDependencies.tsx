@@ -252,7 +252,11 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
           />
         </FormItem>
       </Row>
-      <Button enabled={isValid()} onClick={submit} variant="primary">
+      <Button
+        enabled={isValid() && !loading}
+        onClick={submit}
+        variant="primary"
+      >
         Analyze
       </Button>
     </>
