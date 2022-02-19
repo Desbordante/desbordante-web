@@ -1,0 +1,12 @@
+## The following requirements were added by pip freeze:
+backports.zoneinfo==0.2.1
+certifi==2021.10.8
+charset-normalizer==2.0.11
+confluent-kafka==1.8.2
+docker==5.0.3
+idna==3.3
+psycopg==3.0.8
+psycopg-binary==3.0.8
+requests==2.27.1
+urllib3==1.26.8
+websocket-client==1.2.3
