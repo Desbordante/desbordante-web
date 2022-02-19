@@ -10,8 +10,8 @@ import { TaskContextProvider } from "./components/TaskContext/TaskContext";
 import { ErrorContextProvider } from "./components/ErrorContext";
 import { graphQLEndpoint } from "./APIFunctions";
 import { AlgorithmConfigContextProvider } from "./components/AlgorithmConfigContext";
-import { customFetch } from "./customFetch";
-import { requestIdLink } from "./components/context";
+import { customFetch } from "./graphql/customFetch";
+import { requestIdLink } from "./graphql/context";
 
 const client = new ApolloClient({
   uri: graphQLEndpoint,

@@ -6,15 +6,15 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { DELETE_TASK } from "../../operations/mutations/deleteTask";
-import { deleteTask } from "../../operations/mutations/__generated__/deleteTask";
+import { DELETE_TASK } from "../../graphql/operations/mutations/deleteTask";
+import { deleteTask } from "../../graphql/operations/mutations/__generated__/deleteTask";
 
-import { GET_TASK_INFO } from "../../operations/queries/getTaskInfo";
+import { GET_TASK_INFO } from "../../graphql/operations/queries/getTaskInfo";
 import {
   taskInfo,
   taskInfo_taskInfo_dataset_snippet,
   taskInfo_taskInfo_data_FDTask,
-} from "../../operations/queries/__generated__/taskInfo";
+} from "../../graphql/operations/queries/__generated__/taskInfo";
 import { dependency, pieChartData } from "../../types";
 import { ErrorContext } from "../ErrorContext";
 

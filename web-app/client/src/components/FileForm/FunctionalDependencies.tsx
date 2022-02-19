@@ -13,10 +13,10 @@ import BuiltinDatasetSelector from "../BuiltinDatasetSelector/BuiltinDatasetSele
 import FormItem from "../FormItem/FormItem";
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
 import { builtinDataset, FDAlgorithm } from "../../types";
-import { CREATE_FD_TASK } from "../../operations/mutations/createFDTask";
+import { CREATE_FD_TASK } from "../../graphql/operations/mutations/createFDTask";
 import { FDTaskProps, FileProps } from "../../../__generated__/globalTypes";
 import { ErrorContext } from "../ErrorContext";
-import { CHOOSE_FD_TASK } from "../../operations/mutations/chooseFDTask";
+import { CHOOSE_FD_TASK } from "../../graphql/operations/mutations/chooseFDTask";
 
 interface Props {
   setUploadProgress: React.Dispatch<React.SetStateAction<number>>;
