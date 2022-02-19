@@ -2,11 +2,11 @@ import React, { useContext } from "react";
 import "./FileLabel.scss";
 import { useDropzone } from "react-dropzone";
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
-import { TaskContext } from "../TaskContext/TaskContext";
+import { AuthContext } from "../AuthContext";
 
 /* eslint-disable no-unused-vars */
 interface Props {
-  onClick: () => void;
+  onClick?: () => void;
   builtinDataset?: string;
   className: string;
   file?: File;
@@ -20,9 +20,12 @@ const FileLabel: React.FC<Props> = ({
   file,
   setFile,
 }) => {
+  const { user } = useContext(AuthContext)!;
   const { validators } = useContext(AlgorithmConfigContext)!;
   const { getRootProps } = useDropzone({
-    onDrop: (acceptedFiles) => setFile(acceptedFiles[0]),
+    onDrop: user?.canUploadFiles
+      ? (acceptedFiles) => setFile(acceptedFiles[0])
+      : undefined,
   });
 
   let displayText = "";
