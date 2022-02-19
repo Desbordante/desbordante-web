@@ -18,10 +18,6 @@ export interface taskInfo_taskInfo_state {
   isExecuted: boolean;
 }
 
-export interface taskInfo_taskInfo_data_CFDTask {
-  __typename: "CFDTask";
-}
-
 export interface taskInfo_taskInfo_data_FDTask_result_FDs {
   __typename: "FD";
   lhs: number[];
@@ -73,7 +69,49 @@ export interface taskInfo_taskInfo_data_FDTask {
   result: taskInfo_taskInfo_data_FDTask_result | null;
 }
 
-export type taskInfo_taskInfo_data = taskInfo_taskInfo_data_CFDTask | taskInfo_taskInfo_data_FDTask;
+export interface taskInfo_taskInfo_data_CFDTask_result_CFDs_fd {
+  __typename: "FD";
+  lhs: number[];
+  rhs: number;
+}
+
+export interface taskInfo_taskInfo_data_CFDTask_result_CFDs {
+  __typename: "CFD";
+  fd: taskInfo_taskInfo_data_CFDTask_result_CFDs_fd;
+  lhsPatterns: string[];
+  rhsPattern: string;
+}
+
+export interface taskInfo_taskInfo_data_CFDTask_result_PKs {
+  __typename: "Column";
+  name: string;
+}
+
+export interface taskInfo_taskInfo_data_CFDTask_result_pieChartData_column {
+  __typename: "Column";
+  name: string;
+}
+
+export interface taskInfo_taskInfo_data_CFDTask_result_pieChartData {
+  __typename: "CFDPieChartRow";
+  column: taskInfo_taskInfo_data_CFDTask_result_pieChartData_column;
+  pattern: string | null;
+  value: number;
+}
+
+export interface taskInfo_taskInfo_data_CFDTask_result {
+  __typename: "CFDResult";
+  CFDs: (taskInfo_taskInfo_data_CFDTask_result_CFDs | null)[] | null;
+  PKs: (taskInfo_taskInfo_data_CFDTask_result_PKs | null)[] | null;
+  pieChartData: (taskInfo_taskInfo_data_CFDTask_result_pieChartData | null)[] | null;
+}
+
+export interface taskInfo_taskInfo_data_CFDTask {
+  __typename: "CFDTask";
+  result: taskInfo_taskInfo_data_CFDTask_result | null;
+}
+
+export type taskInfo_taskInfo_data = taskInfo_taskInfo_data_FDTask | taskInfo_taskInfo_data_CFDTask;
 
 export interface taskInfo_taskInfo_dataset_tableInfo {
   __typename: "TableInfo";

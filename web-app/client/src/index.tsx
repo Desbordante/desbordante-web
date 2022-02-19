@@ -11,14 +11,17 @@ import { ErrorContextProvider } from "./components/ErrorContext";
 import { graphQLEndpoint } from "./APIFunctions";
 import { AlgorithmConfigContextProvider } from "./components/AlgorithmConfigContext";
 import { customFetch } from "./customFetch";
+import { requestIdLink } from "./components/context";
 
 const client = new ApolloClient({
   uri: graphQLEndpoint,
   cache: new InMemoryCache(),
-  link: createUploadLink({
-    uri: graphQLEndpoint,
-    fetch: customFetch as any,
-  }),
+  link: requestIdLink.concat(
+    createUploadLink({
+      uri: graphQLEndpoint,
+      fetch: customFetch as any,
+    })
+  ),
 });
 
 ReactDOM.render(

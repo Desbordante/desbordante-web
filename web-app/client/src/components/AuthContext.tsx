@@ -17,14 +17,14 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthContextProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<user>();
   useEffect(() => {
-    setUser({
-      name: "Kirill Stupakov",
-      email: "kirill.stupakov.0@gmail.com",
-      canChooseTask: true,
-      canUploadFiles: true,
-      canViewAdminInfo: true,
-      canManageUserSessions: true,
-    });
+    // setUser({
+    //   name: "Kirill Stupakov",
+    //   email: "kirill.stupakov.0@gmail.com",
+    //   canChooseTask: true,
+    //   canUploadFiles: true,
+    //   canViewAdminInfo: true,
+    //   canManageUserSessions: true,
+    // });
 
     localStorage.setItem("deviceId", generateDeviceId());
   }, []);
