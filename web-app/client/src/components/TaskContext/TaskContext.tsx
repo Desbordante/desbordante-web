@@ -100,8 +100,6 @@ export const TaskContextProvider: React.FC = ({ children }) => {
       clearInterval(queryRef.current!);
     }
   }, [taskId, isExecuted, error]);
-  // eslint-disable-next-line no-console
-  console.log(taskId, error);
 
   useEffect(() => {
     if (data) {
