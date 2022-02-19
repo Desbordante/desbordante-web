@@ -2,8 +2,8 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import { useQuery } from "@apollo/client";
 
 import { tableInfo, FDAlgorithm, allowedAlgorithms } from "../types";
-import { GET_ALGORITHMS_CONFIG } from "../operations/queries/getAlgorithmsConfig";
-import { algorithmsConfig } from "../operations/queries/__generated__/algorithmsConfig";
+import { GET_ALGORITHMS_CONFIG } from "../graphql/operations/queries/getAlgorithmsConfig";
+import { algorithmsConfig } from "../graphql/operations/queries/__generated__/algorithmsConfig";
 import { ErrorContext } from "./ErrorContext";
 
 type AlgorithmConfigContextType = {
