@@ -1,5 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+graphql-schema.json
+__generated__/
+
 # dependencies
 /node_modules
 /.pnp
