@@ -37,6 +37,7 @@ module.exports = {
     "operator-linebreak": "off",
     "function-paren-newline": "off",
     indent: "off",
+    "react/jsx-wrap-multilines": "off",
     "@typescript-eslint/brace-style": ["error", "1tbs"],
     "no-console": "error",
     "react/function-component-definition": "off",
