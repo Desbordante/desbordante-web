@@ -55,14 +55,18 @@ const UploadFile: React.FC<Props> = ({
         accept=".csv, .CSV"
       />
       <OverlayTrigger
-        overlay={user ? <></> : <Tooltip>Sign up to upload files</Tooltip>}
+        overlay={
+          <Tooltip className={user?.canUploadFiles ? "d-none" : ""}>
+            Sign up to upload files
+          </Tooltip>
+        }
       >
         <span className="d-inline-block mx-2">
           <Button
             onClick={() => inputFile?.current?.click()}
-            enabled={!!user}
+            enabled={user?.canUploadFiles}
             variant="light"
-            style={{ pointerEvents: user ? "auto" : "none" }}
+            style={{ pointerEvents: user?.canUploadFiles ? "auto" : "none" }}
           >
             <i className="bi bi-file-earmark-arrow-up" />
           </Button>

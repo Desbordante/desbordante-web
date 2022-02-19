@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import { user } from "../types";
+import generateDeviceId from "../functions/generateDeviceId";
 
 type AuthContextType = {
   user: user | undefined;
@@ -15,18 +16,18 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthContextProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<user>();
-  useEffect(
-    () =>
-      setUser({
-        name: "Kirill Stupakov",
-        email: "kirill.stupakov.0@gmail.com",
-        canChooseTask: false,
-        canCreateTask: false,
-        canViewInfo: false,
-        canManageSessions: false,
-      }),
-    []
-  );
+  useEffect(() => {
+    setUser({
+      name: "Kirill Stupakov",
+      email: "kirill.stupakov.0@gmail.com",
+      canChooseTask: true,
+      canUploadFiles: true,
+      canViewAdminInfo: true,
+      canManageUserSessions: true,
+    });
+
+    generateDeviceId().then((id) => localStorage.setItem("deviceId", id));
+  }, []);
   const [isSignUpShown, setIsSignUpShown] = useState(false);
   const [isLogInShown, setIsLogInShown] = useState(false);
   const [isFeedbackShown, setIsFeedbackShown] = useState(false);

@@ -54,9 +54,9 @@ export type user = {
   name: string;
   email: string;
   canChooseTask: boolean;
-  canCreateTask: boolean;
-  canViewInfo: boolean;
-  canManageSessions: boolean;
+  canUploadFiles: boolean;
+  canViewAdminInfo: boolean;
+  canManageUserSessions: boolean;
 };
 export type tableInfo = {
   ID: string;
