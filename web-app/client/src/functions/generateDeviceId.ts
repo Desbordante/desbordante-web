@@ -4,6 +4,7 @@ const client = new ClientJS();
 
 export default function () {
   const result = {
+    fingerprint: client.getFingerprint(),
     userAgent: client.getUserAgent(),
     browser: client.getBrowser(),
     engine: client.getEngine(),

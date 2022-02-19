@@ -4,8 +4,6 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import "./UploadFile.scss";
 import Button from "../Button/Button";
 import FileLabel from "../FileLabel/FileLabel";
-import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
-import { TaskContext } from "../TaskContext/TaskContext";
 import { AuthContext } from "../AuthContext";
 
 /* eslint-disable no-unused-vars */
@@ -37,7 +35,9 @@ const UploadFile: React.FC<Props> = ({
         file={file}
         setFile={setFile}
         builtinDataset={builtinDataset}
-        onClick={() => inputFile?.current?.click()}
+        onClick={
+          user?.canUploadFiles ? () => inputFile?.current?.click() : undefined
+        }
         className="mx-2"
       />
       <input
@@ -45,12 +45,16 @@ const UploadFile: React.FC<Props> = ({
         id="file"
         className="d-none"
         ref={inputFile}
-        onChange={(e) => {
-          if (e.target.files) {
-            setFile(e.target.files[0]);
-          }
-          disableBuiltinDataset();
-        }}
+        onChange={
+          user?.canUploadFiles
+            ? (e) => {
+                if (e.target.files) {
+                  setFile(e.target.files[0]);
+                }
+                disableBuiltinDataset();
+              }
+            : undefined
+        }
         multiple={false}
         accept=".csv, .CSV"
       />
@@ -64,7 +68,7 @@ const UploadFile: React.FC<Props> = ({
         <span className="d-inline-block mx-2">
           <Button
             onClick={() => inputFile?.current?.click()}
-            enabled={user?.canUploadFiles}
+            enabled={!!user?.canUploadFiles}
             variant="light"
             style={{ pointerEvents: user?.canUploadFiles ? "auto" : "none" }}
           >

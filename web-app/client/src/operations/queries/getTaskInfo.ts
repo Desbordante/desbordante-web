@@ -41,6 +41,30 @@ export const GET_TASK_INFO = gql`
               }
             }
           }
+
+          __typename
+          ... on CFDTask {
+            result {
+              CFDs {
+                fd {
+                  lhs
+                  rhs
+                }
+                lhsPatterns
+                rhsPattern
+              }
+              PKs {
+                name
+              }
+              pieChartData {
+                column {
+                  name
+                }
+                pattern
+                value
+              }
+            }
+          }
         }
         dataset {
           tableInfo {
