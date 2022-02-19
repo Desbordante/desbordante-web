@@ -1,3 +1,20 @@
+#include <fstream>
+
+#include "json.hpp"
+
+
+#include "db/TaskConfig.h"
+#include "db/DBManager.h"
+
+
+#include "algorithms/Pyro.h"
+#include "algorithms/TaneX.h"
+#include "algorithms/FastFDs.h"
+#include "algorithms/DFD/DFD.h"
+#include "algorithms/Fd_mine.h"
+
+#include "logging/easylogging++.h"
+#include <boost/program_options.hpp>
 
 #include <iostream>
 #include <optional>
@@ -6,16 +23,6 @@
 #include <chrono>
 #include <thread>
 #include <future>
-
-#include "logging/easylogging++.h"
-
-#include "algorithms/Pyro.h"
-#include "algorithms/TaneX.h"
-#include "algorithms/FastFDs.h"
-#include "algorithms/DFD/DFD.h"
-#include "algorithms/Fd_mine.h"
-
-#include "TaskConsumer.h"
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -27,36 +34,69 @@ std::string TaskConfig::FDTaskConfigTable = "\"FDTasksConfig\"";
 std::string TaskConfig::FDTaskResultTable = "\"FDTasksResult\"";
 std::string TaskConfig::CFDTaskResultTable = "\"CFDTasksResult\"";
 
-void TaskConsumer::processMsg(nlohmann::json payload,
-                             DBManager const &manager) const {
-    auto taskID = std::string(payload["taskID"]);
-    if (!TaskConfig::isTaskExists(manager, taskID)) {
-        std::cout << "Task with ID = '" << taskID
-                  << "' isn't in the database. (Task wasn't processed (skipped))"
-                  << std::endl;
-    } else {
-        auto task = TaskConfig::getTaskConfig(manager, taskID);
-        if (TaskConfig::isTaskCancelled(manager, taskID)) {
-            std::cout << "Task with ID = '" << taskID
-                      << "' was cancelled." << std::endl;
-        } else {
-            task.writeInfo(std::cout);
-            try {
-                processTask(task, manager);
-            } catch (const std::exception& e) {
-                std::cout << "Unexpected behaviour in 'process_task()'. (Task wasn't commited)"
-                        << std::endl;
-                task.updateErrorStatus(manager, "SERVER ERROR", e.what());
-                return;
-            }
-            std::cout << "Task with ID = '" << taskID
-                    << "' was successfully processed." << std::endl;
-        }
-    }
+
+static std::string dbConnection() {
+    std::string host = std::getenv("POSTGRES_HOST");
+    std::string port = std::getenv("POSTGRES_PORT");
+    std::string user = std::getenv("POSTGRES_USER");
+    std::string password = std::getenv("POSTGRES_PASSWORD");
+    std::string dbname = std::getenv("POSTGRES_DBNAME");
+
+    return "postgresql://" + user + ":" + password + "@" + host + ":" + port + "/" + dbname;
 }
 
-void TaskConsumer::processTask(TaskConfig const& task, 
-                               DBManager const& manager) const {
+std::vector<std::string> generateRenamedColumns(std::vector<std::string> const &colNames, 
+                                                bool hasHeader) {
+    std::vector<std::string> renamedColNames;
+    if (hasHeader) {
+        for (auto colName : colNames) {
+            if (colName[0] == '\"' && colName[colName.size()-1] == '\"') {
+                colName = std::string(colName.begin() + 1, colName.end() - 1);
+            }
+            colName.erase(
+                colName.begin(), 
+                std::find_if(colName.begin(), colName.end(), 
+                             [](unsigned char ch) { return !std::isspace(ch); })
+            );
+            if (colName.size() == 0) {
+                colName = "empty";
+            }
+            TaskConfig::prepareString(colName);
+            renamedColNames.push_back(colName);
+        }
+        // Vector contains information about how many times the given name occurs
+        // (filling goes in ascending order of indices)
+        // For example: { "col1", "col1", "col2", "col1", "col2"} 
+        //           -> { 0,      1,      0,      2,      1     }
+        std::vector<size_t> numberOfOccurrences(renamedColNames.size(), 0);
+        for (size_t i = 1; i < renamedColNames.size(); ++i) {
+            auto lastOccurenceIt = std::find(
+                renamedColNames.rbegin() + (renamedColNames.size() - i),
+                renamedColNames.rend(),
+                renamedColNames[i]
+            );
+            if (lastOccurenceIt == renamedColNames.rend()) {
+                continue;
+            } else {
+                size_t idx = renamedColNames.rend() - lastOccurenceIt - 1;
+                numberOfOccurrences[i] = numberOfOccurrences[idx] + 1;
+            }
+        }
+        for (size_t i = 1; i < renamedColNames.size(); ++i) {
+            if (numberOfOccurrences[i] != 0) {
+                renamedColNames[i] += "_" + std::to_string(numberOfOccurrences[i]);
+            }
+        }
+    } else {
+        for (size_t i = 0; i != colNames.size(); ++i) {
+            renamedColNames.push_back(std::string("Attr " + std::to_string(i)));
+        }
+    }
+    return renamedColNames;
+}
+
+void processTask(TaskConfig const& task, 
+                               DBManager const& manager) {
     auto algName     = task.getAlgName();
     auto datasetPath = task.getDatasetPath();
     auto separator   = task.getSeparator();
@@ -79,6 +119,7 @@ void TaskConsumer::processTask(TaskConfig const& task,
               << "\'. Header is " << (hasHeader ? "" : "not ") << "present. " 
               << std::endl;
 
+    
     if (algName == "Pyro") {
         algInstance = std::make_unique<Pyro>(datasetPath, separator, hasHeader, 
                                              seed, error, maxLhs, parallelism);
@@ -99,7 +140,6 @@ void TaskConsumer::processTask(TaskConfig const& task,
         task.updateStatus(manager, "IN PROCESS");
         
         unsigned long long elapsedTime;
-
         const auto& phaseNames = algInstance->getPhaseNames();
         auto maxPhase = phaseNames.size();
         task.setMaxPhase(manager, maxPhase);
@@ -149,4 +189,44 @@ void TaskConsumer::processTask(TaskConfig const& task,
         std::cout << e.what() << std::endl;
         throw e;
     }
+}
+
+void processMsg(std::string taskID,
+                             DBManager const &manager) {
+    if (!TaskConfig::isTaskExists(manager, taskID)) {
+        std::cout << "Task with ID = '" << taskID
+                  << "' isn't in the database. (Task wasn't processed (skipped))"
+                  << std::endl;
+    } else {
+        auto task = TaskConfig::getTaskConfig(manager, taskID);
+        if (TaskConfig::isTaskCancelled(manager, taskID)) {
+            std::cout << "Task with ID = '" << taskID
+                      << "' was cancelled." << std::endl;
+        } else {
+            task.writeInfo(std::cout);
+            try {
+                processTask(task, manager);
+            } catch (const std::exception& e) {
+                std::cout << "Unexpected behaviour in 'process_task()'. (Task wasn't commited)"
+                        << std::endl;
+                task.updateErrorStatus(manager, "SERVER ERROR", e.what());
+                return;
+            }
+            std::cout << "Task with ID = '" << taskID
+                    << "' was successfully processed." << std::endl;
+        }
+    }
+}
+
+int main(int argc, char *argv[])
+{   
+    std::string taskId = argv[1];
+    try {
+        DBManager DBManager(dbConnection());
+        processMsg(taskId, DBManager);
+    } catch (const std::exception& e) {
+        std::cerr << "% Unexpected exception caught: " << e.what() << std::endl;
+        return 1;
+    }
+    return 0;
 }
