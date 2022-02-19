@@ -56,9 +56,6 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   const [dependencies, setDependencies] = useState<dependency[]>();
   const [keys, setKeys] = useState<string[]>();
 
-  // eslint-disable-next-line no-console
-  // console.log(taskId, "rerender");
-
   const resetTask = async () => {
     setTaskId(undefined);
     setIsExecuted(undefined);
@@ -102,7 +99,9 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     if (!taskId || isExecuted || error) {
       clearInterval(queryRef.current!);
     }
-  }, [taskId, isExecuted]);
+  }, [taskId, isExecuted, error]);
+  // eslint-disable-next-line no-console
+  console.log(taskId, error);
 
   useEffect(() => {
     if (data) {
