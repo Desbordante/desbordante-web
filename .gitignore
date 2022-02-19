@@ -9,3 +9,5 @@ lib/
 .csv
 .idea/
 .vscode
+.env
+python-consumer/venv
