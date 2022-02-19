@@ -5,6 +5,7 @@
   "dependencies": {
     "@apollo/client": "^3.5.8",
     "@benestudioco/react-scrollfade": "^1.0.2",
+    "@fingerprintjs/fingerprintjs": "^3.3.2",
     "@testing-library/user-event": "^12.8.3",
     "@types/apollo-upload-client": "^17.0.0",
     "@types/hsl-to-hex": "^1.0.0",
