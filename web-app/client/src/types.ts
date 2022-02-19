@@ -1,7 +1,7 @@
 import {
   taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs,
   taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs,
-} from "./operations/queries/__generated__/taskInfo";
+} from "./graphql/operations/queries/__generated__/taskInfo";
 
 export type attribute = {
   column: { name: string; index?: number };
