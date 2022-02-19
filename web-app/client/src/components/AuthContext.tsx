@@ -26,7 +26,7 @@ export const AuthContextProvider: React.FC = ({ children }) => {
       canManageUserSessions: true,
     });
 
-    generateDeviceId().then((id) => localStorage.setItem("deviceId", id));
+    localStorage.setItem("deviceId", generateDeviceId());
   }, []);
   const [isSignUpShown, setIsSignUpShown] = useState(false);
   const [isLogInShown, setIsLogInShown] = useState(false);
