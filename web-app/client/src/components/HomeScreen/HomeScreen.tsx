@@ -1,6 +1,5 @@
 import React from "react";
 
-import "./HomeScreen.scss";
 import Header from "../Header/Header";
 import FileForm from "../FileForm/FileForm";
 

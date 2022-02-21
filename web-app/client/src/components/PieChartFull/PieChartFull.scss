@@ -1,13 +1,6 @@
 @import "../../variables.scss";
 
-.pie-chart-full {
-  img {
-    width: 1.4rem;
-    height: 1.4rem;
-  }
-
-  .chart-canvas {
-    height: 40vh;
-    width: 40vh;
-  }
+.pie-chart-full .chart-canvas {
+  height: min(40vh, 20rem);
+  width: min(40vh, 20rem);
 }

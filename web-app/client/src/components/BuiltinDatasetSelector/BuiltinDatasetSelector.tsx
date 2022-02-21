@@ -1,7 +1,6 @@
 import React from "react";
 import { Container } from "react-bootstrap";
 
-import "./BuiltinDatasetSelector.scss";
 import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";
 
 interface Props {

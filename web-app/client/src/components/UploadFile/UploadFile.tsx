@@ -1,7 +1,6 @@
 import React, { useContext, useRef } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
-import "./UploadFile.scss";
 import Button from "../Button/Button";
 import FileLabel from "../FileLabel/FileLabel";
 import { AuthContext } from "../AuthContext";
