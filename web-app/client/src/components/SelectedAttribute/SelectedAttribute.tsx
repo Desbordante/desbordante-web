@@ -1,17 +1,19 @@
 import React from "react";
+
 import "./SelectedAttribute.scss";
+import { attribute } from "../../types";
 
 /* eslint-disable no-unused-vars */
 interface Props {
   text: string;
-  onDelete: () => void;
+  onClick: React.MouseEventHandler<HTMLDivElement>;
 }
 /* eslint-enable no-unused-vars */
 
-const SelectedAttribute: React.FC<Props> = ({ text, onDelete }) => (
+const SelectedAttribute: React.FC<Props> = ({ text, onClick }) => (
   <div
     className="selected-attribute bg-dark bg-opacity-10 m-1 d-flex align-items-center rounded-pill px-2 py-1"
-    onClick={onDelete}
+    onClick={onClick}
   >
     <p className="my-auto mx-1">{text}</p>
     <img
