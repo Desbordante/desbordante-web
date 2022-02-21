@@ -5,7 +5,6 @@ import { countries } from "countries-list";
 import { validate as emailValidator } from "email-validator";
 import { passwordStrength } from "check-password-strength";
 
-import "./SignUpForm.scss";
 import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";
 import { AuthContext } from "../AuthContext";
 
