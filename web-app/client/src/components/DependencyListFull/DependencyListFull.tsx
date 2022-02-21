@@ -6,7 +6,7 @@ import Dependency from "../Dependency/Dependency";
 import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";
 import { attribute, dependency } from "../../types";
-import { TaskContext } from "../TaskContext/TaskContext";
+import { TaskContext } from "../TaskContext";
 
 type sortMethod = "LHS" | "RHS";
 

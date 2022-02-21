@@ -6,17 +6,17 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { DELETE_TASK } from "../../graphql/operations/mutations/deleteTask";
-import { deleteTask } from "../../graphql/operations/mutations/__generated__/deleteTask";
+import { DELETE_TASK } from "../graphql/operations/mutations/deleteTask";
+import { deleteTask } from "../graphql/operations/mutations/__generated__/deleteTask";
 
-import { GET_TASK_INFO } from "../../graphql/operations/queries/getTaskInfo";
+import { GET_TASK_INFO } from "../graphql/operations/queries/getTaskInfo";
 import {
   taskInfo,
   taskInfo_taskInfo_dataset_snippet,
   taskInfo_taskInfo_data_FDTask,
-} from "../../graphql/operations/queries/__generated__/taskInfo";
-import { dependency, pieChartData } from "../../types";
-import { ErrorContext } from "../ErrorContext";
+} from "../graphql/operations/queries/__generated__/taskInfo";
+import { dependency, pieChartData } from "../types";
+import { ErrorContext } from "./ErrorContext";
 
 type TaskContextType = {
   taskId: string | undefined;
@@ -115,24 +115,24 @@ export const TaskContextProvider: React.FC = ({ children }) => {
 
       setPieChartData(
         // @ts-ignore
-        (data.taskInfo.data as taskInfo_taskInfo_data_FDTask).result
+        (data.taskInfo.data as taskInfo_taskInfo_data_FDTask).FDResult
           ?.pieChartData || undefined
       );
       setDependencies(
-        (data.taskInfo.data as taskInfo_taskInfo_data_FDTask).result?.FDs?.map(
-          (dep) => ({
-            lhs:
-              dep?.lhs.map(
-                (index) => data.taskInfo.dataset.snippet.header[index] || "null"
-              ) || [],
-            rhs: data.taskInfo.dataset.snippet.header[dep?.rhs || 0] || "null",
-          })
-        )
+        (
+          data.taskInfo.data as taskInfo_taskInfo_data_FDTask
+        ).FDResult?.FDs?.map((dep) => ({
+          lhs:
+            dep?.lhs.map(
+              (index) => data.taskInfo.dataset.snippet.header[index] || "null"
+            ) || [],
+          rhs: data.taskInfo.dataset.snippet.header[dep?.rhs || 0] || "null",
+        }))
       );
       setKeys(
-        (data.taskInfo.data as taskInfo_taskInfo_data_FDTask).result?.PKs?.map(
-          (attr) => attr?.name!
-        ) || undefined
+        (
+          data.taskInfo.data as taskInfo_taskInfo_data_FDTask
+        ).FDResult?.PKs?.map((attr) => attr?.name!) || undefined
       );
     }
   }, [data]);
