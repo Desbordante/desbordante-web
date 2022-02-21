@@ -9,7 +9,7 @@ import StatusDisplay from "../StatusDisplay/StatusDisplay";
 import ProgressBar from "../ProgressBar/ProgressBar";
 import Phasename from "../Phasename/Phasename";
 import { attribute, dependency } from "../../types";
-import { TaskContext } from "../TaskContext/TaskContext";
+import { TaskContext } from "../TaskContext";
 import Snippet from "../Snippet/Snippet";
 import Navigation from "./Navigation";
 
@@ -34,10 +34,6 @@ const Viewer = () => {
 
   return (
     <>
-      <div className="top-bar">
-        <ProgressBar progress={progress} maxWidth={100} thickness={0.3} />
-        <Phasename />
-      </div>
       {isExecuted ? (
         <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">
           <Navigation partShown={partShown} setPartShown={setPartShown} />
@@ -49,7 +45,7 @@ const Viewer = () => {
             <Col xl={6} className="mt-5">
               <PieChartFull
                 title="Left-hand side"
-                attributes={pieChartData?.lhs}
+                attributes={pieChartData ? pieChartData.lhs : []}
                 selectedAttributes={selectedAttributesLHS}
                 setSelectedAttributes={setSelectedAttributesLHS}
               />
@@ -57,7 +53,7 @@ const Viewer = () => {
             <Col xl={6} className="mt-5">
               <PieChartFull
                 title="Right-hand side"
-                attributes={pieChartData?.rhs}
+                attributes={pieChartData ? pieChartData.rhs : []}
                 maxItemsSelected={1}
                 selectedAttributes={selectedAttributesRHS}
                 setSelectedAttributes={setSelectedAttributesRHS}

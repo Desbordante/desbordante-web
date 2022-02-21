@@ -13,7 +13,7 @@ const Header: React.FC = () => (
       <source src="/videos/background-min-cropped.webm" type="video/webm" />
     </video>
     <Container className="name-and-logo position-relative d-flex justify-content-center align-items-center">
-      <h1 className="name-main">Desbordante</h1>
+      <h1 className="name-main fs-0">Desbordante</h1>
     </Container>
     <h2 className="description position-relative text-center">
       <a

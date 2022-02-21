@@ -4,18 +4,23 @@ import { useHistory } from "react-router-dom";
 
 import "./TopBar.scss";
 import Button from "../Button/Button";
-import { TaskContext } from "../TaskContext/TaskContext";
+import { TaskContext } from "../TaskContext";
 import { AuthContext } from "../AuthContext";
+import ProgressBar from "../ProgressBar/ProgressBar";
+import Phasename from "../Phasename/Phasename";
 
 const TopBar = () => {
   const history = useHistory();
 
-  const { fileName, status, resetTask } = useContext(TaskContext)!;
+  const { fileName, status, resetTask, progress } = useContext(TaskContext)!;
   const { user, setIsSignUpShown, setIsLogInShown } = useContext(AuthContext)!;
 
+  /* eslint-disable */
+  console.log(progress);
+
   return (
-    <Navbar variant="dark" bg="dark" sticky="top" className="position-relative">
-      <Container fluid>
+    <Navbar variant="dark" bg="dark" sticky="top" className="d-block pb-0">
+      <Container fluid className="mb-2">
         <Navbar.Brand
           onClick={() => {
             resetTask();
@@ -67,6 +72,12 @@ const TopBar = () => {
           </>
         )}
       </Container>
+      {!!progress && (
+        <>
+          <ProgressBar progress={progress} maxWidth={100} thickness={0.35} />
+          <Phasename />
+        </>
+      )}
     </Navbar>
   );
 };

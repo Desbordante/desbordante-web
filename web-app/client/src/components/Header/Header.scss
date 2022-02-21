@@ -3,7 +3,7 @@
 .video-header {
   video {
     z-index: 0;
-    width: 120vw;
+    width: max(120vw, 90rem);
     filter: saturate(0.85);
     bottom: 0;
     left: 0;
@@ -11,8 +11,6 @@
 
   .name-main {
     font-family: $font-display;
-    font-size: 6rem;
     letter-spacing: 0.3rem;
-    line-height: 7rem;
   }
 }
