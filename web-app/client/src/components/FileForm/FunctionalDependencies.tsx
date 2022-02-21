@@ -3,7 +3,6 @@ import { Row } from "react-bootstrap";
 import { DefaultContext, useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 
-import "./FileForm.scss";
 import Value from "../Value/Value";
 import Toggle from "../Toggle/Toggle";
 import Button from "../Button/Button";

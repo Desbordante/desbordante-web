@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { Switch, BrowserRouter as Router, Route } from "react-router-dom";
 
-import "./App.scss";
 import HomeScreen from "./components/HomeScreen/HomeScreen";
 import ErrorScreen from "./components/ErrorScreen/ErrorScreen";
 import Viewer from "./components/Viewer/Viewer";

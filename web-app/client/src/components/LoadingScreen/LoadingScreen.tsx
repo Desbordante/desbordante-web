@@ -3,7 +3,6 @@ import { Container } from "react-bootstrap";
 
 import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";
 import ProgressBar from "../ProgressBar/ProgressBar";
-import "./LoadingScreen.scss";
 
 interface Props {
   progress: number;
