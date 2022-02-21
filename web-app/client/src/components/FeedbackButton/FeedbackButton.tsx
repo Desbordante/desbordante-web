@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Button, Container } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 
 import "./FeedbackButton.scss";
 import { AuthContext } from "../AuthContext";
@@ -9,8 +9,7 @@ const FeedbackButton = () => {
 
   return (
     <Button
-      variant="primary"
-      className="feedback-button position-absolute fw-bold"
+      className="feedback-button fw-bold shadow position-fixed"
       onClick={() => setIsFeedbackShown(true)}
     >
       Feedback

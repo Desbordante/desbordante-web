@@ -30,7 +30,7 @@ const PopupWindowContainer: React.FC<Props> = ({
   return (
     <AnimatedContainer
       fluid
-      className="popup-bg bg-black bg-opacity-50 position-absolute h-100 flex-grow-1 d-flex align-items-center justify-content-center p-3"
+      className="popup-bg bg-black bg-opacity-50 position-fixed h-100 flex-grow-1 d-flex align-items-center justify-content-center p-3"
       style={containerProps}
     >
       <OutsideClickHandler onOutsideClick={onOutsideClick}>

@@ -6,20 +6,20 @@ import Chart from "./Chart";
 import Button from "../Button/Button";
 import { attribute } from "../../types";
 import {
-  taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs,
-  taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs,
+  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs,
+  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs,
 } from "../../graphql/operations/queries/__generated__/taskInfo";
 
 /* eslint-disable no-unused-vars */
 interface Props {
   title: string;
   attributes?:
-    | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
-    | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[];
+    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
+    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
   maxItemsShown?: number;
   maxItemsSelected?: number;
   selectedAttributes: attribute[];
-  setSelectedAttributes: (arr: attribute[]) => void;
+  setSelectedAttributes: React.Dispatch<React.SetStateAction<attribute[]>>;
 }
 /* eslint-enable no-unused-vars */
 
@@ -28,7 +28,7 @@ const PieChartFull: React.FC<Props> = ({
   attributes = [],
   maxItemsShown = 9,
   maxItemsSelected = 9,
-  selectedAttributes = [],
+  selectedAttributes,
   setSelectedAttributes,
 }) => {
   const [searchString, setSearchString] = useState("");
@@ -51,7 +51,7 @@ const PieChartFull: React.FC<Props> = ({
     );
   }, [attributes, searchString, selectedAttributes]);
 
-  // Set DisplayAttributes to top-{maxItemsShown} of found attributes.
+  // Set DisplayAttributes to top-${maxItemsShown} of found attributes.
   // Add the "Other" value, if needed.
   useEffect(() => {
     const newDisplayAttributes = foundAttributes.slice(
@@ -114,20 +114,20 @@ const PieChartFull: React.FC<Props> = ({
             if (item[0].index === maxItemsShown) {
               setDepth(depth + 1);
             } else if (selectedAttributes.length < maxItemsSelected) {
-              setSelectedAttributes(
-                selectedAttributes.concat(displayAttributes[item[0].index])
+              setSelectedAttributes((prev) =>
+                prev.concat(displayAttributes[item[0].index])
               );
             }
           }}
           displayAttributes={
             displayAttributes as
-              | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
-              | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[]
+              | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
+              | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[]
           }
           selectedAttributes={
             selectedAttributes as
-              | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
-              | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[]
+              | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
+              | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[]
               | undefined
           }
           setSelectedAttributes={setSelectedAttributes}

@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 
 import Toggle from "../Toggle/Toggle";
 import Button from "../Button/Button";
-import { TaskContext } from "../TaskContext/TaskContext";
+import { TaskContext } from "../TaskContext";
 
 interface Props {
   partShown: number;

@@ -1,5 +1,5 @@
 import React, { useContext, useRef } from "react";
-import { TaskContext } from "../TaskContext/TaskContext";
+import { TaskContext } from "../TaskContext";
 
 import "./Phasename.scss";
 
