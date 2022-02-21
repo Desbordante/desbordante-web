@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Container, Stack } from "react-bootstrap";
 
-import "./DependencyListFull.scss";
 import Dependency from "../Dependency/Dependency";
 import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";

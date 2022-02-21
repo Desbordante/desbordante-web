@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Container, Row } from "react-bootstrap";
 
-import "./FileForm.scss";
 import LoadingScreen from "../LoadingScreen/LoadingScreen";
 import Greeting from "./Greeting";
 import FunctionalDependencies from "./FunctionalDependencies";

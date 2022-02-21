@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { Container, Navbar } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 
-import "./TopBar.scss";
 import Button from "../Button/Button";
 import { TaskContext } from "../TaskContext";
 import { AuthContext } from "../AuthContext";
@@ -22,6 +21,7 @@ const TopBar = () => {
     <Navbar variant="dark" bg="dark" sticky="top" className="d-block pb-0">
       <Container fluid className="mb-2">
         <Navbar.Brand
+          className="cursor-pointer"
           onClick={() => {
             resetTask();
             history.push("/");
