@@ -24,6 +24,12 @@ $theme-colors: (
 
 @import "../node_modules/bootstrap/scss/bootstrap";
 
+$h0-font-size: $font-size-base * 6;
+
+.fs-0 {
+  font-size: $h0-font-size;
+}
+
 $utilities: map-merge(
   $utilities,
   (

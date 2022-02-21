@@ -1,12 +1,12 @@
-import "./index.scss";
 import React from "react";
 import ReactDOM from "react-dom";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import { createUploadLink } from "apollo-upload-client";
 
+import "./index.scss";
 import App from "./App";
 import { AuthContextProvider } from "./components/AuthContext";
-import { TaskContextProvider } from "./components/TaskContext/TaskContext";
+import { TaskContextProvider } from "./components/TaskContext";
 import { ErrorContextProvider } from "./components/ErrorContext";
 import { graphQLEndpoint } from "./APIFunctions";
 import { AlgorithmConfigContextProvider } from "./components/AlgorithmConfigContext";

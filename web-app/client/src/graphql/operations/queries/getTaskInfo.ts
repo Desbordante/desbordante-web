@@ -17,7 +17,7 @@ export const GET_TASK_INFO = gql`
         data {
           __typename
           ... on FDTask {
-            result {
+            FDResult: result {
               FDs {
                 lhs
                 rhs
@@ -44,7 +44,7 @@ export const GET_TASK_INFO = gql`
 
           __typename
           ... on CFDTask {
-            result {
+            CFDResult: result {
               CFDs {
                 fd {
                   lhs

@@ -1,6 +1,6 @@
 import {
-  taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs,
-  taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs,
+  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs,
+  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs,
 } from "./graphql/operations/queries/__generated__/taskInfo";
 
 export type attribute = {
@@ -9,11 +9,11 @@ export type attribute = {
 };
 export type pieChartData = {
   lhs:
-    | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
-    | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[];
+    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
+    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
   rhs:
-    | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
-    | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[];
+    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
+    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
 };
 export type dependencyEncoded = { lhs: number[]; rhs: number };
 export type dependency = { lhs: string[]; rhs: string };
