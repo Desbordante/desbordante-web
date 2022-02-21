@@ -3,7 +3,6 @@ import { Formik } from "formik";
 import { Container, Form, Button } from "react-bootstrap";
 import { validate as emailValidator } from "email-validator";
 
-import "./FeedbackForm.scss";
 import { AuthContext } from "../AuthContext";
 import StarRatingPicker from "./StarRatingPicker";
 import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";

@@ -12,7 +12,7 @@ interface Props {
 
 const SelectedAttribute: React.FC<Props> = ({ text, onClick }) => (
   <div
-    className="selected-attribute bg-dark bg-opacity-10 m-1 d-flex align-items-center rounded-pill px-2 py-1"
+    className="selected-attribute cursor-pointer bg-dark bg-opacity-10 m-1 d-flex align-items-center rounded-pill px-2 py-1"
     onClick={onClick}
   >
     <p className="my-auto mx-1">{text}</p>
