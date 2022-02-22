@@ -91,7 +91,10 @@ git clone https://github.com/Elluran/Desbordante.git
 cd Desbordante/
 git checkout origin/Docker
 docker build -t cpp-consumer -f=Dockerfile-cpp-consumer .
-mkdir -m777 -p data/kafka, data/zk, logs/kafka, logs/zk, uploads, postgres-data
+mkdir -m777 volumes
+cd volumes/
+mkdir -m777 -p {data/kafka,data/zk,logs/kafka,logs/zk,uploads,postgres-data}
+cd ..
 docker-compose build
 ```
 ## Configuring
