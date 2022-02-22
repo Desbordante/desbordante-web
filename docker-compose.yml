@@ -76,8 +76,8 @@ services:
       - network
     restart: always
     volumes:
-       - ./logs/zk/:/var/lib/zookeeper/log
-       - ./data/zk/:/var/lib/zookeeper/data
+       - ./volumes/logs/zk/:/var/lib/zookeeper/log
+       - ./volumes/data/zk/:/var/lib/zookeeper/data
 
   kafka:
     image: confluentinc/cp-kafka:6.2.0
@@ -98,8 +98,8 @@ services:
       - network
     restart: always
     volumes:
-      - ./logs/kafka/:/var/log/kafka
-      - ./data/kafka/:/var/lib/kafka/data
+      - ./volumes/logs/kafka/:/var/log/kafka
+      - ./volumes/data/kafka/:/var/lib/kafka/data
 
   python-consumer:
     build:
@@ -135,10 +135,10 @@ volumes:
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: '$PWD/uploads/'
+      device: '$PWD/volumes/uploads/'
   postgres-data:
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: '$PWD/postgres-data/'
+      device: '$PWD/volumes/postgres-data/'
