@@ -103,7 +103,7 @@ def create_container(taskID):
                                         network=DOCKER_NETWORK,
                                         command=taskID,
                                         volumes=[
-                                            'uploads:/server/uploads/'],
+                                            'desbordante_uploads:/server/uploads/'],
                                         detach=True,
                                         mem_limit=f'{MAX_RAM}m',
                                         # auto_remove=True,
