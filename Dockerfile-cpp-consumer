@@ -10,6 +10,5 @@ RUN apt-get update && apt install -y libpqxx-dev=6.4.5-2 && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 COPY --from=stage1 /build/target/Desbordante_cpp_consumer /
 COPY --from=stage1 /build/target/logging.conf /
-COPY --from=stage1 /build/target/inputData/ /build/target/inputData/
 ENTRYPOINT ["./Desbordante_cpp_consumer"]
 CMD ["taskId_placeholder"]
