@@ -113,8 +113,8 @@ services:
     networks:
       - network
     environment:
-      TIMELIMIT: 120
-      MAX_RAM: 512
+      TIMELIMIT: ${CONSUMER_TL_SEC}
+      MAX_RAM: ${CONSUMER_ML_MB}
       KAFKA_HOST: kafka
       KAFKA_PORT: 9092
       MAX_ACTIVE_TASKS: 4
