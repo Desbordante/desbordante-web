@@ -56,6 +56,7 @@ services:
       - kafka
     volumes:
       - uploads:/server/uploads/
+      - datasets:/server/build/target/inputData/
     networks:
       - network
     restart: always
@@ -141,4 +142,10 @@ volumes:
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: '$PWD/volumes/postgres-data/'
+      device: '$PWD/volumes/postgres-data/'   
+  datasets:
+    driver: local
+    driver_opts:
+      type: 'volume'
+      o: 'bind'
+      device: '$PWD/volumes/datasets/'
