@@ -11,6 +11,4 @@ lib/
 .vscode
 .env
 python-consumer/venv
-data/
-logs/
-uploads/
+volumes/

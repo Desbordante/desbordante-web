@@ -4,4 +4,4 @@ COPY server/ server/
 WORKDIR server/
 RUN yarnpkg global add node-gyp --ignore-engines
 RUN yarnpkg --ignore-engines
-ENTRYPOINT ["yarnpkg", "dev"]
+ENTRYPOINT ["yarnpkg", "start"]
