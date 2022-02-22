@@ -11,6 +11,8 @@ services:
     networks:
       - network
     restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
   client:
     build:
@@ -73,6 +75,9 @@ services:
     networks:
       - network
     restart: always
+    volumes:
+       - ./logs/zk/:/var/lib/zookeeper/log
+       - ./data/zk/:/var/lib/zookeeper/data
 
   kafka:
     image: confluentinc/cp-kafka:6.2.0
@@ -92,6 +97,9 @@ services:
     networks:
       - network
     restart: always
+    volumes:
+      - ./logs/kafka/:/var/log/kafka
+      - ./data/kafka/:/var/lib/kafka/data
 
   python-consumer:
     build:
@@ -123,4 +131,14 @@ networks:
   network:
 volumes:
   uploads:
-    external: true
+    driver: local
+    driver_opts:
+      type: 'volume'
+      o: 'bind'
+      device: '/mnt/sdb1/code/Desbordante-backend/Desbordante/uploads/'
+  postgres-data:
+    driver: local
+    driver_opts:
+      type: 'volume'
+      o: 'bind'
+      device: '$PWD/postgres-data/'
