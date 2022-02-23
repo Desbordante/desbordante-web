@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { user } from "../types";
+import { user } from "../types/types";
 import generateDeviceId from "../functions/generateDeviceId";
 
 type AuthContextType = {

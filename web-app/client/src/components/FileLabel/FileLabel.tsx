@@ -3,57 +3,57 @@ import "./FileLabel.scss";
 import { useDropzone } from "react-dropzone";
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
 import { AuthContext } from "../AuthContext";
+import { BuiltinDataset, Dataset, isBuiltinDataset } from "../../types/dataset";
 
 /* eslint-disable no-unused-vars */
 interface Props {
   onClick?: () => void;
-  builtinDataset?: string;
   className: string;
-  file?: File;
-  setFile: React.Dispatch<React.SetStateAction<File | undefined>>;
+  dataset?: Dataset;
+  setDataset: React.Dispatch<React.SetStateAction<Dataset | undefined>>;
 }
 
 const FileLabel: React.FC<Props> = ({
   onClick,
-  builtinDataset,
   className = "",
-  file,
-  setFile,
+  dataset,
+  setDataset,
 }) => {
   const { user } = useContext(AuthContext)!;
   const { validators } = useContext(AlgorithmConfigContext)!;
   const { getRootProps } = useDropzone({
     onDrop: user?.canUploadFiles
-      ? (acceptedFiles) => setFile(acceptedFiles[0])
+      ? (acceptedFiles) => setDataset(acceptedFiles[0])
       : undefined,
   });
 
-  let displayText = "";
-  if (validators.fileExistenceValidator(file)) {
-    displayText = file!.name;
-    if (displayText.length > 40) {
-      displayText = displayText.slice(0, 40);
-    }
+  let displayText = "Upload your dataset or choose one of ours";
 
-    if (!validators.fileFormatValidator(file)) {
-      displayText = "This format is not supported";
-    }
+  if (dataset) {
+    if (isBuiltinDataset(dataset)) {
+      displayText = (dataset as BuiltinDataset).fileName;
+    } else {
+      displayText = (dataset as File)!.name;
+      if (displayText.length > 40) {
+        displayText = displayText.slice(0, 40);
+      }
 
-    if (!validators.fileSizeValidator(file)) {
-      displayText = "This file is too large";
+      if (!validators.isOfValidFormat(dataset as File)) {
+        displayText = "This format is not supported";
+      }
+
+      if (!validators.isOfValidSize(dataset as File)) {
+        displayText = "This file is too large";
+      }
     }
-  } else {
-    displayText = "Upload your dataset or choose one of ours";
   }
 
-  let isError =
-    validators.fileExistenceValidator(file) &&
-    (!validators.fileSizeValidator(file) ||
-      !validators.fileFormatValidator(file));
-
-  if (builtinDataset) {
-    displayText = builtinDataset;
-    isError = false;
+  let isError = false;
+  if (dataset && !isBuiltinDataset(dataset)) {
+    isError =
+      validators.isFile(dataset as File) &&
+      (!validators.isOfValidSize(dataset as File) ||
+        !validators.isOfValidFormat(dataset as File));
   }
 
   return (

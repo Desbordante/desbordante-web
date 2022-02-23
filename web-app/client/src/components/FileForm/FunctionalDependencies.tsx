@@ -7,15 +7,14 @@ import Value from "../Value/Value";
 import Toggle from "../Toggle/Toggle";
 import Button from "../Button/Button";
 import Slider from "../Slider/Slider";
-import UploadFile from "../UploadFile/UploadFile";
 import BuiltinDatasetSelector from "../BuiltinDatasetSelector/BuiltinDatasetSelector";
 import FormItem from "../FormItem/FormItem";
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
-import { builtinDataset, FDAlgorithm } from "../../types";
+import { builtinDataset, FDAlgorithm } from "../../types/types";
 import { CREATE_FD_TASK } from "../../graphql/operations/mutations/createFDTask";
+import { CHOOSE_FD_TASK } from "../../graphql/operations/mutations/chooseFDTask";
 import { FDTaskProps, FileProps } from "../../../__generated__/globalTypes";
 import { ErrorContext } from "../ErrorContext";
-import { CHOOSE_FD_TASK } from "../../graphql/operations/mutations/chooseFDTask";
 
 interface Props {
   setUploadProgress: React.Dispatch<React.SetStateAction<number>>;
@@ -45,12 +44,12 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
 
   const isValid = () =>
     (!!builtinDataset ||
-      (validators.fileExistenceValidator(file) &&
-        validators.fileSizeValidator(file) &&
-        validators.fileFormatValidator(file))) &&
-    validators.separatorValidator(separator) &&
-    validators.errorValidator(errorThreshold) &&
-    validators.maxLHSValidator(maxLHSAttributes);
+      (validators.isFile(file) &&
+        validators.isOfValidSize(file) &&
+        validators.isOfValidFormat(file))) &&
+    validators.isValidSeparator(separator) &&
+    validators.isBetweenZeroAndOne(errorThreshold) &&
+    validators.isInteger(maxLHSAttributes);
 
   const [
     createTask,
@@ -154,13 +153,6 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
       <Row className="mx-2 mb-3">
         <FormItem>
           <h5 className="text-white mb-0 mx-2">File:</h5>
-          <UploadFile
-            file={file}
-            setFile={setFile}
-            builtinDataset={builtinDataset?.fileName}
-            openBuiltinDatasetSelector={() => setIsWindowShown(true)}
-            disableBuiltinDataset={() => setBuiltinDataset(undefined)}
-          />
         </FormItem>
         <FormItem enabled={!builtinDataset}>
           <h5 className="text-white mb-0 mx-2">File properties:</h5>
@@ -176,7 +168,7 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
             value={separator || ""}
             onChange={setSeparator}
             size={2}
-            inputValidator={validators.separatorValidator}
+            inputValidator={validators.isValidSeparator}
             className="mx-2"
           />
         </FormItem>
@@ -204,7 +196,7 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
             value={errorThreshold}
             onChange={setErrorThreshold}
             size={8}
-            inputValidator={validators.errorValidator}
+            inputValidator={validators.isBetweenZeroAndOne}
             className="mx-2"
           />
           <Slider
@@ -220,7 +212,7 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
             value={maxLHSAttributes}
             onChange={setMaxLHSAttributes}
             size={3}
-            inputValidator={validators.maxLHSValidator}
+            inputValidator={validators.isInteger}
             className="mx-2"
           />
           <Slider
@@ -238,7 +230,7 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
             value={threadsCount}
             onChange={setThreadsCount}
             size={2}
-            inputValidator={validators.maxLHSValidator}
+            inputValidator={validators.isInteger}
             className="mx-2"
           />
           <Slider
