@@ -1,15 +1,24 @@
+import { ForbiddenError } from "apollo-server-core";
+import { AuthenticationError } from "apollo-server-express";
 import { FindOptions } from "sequelize";
+import { PermissionEnum } from "../../../db/models/permissionsConfig";
 import { Resolvers } from "../../types/types";
 
 const MetaInfoResolvers : Resolvers = {
     Query: {
-        datasets: async (parent, { props }, { models, logger }) => {
-            const { includeBuiltInDatasets, includeDeletedDatasets,
-                offset, limit } = props;
+        datasets: async (parent, { props }, { models, logger, sessionInfo }) => {
+            if (!sessionInfo) {
+                throw new AuthenticationError("User must be authorized");
+            }
+            if (!sessionInfo.permissions.includes(PermissionEnum.VIEW_ADMIN_INFO)) {
+                throw new ForbiddenError("User doesn't have permissions");
+            }
+
+            const { includeBuiltInDatasets, includeDeletedDatasets, offset, limit } = props;
             let options: FindOptions = {
-                attributes: [['ID', "fileID"]],
+                attributes: ["ID"],
                 where: {},
-                offset, limit
+                offset, limit,
             };
 
             if (includeBuiltInDatasets === false) {
@@ -20,9 +29,9 @@ const MetaInfoResolvers : Resolvers = {
             }
 
             return await models.FileInfo.findAll(options)
-                .then((files:any[]) => files.map(file => file.dataValues));
+                .then(files => files.map(file => ({ fileID: file.ID })));
         },
     },
-}
+};
 
 export = MetaInfoResolvers;
