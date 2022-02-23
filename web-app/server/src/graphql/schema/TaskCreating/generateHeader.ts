@@ -4,10 +4,8 @@ import fs from "fs";
 
 const getFirstRow = (path: any, delimiter: any) => {
     return new Promise(resolve => {
-        const parser: CsvParserStream<Row, Row> = parse({
-            delimiter, maxRows: 1
-        });
-        let firstRow: Row = undefined;
+        const parser: CsvParserStream<Row, Row> = parse({ delimiter, maxRows: 1 }) ;
+        let firstRow: Row;
         fs.createReadStream(path)
             .pipe(parser)
             .on("Error", (e) => {
@@ -16,11 +14,11 @@ const getFirstRow = (path: any, delimiter: any) => {
             .on("data", (row) => {
                 firstRow = row;
             })
-            .on("end", (rowCount: number) => {
+            .on("end", () => {
                 resolve(firstRow);
-            })
-    })
-}
+            });
+    });
+};
 
 const findIndexInRange = (arr: any[], obj: any, from: number, to: number) => {
     for (let i = from; i < to; ++i) {
@@ -29,25 +27,19 @@ const findIndexInRange = (arr: any[], obj: any, from: number, to: number) => {
         }
     }
     return to;
-}
-
-export const generateHeaderByFileID = async (models : any, fileID: string) => {
-    const file = await models.FileInfo.findByPk(fileID);
-    const { path, hasHeader, delimiter } = file;
-    return await generateHeaderByPath(path, hasHeader, delimiter);
-}
+};
 
 export const generateHeaderByPath = async (path: string, hasHeader: boolean, delimiter: string) => {
     try {
         const row: any = await getFirstRow(path, delimiter);
-        let header: string[] = []
+        let header: string[] = [];
 
         if (!hasHeader) {
             header = [...Array(row.length).keys()].map(i => `Attr ${i}`);
         } else {
-            let occurrences: number[] = [...Array(row.length).fill(0)];
+            const occurrences: number[] = [...Array(row.length).fill(0)];
             for (let i = 0; i != row.length; ++i) {
-                let next = findIndexInRange(row, row[i], i, row.length);
+                const next = findIndexInRange(row, row[i], i, row.length);
                 if (next !== row.length) {
                     occurrences[next] = occurrences[i] + 1;
                 }
@@ -61,4 +53,4 @@ export const generateHeaderByPath = async (path: string, hasHeader: boolean, del
     } catch (e) {
         throw new Error(`Problem with generating new header: ${e}`);
     }
-}
+};

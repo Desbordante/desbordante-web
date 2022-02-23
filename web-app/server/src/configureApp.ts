@@ -1,14 +1,15 @@
-import cors from "cors"
-import createError from "http-errors"
-import morgan from "morgan"
-import express, { Application } from 'express'
-import { Sequelize } from "sequelize"
-import { graphqlUploadExpress } from "graphql-upload"
-
+import express, { Application } from "express";
+import { Permission } from "./db/models/User";
+import { sequelize } from "./db/sequelize";
 import configureDB from "./db/configureDB";
 import configureGraphQL from "./graphql/configureGraphQL";
 import configureSequelize from "./db/configureSequelize";
+import cors from "cors";
+import createError from "http-errors";
+import { graphqlUploadExpress } from "graphql-upload";
 import initBuiltInDatasets from "./db/initBuiltInDatasets";
+import morgan from "morgan";
+import expressJwt from "express-jwt";
 
 function normalizePort(val: string | undefined) {
     if (val) {
@@ -25,6 +26,13 @@ async function setMiddlewares(app: Application) {
     app.use(cors());
     app.use(graphqlUploadExpress());
     app.use(morgan("dev"));
+    app.use(
+        expressJwt({
+            secret: process.env.SECRET_KEY!,
+            algorithms: ["HS256"],
+            credentialsRequired: false,
+        })
+    );
 }
 
 async function configureApp() {
@@ -39,12 +47,6 @@ async function configureApp() {
             throw new Error(`Error while configuring the application ${err}`);
         });
 
-    const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT),
-        dialect: 'postgres'
-    });
-
     await sequelize.authenticate()
         .then(() => {
             console.debug("Connection with DB was established");
@@ -52,13 +54,18 @@ async function configureApp() {
         .catch(err => {
             throw new Error(`Error while connecting to DB: ${err}`);
         });
-    
+
     await configureSequelize(sequelize)
         .then(() => {
             console.debug("Models was configured successfully");
         })
         .catch(err => {
             throw new Error(`Error while configuring models ${err}`);
+        });
+
+    await Permission.initPermissionsTable()
+        .then(() => {
+            console.log("Permissions table was initialized");
         });
 
     await initBuiltInDatasets(sequelize)
@@ -76,7 +83,7 @@ async function configureApp() {
         .catch((err) => {
             console.error(`Error: ${err.message}`);
             throw new Error("Error while setting middlewares");
-        })
+        });
 
     await configureGraphQL(app, sequelize)
         .then(() => {
@@ -92,9 +99,8 @@ async function configureApp() {
         next(createError(404));
     });
 
-    // @ts-ignore
     // Error handler
-    app.use((err, req, res, next) => {
+    app.use((err: any, req: any, res: any, next: any) => {
         // Set locals, only providing error in development
         res.locals.message = err.message;
         res.locals.error = req.app.get("env") === "development" ? err : {};

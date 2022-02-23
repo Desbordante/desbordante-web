@@ -1,152 +1,53 @@
-import {ApolloError, UserInputError} from "apollo-server-core";
-import path from "path";
-import { finished } from "stream/promises";
-
-import sendEvent from "../../../producer/sendEvent";
+import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core";
+import { AuthenticationError } from "apollo-server-express";
+import { PermissionEnum, RoleEnum } from "../../../db/models/permissionsConfig";
+import { Role } from "../../../db/models/Role";
 import { Resolvers } from "../../types/types";
-import { generateHeaderByFileID } from "./generateHeader";
-
-const getPathToUploadedDataset = (fileName: string) => {
-    const rootPath = path.dirname(require.main.filename).split("/");
-    rootPath.pop(); // remove folder 'bin'
-    rootPath.push("uploads"); // add folder 'uploads'
-    rootPath.push(fileName); // add file '${fileID}.csv'
-    return rootPath.join("/");
-};
 
 const TaskCreatingResolvers: Resolvers = {
     Mutation: {
-        // @ts-ignore
-        chooseFDTask: async (
-            parent, { props, fileID }, { models }) => {
-
-            const { algorithmName, errorThreshold, maxLHS, threadsCount } = props;
-
-            // TODO: Check user input
-
-            try {
-                const taskInfo = await models.TaskInfo.create({
-                    status: "ADDING TO DB",
-                });
-                const { taskID } = taskInfo;
-
-                const taskConfig = await taskInfo.createTaskConfig({
-                    algorithmName,
-                    fileID,
-                    taskID,
-                    type: "FDA",
-                });
-                const fdTaskConfig = await taskInfo.createFDTaskConfig({
-                    errorThreshold,
-                    maxLHS,
-                    taskID,
-                    threadsCount,
-                });
-                const fdTaskResult = await taskInfo.createFDTaskResult({
-                    taskID,
-                });
-
-                await taskInfo.update({ status: "ADDED TO THE DB"});
-
-                const topicName = process.env.KAFKA_TOPIC_NAME;
-
-                await sendEvent(topicName, taskID);
-                await taskInfo.update({ status: "ADDED TO THE TASK QUEUE"});
-
-                return taskInfo;
-
-            } catch (e) {
-                throw new ApolloError("Internal server error", e);
+        createTaskWithDatasetChoosing: async (
+            parent, { props, fileID }, { models, logger, sessionInfo, topicNames }) => {
+            const file = await models.FileInfo.findByPk(fileID);
+            if (!file) {
+                throw new UserInputError("File not found", { fileID });
+            }
+            const permissions = sessionInfo ? sessionInfo.permissions : Role.getPermissionForRole(RoleEnum.ANONYMOUS);
+            if (permissions.includes(PermissionEnum.USE_BUILTIN_DATASETS) && file.isBuiltIn
+                || permissions.includes(PermissionEnum.USE_OWN_DATASETS) && sessionInfo && file.userID === sessionInfo.userID
+                || permissions.includes(PermissionEnum.USE_USERS_DATASETS)) {
+                return await models.TaskInfo.saveTaskToDBAndSendEvent(props, fileID, topicNames.DepAlgs);
+            } else {
+                throw new ForbiddenError("User hasn't permission for creating task with this dataset");
             }
         },
-        createFDTask: async (
-            parent, { props, datasetProps, table }, { models, logger }) => {
-
-            const { algorithmName, errorThreshold, maxLHS, threadsCount } = props;
-            const { delimiter, hasHeader } = datasetProps;
-
-            // TODO: Check user input
-
-            try {
-                const taskInfo = await models.TaskInfo.create({
-                    status: "ADDING TO DB && DOWNLOADING FILE",
+        createTaskWithDatasetUploading: async (parent, { props, datasetProps, table },
+            { models, logger, topicNames }) => {
+            const { ID: fileID } = await models.FileInfo.uploadDataset(datasetProps, table)
+                .catch(e => {
+                    logger("Error while file uploading", e);
+                    throw new ApolloError("Error while uploading dataset");
                 });
-                const { taskID } = taskInfo;
-                const { createReadStream, filename, mimetype, encoding } = await table;
-
-                const stream = createReadStream();
-
-                const file = await models.FileInfo.create({
-                    delimiter,
-                    encoding,
-                    hasHeader,
-                    mimeType: mimetype,
-                    originalFileName: filename,
-                });
-
-                const fileID = file.ID;
-                const fileName = `${fileID}.csv`;
-
-                await file.update({ fileName, path: getPathToUploadedDataset(fileName) });
-
-                const out = require("fs").createWriteStream(`uploads/${fileName}`);
-                stream.pipe(out);
-                await finished(out);
-
-                await file.update({ renamedHeader: JSON.stringify(await generateHeaderByFileID(models, fileID)) });
-
-                await taskInfo.update({ status: "ADDING TO DB"});
-
-                // TODO: USER!
-                const taskConfig = await taskInfo.createTaskConfig({
-                    algorithmName,
-                    delimiter,
-                    fileID,
-                    taskID,
-                    type: "FDA",
-                });
-
-                const fdTaskConfig = await taskInfo.createFDTaskConfig({
-                    errorThreshold,
-                    maxLHS,
-                    taskID,
-                    threadsCount,
-                });
-
-                const fdTaskResult = await taskInfo.createFDTaskResult({
-                    taskID,
-                });
-
-                await taskInfo.update({ status: "ADDED TO THE DB" });
-
-                const topicName = process.env.KAFKA_TOPIC_NAME;
-                await sendEvent(topicName, taskID);
-                await taskInfo.update({ status: "ADDED TO THE TASK QUEUE"});
-
-                return taskInfo;
-            } catch (e) {
-                throw new ApolloError("INTERNAL SERVER ERROR", e);
-            }
+            return await models.TaskInfo.saveTaskToDBAndSendEvent(props, fileID, topicNames.DepAlgs);
         },
-        deleteTask: async (parent, { taskID }, { models, logger }) => {
-            return await models.TaskInfo.findByPk(taskID)
-                .then(async (taskInfo: any) => {
-                    return await taskInfo.destroy()
-                        .then((res: any) => {
-                            logger(JSON.stringify(res));
-                            return { message: "Task was deleted" };
-                        })
-                        .catch((e: any) => {
-                            logger(e);
-                            throw new ApolloError("INTERNAL SERVER ERROR");
-                        });
-                })
-                .catch(async (e: any) => {
-                    logger(e);
-                    throw new UserInputError("Invalid TaskID");
-                });
-        }
-    }
+        deleteTask: async (parent, { taskID }, { models, logger, sessionInfo }) => {
+            if (!sessionInfo) {
+                throw new AuthenticationError("User doesn't authorized");
+            }
+            const taskInfo = await models.TaskInfo.findByPk(taskID);
+            if (!taskInfo) {
+                throw new UserInputError("Task not found");
+            }
+            if (sessionInfo.permissions.includes(PermissionEnum.MANAGE_USERS_SESSIONS)
+                || taskInfo.userID === sessionInfo.userID) {
+                await taskInfo.destroy();
+                logger(`Task ${taskID} was deleted by ${sessionInfo.userID}`);
+                return { message: `Task with ID = ${taskID} was destroyed (soft)` };
+            }
+            logger(`User ${sessionInfo.userID} tries to delete task someone else's task ${taskInfo.userID}`);
+            throw new AuthenticationError("User doesn't have permission to delete task");
+        },
+    },
 };
 
 export = TaskCreatingResolvers;
