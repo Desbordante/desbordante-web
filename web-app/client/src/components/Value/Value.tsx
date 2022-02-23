@@ -11,6 +11,14 @@ interface Props {
 }
 /* eslint-enable no-unused-vars */
 
+const cropString = (str: string, maxLength: number, ending: string) => {
+  if (str.length <= maxLength) {
+    return str;
+  }
+
+  return str.slice(maxLength - ending.length) + ending;
+};
+
 const Value: React.FC<Props> = ({
   value,
   onChange,
@@ -20,16 +28,11 @@ const Value: React.FC<Props> = ({
 }) => {
   const [isValid, setIsValid] = useState(inputValidator(value));
 
-  const inputHandler = useCallback(
-    (str?: string) => {
-      const croppedStr = (str && str.slice(0, size)) || "";
-      setIsValid(inputValidator(croppedStr));
-      onChange(croppedStr);
-    },
-    [setIsValid, inputValidator, onChange]
-  );
+  const inputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(event.target.value);
+  };
 
-  useEffect(() => inputHandler(value), [value, inputHandler]);
+  useEffect(() => setIsValid(inputValidator(value)), [value, inputValidator]);
 
   return (
     <input
@@ -41,9 +44,7 @@ const Value: React.FC<Props> = ({
           : "text-danger border-danger bg-danger bg-opacity-10"
       } text-center border border-2 outline-0 px-2 py-2 rounded-pill cursor-pointer ${className}`}
       size={size}
-      onChange={(event) => {
-        inputHandler(event.target.value);
-      }}
+      onChange={inputHandler}
     />
   );
 };
