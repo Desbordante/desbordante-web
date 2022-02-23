@@ -45,7 +45,7 @@
   },
   "scripts": {
     "download-schema": "apollo service:download --endpoint=http://localhost:5000/graphql graphql-schema.json",
-    "codegen": "yarn apollo codegen:generate --localSchemaFile=../server/graphql.schema.json --target=typescript --tagName=gql",
+    "codegen": "yarn apollo codegen:generate --globalTypesFile=src/types/globalTypes.ts --localSchemaFile=../server/graphql.schema.json --target=typescript --tagName=gql",
     "start": "yarn codegen && react-scripts start",
     "build": "yarn codegen && react-scripts build",
     "test": "yarn codegen && react-scripts test",
