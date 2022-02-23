@@ -1,7 +1,7 @@
 import {
   taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs,
   taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs,
-} from "./graphql/operations/queries/__generated__/taskInfo";
+} from "../graphql/operations/queries/__generated__/taskInfo";
 
 export type attribute = {
   column: { name: string; index?: number };
@@ -46,9 +46,21 @@ export type CFDAlgorithm = {
     hasConfidence: boolean;
   };
 };
+export type ARAlgorithm = {
+  name: string;
+  properties: {
+    hasSupport: boolean;
+    hasConfidence: boolean;
+  };
+};
+export type EDPAlgorithm = {
+  name: string;
+  properties: {};
+};
 export type allowedAlgorithms = {
   allowedFDAlgorithms: FDAlgorithm[];
   allowedCFDAlgorithms: CFDAlgorithm[];
+  allowedARAlgorithms: ARAlgorithm[];
 };
 export type user = {
   name: string;
@@ -78,3 +90,11 @@ export type associationRule = {
   rhs: string[];
   confidence: number;
 };
+
+export const primitiveTypeList = [
+  "Functional Dependencies",
+  "Conditional Functional Dependencies",
+  "Association Rules",
+  "Error Detection Pipeline",
+] as const;
+export type PrimitiveType = typeof primitiveTypeList[number];

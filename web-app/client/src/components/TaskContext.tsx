@@ -15,7 +15,7 @@ import {
   taskInfo_taskInfo_dataset_snippet,
   taskInfo_taskInfo_data_FDTask,
 } from "../graphql/operations/queries/__generated__/taskInfo";
-import { dependency, pieChartData } from "../types";
+import { dependency, pieChartData } from "../types/types";
 import { ErrorContext } from "./ErrorContext";
 
 type TaskContextType = {

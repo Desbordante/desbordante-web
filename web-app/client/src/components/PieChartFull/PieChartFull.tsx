@@ -4,7 +4,7 @@ import "./PieChartFull.scss";
 import SearchBar from "../SearchBar/SearchBar";
 import Chart from "./Chart";
 import Button from "../Button/Button";
-import { attribute } from "../../types";
+import { attribute } from "../../types/types";
 import {
   taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs,
   taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs,

@@ -4,7 +4,7 @@ import { Container } from "react-bootstrap";
 
 import "./Snippet.scss";
 import Toggle from "../Toggle/Toggle";
-import { dependency } from "../../types";
+import { dependency } from "../../types/types";
 import Table from "./Table";
 import { TaskContext } from "../TaskContext";
 

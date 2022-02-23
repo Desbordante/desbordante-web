@@ -1,6 +1,6 @@
 import React from "react";
 
-import { associationRule } from "../../types";
+import { associationRule } from "../../types/types";
 import stringToColor from "../../functions/stringToColor";
 import "./AssociationRule.scss";
 
