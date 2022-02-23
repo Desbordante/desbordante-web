@@ -13,9 +13,9 @@ import BuiltinDatasetSelector from "../BuiltinDatasetSelector/BuiltinDatasetSele
 import FormItem from "../FormItem/FormItem";
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
 import { builtinDataset, CFDAlgorithm } from "../../types";
-import { CREATE_FD_TASK } from "../../graphql/operations/mutations/createFDTask";
 import { ErrorContext } from "../ErrorContext";
-import { CHOOSE_FD_TASK } from "../../graphql/operations/mutations/chooseFDTask";
+import { CREATE_TASK_WITH_CHOOSING_DATASET } from "../../graphql/operations/mutations/chooseTask";
+import { CREATE_TASK_WITH_UPLOADING_DATASET } from "../../graphql/operations/mutations/createTask";
 
 interface Props {
   setUploadProgress: React.Dispatch<React.SetStateAction<number>>;
@@ -61,7 +61,7 @@ const ConditionalFunctionalDependencies: React.FC<Props> = ({
       loading: createTaskLoading,
       error: createTaskError,
     },
-  ] = useMutation(CREATE_FD_TASK);
+  ] = useMutation(CREATE_TASK_WITH_UPLOADING_DATASET);
   const [
     chooseTask,
     {
@@ -69,7 +69,7 @@ const ConditionalFunctionalDependencies: React.FC<Props> = ({
       loading: chooseTaskLoading,
       error: chooseTaskError,
     },
-  ] = useMutation(CHOOSE_FD_TASK);
+  ] = useMutation(CREATE_TASK_WITH_CHOOSING_DATASET);
   const data =
     (createTaskData && createTaskData.createFDTask) ||
     (chooseTaskData && chooseTaskData.chooseFDTask);

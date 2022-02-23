@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Container, Row } from "react-bootstrap";
+import React, { useContext, useEffect, useState } from "react";
+import { Row } from "react-bootstrap";
 import { DefaultContext, useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 
@@ -13,10 +13,10 @@ import BuiltinDatasetSelector from "../BuiltinDatasetSelector/BuiltinDatasetSele
 import FormItem from "../FormItem/FormItem";
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
 import { builtinDataset, FDAlgorithm } from "../../types";
-import { CREATE_FD_TASK } from "../../graphql/operations/mutations/createFDTask";
-import { FDTaskProps, FileProps } from "../../../__generated__/globalTypes";
+import { CREATE_TASK_WITH_UPLOADING_DATASET } from "../../graphql/operations/mutations/createTask";
+import { FileProps, IntersectionTaskProps, PrimitiveType } from "../../../__generated__/globalTypes";
 import { ErrorContext } from "../ErrorContext";
-import { CHOOSE_FD_TASK } from "../../graphql/operations/mutations/chooseFDTask";
+import { CREATE_TASK_WITH_CHOOSING_DATASET } from "../../graphql/operations/mutations/chooseTask";
 
 interface Props {
   setUploadProgress: React.Dispatch<React.SetStateAction<number>>;
@@ -60,7 +60,7 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
       loading: createTaskLoading,
       error: createTaskError,
     },
-  ] = useMutation(CREATE_FD_TASK);
+  ] = useMutation(CREATE_TASK_WITH_UPLOADING_DATASET);
   const [
     chooseTask,
     {
@@ -68,7 +68,7 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
       loading: chooseTaskLoading,
       error: chooseTaskError,
     },
-  ] = useMutation(CHOOSE_FD_TASK);
+  ] = useMutation(CREATE_TASK_WITH_CHOOSING_DATASET);
   const data =
     (createTaskData && createTaskData.createFDTask) ||
     (chooseTaskData && chooseTaskData.chooseFDTask);
@@ -89,8 +89,9 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
 
   const submit = () => {
     if (isValid()) {
-      const props: FDTaskProps = {
+      const props: IntersectionTaskProps = {
         algorithmName: algorithm!.name,
+        type: PrimitiveType.FD,
         errorThreshold: algorithm!.properties.hasErrorThreshold
           ? +errorThreshold
           : 0,
@@ -99,10 +100,7 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
           : -1,
         threadsCount: algorithm!.properties.isMultiThreaded ? +threadsCount : 1,
       };
-      const datasetProps: FileProps = {
-        delimiter: separator!,
-        hasHeader,
-      };
+      const datasetProps: FileProps = { delimiter: separator!, hasHeader };
       const context: DefaultContext = {
         fetchOptions: {
           useUpload: true,
@@ -114,11 +112,7 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
 
       if (file) {
         createTask({
-          variables: {
-            props,
-            datasetProps,
-            table: file,
-          },
+          variables: { props, datasetProps, table: file },
           context,
         });
       } else {
