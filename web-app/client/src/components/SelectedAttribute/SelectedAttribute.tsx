@@ -1,7 +1,7 @@
 import React from "react";
 
 import "./SelectedAttribute.scss";
-import { attribute } from "../../types";
+import { attribute } from "../../types/types";
 
 /* eslint-disable no-unused-vars */
 interface Props {

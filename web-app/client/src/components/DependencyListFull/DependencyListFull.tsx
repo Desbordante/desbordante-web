@@ -4,7 +4,7 @@ import { Container, Stack } from "react-bootstrap";
 import Dependency from "../Dependency/Dependency";
 import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";
-import { attribute, dependency } from "../../types";
+import { attribute, dependency } from "../../types/types";
 import { TaskContext } from "../TaskContext";
 
 type sortMethod = "LHS" | "RHS";

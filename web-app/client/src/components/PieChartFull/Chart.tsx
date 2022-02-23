@@ -2,7 +2,7 @@ import React from "react";
 import { Doughnut } from "react-chartjs-2";
 import { animated } from "react-spring";
 
-import { attribute } from "../../types";
+import { attribute } from "../../types/types";
 import "./PieChartFull.scss";
 import AttributeLabel from "../AttributeLabel/AttributeLabel";
 import SelectedAttribute from "../SelectedAttribute/SelectedAttribute";
