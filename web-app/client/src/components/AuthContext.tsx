@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import { user } from "../types";
-import generateDeviceId from "../functions/generateDeviceId";
+import generateDeviceInfo from "../functions/generateDeviceInfo";
 
 type AuthContextType = {
   user: user | undefined;
@@ -25,8 +25,11 @@ export const AuthContextProvider: React.FC = ({ children }) => {
     //   canViewAdminInfo: true,
     //   canManageUserSessions: true,
     // });
-
-    localStorage.setItem("deviceId", generateDeviceId());
+    if (!localStorage.getItem("deviceInfo") || !localStorage.getItem("deviceID")) {
+      const { deviceID, deviceInfoBase64 } = generateDeviceInfo();
+      localStorage.setItem("deviceID", deviceID);
+      localStorage.setItem("deviceInfo", deviceInfoBase64);
+    }
   }, []);
   const [isSignUpShown, setIsSignUpShown] = useState(false);
   const [isLogInShown, setIsLogInShown] = useState(false);
