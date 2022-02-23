@@ -1,33 +1,30 @@
-import { DataTypes, STRING, UUID } from "sequelize";
-import { AllowNull, BelongsTo, Column, ForeignKey, IsUUID, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
+import { STRING, UUID } from "sequelize";
+import { FileInfo } from "./FileInfo";
 import { TaskInfo } from "./TaskInfo";
-
-export interface TaskConfigAttributes extends Model {
-    algorithmName: string;
-    fileID: string;
-    type: string;
-}
 
 @Table({
     tableName: "TasksConfig",
     updatedAt: false,
 })
-export class TaskConfig extends Model<TaskConfigAttributes> {
-
-    @PrimaryKey
+export class BaseTaskConfig extends Model {
     @IsUUID(4)
     @ForeignKey(() => TaskInfo)
-    @Column(UUID)
+    @Column({ type: UUID, primaryKey: true })
     taskID!: string;
 
-    @AllowNull(false)
-    @Column(STRING)
+    @BelongsTo(() => TaskInfo)
+    taskState?: TaskInfo;
+
+    @ForeignKey(() => FileInfo)
+    fileID!: string;
+
+    @BelongsTo(() => FileInfo)
+    file!: FileInfo;
+
+    @Column({ type: STRING, allowNull: false })
     algorithmName!: string;
 
-    @AllowNull(false)
-    @Column(STRING)
+    @Column({ type: STRING, allowNull: false })
     type!: string;
-
-    // @BelongsTo(() => TaskInfo)
-    // info?: TaskInfo;
 }
