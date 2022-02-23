@@ -1,11 +1,14 @@
-import async from "async";
-import path from "path";
 import { Sequelize } from "sequelize";
-
+import async from "async";
 import { generateHeaderByPath }  from "../graphql/schema/TaskCreating/generateHeader";
+import path from "path";
 
 const getPathToBuiltInDataset = (fileName: string) => {
+    if (!require.main) {
+        throw Error("FATAL SERVER ERROR");
+    }
     const rootPath = path.dirname(require.main.filename).split("/");
+    rootPath.pop();
     rootPath.pop(); // remove folder 'bin'
     rootPath.pop(); // remove folder 'server'
     rootPath.pop(); // remove folder 'web-app'
@@ -23,36 +26,30 @@ const initBuiltInDatasets = async (sequelize: Sequelize) => {
         { fileName: "TestLong.csv", delimiter: ",", hasHeader: true },
         { fileName: "Workshop.csv", delimiter: ",", hasHeader: true },
         { fileName: "breast_cancer.csv", delimiter: ",", hasHeader: true },
-    ]
-    try {
-        await sequelize.models.FileInfo.sync();
-        async.eachSeries(allowedDatasets,
-            ({fileName, delimiter, hasHeader}, callback) => {
-            const path = getPathToBuiltInDataset(fileName);
+    ];
+    await sequelize.models.FileInfo.sync();
+    async.eachSeries(allowedDatasets,
+        ({ fileName, delimiter, hasHeader }, callback) => {
+        const path = getPathToBuiltInDataset(fileName);
 
-            sequelize.models.FileInfo.findOrCreate({
-                where: { path },
-                defaults: {
-                    fileName,
-                    originalFileName: fileName,
-                    isBuiltIn: true,
-                    hasHeader,
-                    delimiter
-                }
-            }).then(async([file, created]) =>  {
+        sequelize.models.FileInfo.findOrCreate({
+            where: { path },
+            defaults: {
+                fileName, originalFileName: fileName,
+                isBuiltIn: true, hasHeader, delimiter,
+            },
+        }
+        ).then(async ([file, created]) => {
                 if (!created) {
-                    console.log('File already exists');
+                    console.log("File already exists");
                 } else {
                     const renamedHeader = JSON.stringify(await generateHeaderByPath(path, hasHeader, delimiter));
                     await file.update({ renamedHeader });
-                    console.log('File was created, header was updated');
+                    console.log("File was created, header was updated");
                 }
                 callback();
             });
-        })
-    } catch (e) {
-        throw e;
-    }
-}
+        });
+};
 
 export = initBuiltInDatasets;
