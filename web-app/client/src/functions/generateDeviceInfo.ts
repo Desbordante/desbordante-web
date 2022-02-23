@@ -1,10 +1,11 @@
 const { ClientJS } = require("clientjs");
+const { v4: uuidv4 } = require("uuid");
 
 const client = new ClientJS();
 
 export default function () {
-  const result = {
-    fingerprint: client.getFingerprint(),
+  const deviceAttributes = {
+    deviceID: `${uuidv4()}:${client.getFingerprint()}`,
     userAgent: client.getUserAgent(),
     browser: client.getBrowser(),
     engine: client.getEngine(),
@@ -17,5 +18,8 @@ export default function () {
     timeZone: client.getTimeZone(),
     language: client.getLanguage(),
   };
-  return window.btoa(JSON.stringify(result));
+  const deviceInfo = JSON.stringify(deviceAttributes);
+  const { deviceID } = deviceAttributes;
+
+  return { deviceID, deviceInfoBase64: window.btoa(deviceInfo) };
 }
