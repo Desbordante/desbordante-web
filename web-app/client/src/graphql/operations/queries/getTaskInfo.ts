@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const GET_TASK_INFO = gql`
-  query taskInfo($id: ID!) {
-    taskInfo(id: $id) {
+  query taskInfo($taskID: ID!) {
+    taskInfo(taskID: $taskID) {
       __typename
       ... on TaskInfo {
         state {

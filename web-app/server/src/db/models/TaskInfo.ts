@@ -24,6 +24,9 @@ export class TaskInfo extends Model {
     @BelongsTo(() => User)
     user!: User;
 
+    @Column({ type: BOOLEAN, defaultValue: false, allowNull: false })
+    isPrivate!: boolean;
+
     @Column({ type: INTEGER, defaultValue: 0, allowNull: false })
     attemptNumber!: number;
 

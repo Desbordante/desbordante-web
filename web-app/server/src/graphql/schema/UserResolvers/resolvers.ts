@@ -59,6 +59,27 @@ export const UserResolvers : Resolvers = {
                 throw new ApolloError("Session wasn't updated");
             }
         },
+        reissueVerificationCode: async (parent, { userID }, { models, logger, device, sessionInfo }) => {
+            if (sessionInfo) {
+                throw new AuthenticationError("User mustn't have sessionInfo");
+            }
+            const user = await models.User.findByPk(userID);
+
+            if (!user) {
+                throw new UserInputError("Incorrect userID was provided");
+            }
+            if (user.accountStatus !== "EMAIL VERIFICATION") {
+                throw new UserInputError("User has incorrect account status");
+            }
+            let code = await models.Code.findOne({ where: { userID, type: "EMAIL VERIFICATION" } });
+            if (code) {
+                await models.Code.destroy({ where: { userID, type: "EMAIL VERIFICATION" } });
+            }
+            code = await models.Code.createEmailVerificationCode(userID, device.deviceID);
+
+            logger(`Reissue new verification code = ${code.value}`);
+            return { message: "Verification code was sent to email", userID };
+        },
         createUser: async (parent, { props }, { models, logger, sessionInfo, device }) => {
             if (sessionInfo) {
                 throw new AuthenticationError("User already logged in");
@@ -108,6 +129,7 @@ export const UserResolvers : Resolvers = {
                 await code.destroy();
                 throw new UserInputError("Received incorrect code value, temporary code was destroyed");
             } else {
+                await code.destroy();
                 await user.update({ accountStatus: "EMAIL VERIFIED" });
                 await user.addRole(RoleEnum.USER);
 
