@@ -18,10 +18,30 @@ const typeDefs = gql`
         delimiter: String!
     }
     
+    type Feedback {
+        feedbackID: String!
+        user: User!
+        rating: Int!
+        subject: String!
+        text: String!
+    }
+    
+    type Role {
+        type: String!
+        permissions: [String!]
+    }
+    
     type User {
-        id: String!
+        userID: String!
+        feedbacks: [Feedback!]
+        roles: [Role!]
+        firstName: String!
+        lastName: String!
         email: String!
-        name: String!
+        country: String!
+        companyOrAffiliation: String!
+        occupation: String!
+        accountStatus: String!
         tasks: [TaskInfo!]
     }
     
@@ -60,8 +80,8 @@ const typeDefs = gql`
         allowedCFDAlgorithms: [CFDAlgorithmConfig!]!
     }
     
-    enum TaskType {
-        FDA, CFDA
+    enum PrimitiveType {
+        FD, CFD, AR 
     }
     
     type TaskState {
@@ -79,7 +99,7 @@ const typeDefs = gql`
     
     type BaseTaskConfig {
         algorithmName: String!
-        type: TaskType!
+        type: PrimitiveType!
     }
     
     type FDTaskConfig {
@@ -161,11 +181,11 @@ const typeDefs = gql`
     union TaskData = FDTask | CFDTask
     
     type TaskInfo {
+        taskID: String!
         state: TaskState!
         data: TaskData
         dataset: DatasetInfo!
     }
-    
     union TaskInfoAnswer = TaskInfo | TaskNotFoundError
     
     type Snippet {
@@ -177,8 +197,8 @@ const typeDefs = gql`
     input DatasetsQueryProps {
         includeBuiltInDatasets: Boolean = true
         includeDeletedDatasets: Boolean = false
-        offset: Int = 1
-        limit: Int = 10
+        offset: Int! = 1
+        limit: Int! = 10
     }
     
     input TasksInfoFilter {
@@ -189,48 +209,131 @@ const typeDefs = gql`
     }
     
     type DatasetInfo {
+        fileID: String!
         tableInfo: TableInfo!
         snippet(offset: Int!, limit: Int!): Snippet!
         tasks(filter: TasksInfoFilter!): [TaskInfo!]
     }
     
     type Query {
+        """
+        When user isn't authorized, he must get permissions for anonymous user.
+        If user logged in, he must extract permission from access token.
+        """
+        getAnonymousPermissions: [String!]!
+        
         algorithmsConfig: AlgorithmsConfig!
+        
+        """
+        Query for admins with permission "VIEW_ADMIN_INFO""
+        """
         datasets(props: DatasetsQueryProps!): [DatasetInfo!]
         datasetInfo(fileID: ID!): DatasetInfo
         taskInfo(id: ID!): TaskInfo!
-        user(id: ID!): User
-    }
-    
-    input FDTaskProps {
-        algorithmName: String!
-        errorThreshold: Float!
-        maxLHS: Int = -1
-        threadsCount: Int!
+        user(userID: ID!): User
     }
     
     input FileProps {
         delimiter: String!
         hasHeader: Boolean!
     }
-
-    input CFDProps {
-        algorithmName: String!
-        maxLHS: Int
-        minSupport: Int
-        minConfidence: Float
-    }
+    
     
     type DeleteTaskAnswer {
         message: String!
     }
     
+    input CreatingUserProps {
+        firstName: String!
+        lastName: String!
+        email: String!
+        pwdHash: String!
+        country: String!
+        companyOrAffiliation: String!
+        occupation: String!
+    }
+    
+    type CreateUserAnswer {
+        message: String!
+        userID: String!
+    }
+    
+    type TokenPair {
+        refreshToken: String!
+        accessToken: String!
+    }
+    
+    input IntersectionTaskProps {
+        algorithmName: String!
+        type: PrimitiveType!
+        errorThreshold: Float
+        maxLHS: Int
+        threadsCount: Int
+        minSupport: Int
+        minConfidence: Float
+    }
+    
     type Mutation {
-        chooseFDTask(props: FDTaskProps!, fileID: ID!): TaskInfo!
+        """
+        After creating new account user must approve his email.
+        Verification expires after 24 hours, destroys after first attempt to enter.
+        Verification code reissuing is not supported yet.
+        """
+        createUser(props: CreatingUserProps!): CreateUserAnswer!
+        
+        """
+        Code for email approving is temporary (24 hours, destroys after first attempt).
+        Verification code reissuing is not supported yet.
+        """
+        approveUserEmail(codeValue: Int!, userID: String!): TokenPair!
+        
+        """
+        User can be logged in to multiple accounts at once.
+        Client must pass password hash in params (not password!).
+        If user's email wasn't approved, he will not be able to log in.
+        """
+        logIn(email: String!, pwdHash: String!): TokenPair!
+        
+        """
+        If user wants to close all session, he must pass option allSession with value true.
+        By default, only current session will be closed.
+        If the request throws an error, then the user wasn't logged out of the account (session still valid)
+        """
+        logOut(allSessions: Boolean = false): String!
+        
+        """
+        When user's access token expired, client must send request fir refreshToken.
+        If access token is already expired, you mustn't set header authorization with accessToken.
+        Otherwise you will see error with code 401.
+        """
+        refresh(refreshToken: String!): TokenPair!
+        
+        """
+        Creates feedback for user and saves information to the database.
+        Administrators (with permission "VIEW_ADMIN_INFO") can see feedbacks
+        """
+        createFeedback(rating: Int!, subject: String!, text: String!): Feedback!
+        
+        """
+        This query supports several restrictions:
+        1) Anonymous (with permission "USE_BUILTIN_DATASETS") can only choose built in dataset
+        2) Authorized user (with permission "USE_OWN_DATASETS") can also choose his uploaded datasets
+        3) Administrators (with permission "USE_USERS_DATASETS") can use all datasets
+        ***
+        By default, the result of the algorithm is visible for all users.
+        """
+        createTaskWithDatasetChoosing(props: IntersectionTaskProps!, fileID: ID!): TaskInfo!
+        """
+        This query allows client upload dataset and create task.
+        ***
+        By default, the result of the algorithm is visible for all users.
+        """
+        createTaskWithDatasetUploading(props: IntersectionTaskProps!, datasetProps: FileProps!, table: Upload!): TaskInfo!
+        
+        """
+        Soft delete. Users can delete own tasks. Administrators can delete task of any user.
+        """
         deleteTask(taskID: ID!): DeleteTaskAnswer!
-        # chooseCFDTask(props: CFDTaskProps!, fileID: ID!): TaskInfo!
-        createFDTask(props: FDTaskProps!, datasetProps: FileProps!, table: Upload!): TaskInfo!
-        # createCFDTask(props: CFDTaskProps!, fileProps: FileProps!, table: Upload!): TaskInfo!
     }
 `;
 

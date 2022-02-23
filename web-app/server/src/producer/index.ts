@@ -1,6 +1,6 @@
-import Kafka, { LibrdKafkaError } from "node-rdkafka"
+import Kafka, { LibrdKafkaError } from "node-rdkafka";
 
-const producer: any = new Kafka.Producer(
+export const producer = new Kafka.Producer(
     {
       "client.id": "tasks-producer-1",
       "metadata.broker.list": `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}`
@@ -10,18 +10,18 @@ const producer: any = new Kafka.Producer(
 producer.setPollInterval(100);
 
 producer
-    .on("event.log", (log: any) => {
+    .on("event.log", (log) => {
       console.log(log);
     });
 
 producer
-    .on("event.error", (err: any) => {
+    .on("event.error", (err) => {
       console.error("Error from producer");
       console.error(err);
     });
 
 producer
-    .on("disconnected", (arg: any) => {
+    .on("disconnected", (arg) => {
       console.log("producer disconnected. " + JSON.stringify(arg));
     });
 
@@ -34,9 +34,9 @@ const client = Kafka.AdminClient.create({
 });
 
 producer.connect()
-    .on("ready", (i : number, metadata: any) => {
-      let isTopicTasksCreated : boolean = false;
-      metadata.topics.forEach((topic: any) => {
+    .on("ready", (i, metadata) => {
+      let isTopicTasksCreated = false;
+      metadata.topics.forEach((topic) => {
         if (topic.name === process.env.KAFKA_TOPIC_NAME) {
           isTopicTasksCreated = true;
         }
@@ -60,9 +60,7 @@ producer.connect()
         });
       }
     })
-    .on("event.error", (err: any) => {
+    .on("event.error", (err) => {
       console.log("err");
       console.log(err);
     });
-
-export = producer;
