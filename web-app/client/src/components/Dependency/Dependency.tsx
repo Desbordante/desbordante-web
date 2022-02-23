@@ -1,6 +1,6 @@
 import React from "react";
 
-import { dependency } from "../../types";
+import { dependency } from "../../types/types";
 import stringToColor from "../../functions/stringToColor";
 import "./Dependency.scss";
 

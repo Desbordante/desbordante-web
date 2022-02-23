@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
-import { user } from "../types";
 import generateDeviceInfo from "../functions/generateDeviceInfo";
+import { user } from "../types/types";
 
 type AuthContextType = {
   user: user | undefined;
@@ -17,14 +17,14 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthContextProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<user>();
   useEffect(() => {
-    // setUser({
-    //   name: "Kirill Stupakov",
-    //   email: "kirill.stupakov.0@gmail.com",
-    //   canChooseTask: true,
-    //   canUploadFiles: true,
-    //   canViewAdminInfo: true,
-    //   canManageUserSessions: true,
-    // });
+    setUser({
+      name: "Kirill Stupakov",
+      email: "kirill.stupakov.0@gmail.com",
+      canChooseTask: true,
+      canUploadFiles: true,
+      canViewAdminInfo: true,
+      canManageUserSessions: true,
+    });
     if (!localStorage.getItem("deviceInfo") || !localStorage.getItem("deviceID")) {
       const { deviceID, deviceInfoBase64 } = generateDeviceInfo();
       localStorage.setItem("deviceID", deviceID);

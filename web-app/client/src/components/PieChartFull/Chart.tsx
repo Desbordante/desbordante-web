@@ -2,25 +2,25 @@ import React from "react";
 import { Doughnut } from "react-chartjs-2";
 import { animated } from "react-spring";
 
-import { attribute } from "../../types";
+import { attribute } from "../../types/types";
 import "./PieChartFull.scss";
 import AttributeLabel from "../AttributeLabel/AttributeLabel";
 import SelectedAttribute from "../SelectedAttribute/SelectedAttribute";
 import {
-  taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs,
-  taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs,
+  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs,
+  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs,
 } from "../../graphql/operations/queries/__generated__/taskInfo";
 
 /* eslint-disable no-unused-vars */
 interface Props {
   displayAttributes:
-    | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
-    | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[];
+    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
+    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
   onSelect: (a: any, b: any) => void;
   selectedAttributes?:
-    | taskInfo_taskInfo_data_FDTask_result_pieChartData_rhs[]
-    | taskInfo_taskInfo_data_FDTask_result_pieChartData_lhs[];
-  setSelectedAttributes: (attr: attribute[]) => void;
+    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
+    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
+  setSelectedAttributes: React.Dispatch<React.SetStateAction<attribute[]>>;
 }
 /* eslint-enable no-unused-vars */
 
@@ -131,7 +131,7 @@ const Chart: React.FC<Props> = ({
         {selectedAttributes &&
           selectedAttributes.map((attr, index) => (
             <SelectedAttribute
-              onDelete={() => {
+              onClick={() => {
                 setSelectedAttributes(
                   selectedAttributes.filter((_, idx) => index !== idx)
                 );

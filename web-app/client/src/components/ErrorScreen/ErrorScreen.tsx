@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { Container } from "react-bootstrap";
 
-import "./ErrorScreen.scss";
 import { ErrorContext } from "../ErrorContext";
 import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";
 

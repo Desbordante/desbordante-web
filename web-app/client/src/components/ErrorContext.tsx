@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
-import { error } from "../types";
+import { error } from "../types/types";
 
 type ErrorContextType = {
   error: error | undefined;
