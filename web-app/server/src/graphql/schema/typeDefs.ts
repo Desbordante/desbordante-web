@@ -86,6 +86,7 @@ const typeDefs = gql`
     
     type TaskState {
         taskID: ID!
+        isPrivate: Boolean!
         attemptNumber: Int!
         status: String!
         phaseName: String
@@ -216,20 +217,34 @@ const typeDefs = gql`
     }
     
     type Query {
-        """
-        When user isn't authorized, he must get permissions for anonymous user.
-        If user logged in, he must extract permission from access token.
-        """
-        getAnonymousPermissions: [String!]!
-        
         algorithmsConfig: AlgorithmsConfig!
         
         """
-        Query for admins with permission "VIEW_ADMIN_INFO""
+        When user isn't authorized, he must get permissions for anonymous user.
+        If user logged in, he must extract permission from access token.
+        ***
+        Tasks, created by anonymous, can't be private
+        """
+        getAnonymousPermissions: [String!]!
+        
+        """
+        Query for admins with permission "VIEW_ADMIN_INFO"
         """
         datasets(props: DatasetsQueryProps!): [DatasetInfo!]
+        """
+        All user can see built in dataset
+        Authorized users can see their dataset
+        Users with permission "VIEW_ADMIN_INFO" can see all dataset
+        """
         datasetInfo(fileID: ID!): DatasetInfo
-        taskInfo(id: ID!): TaskInfo!
+        """
+        User can see results if one of the conditions is met:
+        1) Task was created by anonymous
+        2) Task was created by this user
+        3) Task isn't private
+        4) User has permission "VIEW_ADMIN_INFO"
+        """
+        taskInfo(taskID: ID!): TaskInfo!
         user(userID: ID!): User
     }
     
@@ -277,15 +292,19 @@ const typeDefs = gql`
         """
         After creating new account user must approve his email.
         Verification expires after 24 hours, destroys after first attempt to enter.
-        Verification code reissuing is not supported yet.
         """
         createUser(props: CreatingUserProps!): CreateUserAnswer!
         
         """
         Code for email approving is temporary (24 hours, destroys after first attempt).
-        Verification code reissuing is not supported yet.
         """
         approveUserEmail(codeValue: Int!, userID: String!): TokenPair!
+        
+        """
+        This query issues new verification code.
+        Previous code will be destroyed.
+        """
+        reissueVerificationCode(userID: String!): CreateUserAnswer!
         
         """
         User can be logged in to multiple accounts at once.
@@ -334,6 +353,12 @@ const typeDefs = gql`
         Soft delete. Users can delete own tasks. Administrators can delete task of any user.
         """
         deleteTask(taskID: ID!): DeleteTaskAnswer!
+        
+        """
+        By default, task's result is public. (Only authorized people can look results)
+        This query allows client to set task privacy.
+        """
+        changeTaskResultsPrivacy(taskID: String!, isPrivate: Boolean!): TaskInfo!
     }
 `;
 

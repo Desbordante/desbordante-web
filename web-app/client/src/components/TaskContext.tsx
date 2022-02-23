@@ -7,13 +7,13 @@ import React, {
   useState,
 } from "react";
 import { DELETE_TASK } from "../graphql/operations/mutations/deleteTask";
-import { deleteTask } from "../graphql/operations/mutations/__generated__/deleteTask";
+import { deleteTask, deleteTaskVariables } from "../graphql/operations/mutations/__generated__/deleteTask";
 
 import { GET_TASK_INFO } from "../graphql/operations/queries/getTaskInfo";
 import {
   taskInfo,
   taskInfo_taskInfo_dataset_snippet,
-  taskInfo_taskInfo_data_FDTask,
+  taskInfo_taskInfo_data_FDTask, taskInfoVariables,
 } from "../graphql/operations/queries/__generated__/taskInfo";
 import { dependency, pieChartData } from "../types/types";
 import { ErrorContext } from "./ErrorContext";
@@ -73,14 +73,10 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     setKeys(undefined);
   };
 
-  const [query, { data, error }] = useLazyQuery<taskInfo>(GET_TASK_INFO);
-  const [deleteTask, { error: deleteError }] = useMutation<deleteTask>(
+  const [query, { data, error }] = useLazyQuery<taskInfo, taskInfoVariables>(GET_TASK_INFO);
+  const [deleteTask, { error: deleteError }] = useMutation<deleteTask, deleteTaskVariables>(
     DELETE_TASK,
-    {
-      variables: {
-        taskID: taskId,
-      },
-    }
+    { variables: { taskID: taskId! } }
   );
 
   const queryRef = useRef<NodeJS.Timer>();
@@ -88,9 +84,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   useEffect(() => {
     queryRef.current = setInterval(
       () =>
-        query({
-          variables: { id: taskId },
-        }),
+        taskId && query({ variables: { taskID: taskId } }),
       500
     );
   }, [taskId]);
