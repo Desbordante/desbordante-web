@@ -1,24 +1,25 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useQuery } from "@apollo/client";
 
-import { tableInfo, FDAlgorithm, allowedAlgorithms } from "../types";
+import { tableInfo, allowedAlgorithms, ARAlgorithm } from "../types/types";
 import { GET_ALGORITHMS_CONFIG } from "../graphql/operations/queries/getAlgorithmsConfig";
 import { algorithmsConfig } from "../graphql/operations/queries/__generated__/algorithmsConfig";
 import { ErrorContext } from "./ErrorContext";
+import { BuiltinDataset } from "../types/dataset";
 
 type AlgorithmConfigContextType = {
   allowedValues: {
     allowedSeparators?: string[];
     allowedAlgorithms?: allowedAlgorithms;
-    allowedBuiltinDatasets?: tableInfo[];
+    allowedBuiltinDatasets?: BuiltinDataset[];
   };
   validators: {
-    fileExistenceValidator: (file?: File) => boolean;
-    fileSizeValidator: (file?: File) => boolean;
-    fileFormatValidator: (file?: File) => boolean;
-    separatorValidator: (sep?: string) => boolean;
-    errorValidator: (err?: string) => boolean;
-    maxLHSValidator: (lhs?: string) => boolean;
+    isFile: (file?: File) => boolean;
+    isOfValidSize: (file?: File) => boolean;
+    isOfValidFormat: (file?: File) => boolean;
+    isValidSeparator: (sep?: string) => boolean;
+    isBetweenZeroAndOne: (err?: string) => boolean;
+    isInteger: (lhs?: string) => boolean;
   };
 };
 
@@ -48,13 +49,26 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
         allowedCFDAlgorithms,
         allowedDatasets,
       } = data.algorithmsConfig;
+      const allowedARAlgorithms: ARAlgorithm[] = [
+        {
+          name: "Apriori",
+          properties: {
+            hasSupport: true,
+            hasConfidence: true,
+          },
+        },
+      ];
       const { allowedFileFormats, allowedDelimiters, maxFileSize } = fileConfig;
       setAllowedFileFormats(allowedFileFormats);
       setAllowedSeparators(allowedDelimiters);
       setMaxFileSize(maxFileSize);
 
       setAllowedBuiltinDatasets(allowedDatasets.map((info) => info.tableInfo));
-      setAllowedAlgorithms({ allowedFDAlgorithms, allowedCFDAlgorithms });
+      setAllowedAlgorithms({
+        allowedFDAlgorithms,
+        allowedCFDAlgorithms,
+        allowedARAlgorithms,
+      });
     }
   }, [data]);
 
@@ -68,23 +82,20 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
     }
   }, [error]);
 
-  const fileExistenceValidator = (file?: File) => Boolean(file);
-  const fileSizeValidator = (file?: File) =>
+  const isFile = (file?: File) => Boolean(file);
+  const isOfValidSize = (file?: File) =>
     Boolean(maxfilesize && file && file.size <= maxfilesize);
-  const fileFormatValidator = (file?: File) =>
+  const isOfValidFormat = (file?: File) =>
     Boolean(
       allowedFileFormats && file && allowedFileFormats.indexOf(file.type) !== -1
     );
 
-  const separatorValidator = (sep?: string) =>
+  const isValidSeparator = (sep?: string) =>
     Boolean(allowedSeparators && sep && allowedSeparators.indexOf(sep) !== -1);
-  const errorValidator = (err?: string) =>
-    Boolean(err && !Number.isNaN(+err) && +err >= 0 && +err <= 1);
-  const maxLHSValidator = (lhs?: string) =>
-    Boolean(
-      lhs === "inf" ||
-        (lhs && !Number.isNaN(+lhs) && +lhs > 0 && +lhs % 1 === 0)
-    );
+  const isBetweenZeroAndOne = (n?: string) =>
+    Boolean(n && !Number.isNaN(+n) && +n >= 0 && +n <= 1);
+  const isInteger = (n?: string) =>
+    Boolean(n && !Number.isNaN(+n) && +n > 0 && +n % 1 === 0);
 
   const outValue = {
     allowedValues: {
@@ -93,12 +104,12 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
       allowedBuiltinDatasets,
     },
     validators: {
-      fileExistenceValidator,
-      fileSizeValidator,
-      fileFormatValidator,
-      separatorValidator,
-      errorValidator,
-      maxLHSValidator,
+      isFile,
+      isOfValidSize,
+      isOfValidFormat,
+      isValidSeparator,
+      isBetweenZeroAndOne,
+      isInteger,
     },
   };
 

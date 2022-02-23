@@ -5,7 +5,7 @@ import { Col, Container, Row } from "react-bootstrap";
 import PieChartFull from "../PieChartFull/PieChartFull";
 import DependencyListFull from "../DependencyListFull/DependencyListFull";
 import StatusDisplay from "../StatusDisplay/StatusDisplay";
-import { attribute, dependency } from "../../types";
+import { attribute, dependency } from "../../types/types";
 import { TaskContext } from "../TaskContext";
 import Snippet from "../Snippet/Snippet";
 import Navigation from "./Navigation";

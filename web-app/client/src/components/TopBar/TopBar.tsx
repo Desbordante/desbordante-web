@@ -14,9 +14,6 @@ const TopBar = () => {
   const { fileName, status, resetTask, progress } = useContext(TaskContext)!;
   const { user, setIsSignUpShown, setIsLogInShown } = useContext(AuthContext)!;
 
-  /* eslint-disable */
-  console.log(progress);
-
   return (
     <Navbar variant="dark" bg="dark" sticky="top" className="d-block pb-0">
       <Container fluid className="mb-2">
