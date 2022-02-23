@@ -1,15 +1,21 @@
 import { setContext } from "@apollo/client/link/context";
+import { v4 as uuidv4 } from "uuid";
 
 export const requestIdLink = setContext((operation, previousContext) => {
   const { headers } = previousContext;
-  const deviceId = localStorage.getItem("deviceId") || "";
-  const userId = localStorage.getItem("userId") || "";
-  const sessionId = localStorage.getItem("sessionId") || "";
+  const deviceID = localStorage.getItem("deviceID") || "";
+  const deviceInfo = localStorage.getItem("deviceInfo") || "";
+  const userID = localStorage.getItem("userID") || "";
+  const randomID = uuidv4();
 
-  const requestId = `${deviceId}:${userId}:${sessionId}`;
+  const requestId = `${deviceID}:${userID}:${randomID}`;
 
   return {
     ...previousContext,
-    headers: { ...headers, "x-request-id": requestId },
+    headers: {
+      ...headers,
+      "X-Request-ID": requestId,
+      "X-Device": deviceInfo,
+    },
   };
 });
