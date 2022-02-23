@@ -3,6 +3,7 @@
 # graphql
 graphql-schema.json
 __generated__/
+src/types/globalTypes.ts
 
 # dependencies
 /node_modules
