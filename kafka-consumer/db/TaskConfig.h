@@ -8,7 +8,7 @@
 class TaskConfig{
     std::string const taskID;
     std::string const algName;
-    std::string const type; // "FDA", "CFDA",
+    std::string const type; // "FD", "CFD",
     double const errorPercent;
     char const separator;
     std::string const fileID;
@@ -171,7 +171,7 @@ public:
                                  std::vector<std::size_t> const &positions) const{
         try {
             auto PKColumnPositions = nlohmann::json(positions).dump();
-            auto tableName = (type == "FDA" ? FDTaskResultTable : CFDTaskResultTable);
+            auto tableName = (type == "FD" ? FDTaskResultTable : CFDTaskResultTable);
             std::string query = "UPDATE " + tableName 
                     + " SET \"PKColumnIndices\" = '" + PKColumnPositions + "'"
                     + " WHERE \"taskID\" = '" + taskID + "'";
@@ -199,8 +199,8 @@ public:
     // Send a request to DB with a set of FDs
     void updateJsonDeps(DBManager const& manager, const std::string& deps) const {
         try {
-            std::string tableName = (type == "FDA" ? FDTaskResultTable : CFDTaskResultTable);
-            std::string depsName = (type == "FDA" ? "\"FDs\"" : "\"CFDs\"");
+            std::string tableName = (type == "FD" ? FDTaskResultTable : CFDTaskResultTable);
+            std::string depsName = (type == "FD" ? "\"FDs\"" : "\"CFDs\"");
             std::string query = "UPDATE " + tableName + " SET " 
                               + depsName + " = '" + deps + "'"
                               + " WHERE \"taskID\" = '" + taskID + "'";
@@ -215,7 +215,7 @@ public:
     // Send a request to DB with JSON array (data for pie chart for client)
     void updatePieChartData(DBManager const& manager, const std::string& pieChartData) const {
         try {
-            auto tableName = (type == "FDA" ? FDTaskResultTable : CFDTaskResultTable);
+            auto tableName = (type == "FD" ? FDTaskResultTable : CFDTaskResultTable);
             std::string query = "UPDATE " + tableName  + " SET \"pieChartData\" = '"
                                 + pieChartData + "' WHERE \"taskID\" = '" + taskID + "'";
             manager.transactionQuery(query);

@@ -1,13 +1,16 @@
-import { ApolloError, UserInputError } from "apollo-server-core";
+import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core";
+import { AuthenticationError } from "apollo-server-express";
 import { CsvParserStream, parse } from "fast-csv";
 import { Row } from "@fast-csv/parse";
 import fs from "fs";
 import { InternalServerError } from "http-errors";
 import { Op } from "sequelize";
 import validator from "validator";
+import { PermissionEnum } from "../../../db/models/permissionsConfig";
 
 import { Resolvers } from "../../types/types";
 import isUUID = validator.isUUID;
+
 
 const resolvers: Resolvers = {
     TaskData: {
@@ -48,10 +51,13 @@ const resolvers: Resolvers = {
         // @ts-ignore
         result: async (parent, _, { models, logger }) => {
             // @ts-ignore
-            const { isExecuted } = await models.TaskInfo.findByPk(parent.taskID, {
-                attributes: ["isExecuted"],
-            });
-            return isExecuted ? parent : null;
+            const { taskID } = parent;
+            const taskInfo = await models.TaskInfo.findByPk(taskID,
+                { attributes: ["isExecuted"] });
+            if (!taskInfo) {
+                throw new ApolloError("Task not found");
+            }
+            return taskInfo.isExecuted ? parent : null;
         },
         // @ts-ignore
         config: async ({ taskID }, _, { models, logger }) => {
@@ -68,17 +74,14 @@ const resolvers: Resolvers = {
             }
             return JSON.parse(result.FDs || "[]");
         },
-
-        PKs: async (parent, _, { models, logger }) => {
-            // @ts-ignore
-            const { taskID, fileID } = parent;
+        // @ts-ignore
+        PKs: async ({ taskID, fileID }, _, { models, logger }) => {
             const result = await models.FDTaskResult.findByPk(
                 taskID, { attributes: ["PKColumnIndices"] });
             if (!result) {
                 throw new UserInputError("Invalid taskID was provided", { taskID });
             }
             const indices: number[] = JSON.parse(result.PKColumnIndices || "[]");
-            logger(fileID);
             const file = await models.FileInfo.findByPk(
                 fileID, { attributes: ["renamedHeader"] }
             );
@@ -89,7 +92,7 @@ const resolvers: Resolvers = {
             return indices.map((index) => ({ index, name: columnNames[index] }));
         },
         // @ts-ignore
-        pieChartData: async ({ taskID, fileID }, {}, { models, logger }) => {
+        pieChartData: async ({ taskID, fileID }, obj, { models, logger }) => {
             const result = await models.FDTaskResult.findByPk(
                 taskID, { attributes: ["pieChartData"] });
 
@@ -121,7 +124,7 @@ const resolvers: Resolvers = {
     },
     DatasetInfo: {
         // @ts-ignore
-        snippet: async ({ fileID }, { taskID, offset, limit }, { models, logger }) => {
+        snippet: async ({ fileID }, { taskID, offset, limit }, { models, logger, sessionInfo }) => {
             const fileInfo = await models.FileInfo.findByPk(fileID,
                 { attributes: ["path", "delimiter", "hasHeader", "renamedHeader"] });
             if (!fileInfo) {
@@ -174,9 +177,7 @@ const resolvers: Resolvers = {
             if (includeTasksWithError !== includeTasksWithoutError) {
                 where = {
                     ...where,
-                    errorMsg: {
-                        [includeTasksWithError ? Op.not : Op.is]: null,
-                    },
+                    errorMsg: { [includeTasksWithError ? Op.not : Op.is]: null },
                 };
             }
             return await models.TaskInfo.findAll({ where });
@@ -184,23 +185,68 @@ const resolvers: Resolvers = {
     },
 
     Query: {
-        datasetInfo: async (parent, { fileID }, { models, logger }) => {
-            return { fileID };
+        datasetInfo: async (parent, { fileID }, { models, logger, sessionInfo }) => {
+            if (!isUUID(fileID, 4)) {
+                throw new UserInputError("Invalid fileID was provided");
+            }
+            const fileInfo = await models.FileInfo.findByPk(fileID);
+            if (!fileInfo) {
+                throw new UserInputError("File not found");
+            }
+            if (fileInfo.isBuiltIn
+                || sessionInfo && sessionInfo.userID === fileInfo.userID
+                || sessionInfo && sessionInfo.permissions.includes(PermissionEnum.VIEW_ADMIN_INFO)) {
+                return { fileID };
+            }
+            throw new ForbiddenError("You don't have access");
         },
-        taskInfo: async (parent, { id }, { models, logger }) => {
-            if (!isUUID(id, 4)) {
-                throw new UserInputError("Invalid taskID was provided", { id });
+        taskInfo: async (parent, { taskID }, { models, logger, sessionInfo }) => {
+            if (!isUUID(taskID, 4)) {
+                throw new UserInputError("Invalid taskID was provided", { taskID });
+            }
+            const taskConfig = await models.BaseTaskConfig.findByPk(taskID,
+                { attributes: ["taskID", "fileID", "type"] });
+            const taskInfo = await models.TaskInfo.findByPk(taskID,
+                { attributes: ["userID", "isPrivate"] });
+            if (!taskConfig || !taskInfo) {
+                throw new UserInputError("Invalid taskID was provided", { taskID });
+            }
+            const fileInfo = await models.FileInfo.findByPk(taskConfig.fileID,
+                { attributes: ["isBuiltIn", "userID"] });
+            if (!fileInfo) {
+                throw new UserInputError("Incorrect task info was provided");
+            }
+            if (!taskInfo.userID || sessionInfo && sessionInfo.userID === taskInfo.userID
+                || sessionInfo && !taskInfo.isPrivate
+                || sessionInfo && sessionInfo.permissions.includes(PermissionEnum.VIEW_ADMIN_INFO)) {
+                return taskConfig;
+            }
+            throw new ForbiddenError("User doesn't have permissions");
+        },
+    },
+
+    Mutation: {
+        changeTaskResultsPrivacy: async (parent, { isPrivate, taskID }, { models, logger, sessionInfo }) => {
+            if (!isUUID(taskID, 4)) {
+                throw new UserInputError("Incorrect taskID was provided", { taskID });
+            }
+            if (!sessionInfo) {
+                throw new AuthenticationError("User must be authorized");
+            }
+            const taskInfo = await models.TaskInfo.findByPk(taskID);
+            if (!taskInfo) {
+                throw new UserInputError("Task not found", { taskID });
+            }
+            if (!taskInfo.userID) {
+                throw new UserInputError("Tasks, created by anonymous, can't be private");
             }
 
-            return await models.BaseTaskConfig.findByPk(id, { attributes: ["taskID", "fileID", "type"] })
-                .then(res => {
-                    if (!res) {
-                        throw new UserInputError("Invalid taskID was provided", { id });
-                    }
-                    return res;
-                }, e => {
-                    throw new ApolloError(e.message);
-                });
+            if (sessionInfo.permissions.includes(PermissionEnum.MANAGE_USERS_SESSIONS)
+                || sessionInfo.userID === taskInfo.userID) {
+                return await taskInfo.update({ isPrivate });
+            } else {
+                throw new AuthenticationError("You don't have permission");
+            }
         },
     },
 };
