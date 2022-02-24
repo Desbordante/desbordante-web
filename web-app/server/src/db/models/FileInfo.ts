@@ -86,12 +86,12 @@ export class FileInfo extends Model {
         return await generateHeaderByPath(path, hasHeader, delimiter);
     };
 
-    static uploadDataset = async (props: FileProps, table: any) => {
+    static uploadDataset = async (props: FileProps, table: any, userID: string | null = null) => {
         const { createReadStream, filename: originalFileName, mimetype: mimeType, encoding } = await table;
 
         const stream = createReadStream();
         const file = await FileInfo.create(
-            { ...props, encoding, mimeType, originalFileName });
+            { ...props, encoding, mimeType, originalFileName, userID });
 
         const fileID = file.ID;
         const fileName = `${fileID}.csv`;

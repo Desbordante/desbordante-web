@@ -13,7 +13,7 @@ export type RoleNameType = keyof typeof RoleEnum;
 export enum PermissionEnum{
     USE_BUILTIN_DATASETS, USE_OWN_DATASETS, USE_USERS_DATASETS,
     VIEW_ADMIN_INFO,
-    MANAGE_USERS_SESSIONS,
+    MANAGE_USERS_SESSIONS, MANAGE_APP_CONFIG
 }
 export type PermissionNameType = keyof typeof PermissionEnum;
 
@@ -31,13 +31,13 @@ export const rolesPermissions = [
         permissions: [
             PermissionEnum.USE_BUILTIN_DATASETS, PermissionEnum.USE_OWN_DATASETS,
             PermissionEnum.VIEW_ADMIN_INFO,
-            PermissionEnum.MANAGE_USERS_SESSIONS,
+            PermissionEnum.MANAGE_USERS_SESSIONS, PermissionEnum.MANAGE_APP_CONFIG,
         ] },
     { type: UserEnum.ADMIN, roleName: RoleEnum.DEVELOPER,
         permissions: [
             PermissionEnum.USE_BUILTIN_DATASETS, PermissionEnum.USE_OWN_DATASETS, PermissionEnum.USE_USERS_DATASETS,
             PermissionEnum.VIEW_ADMIN_INFO,
-            PermissionEnum.MANAGE_USERS_SESSIONS,
+            PermissionEnum.MANAGE_USERS_SESSIONS, PermissionEnum.MANAGE_APP_CONFIG,
         ] },
 ];
 
