@@ -77,7 +77,7 @@ export class Session extends Model implements SessionModelMethods {
         };
     };
 
-    issueAccessToken = async () => {
+    issueAccessToken = async (expiresIn = "15m") => {
         if (!process.env.SECRET_KEY) {
             throw new ApolloError("Secret key wasn't provided");
         }
@@ -91,7 +91,7 @@ export class Session extends Model implements SessionModelMethods {
             throw new ApolloError("Device not found");
         }
         const payload: AccessTokenInstance = {
-            permissions: await user.getPermissionNames(),
+            permissions: await user.getPermissionIndices(),
             userID: this.userID,
             sessionID: this.sessionID,
             deviceID: device.deviceID,
@@ -99,7 +99,7 @@ export class Session extends Model implements SessionModelMethods {
         const accessToken = jwt.sign(
             payload,
             process.env.SECRET_KEY,
-            { algorithm: "HS256", expiresIn: "15m" }
+            { algorithm: "HS256", expiresIn }
         );
         const accessTokenIat = Session.getIatByJWTToken(accessToken);
         await this.update({ accessTokenIat });
