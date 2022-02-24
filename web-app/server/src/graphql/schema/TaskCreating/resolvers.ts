@@ -16,7 +16,7 @@ const TaskCreatingResolvers: Resolvers = {
             if (permissions.includes(PermissionEnum.USE_BUILTIN_DATASETS) && file.isBuiltIn
                 || permissions.includes(PermissionEnum.USE_OWN_DATASETS) && sessionInfo && file.userID === sessionInfo.userID
                 || permissions.includes(PermissionEnum.USE_USERS_DATASETS)) {
-                return await models.TaskInfo.saveTaskToDBAndSendEvent(props, fileID, topicNames.DepAlgs);
+                return await models.TaskInfo.saveTaskToDBAndSendEvent(props, fileID, topicNames.DepAlgs, sessionInfo?.userID || null);
             } else {
                 throw new ForbiddenError("User hasn't permission for creating task with this dataset");
             }
@@ -55,7 +55,7 @@ const TaskCreatingResolvers: Resolvers = {
                     logger("Error while file uploading", e);
                     throw new ApolloError("Error while uploading dataset");
                 });
-            return await models.TaskInfo.saveTaskToDBAndSendEvent(props, fileID, topicNames.DepAlgs);
+            return await models.TaskInfo.saveTaskToDBAndSendEvent(props, fileID, topicNames.DepAlgs, sessionInfo.userID);
         },
         deleteTask: async (parent, { taskID }, { models, logger, sessionInfo }) => {
             if (!sessionInfo) {

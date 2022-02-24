@@ -171,7 +171,7 @@ export class Permission extends Model {
             .map(name => ({ id: PermissionEnum[name], permission: name }));
 
         for (const item of permissionWithIndices) {
-            await Permission.create(item);
+            await Permission.findOrCreate({ where : item });
         }
     };
 
