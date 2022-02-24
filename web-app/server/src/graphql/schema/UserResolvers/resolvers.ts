@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { PermissionEnum, RoleEnum } from "../../../db/models/permissionsConfig";
 import { Role } from "../../../db/models/Role";
 import { RefreshTokenInstance } from "../../../db/models/Session";
-import { Resolvers } from "../../types/types";
+import { PermissionType, Resolvers } from "../../types/types";
 
 export const UserResolvers : Resolvers = {
     User: {
@@ -35,7 +35,7 @@ export const UserResolvers : Resolvers = {
     },
     Query: {
         getAnonymousPermissions: (parent, obj, { models, logger }) => {
-            return Role.getPermissionForRole(RoleEnum.ANONYMOUS).map(permissionEnum => permissionEnum.toString());
+            return Role.getPermissionNamesForRole(RoleEnum.ANONYMOUS);
         },
         // @ts-ignore
         user: async(parent, { userID }, { models, logger, sessionInfo }) => {
