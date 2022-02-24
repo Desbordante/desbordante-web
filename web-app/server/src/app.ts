@@ -1,11 +1,14 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { Application } from "express";
 import { HttpError } from "http-errors";
 import configureApp from "./configureApp";
 import debug from "debug";
-import dotenv from "dotenv";
 import http from "http";
 
-dotenv.config();
+const environment = process.env.NODE_ENV;
+export const isDevelopment = environment === "development";
 
 (() => {
   configureApp()
