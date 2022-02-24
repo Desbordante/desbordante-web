@@ -7,6 +7,23 @@ import { RefreshTokenInstance } from "../../../db/models/Session";
 import { Resolvers } from "../../types/types";
 
 export const UserResolvers : Resolvers = {
+    User: {
+        // @ts-ignore
+        tasks: async ({ userID }, _, { models, logger, sessionInfo }) => {
+            if (!userID) {
+                throw new ApolloError("UserID is undefined");
+            }
+            return await models.TaskInfo.findAll({ where: { userID } });
+        },
+        // @ts-ignore
+        datasets: async ({ userID }, _, { models, logger }) => {
+            if (!userID) {
+                throw new ApolloError("UserID is undefined");
+            }
+            return await models.FileInfo.findAll({ where: { userID } })
+                .then(files => files.map(file => ({ fileID: file.ID })));
+        },
+    },
     Feedback: {
         // @ts-ignore
         user: async ({ userID }, _, { models, logger, sessionInfo }) => {
