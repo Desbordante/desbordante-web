@@ -21,9 +21,36 @@ const TaskCreatingResolvers: Resolvers = {
                 throw new ForbiddenError("User hasn't permission for creating task with this dataset");
             }
         },
+        // @ts-ignore
+        uploadDataset: async (parent, { datasetProps, table }, { models, logger, sessionInfo }) => {
+            if (!sessionInfo ||  !sessionInfo.permissions.includes(PermissionEnum.USE_OWN_DATASETS)) {
+                throw new AuthenticationError("User must be logged in and have permission USE_OWN_DATASETS");
+            }
+            return await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID);
+        },
+        // @ts-ignore
+        setDatasetBuiltInStatus: async (parent, { fileID, isBuiltIn }, { models, logger, sessionInfo }) => {
+            if (!sessionInfo || !sessionInfo.permissions.includes(PermissionEnum.MANAGE_APP_CONFIG)) {
+                throw new AuthenticationError("User must be logged in");
+            }
+            const file = await models.FileInfo.findByPk(fileID);
+            if (!file) {
+                throw new UserInputError("Incorrect fileID was provided");
+            }
+            if (file.isBuiltIn === isBuiltIn) {
+                logger("Adin tries to change dataset status, but file already has this status");
+            } else {
+                await file.update({ where: { isBuiltIn } });
+            }
+            return file;
+
+        },
         createTaskWithDatasetUploading: async (parent, { props, datasetProps, table },
-            { models, logger, topicNames }) => {
-            const { ID: fileID } = await models.FileInfo.uploadDataset(datasetProps, table)
+            { models, logger, topicNames, sessionInfo }) => {
+            if (!sessionInfo || !sessionInfo.permissions.includes(PermissionEnum.USE_OWN_DATASETS)) {
+                throw new AuthenticationError("User must be authorized and has permission USE_OWN_DATASETS");
+            }
+            const { ID: fileID } = await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID)
                 .catch(e => {
                     logger("Error while file uploading", e);
                     throw new ApolloError("Error while uploading dataset");
