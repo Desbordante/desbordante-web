@@ -188,6 +188,12 @@ const typeDefs = gql`
         data: TaskData
         dataset: DatasetInfo!
     }
+    enum PermissionType {
+        USE_BUILTIN_DATASETS, USE_OWN_DATASETS, USE_USERS_DATASETS,
+        VIEW_ADMIN_INFO,
+        MANAGE_USERS_SESSIONS, MANAGE_APP_CONFIG
+    }
+    
     union TaskInfoAnswer = TaskInfo | TaskNotFoundError
     
     type Snippet {
