@@ -225,7 +225,11 @@ const typeDefs = gql`
     
     type Query {
         algorithmsConfig: AlgorithmsConfig!
-        
+        """
+        This query allows admin with permission "VIEW_ADMIN_INFO" see users feedbacks
+        Throws an error if limit <= 0 or limit > 100 offset < 0 
+        """
+        feedbacks(limit: Int! = 10, offset: Int! = 0): [Feedback!]
         """
         When user isn't authorized, he must get permissions for anonymous user.
         If user logged in, he must extract permission from access token.

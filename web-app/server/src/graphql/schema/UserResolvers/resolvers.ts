@@ -9,6 +9,13 @@ import { PermissionType, Resolvers } from "../../types/types";
 export const UserResolvers : Resolvers = {
     User: {
         // @ts-ignore
+        feedbacks: async ({ userID }, _, { models, sessionInfo, logger }) => {
+            if (!userID) {
+                throw new ApolloError("UserID is undefined");
+            }
+            return await models.Feedback.findAll({ where: { userID } });
+        },
+        // @ts-ignore
         tasks: async ({ userID }, _, { models, logger, sessionInfo }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
@@ -34,6 +41,16 @@ export const UserResolvers : Resolvers = {
         },
     },
     Query: {
+        // @ts-ignore
+        feedbacks: async (parent, args, { models, logger, sessionInfo }) => {
+            if (!sessionInfo?.permissions.includes(PermissionEnum.VIEW_ADMIN_INFO)) {
+                throw new ForbiddenError("User must have permission");
+            }
+            if (args.offset < 0 || args.limit <= 0 || args.limit > 100 ) {
+                throw new UserInputError("Incorrect offset or limit", args);
+            }
+            return await models.Feedback.findAll(args);
+        },
         getAnonymousPermissions: (parent, obj, { models, logger }) => {
             return Role.getPermissionNamesForRole(RoleEnum.ANONYMOUS);
         },

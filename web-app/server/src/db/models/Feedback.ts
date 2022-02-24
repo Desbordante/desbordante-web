@@ -2,8 +2,8 @@ import { BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-t
 import { INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
 import { User } from "./User";
 
+// TODO: add paranoid (bug)
 @Table({
-    paranoid: true,
     deletedAt: false,
     createdAt: true,
     updatedAt: false,
