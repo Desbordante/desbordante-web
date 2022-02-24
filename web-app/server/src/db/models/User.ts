@@ -47,10 +47,7 @@ export class User extends Model implements UserModelMethods {
     roles?: [Role];
 
     @Column({ type: STRING, allowNull: false })
-    firstName!: string;
-
-    @Column({ type: STRING, allowNull: false })
-    lastName!: string;
+    fullName!: string;
 
     @IsEmail
     @Column({ type: STRING, allowNull: false })
