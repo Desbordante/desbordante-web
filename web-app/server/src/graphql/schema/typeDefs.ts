@@ -334,6 +334,12 @@ const typeDefs = gql`
         createFeedback(rating: Int!, subject: String!, text: String!): Feedback!
         
         """
+        This query allows authorized users upload datasets.
+        User can choose his own datasets (pass fileID) in query createTaskWithDatasetChoosing.
+        """
+        uploadDataset(datasetProps: FileProps!, table: Upload!): DatasetInfo!
+        
+        """
         This query supports several restrictions:
         1) Anonymous (with permission "USE_BUILTIN_DATASETS") can only choose built in dataset
         2) Authorized user (with permission "USE_OWN_DATASETS") can also choose his uploaded datasets
@@ -343,11 +349,16 @@ const typeDefs = gql`
         """
         createTaskWithDatasetChoosing(props: IntersectionTaskProps!, fileID: ID!): TaskInfo!
         """
-        This query allows client upload dataset and create task.
+        This query allows clients (with permission USE_OWN_DATASETS) upload dataset and create task.
         ***
         By default, the result of the algorithm is visible for all users.
         """
         createTaskWithDatasetUploading(props: IntersectionTaskProps!, datasetProps: FileProps!, table: Upload!): TaskInfo!
+        
+        """
+        This query allows admin with permission "MANAGE_APP_CONFIG" change dataset property "isBuiltIn".
+        """
+        setDatasetBuiltInStatus(fileID: String!, isBuiltIn: Boolean!): DatasetInfo!
         
         """
         Soft delete. Users can delete own tasks. Administrators can delete task of any user.
