@@ -43,6 +43,7 @@ const typeDefs = gql`
         occupation: String!
         accountStatus: String!
         tasks: [TaskInfo!]
+        datasets: [DatasetInfo!]
     }
     
     type FDAlgorithmProps {
