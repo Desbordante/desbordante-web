@@ -1,7 +1,7 @@
 import { UserInputError } from "apollo-server-core";
 import { STRING, UUID, UUIDV4 } from "sequelize";
 import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
-import { RoleEnum, RoleNameType, rolesPermissions } from "./permissionsConfig";
+import { PermissionEnum, RoleEnum, RoleNameType, rolesPermissions } from "./permissionsConfig";
 import { User } from "./User";
 
 @Table({
@@ -36,5 +36,9 @@ export class Role extends Model {
             throw new UserInputError(`Incorrect roleName = ${role} was provided.\n\rAvailable: ${JSON.stringify(Role.getAllRoles())}`);
         }
         return rolesPermission.permissions;
+    };
+
+    static getPermissionNamesForRole = (role: RoleEnum) => {
+        return Role.getPermissionForRole(role).map(id => PermissionEnum[id]);
     };
 }
