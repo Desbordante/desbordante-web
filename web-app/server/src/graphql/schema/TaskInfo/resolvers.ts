@@ -123,15 +123,24 @@ const resolvers: Resolvers = {
         },
     },
     DatasetInfo: {
+        // Todo: refactor (add params for field snippet && add resolvers for type Snippet)
         // @ts-ignore
         snippet: async ({ fileID }, { taskID, offset, limit }, { models, logger, sessionInfo }) => {
+            if (!fileID) {
+                throw new ApolloError("received null fileID");
+            }
+            if (limit < 0) {
+                throw new UserInputError("Received incorrect limit");
+            }
             const fileInfo = await models.FileInfo.findByPk(fileID,
                 { attributes: ["path", "delimiter", "hasHeader", "renamedHeader"] });
             if (!fileInfo) {
                 throw new InternalServerError(`Incorrect fileID = '${fileID}' was provided`);
             }
             const { path, delimiter, hasHeader, renamedHeader } = fileInfo;
-
+            if (limit === 0) {
+                return { rows: null, header: JSON.parse(renamedHeader), fileID };
+            }
             const rows: string[][] = [];
             if (hasHeader) {
                 offset += 1;
