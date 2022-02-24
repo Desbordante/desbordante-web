@@ -31,9 +31,7 @@ export class Role extends Model {
     };
 
     static getPermissionForRole = (role: RoleEnum) => {
-        const rolesPermission = rolesPermissions.find((item ) => {
-            return role === item.roleName;
-        });
+        const rolesPermission = rolesPermissions.find(item => role === item.roleName);
         if (!rolesPermission) {
             throw new UserInputError(`Incorrect roleName = ${role} was provided.\n\rAvailable: ${JSON.stringify(Role.getAllRoles())}`);
         }
