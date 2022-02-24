@@ -27,8 +27,7 @@ const initBuiltInDatasets = async (sequelize: Sequelize) => {
         { fileName: "Workshop.csv", delimiter: ",", hasHeader: true },
         { fileName: "breast_cancer.csv", delimiter: ",", hasHeader: true },
     ];
-    await sequelize.models.FileInfo.sync();
-    async.eachSeries(allowedDatasets,
+    return await async.eachSeries(allowedDatasets,
         ({ fileName, delimiter, hasHeader }, callback) => {
         const path = getPathToBuiltInDataset(fileName);
 
