@@ -3,26 +3,24 @@ import Kafka, { LibrdKafkaError } from "node-rdkafka";
 export const producer = new Kafka.Producer(
     {
       "client.id": "tasks-producer-1",
-      "metadata.broker.list": `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}`
+      "metadata.broker.list": `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}`,
     }
 );
 
 producer.setPollInterval(100);
 
 producer
-    .on("event.log", (log) => {
-      console.log(log);
-    });
+    .on("event.log", console.log);
 
 producer
     .on("event.error", (err) => {
-      console.error("Error from producer");
-      console.error(err);
+        console.error("Error from producer");
+        console.error(err);
     });
 
 producer
     .on("disconnected", (arg) => {
-      console.log("producer disconnected. " + JSON.stringify(arg));
+        console.log("producer disconnected. " + JSON.stringify(arg));
     });
 
 const client = Kafka.AdminClient.create({
@@ -30,7 +28,7 @@ const client = Kafka.AdminClient.create({
   "bootstrap.servers":
       `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}`,
   "metadata.broker.list":
-      `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}`
+      `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}`,
 });
 
 producer.connect()
@@ -49,7 +47,7 @@ producer.connect()
         client.createTopic({
           topic: `${process.env.DB_TASKS_TABLE_NAME}`,
           num_partitions: 1,
-          replication_factor: 1
+          replication_factor: 1,
         }, (res: LibrdKafkaError) => {
           if (res !== undefined) {
             console.debug(res);

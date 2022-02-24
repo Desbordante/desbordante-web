@@ -13,7 +13,8 @@ import { Session } from "./Session";
 import { TaskInfo } from "./TaskInfo";
 
 interface UserModelMethods {
-    getPermissionNames: () => Promise<PermissionEnum[]>;
+    getPermissionNames: () => Promise<string[]>;
+    getPermissionIndices: () => Promise<PermissionEnum[]>;
     addRole: (role: RoleEnum) => Promise<Role>;
     addRoles: (roles: RoleEnum[]) => Promise<Role[]>;
     createSession: (deviceID: string) => Promise<Session>;
@@ -72,9 +73,14 @@ export class User extends Model implements UserModelMethods {
     accountStatus!: string;
 
     getPermissionNames = async () => {
+        return await this.getPermissionIndices()
+            .then(indices => indices.map(id => PermissionEnum[id]));
+    };
+
+    getPermissionIndices = async () => {
         const roles: Role[] | null = await this.$get("roles");
         if (!roles) {
-            return [];
+            return [] as number[];
         }
         return roles
             .map(role => JSON.parse(role.permissionIndices) as number[])
@@ -93,12 +99,8 @@ export class User extends Model implements UserModelMethods {
     };
 
     createSession = async (deviceID: string) => {
-        const expiringDate = new Date(new Date().toUTCString());
-        expiringDate.setDate(expiringDate.getDate() + 30);
-
         const session = await Session.create({
             userID: this.userID,
-            expiringDate,
             status: "VALID",
             deviceID,
         });
