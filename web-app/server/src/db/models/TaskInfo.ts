@@ -74,16 +74,16 @@ export class TaskInfo extends Model {
     CFDResult?: CFDTaskResult;
 
     ///
-    static saveToDB = async (props: IntersectionTaskProps, fileID: string) => {
+    static saveToDB = async (props: IntersectionTaskProps, fileID: string, userID: string | null) => {
         const { type: propertyPrefix } = props;
-        const taskInfo = await TaskInfo.create({ status: "ADDING TO DB" });
+        const taskInfo = await TaskInfo.create({ status: "ADDING TO DB", userID });
         await taskInfo.$create("baseConfig", { ...props, fileID });
         await taskInfo.$create(propertyPrefix + "Config", { ...props });
         await taskInfo.$create(propertyPrefix + "Result", {});
         return taskInfo;
     };
 
-    static saveToDBIfPropsValid = async (props: IntersectionTaskProps, fileID: string) => {
+    static saveToDBIfPropsValid = async (props: IntersectionTaskProps, fileID: string, userID: string | null) => {
         const { type } = props;
         let isValid: boolean;
         switch (type) {
@@ -99,14 +99,15 @@ export class TaskInfo extends Model {
                 throw new UserInputError("Passed incorrect type", { type });
         }
         if (isValid) {
-            return await TaskInfo.saveToDB(props, fileID);
+            return await TaskInfo.saveToDB(props, fileID, userID);
         } else {
             throw new UserInputError("Invalid user input", { ...props });
         }
     };
 
-    static saveTaskToDBAndSendEvent = async (props: IntersectionTaskProps, fileID: string, topicName: string) => {
-        const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, fileID);
+    static saveTaskToDBAndSendEvent = async (props: IntersectionTaskProps, fileID: string,
+                                             topicName: string, userID: string | null) => {
+        const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, fileID, userID);
         await sendEvent(topicName, taskInfo.taskID);
         await taskInfo.update({ status: "ADDED TO THE TASK QUEUE" });
         return taskInfo;

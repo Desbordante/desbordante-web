@@ -10,6 +10,7 @@ import { configureSequelizeModels } from "./db/configureSequelize";
 import initBuiltInDatasets from "./db/initBuiltInDatasets";
 import { Device, DeviceInfoInstance } from "./db/models/Device";
 import { RoleEnum } from "./db/models/permissionsConfig";
+import { Session } from "./db/models/Session";
 import { Permission, User } from "./db/models/User";
 import { sequelize } from "./db/sequelize";
 import configureGraphQL from "./graphql/configureGraphQL";
@@ -52,7 +53,7 @@ async function createAccountWithLongLiveRefreshToken(roles: RoleEnum[]) {
             occupation: "occupation",
             pwdHash: "pwdHash",
         };
-        const user = await User.create({ ...props, accountStatus: "EMAIL VERIFIED" });
+        const [user, _] = await User.findOrCreate({ where: { ...props, accountStatus: "EMAIL VERIFIED" } });
         await user.addRole(RoleEnum.DEVELOPER);
 
         const deviceInfoString = `{
@@ -77,7 +78,10 @@ async function createAccountWithLongLiveRefreshToken(roles: RoleEnum[]) {
                     JSON.stringify(device), JSON.stringify(deviceInfo));
             }
         }
-        const session = await user.createSession(deviceInfo.deviceID);
+        let session = await Session.findOne({ where: { userID: user.userID } });
+        if (!session) {
+            session = await user.createSession(deviceInfo.deviceID);
+        }
         const token = await session.issueAccessToken("30d");
         let answer = "";
         answer += `${roleName} account was successfully created (userID = ${user.userID}, email = ${user.email}, pwdHash = ${user.pwdHash}).\nYou can use token with permissions ${JSON.stringify(await user.getPermissionNames())}`;
