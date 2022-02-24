@@ -7,27 +7,32 @@ import { RefreshTokenInstance } from "../../../db/models/Session";
 import { Resolvers } from "../../types/types";
 
 export const UserResolvers : Resolvers = {
+    Feedback: {
+        // @ts-ignore
+        user: async ({ userID }, _, { models, logger, sessionInfo }) => {
+            if (!userID) {
+                return null;
+            }
+            return await models.User.findByPk(userID);
+        },
+    },
     Query: {
         getAnonymousPermissions: (parent, obj, { models, logger }) => {
             return Role.getPermissionForRole(RoleEnum.ANONYMOUS).map(permissionEnum => permissionEnum.toString());
         },
+        // @ts-ignore
         user: async(parent, { userID }, { models, logger, sessionInfo }) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
             }
             if (sessionInfo.permissions.includes(PermissionEnum.VIEW_ADMIN_INFO) || sessionInfo.userID === userID) {
-                return await models.User.findOne({ where: { userID } })
-                    .then(res => {
-                        if (res) {
-                            return res;
-                        } else {
-                            throw new UserInputError("Invalid user ID", { userID });
-                        }
-                    })
-                    .catch((e) => e);
-            } else {
-                throw new ForbiddenError("User doesn't have permissions");
+                const user = await models.User.findOne({ where: { userID } });
+                if (!user) {
+                    throw new UserInputError("User not found");
+                }
+                return user;
             }
+            throw new ForbiddenError("User doesn't have permissions");
         },
     },
     Mutation: {
