@@ -24,8 +24,8 @@ export class Feedback extends Model {
     @Column({ type: INTEGER, allowNull: false })
     rating!: number;
 
-    @Column({ type: STRING, allowNull: false })
-    subject!: string;
+    @Column({ type: STRING, allowNull: true })
+    subject?: string;
 
     @Column({ type: TEXT, allowNull: false })
     text!: string;

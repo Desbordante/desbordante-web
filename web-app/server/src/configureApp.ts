@@ -48,8 +48,7 @@ async function createAccountWithLongLiveRefreshToken(roles: RoleEnum[]) {
             companyOrAffiliation: "company",
             country: "Russia",
             email: `${roleName}@gmail.com`,
-            firstName: roleName,
-            lastName: roleName,
+            fullName: roleName,
             occupation: "occupation",
             pwdHash: "pwdHash",
         };

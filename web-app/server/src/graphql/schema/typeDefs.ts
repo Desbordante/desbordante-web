@@ -20,9 +20,10 @@ const typeDefs = gql`
     
     type Feedback {
         feedbackID: String!
-        user: User!
+        userID: String
+        user: User
         rating: Int!
-        subject: String!
+        subject: String
         text: String!
     }
     
@@ -35,8 +36,7 @@ const typeDefs = gql`
         userID: String!
         feedbacks: [Feedback!]
         roles: [Role!]
-        firstName: String!
-        lastName: String!
+        fullName: String!
         email: String!
         country: String!
         companyOrAffiliation: String!
@@ -259,8 +259,7 @@ const typeDefs = gql`
     }
     
     input CreatingUserProps {
-        firstName: String!
-        lastName: String!
+        fullName: String!
         email: String!
         pwdHash: String!
         country: String!
@@ -331,7 +330,7 @@ const typeDefs = gql`
         Creates feedback for user and saves information to the database.
         Administrators (with permission "VIEW_ADMIN_INFO") can see feedbacks
         """
-        createFeedback(rating: Int!, subject: String!, text: String!): Feedback!
+        createFeedback(rating: Int!, subject: String, text: String!): Feedback!
         
         """
         This query allows authorized users upload datasets.
