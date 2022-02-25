@@ -1,5 +1,6 @@
 import { setContext } from "@apollo/client/link/context";
 import { v4 as uuidv4 } from "uuid";
+import { getAccessToken } from "../functions/authTokens";
 
 export const requestIdLink = setContext((operation, previousContext) => {
   const { headers } = previousContext;
@@ -10,12 +11,18 @@ export const requestIdLink = setContext((operation, previousContext) => {
 
   const requestId = `${deviceID}:${userID}:${randomID}`;
 
+  const newHeaders = {
+    ...headers,
+    "X-Request-ID": requestId,
+    "X-Device": deviceInfo,
+  };
+
+  if (getAccessToken()) {
+    newHeaders.Authorization = `Bearer ${getAccessToken()}`;
+  }
+
   return {
     ...previousContext,
-    headers: {
-      ...headers,
-      "X-Request-ID": requestId,
-      "X-Device": deviceInfo,
-    },
+    headers: newHeaders,
   };
 });

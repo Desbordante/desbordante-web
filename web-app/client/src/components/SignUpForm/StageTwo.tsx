@@ -12,7 +12,7 @@ import {
 import { APPROVE_USER_EMAIL } from "../../graphql/operations/mutations/approveUserEmail";
 import { AuthContext } from "../AuthContext";
 import parseUserPermissions from "../../functions/parseUserPermissions";
-import saveTokenPair from "../../functions/saveTokenPair";
+import { saveTokenPair } from "../../functions/authTokens";
 import { DecodedToken } from "../../types/types";
 import {
   reissueVerificationCode,
@@ -68,12 +68,13 @@ const StageTwo: React.FC<Props> = ({ onSuccess }) => {
         const data = jwtDecode(
           response.data.approveUserEmail.accessToken
         ) as DecodedToken;
-        setUser((prevUser) => ({
-          ...prevUser,
-          permissions: parseUserPermissions(data.permissions),
-          isVerified: true,
+        setUser({
           id: data.userID,
-        }));
+          name: data.fullName,
+          email: data.email,
+          permissions: parseUserPermissions(data.permissions),
+          isVerified: data.accountStatus === "EMAIL VERIFIED",
+        });
         onSuccess();
       }
     } catch (error) {
