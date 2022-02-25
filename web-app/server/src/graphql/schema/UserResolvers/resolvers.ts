@@ -4,10 +4,33 @@ import jwt from "jsonwebtoken";
 import { PermissionEnum, RoleEnum } from "../../../db/models/permissionsConfig";
 import { Role } from "../../../db/models/Role";
 import { RefreshTokenInstance } from "../../../db/models/Session";
-import { PermissionType, Resolvers } from "../../types/types";
+import { Resolvers } from "../../types/types";
 
 export const UserResolvers : Resolvers = {
+    Role: {
+        // @ts-ignore
+        permissions: async ({ permissionIndices }, _, { models, sessionInfo, logger }) => {
+            const indices = JSON.parse(permissionIndices) as number[];
+            return indices.map((id) => PermissionEnum[id]);
+        },
+    },
     User: {
+        permissions: async ({ userID }, _, { models, sessionInfo, logger }) => {
+            if (!userID) {
+                throw new ApolloError("UserID is undefined");
+            }
+            const user = await models.User.findByPk(userID);
+            if (!user) {
+                throw new ApolloError("User not found");
+            }
+            return await user.getPermissionNames();
+        },
+        roles: async ({ userID }, _, { models, sessionInfo, logger }) => {
+            if (!userID) {
+                throw new ApolloError("UserID is undefined");
+            }
+            return models.Role.findAll({ where: { userID } });
+        },
         // @ts-ignore
         feedbacks: async ({ userID }, _, { models, sessionInfo, logger }) => {
             if (!userID) {
@@ -43,7 +66,7 @@ export const UserResolvers : Resolvers = {
     Query: {
         // @ts-ignore
         feedbacks: async (parent, args, { models, logger, sessionInfo }) => {
-            if (!sessionInfo?.permissions.includes(PermissionEnum.VIEW_ADMIN_INFO)) {
+            if (!sessionInfo?.permissions.includes(PermissionEnum[PermissionEnum.VIEW_ADMIN_INFO])) {
                 throw new ForbiddenError("User must have permission");
             }
             if (args.offset < 0 || args.limit <= 0 || args.limit > 100 ) {
@@ -59,7 +82,7 @@ export const UserResolvers : Resolvers = {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
             }
-            if (sessionInfo.permissions.includes(PermissionEnum.VIEW_ADMIN_INFO) || sessionInfo.userID === userID) {
+            if (sessionInfo.permissions.includes(PermissionEnum[PermissionEnum.VIEW_ADMIN_INFO]) || sessionInfo.userID === userID) {
                 const user = await models.User.findOne({ where: { userID } });
                 if (!user) {
                     throw new UserInputError("User not found");
@@ -67,6 +90,13 @@ export const UserResolvers : Resolvers = {
                 return user;
             }
             throw new ForbiddenError("User doesn't have permissions");
+        },
+        // @ts-ignore
+        users: async (parent, args, { models, logger, sessionInfo }) => {
+            if (!sessionInfo?.permissions.includes(PermissionEnum[PermissionEnum.VIEW_ADMIN_INFO])) {
+                throw new ForbiddenError("User don't have permission");
+            }
+            return await models.User.findAll(args);
         },
     },
     Mutation: {
@@ -129,6 +159,7 @@ export const UserResolvers : Resolvers = {
             }
 
             const newUser = await models.User.create({ ...props, accountStatus: "EMAIL VERIFICATION" });
+            await newUser.addRole(RoleEnum.ANONYMOUS);
 
             const code = await models.Code.createEmailVerificationCode(newUser.userID, device.deviceID);
 

@@ -204,7 +204,7 @@ const resolvers: Resolvers = {
             }
             if (fileInfo.isBuiltIn
                 || sessionInfo && sessionInfo.userID === fileInfo.userID
-                || sessionInfo && sessionInfo.permissions.includes(PermissionEnum.VIEW_ADMIN_INFO)) {
+                || sessionInfo && sessionInfo.permissions.includes(PermissionEnum[PermissionEnum.VIEW_ADMIN_INFO])) {
                 return { fileID };
             }
             throw new ForbiddenError("You don't have access");
@@ -227,7 +227,7 @@ const resolvers: Resolvers = {
             }
             if (!taskInfo.userID || sessionInfo && sessionInfo.userID === taskInfo.userID
                 || sessionInfo && !taskInfo.isPrivate
-                || sessionInfo && sessionInfo.permissions.includes(PermissionEnum.VIEW_ADMIN_INFO)) {
+                || sessionInfo && sessionInfo.permissions.includes(PermissionEnum[PermissionEnum.VIEW_ADMIN_INFO])) {
                 return taskConfig;
             }
             throw new ForbiddenError("User doesn't have permissions");
@@ -250,7 +250,7 @@ const resolvers: Resolvers = {
                 throw new UserInputError("Tasks, created by anonymous, can't be private");
             }
 
-            if (sessionInfo.permissions.includes(PermissionEnum.MANAGE_USERS_SESSIONS)
+            if (sessionInfo.permissions.includes(PermissionEnum[PermissionEnum.MANAGE_USERS_SESSIONS])
                 || sessionInfo.userID === taskInfo.userID) {
                 return await taskInfo.update({ isPrivate });
             } else {
