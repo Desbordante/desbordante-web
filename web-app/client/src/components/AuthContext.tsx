@@ -55,6 +55,7 @@ export const AuthContextProvider: React.FC = ({ children }) => {
       const response = await logOut();
       if (response.data) {
         localStorage.removeItem("user");
+        document.cookie = "";
         setUser(undefined);
       }
     } catch (error: any) {
