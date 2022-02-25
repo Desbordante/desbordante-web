@@ -12,7 +12,8 @@ const TopBar = () => {
   const history = useHistory();
 
   const { fileName, status, resetTask, progress } = useContext(TaskContext)!;
-  const { user, setIsSignUpShown, setIsLogInShown } = useContext(AuthContext)!;
+  const { user, setIsSignUpShown, setIsLogInShown, signOut } =
+    useContext(AuthContext)!;
 
   return (
     <Navbar variant="dark" bg="dark" sticky="top" className="d-block pb-0">
@@ -46,11 +47,12 @@ const TopBar = () => {
             <p className="mb-0 mx-2 text-light text-nowrap">
               Logged in as <span className="fw-bold">{user.name}</span>
             </p>
-            <Button
-              variant="outline-danger"
-              onClick={() => {}}
-              className="mx-2"
-            >
+            {!user.isVerified && (
+              <Button onClick={() => setIsSignUpShown(true)} className="mx-2">
+                Verify Email
+              </Button>
+            )}
+            <Button variant="outline-danger" onClick={signOut} className="mx-2">
               Sign Out
             </Button>
           </>
