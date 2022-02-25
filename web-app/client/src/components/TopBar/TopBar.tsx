@@ -41,7 +41,7 @@ const TopBar = () => {
             <p className="mx-1 my-auto text-secondary">{status}</p>
           )}
         </Container>
-        {user ? (
+        {user?.name ? (
           <>
             <p className="mb-0 mx-2 text-light text-nowrap">
               Logged in as <span className="fw-bold">{user.name}</span>
