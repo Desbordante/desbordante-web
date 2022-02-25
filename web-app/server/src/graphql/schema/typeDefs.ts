@@ -36,6 +36,7 @@ const typeDefs = gql`
         userID: String!
         feedbacks: [Feedback!]
         roles: [Role!]
+        permissions: [String!]
         fullName: String!
         email: String!
         country: String!
@@ -257,6 +258,10 @@ const typeDefs = gql`
         """
         taskInfo(taskID: ID!): TaskInfo!
         user(userID: ID!): User
+        """
+        Query for admins with permission "VIEW_ADMIN_INFO"
+        """
+        users(limit: Int! = 10 offset: Int! = 0): [User!]!
     }
     
     input FileProps {
