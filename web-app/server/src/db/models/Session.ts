@@ -4,7 +4,6 @@ import { BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-t
 import { INTEGER, STRING, UUID, UUIDV4 } from "sequelize";
 import { TokenPair } from "../../graphql/types/types";
 import { Device } from "./Device";
-import { PermissionEnum } from "./permissionsConfig";
 import { User } from "./User";
 import dotenv from "dotenv";
 
@@ -17,8 +16,11 @@ export interface RefreshTokenInstance extends jwt.JwtPayload {
 }
 
 export interface AccessTokenInstance {
-    permissions: PermissionEnum[]
+    permissions: string[]
     userID: string
+    accountStatus: string
+    email: string
+    fullName: string
     sessionID: string
     deviceID: string
 }
@@ -90,8 +92,12 @@ export class Session extends Model implements SessionModelMethods {
         if (!device) {
             throw new ApolloError("Device not found");
         }
+
         const payload: AccessTokenInstance = {
-            permissions: await user.getPermissionIndices(),
+            permissions: await user.getPermissionNames(),
+            email: user.email,
+            accountStatus: user.accountStatus,
+            fullName: user.fullName,
             userID: this.userID,
             sessionID: this.sessionID,
             deviceID: device.deviceID,
