@@ -114,3 +114,15 @@ export type SignUpFormProps = {
   company: string;
   occupation: string;
 };
+export type TokenPair = {
+  accessToken: string;
+  refreshToken: string;
+};
+export type DecodedToken = {
+  deviceID: string;
+  exp: number;
+  iat: number;
+  permissions: string[];
+  sessionID: string;
+  userID: string;
+};
