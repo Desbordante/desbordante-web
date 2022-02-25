@@ -2,8 +2,12 @@ import React, { useContext } from "react";
 import { Button } from "react-bootstrap";
 import { AuthContext } from "../AuthContext";
 
-const StageThree = () => {
-  const { user, setIsSignUpShown } = useContext(AuthContext)!;
+interface Props {
+  onClose: () => void;
+}
+
+const WelcomeMessage: React.FC<Props> = ({ onClose }) => {
+  const { user } = useContext(AuthContext)!;
 
   return (
     <>
@@ -15,7 +19,7 @@ const StageThree = () => {
       <Button
         variant="outline-primary"
         className="mt-2 w-100"
-        onClick={() => setIsSignUpShown(false)}
+        onClick={onClose}
       >
         Close
       </Button>
@@ -23,4 +27,4 @@ const StageThree = () => {
   );
 };
 
-export default StageThree;
+export default WelcomeMessage;
