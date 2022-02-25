@@ -1,5 +1,6 @@
-import { ApolloError, useLazyQuery, useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import React, { createContext, useState, useEffect, useContext } from "react";
+import { removeTokenPair } from "../functions/authTokens";
 
 import parseUserPermissions from "../functions/parseUserPermissions";
 import setupDeviceInfo from "../functions/setupDeviceInfo";
@@ -55,7 +56,7 @@ export const AuthContextProvider: React.FC = ({ children }) => {
       const response = await logOut();
       if (response.data) {
         localStorage.removeItem("user");
-        document.cookie = "";
+        removeTokenPair();
         setUser(undefined);
       }
     } catch (error: any) {
@@ -63,26 +64,28 @@ export const AuthContextProvider: React.FC = ({ children }) => {
     }
   };
 
+  const renewTokens = () => {};
+
   useEffect(() => {
     setupDeviceInfo();
 
-    (async () => {
-      if (!user || !user.isVerified) {
-        const anonymousPermissions = await getAnonymousPermissions();
-        if (anonymousPermissions.data) {
-          setUser((prevUser) => ({
-            ...prevUser,
-            permissions: parseUserPermissions(
-              anonymousPermissions.data!.getAnonymousPermissions
-            ),
-          }));
-        } else {
-          showError({ message: "Failed to aquire anonymous permissions" });
-        }
-      } else {
-        console.log("User is not anonymous!");
+    if (!user || !user.isVerified) {
+      try {
+        (async () => {
+          const anonymousPermissions = await getAnonymousPermissions();
+          if (anonymousPermissions.data) {
+            setUser((prevUser) => ({
+              ...prevUser,
+              permissions: parseUserPermissions(
+                anonymousPermissions.data!.getAnonymousPermissions
+              ),
+            }));
+          }
+        })();
+      } catch (error: any) {
+        showError({ message: error.message });
       }
-    })();
+    }
   }, []);
 
   useEffect(() => {
