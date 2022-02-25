@@ -1,16 +1,29 @@
-import React, { useState } from "react";
-import { Formik } from "formik";
-import { Container, Form, Button, InputGroup } from "react-bootstrap";
+import React, { useContext, useState } from "react";
+import { Formik, FormikHelpers } from "formik";
+import { Form, Button, InputGroup } from "react-bootstrap";
 import { countries } from "countries-list";
 import { validate as emailValidator } from "email-validator";
 import { passwordStrength } from "check-password-strength";
+import { useMutation } from "@apollo/client";
+
 import { SignUpFormProps } from "../../types/types";
+import { CREATE_USER } from "../../graphql/operations/mutations/createUser";
+import {
+  createUser,
+  createUserVariables,
+} from "../../graphql/operations/mutations/__generated__/createUser";
+import hashPassword from "../../functions/hashPassword";
+import { ErrorContext } from "../ErrorContext";
+import { AuthContext } from "../AuthContext";
+import parseUserPermissions from "../../functions/parseUserPermissions";
 
 interface Props {
-  onSubmit: (props: SignUpFormProps) => void;
+  onSuccess: () => void;
 }
 
-const StageOne: React.FC<Props> = ({ onSubmit }) => {
+const StageOne: React.FC<Props> = ({ onSuccess }) => {
+  const { showError } = useContext(ErrorContext)!;
+  const { setUser } = useContext(AuthContext)!;
   const [isPasswordShown, setIsPasswordShown] = useState(false);
 
   const switchIsPasswordShown = () => setIsPasswordShown((prev) => !prev);
@@ -56,13 +69,50 @@ const StageOne: React.FC<Props> = ({ onSubmit }) => {
     return errors;
   };
 
+  const [createUser] = useMutation<createUser, createUserVariables>(
+    CREATE_USER
+  );
+
+  const handleSubmit = async (
+    values: SignUpFormProps,
+    formikHelpers: FormikHelpers<SignUpFormProps>
+  ) => {
+    try {
+      const response = await createUser({
+        variables: {
+          props: {
+            fullName: values.fullName,
+            email: values.email,
+            pwdHash: hashPassword(values.password),
+            country: values.country,
+            companyOrAffiliation: values.company,
+            occupation: values.occupation,
+          },
+        },
+      });
+
+      if (response.data) {
+        await setUser({
+          name: values.fullName,
+          email: values.email,
+          id: response.data.createUser.userID,
+          isVerified: false,
+          permissions: parseUserPermissions([]),
+        });
+        onSuccess();
+      }
+    } catch (error) {
+      formikHelpers.setErrors({ email: "This email is already used" });
+    }
+  };
+
   return (
     <>
       <h1 className="text-center fw-bold mb-4">Sign Up</h1>
       <Formik
         initialValues={initialValues}
         validate={validate}
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit}
       >
         {({
           values,
