@@ -10,7 +10,7 @@ const MetaInfoResolvers : Resolvers = {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
             }
-            if (!sessionInfo.permissions.includes(PermissionEnum.VIEW_ADMIN_INFO)) {
+            if (!sessionInfo.permissions.includes(PermissionEnum[PermissionEnum.VIEW_ADMIN_INFO])) {
                 throw new ForbiddenError("User doesn't have permissions");
             }
 
