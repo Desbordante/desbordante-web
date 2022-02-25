@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { Formik, FormikHelpers } from "formik";
 import { Form, Button } from "react-bootstrap";
 import { useMutation } from "@apollo/client";
-import cookie from "cookie";
+import jwtDecode from "jwt-decode";
 
 import { ErrorContext } from "../ErrorContext";
 import {
@@ -12,6 +12,13 @@ import {
 import { APPROVE_USER_EMAIL } from "../../graphql/operations/mutations/approveUserEmail";
 import { AuthContext } from "../AuthContext";
 import parseUserPermissions from "../../functions/parseUserPermissions";
+import saveTokenPair from "../../functions/saveTokenPair";
+import { DecodedToken } from "../../types/types";
+import {
+  reissueVerificationCode,
+  reissueVerificationCodeVariables,
+} from "../../graphql/operations/mutations/__generated__/reissueVerificationCode";
+import { REISSUE_VERIFICATION_CODE } from "../../graphql/operations/mutations/reissueVerificationCode";
 
 interface Props {
   onSuccess: () => void;
@@ -39,6 +46,10 @@ const StageTwo: React.FC<Props> = ({ onSuccess }) => {
     approveUserEmail,
     approveUserEmailVariables
   >(APPROVE_USER_EMAIL);
+  const [reissueCode] = useMutation<
+    reissueVerificationCode,
+    reissueVerificationCodeVariables
+  >(REISSUE_VERIFICATION_CODE);
 
   const signUpStageTwo = async (
     values: typeof initialValues,
@@ -53,26 +64,23 @@ const StageTwo: React.FC<Props> = ({ onSuccess }) => {
       });
 
       if (response.data) {
-        document.cookie = cookie.serialize(
-          "accessToken",
-          response.data.approveUserEmail.accessToken,
-          {
-            maxAge: 15 * 60,
-          }
-        );
-        document.cookie = cookie.serialize(
-          "refreshToken",
-          response.data.approveUserEmail.refreshToken
-        );
+        saveTokenPair(response.data.approveUserEmail);
+        const data = jwtDecode(
+          response.data.approveUserEmail.accessToken
+        ) as DecodedToken;
         setUser((prevUser) => ({
           ...prevUser,
-          permissions: parseUserPermissions([]),
+          permissions: parseUserPermissions(data.permissions),
           isVerified: true,
+          id: data.userID,
         }));
         onSuccess();
       }
     } catch (error) {
-      console.error(error);
+      reissueCode({ variables: { userID: user!.id! } });
+      formikHelpers.setErrors({
+        code: "Incorrect code. We have sent you anoter one.",
+      });
     }
   };
 
