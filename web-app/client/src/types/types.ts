@@ -74,6 +74,7 @@ export type user = {
   id?: string;
   name?: string;
   email?: string;
+  isVerified?: boolean;
   permissions: userPermissions;
 };
 export type tableInfo = {

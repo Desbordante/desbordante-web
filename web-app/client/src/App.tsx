@@ -21,10 +21,10 @@ const App: React.FC = () => {
     <div className="App bg-light d-flex flex-column min-vh-100">
       <Router>
         <TopBar />
-        {isErrorShown && <ErrorScreen />}
         {isSignUpShown && <SignUpForm />}
         {isFeedbackShown && <FeedbackForm />}
         {isLogInShown && <LogInForm />}
+        {isErrorShown && <ErrorScreen />}
         <FeedbackButton />
         <Switch>
           <Route path="/:taskID">
