@@ -12,7 +12,7 @@ import {
 } from "../../graphql/operations/mutations/__generated__/logIn";
 import { LOG_IN } from "../../graphql/operations/mutations/logIn";
 import hashPassword from "../../functions/hashPassword";
-import saveTokenPair from "../../functions/saveTokenPair";
+import { saveTokenPair } from "../../functions/authTokens";
 import { AuthContext } from "../AuthContext";
 import parseUserPermissions from "../../functions/parseUserPermissions";
 import { DecodedToken } from "../../types/types";
@@ -63,8 +63,12 @@ const StageOne: React.FC<Props> = ({ onSuccess }) => {
       if (response.data) {
         saveTokenPair(response.data.logIn);
         const data = jwtDecode(response.data.logIn.accessToken) as DecodedToken;
+        console.log(data);
         setUser({
           id: data.userID,
+          name: data.fullName,
+          email: data.email,
+          isVerified: data.accountStatus === "EMAIL VERIFIED",
           permissions: parseUserPermissions(data.permissions),
         });
         onSuccess();

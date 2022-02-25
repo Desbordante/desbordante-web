@@ -122,7 +122,10 @@ export type DecodedToken = {
   deviceID: string;
   exp: number;
   iat: number;
-  permissions: string[];
   sessionID: string;
   userID: string;
+  email: string;
+  fullName: string;
+  permissions: string[];
+  accountStatus: string;
 };
