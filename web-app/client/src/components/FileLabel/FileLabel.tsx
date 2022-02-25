@@ -22,7 +22,7 @@ const FileLabel: React.FC<Props> = ({
   const { user } = useContext(AuthContext)!;
   const { validators } = useContext(AlgorithmConfigContext)!;
   const { getRootProps } = useDropzone({
-    onDrop: user?.canUploadFiles
+    onDrop: user?.permissions.canUploadFiles
       ? (acceptedFiles) => setDataset(acceptedFiles[0])
       : undefined,
   });
