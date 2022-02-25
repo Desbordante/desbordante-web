@@ -62,13 +62,19 @@ export type allowedAlgorithms = {
   allowedCFDAlgorithms: CFDAlgorithm[];
   allowedARAlgorithms: ARAlgorithm[];
 };
-export type user = {
-  name: string;
-  email: string;
+
+export type userPermissions = {
+  canUseBuiltinDatasets: boolean;
   canChooseTask: boolean;
   canUploadFiles: boolean;
   canViewAdminInfo: boolean;
   canManageUserSessions: boolean;
+};
+export type user = {
+  id?: string;
+  name?: string;
+  email?: string;
+  permissions: userPermissions;
 };
 export type tableInfo = {
   ID: string;
@@ -98,3 +104,12 @@ export const primitiveTypeList = [
   "Error Detection Pipeline",
 ] as const;
 export type PrimitiveType = typeof primitiveTypeList[number];
+
+export type SignUpFormProps = {
+  fullName: string;
+  email: string;
+  password: string;
+  country: string;
+  company: string;
+  occupation: string;
+};
