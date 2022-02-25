@@ -44,7 +44,9 @@ const ChooseDataset = () => {
         dataset={dataset}
         setDataset={setDataset}
         onClick={
-          user?.canUploadFiles ? () => inputFile?.current?.click() : undefined
+          user?.permissions.canUploadFiles
+            ? () => inputFile?.current?.click()
+            : undefined
         }
         className="mx-2"
       />
@@ -54,7 +56,7 @@ const ChooseDataset = () => {
         className="d-none"
         ref={inputFile}
         onChange={
-          user?.canUploadFiles
+          user?.permissions.canUploadFiles
             ? (e) => {
                 if (e.target.files) {
                   setDataset(e.target.files[0]);
@@ -67,29 +69,50 @@ const ChooseDataset = () => {
       />
       <OverlayTrigger
         overlay={
-          <Tooltip className={user?.canUploadFiles ? "d-none" : ""}>
+          <Tooltip className={user?.permissions.canUploadFiles ? "d-none" : ""}>
             Sign up to upload files
           </Tooltip>
         }
       >
-        <span className="d-inline-block mx-2">
+        <span className="d-inline-block">
           <Button
             onClick={() => inputFile?.current?.click()}
-            enabled={!!user?.canUploadFiles}
+            enabled={!!user?.permissions.canUploadFiles}
             variant="light"
-            style={{ pointerEvents: user?.canUploadFiles ? "auto" : "none" }}
+            className="mx-2"
+            style={{
+              pointerEvents: user?.permissions.canUploadFiles ? "auto" : "none",
+            }}
           >
             <i className="bi bi-file-earmark-arrow-up" />
           </Button>
         </span>
       </OverlayTrigger>
-      <Button
-        onClick={() => setIsWindowShown(true)}
-        variant="light"
-        className="mx-2"
+
+      <OverlayTrigger
+        overlay={
+          <Tooltip
+            className={user?.permissions.canUseBuiltinDatasets ? "d-none" : ""}
+          >
+            No permissions to pick dataset
+          </Tooltip>
+        }
       >
-        <i className="bi bi-box" />
-      </Button>
+        <span className="d-inline-block">
+          <Button
+            onClick={() => setIsWindowShown(true)}
+            variant="light"
+            className="mx-2"
+            style={{
+              pointerEvents: user?.permissions.canUseBuiltinDatasets
+                ? "auto"
+                : "none",
+            }}
+          >
+            <i className="bi bi-box" />
+          </Button>
+        </span>
+      </OverlayTrigger>
     </FormItem>
   );
 };

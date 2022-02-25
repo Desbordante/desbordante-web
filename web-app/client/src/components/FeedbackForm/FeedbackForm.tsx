@@ -12,8 +12,8 @@ const maxCharactersInFeedback = 2500;
 const FeedbackForm = () => {
   const { user, setIsFeedbackShown } = useContext(AuthContext)!;
   const initialValues = {
-    fullName: user ? user.name : "",
-    email: user ? user.email : "",
+    fullName: user?.name || "",
+    email: user?.email || "",
     rating: 4,
     feedback: "",
   };
