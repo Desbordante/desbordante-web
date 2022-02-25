@@ -26,6 +26,7 @@ module.exports = {
   },
   plugins: ["react", "@typescript-eslint", "react-hooks"],
   rules: {
+    "no-console": "warn",
     "linebreak-style": "off",
     curly: ["error", "all"],
     "implicit-arrow-linebreak": "off",
@@ -39,7 +40,6 @@ module.exports = {
     indent: "off",
     "react/jsx-wrap-multilines": "off",
     "@typescript-eslint/brace-style": ["error", "1tbs"],
-    "no-console": "error",
     "react/function-component-definition": "off",
     camelcase: "off",
     "react/no-array-index-key": "off",
