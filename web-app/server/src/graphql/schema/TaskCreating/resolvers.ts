@@ -12,10 +12,10 @@ const TaskCreatingResolvers: Resolvers = {
             if (!file) {
                 throw new UserInputError("File not found", { fileID });
             }
-            const permissions = sessionInfo ? sessionInfo.permissions : Role.getPermissionForRole(RoleEnum.ANONYMOUS);
-            if (permissions.includes(PermissionEnum.USE_BUILTIN_DATASETS) && file.isBuiltIn
-                || permissions.includes(PermissionEnum.USE_OWN_DATASETS) && sessionInfo && file.userID === sessionInfo.userID
-                || permissions.includes(PermissionEnum.USE_USERS_DATASETS)) {
+            const permissions = sessionInfo ? sessionInfo.permissions : Role.getPermissionNamesForRole(RoleEnum.ANONYMOUS);
+            if (permissions.includes(PermissionEnum[PermissionEnum.USE_BUILTIN_DATASETS]) && file.isBuiltIn
+                || permissions.includes(PermissionEnum[PermissionEnum.USE_OWN_DATASETS]) && sessionInfo && file.userID === sessionInfo.userID
+                || permissions.includes(PermissionEnum[PermissionEnum.USE_USERS_DATASETS])) {
                 return await models.TaskInfo.saveTaskToDBAndSendEvent(props, fileID, topicNames.DepAlgs, sessionInfo?.userID || null);
             } else {
                 throw new ForbiddenError("User hasn't permission for creating task with this dataset");
@@ -23,14 +23,14 @@ const TaskCreatingResolvers: Resolvers = {
         },
         // @ts-ignore
         uploadDataset: async (parent, { datasetProps, table }, { models, logger, sessionInfo }) => {
-            if (!sessionInfo ||  !sessionInfo.permissions.includes(PermissionEnum.USE_OWN_DATASETS)) {
+            if (!sessionInfo ||  !sessionInfo.permissions.includes(PermissionEnum[PermissionEnum.USE_OWN_DATASETS])) {
                 throw new AuthenticationError("User must be logged in and have permission USE_OWN_DATASETS");
             }
             return await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID);
         },
         // @ts-ignore
         setDatasetBuiltInStatus: async (parent, { fileID, isBuiltIn }, { models, logger, sessionInfo }) => {
-            if (!sessionInfo || !sessionInfo.permissions.includes(PermissionEnum.MANAGE_APP_CONFIG)) {
+            if (!sessionInfo || !sessionInfo.permissions.includes(PermissionEnum[PermissionEnum.MANAGE_APP_CONFIG])) {
                 throw new AuthenticationError("User must be logged in");
             }
             const file = await models.FileInfo.findByPk(fileID);
@@ -47,7 +47,7 @@ const TaskCreatingResolvers: Resolvers = {
         },
         createTaskWithDatasetUploading: async (parent, { props, datasetProps, table },
             { models, logger, topicNames, sessionInfo }) => {
-            if (!sessionInfo || !sessionInfo.permissions.includes(PermissionEnum.USE_OWN_DATASETS)) {
+            if (!sessionInfo || !sessionInfo.permissions.includes(PermissionEnum[PermissionEnum.USE_OWN_DATASETS])) {
                 throw new AuthenticationError("User must be authorized and has permission USE_OWN_DATASETS");
             }
             const { ID: fileID } = await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID)
@@ -65,7 +65,7 @@ const TaskCreatingResolvers: Resolvers = {
             if (!taskInfo) {
                 throw new UserInputError("Task not found");
             }
-            if (sessionInfo.permissions.includes(PermissionEnum.MANAGE_USERS_SESSIONS)
+            if (sessionInfo.permissions.includes(PermissionEnum[PermissionEnum.MANAGE_USERS_SESSIONS])
                 || taskInfo.userID === sessionInfo.userID) {
                 await taskInfo.destroy();
                 logger(`Task ${taskID} was deleted by ${sessionInfo.userID}`);
