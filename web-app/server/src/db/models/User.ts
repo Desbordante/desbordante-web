@@ -86,9 +86,14 @@ export class User extends Model implements UserModelMethods {
     };
 
     addRole = async (roleValue: RoleEnum) => {
+        const roles = await this.$get("roles") as Role[];
+        const roleIdx = roles.findIndex((role => role.type === RoleEnum[roleValue]));
+        if (!roleIdx) {
+            return roles[roleIdx];
+        }
         const permissionIndices = JSON.stringify(Role.getPermissionForRole(roleValue));
         return await this.$create("role",
-            { type: roleValue, permissionIndices }) as Role;
+            { type: RoleEnum[roleValue], permissionIndices }) as Role;
     };
 
     addRoles = async (roles: RoleEnum[]): Promise<Role[]> => {
