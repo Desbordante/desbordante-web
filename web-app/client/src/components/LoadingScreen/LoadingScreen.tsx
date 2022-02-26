@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { Container } from "react-bootstrap";
 
 import { FileFormContext } from "../FileFormContext";

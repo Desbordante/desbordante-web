@@ -1,6 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  ApolloLink,
+} from "@apollo/client";
 import { createUploadLink } from "apollo-upload-client";
 
 import "./index.scss";
@@ -16,12 +21,13 @@ import { requestIdLink } from "./graphql/context";
 const client = new ApolloClient({
   uri: graphQLEndpoint,
   cache: new InMemoryCache(),
-  link: requestIdLink.concat(
+  link: ApolloLink.from([
+    requestIdLink,
     createUploadLink({
       uri: graphQLEndpoint,
       fetch: customFetch as any,
-    })
-  ),
+    }),
+  ]),
 });
 
 ReactDOM.render(
