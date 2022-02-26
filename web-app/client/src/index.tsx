@@ -16,13 +16,15 @@ import { ErrorContextProvider } from "./components/ErrorContext";
 import { graphQLEndpoint } from "./APIFunctions";
 import { AlgorithmConfigContextProvider } from "./components/AlgorithmConfigContext";
 import { customFetch } from "./graphql/customFetch";
-import { requestIdLink } from "./graphql/context";
+import { errorLink, requestIdLink } from "./graphql/context";
 
 const client = new ApolloClient({
   uri: graphQLEndpoint,
   cache: new InMemoryCache(),
   link: ApolloLink.from([
     requestIdLink,
+    // @ts-ignore
+    errorLink,
     createUploadLink({
       uri: graphQLEndpoint,
       fetch: customFetch as any,
