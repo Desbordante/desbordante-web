@@ -57,6 +57,9 @@ const configureGraphQL = async (app: Application, sequelize: Sequelize) => {
                 if (session.userID != userID) {
                     throw new AuthenticationError("Received incorrect userID");
                 }
+                if (session.status === "INVALID") {
+                    throw new AuthenticationError("Session is INVALID");
+                }
             }
             if (process.env.KAFKA_TOPIC_NAME === undefined) {
                 throw new Error("CANNOT GET TOPIC NAME FROM .env");
