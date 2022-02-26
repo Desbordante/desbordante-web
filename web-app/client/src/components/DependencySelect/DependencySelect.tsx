@@ -1,24 +1,24 @@
 import React from "react";
 
-import { dependency } from "../../types/types";
+import { Dependency } from "../../types/types";
 import stringToColor from "../../functions/stringToColor";
 import "./Dependency.scss";
 
 interface Props {
-  dep: dependency;
+  dep: Dependency;
   isActive: boolean;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   onActiveClick: React.MouseEventHandler<HTMLDivElement>;
 }
 
-const Dependency: React.FC<Props> = ({
+const DependencySelect: React.FC<Props> = ({
   dep,
   isActive,
   onClick,
   onActiveClick,
 }) => (
   <div
-    className="dependency d-flex my-1"
+    className="Dependency d-flex my-1"
     role="button"
     tabIndex={0}
     onClick={isActive ? onActiveClick : onClick}
@@ -69,4 +69,4 @@ const Dependency: React.FC<Props> = ({
   </div>
 );
 
-export default Dependency;
+export default DependencySelect;

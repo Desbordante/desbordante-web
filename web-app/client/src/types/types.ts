@@ -3,11 +3,11 @@ import {
   taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs,
 } from "../graphql/operations/queries/__generated__/taskInfo";
 
-export type attribute = {
+export type Attribute = {
   column: { name: string; index?: number };
   value: number;
 };
-export type pieChartData = {
+export type PieChartData = {
   lhs:
     | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
     | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
@@ -15,15 +15,14 @@ export type pieChartData = {
     | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
     | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
 };
-export type dependencyEncoded = { lhs: number[]; rhs: number };
-export type dependency = { lhs: string[]; rhs: string };
-export type taskStatus =
+export type Dependency = { lhs: string[]; rhs: string };
+export type TaskStatus =
   | "UNSCHEDULED"
   | "PROCESSING"
   | "COMPLETED"
   | "SERVER ERROR"
   | "INCORRECT INPUT DATA";
-export type parameters = {
+export type Parameters = {
   algName: string;
   separator: string;
   errorPercent: number;
@@ -57,42 +56,42 @@ export type EDPAlgorithm = {
   name: string;
   properties: {};
 };
-export type allowedAlgorithms = {
+export type AllowedAlgorithms = {
   allowedFDAlgorithms: FDAlgorithm[];
   allowedCFDAlgorithms: CFDAlgorithm[];
   allowedARAlgorithms: ARAlgorithm[];
 };
 
-export type userPermissions = {
+export type UserPermissions = {
   canUseBuiltinDatasets: boolean;
   canChooseTask: boolean;
   canUploadFiles: boolean;
   canViewAdminInfo: boolean;
   canManageUserSessions: boolean;
 };
-export type user = {
+export type User = {
   id?: string;
   name?: string;
   email?: string;
   isVerified?: boolean;
-  permissions: userPermissions;
+  permissions: UserPermissions;
 };
-export type tableInfo = {
+export type TableInfo = {
   ID: string;
   fileName: string;
   hasHeader: boolean;
   delimiter: string;
 };
-export type error = {
+export type Error = {
   code?: number;
   message: string;
   suggestion?: string;
 };
-export type builtinDataset = {
+export type BuiltinDataset = {
   fileName: string;
   ID: string;
 };
-export type associationRule = {
+export type AssociationRule = {
   lhs: string[];
   rhs: string[];
   confidence: number;
