@@ -219,7 +219,7 @@ export const UserResolvers : Resolvers = {
             }
             const { userID, sessionID, deviceID, iat } = decoded;
             const session = await models.Session.findByPk(sessionID,
-                { attributes: ["refreshTokenIat", "status", "deviceID", "userID"] });
+                { attributes: ["refreshTokenIat", "status", "deviceID", "userID", "sessionID"] });
 
             if (!session) {
                 throw new AuthenticationError("Invalid sessionID was provided");
