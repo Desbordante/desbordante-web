@@ -1,8 +1,8 @@
 import { inRange } from "lodash";
 import { AllowNull, BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
 import { INTEGER, REAL, UUID } from "sequelize";
-import { allowedCFDAlgorithms, allowedFDAlgorithms } from "../../graphql/schema/AppConfiguration/resolvers";
-import { IntersectionTaskProps } from "../../graphql/types/types";
+import { allowedCFDAlgorithms, allowedFDAlgorithms } from "../../../graphql/schema/AppConfiguration/resolvers";
+import { IntersectionTaskProps } from "../../../graphql/types/types";
 import { TaskInfo } from "./TaskInfo";
 
 @Table({

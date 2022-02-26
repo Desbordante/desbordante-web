@@ -2,9 +2,10 @@ import { ApolloError } from "apollo-server-core";
 import jwt from "jsonwebtoken";
 import { BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
 import { INTEGER, STRING, UUID, UUIDV4 } from "sequelize";
-import { TokenPair } from "../../graphql/types/types";
+import { TokenPair } from "../../../graphql/types/types";
 import { Device } from "./Device";
-import { User } from "./User";
+import { PermissionType } from "./Permission";
+import { AccountStatusType, User } from "./User";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -16,9 +17,9 @@ export interface RefreshTokenInstance extends jwt.JwtPayload {
 }
 
 export interface AccessTokenInstance {
-    permissions: string[]
+    permissions: PermissionType[]
     userID: string
-    accountStatus: string
+    accountStatus: AccountStatusType
     email: string
     fullName: string
     sessionID: string
@@ -30,6 +31,9 @@ interface SessionModelMethods {
     issueRefreshToken: () => Promise<string>
     issueAccessToken: () => Promise<string>
 }
+
+const ALL_SESSION_STATUSES = ["INVALID", "VALID"] as const;
+export type SessionStatusType = typeof ALL_SESSION_STATUSES[number];
 
 @Table({
     tableName: "Sessions",
@@ -57,7 +61,7 @@ export class Session extends Model implements SessionModelMethods {
     user!: User;
 
     @Column({ type: STRING, allowNull: false })
-    status!: string;
+    status!: SessionStatusType;
 
     @Column({ type: INTEGER, allowNull: true })
     accessTokenIat!: number;
@@ -72,12 +76,10 @@ export class Session extends Model implements SessionModelMethods {
         return iat;
     };
 
-    issueTokenPair = async () => {
-        return {
-            refreshToken: await this.issueRefreshToken(),
-            accessToken: await this.issueAccessToken(),
-        };
-    };
+    issueTokenPair = async () => ({
+        refreshToken: await this.issueRefreshToken(),
+        accessToken: await this.issueAccessToken(),
+    });
 
     issueAccessToken = async (expiresIn = "15m") => {
         if (!process.env.SECRET_KEY) {
@@ -94,7 +96,7 @@ export class Session extends Model implements SessionModelMethods {
         }
 
         const payload: AccessTokenInstance = {
-            permissions: await user.getPermissionNames(),
+            permissions: await user.getPermissions(),
             email: user.email,
             accountStatus: user.accountStatus,
             fullName: user.fullName,
