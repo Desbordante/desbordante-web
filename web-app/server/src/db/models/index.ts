@@ -1,13 +1,15 @@
-import { Device } from "./Device";
-import { Feedback } from "./Feedback";
-import { FileInfo } from "./FileInfo";
-import { Role } from "./Role";
-import { Session } from "./Session";
-import { TaskInfo } from "./TaskInfo";
-import { BaseTaskConfig } from "./BaseTaskConfig";
-import { CFDTaskConfig, FDTaskConfig } from "./TaskConfigurations";
-import { CFDTaskResult, FDTaskResult } from "./TaskResults";
-import { Code, Permission, User } from "./User";
+import { Code } from "./Authorization/Code";
+import { Device } from "./Authorization/Device";
+import { Feedback } from "./Authorization/Feedback";
+import { FileInfo } from "./Authorization/FileInfo";
+import { Permission } from "./Authorization/Permission";
+import { Role } from "./Authorization/Role";
+import { Session } from "./Authorization/Session";
+import { User } from "./Authorization/User";
+import { TaskInfo } from "./TaskData/TaskInfo";
+import { BaseTaskConfig } from "./TaskData/BaseTaskConfig";
+import { CFDTaskConfig, FDTaskConfig } from "./TaskData/TaskConfigurations";
+import { CFDTaskResult, FDTaskResult } from "./TaskData/TaskResults";
 
 export const models = {
     User, FileInfo, Feedback,
