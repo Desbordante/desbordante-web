@@ -79,7 +79,7 @@ export class Session extends Model implements SessionModelMethods {
         };
     };
 
-    issueAccessToken = async (expiresIn = "30s") => {
+    issueAccessToken = async (expiresIn = "15m") => {
         if (!process.env.SECRET_KEY) {
             throw new ApolloError("Secret key wasn't provided");
         }
