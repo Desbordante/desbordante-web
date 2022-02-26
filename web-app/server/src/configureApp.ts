@@ -14,6 +14,7 @@ import { Session } from "./db/models/Session";
 import { Permission, User } from "./db/models/User";
 import { sequelize } from "./db/sequelize";
 import configureGraphQL from "./graphql/configureGraphQL";
+import { AccessTokenExpiredError } from "./graphql/types/errorTypes";
 import { CreatingUserProps } from "./graphql/types/types";
 
 function normalizePort(val: string | undefined) {
@@ -38,6 +39,12 @@ async function setMiddlewares(app: Application) {
             credentialsRequired: false,
         })
     );
+    // @ts-ignore
+    app.use((err, req, res, next) => {
+        if (err.name === "UnauthorizedError") {
+            res.status(200).send(new AccessTokenExpiredError("invalid token"));
+        }
+    });
 }
 
 async function createAccountWithLongLiveRefreshToken(roles: RoleEnum[]) {
