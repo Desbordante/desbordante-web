@@ -1,31 +1,23 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { Formik, FormikHelpers } from "formik";
 import { Form, Button } from "react-bootstrap";
 import { useMutation } from "@apollo/client";
-import jwtDecode from "jwt-decode";
 
-import { ErrorContext } from "../ErrorContext";
 import {
   approveUserEmail,
   approveUserEmailVariables,
 } from "../../graphql/operations/mutations/__generated__/approveUserEmail";
 import { APPROVE_USER_EMAIL } from "../../graphql/operations/mutations/approveUserEmail";
 import { AuthContext } from "../AuthContext";
-import parseUserPermissions from "../../functions/parseUserPermissions";
-import { saveTokenPair } from "../../functions/authTokens";
-import { DecodedToken } from "../../types/types";
-import {
-  reissueVerificationCode,
-  reissueVerificationCodeVariables,
-} from "../../graphql/operations/mutations/__generated__/reissueVerificationCode";
-import { REISSUE_VERIFICATION_CODE } from "../../graphql/operations/mutations/reissueVerificationCode";
+import { issueVerificationCode } from "../../graphql/operations/mutations/__generated__/issueVerificationCode";
+import { ISSUE_VERIFICATION_CODE } from "../../graphql/operations/mutations/issueVerificationCode";
 
 interface Props {
   onSuccess: () => void;
 }
 
 const StageTwo: React.FC<Props> = ({ onSuccess }) => {
-  const { user, setUser } = useContext(AuthContext)!;
+  const { user, applyTokens } = useContext(AuthContext)!;
 
   const initialValues = {
     code: "",
@@ -46,10 +38,9 @@ const StageTwo: React.FC<Props> = ({ onSuccess }) => {
     approveUserEmail,
     approveUserEmailVariables
   >(APPROVE_USER_EMAIL);
-  const [reissueCode] = useMutation<
-    reissueVerificationCode,
-    reissueVerificationCodeVariables
-  >(REISSUE_VERIFICATION_CODE);
+  const [issueCode] = useMutation<issueVerificationCode>(
+    ISSUE_VERIFICATION_CODE
+  );
 
   const signUpStageTwo = async (
     values: typeof initialValues,
@@ -59,31 +50,24 @@ const StageTwo: React.FC<Props> = ({ onSuccess }) => {
       const response = await verifyEmail({
         variables: {
           codeValue: +values.code,
-          userID: user!.id!,
         },
       });
 
-      if (response.data) {
-        saveTokenPair(response.data.approveUserEmail);
-        const data = jwtDecode(
-          response.data.approveUserEmail.accessToken
-        ) as DecodedToken;
-        setUser({
-          id: data.userID,
-          name: data.fullName,
-          email: data.email,
-          permissions: parseUserPermissions(data.permissions),
-          isVerified: data.accountStatus === "EMAIL VERIFIED",
-        });
+      if (response.data?.approveUserEmail) {
+        applyTokens(response.data.approveUserEmail);
         onSuccess();
       }
     } catch (error) {
-      reissueCode({ variables: { userID: user!.id! } });
+      issueCode();
       formikHelpers.setErrors({
         code: "Incorrect code. We have sent you anoter one.",
       });
     }
   };
+
+  useEffect(() => {
+    issueCode();
+  }, []);
 
   return (
     <>

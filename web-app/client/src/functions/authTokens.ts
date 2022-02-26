@@ -5,20 +5,16 @@ export function getAccessToken(): string | undefined {
   return cookie.parse(document.cookie).accessToken;
 }
 
-export function setAccessToken(token: string, lifetime = 15 * 60) {
-  document.cookie = cookie.serialize("accessToken", token, {
-    maxAge: lifetime,
-  });
+export function setAccessToken(token: string) {
+  document.cookie = cookie.serialize("accessToken", token);
 }
 
 export function getRefreshToken(): string | undefined {
-  return cookie.parse(document.cookie).requestToken;
+  return cookie.parse(document.cookie).refreshToken;
 }
 
-export function setRefreshToken(token: string, lifetime = 15 * 24 * 60 * 60) {
-  document.cookie = cookie.serialize("refreshToken", token, {
-    maxAge: lifetime,
-  });
+export function setRefreshToken(token: string) {
+  document.cookie = cookie.serialize("refreshToken", token);
 }
 
 export function saveTokenPair(tokenPair: TokenPair) {
@@ -27,6 +23,10 @@ export function saveTokenPair(tokenPair: TokenPair) {
 }
 
 export function removeTokenPair() {
-  setAccessToken("", -1);
-  setRefreshToken("", -1);
+  setAccessToken("");
+  setRefreshToken("");
+}
+
+export function removeUser() {
+  localStorage.removeItem("user");
 }
