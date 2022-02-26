@@ -4,7 +4,7 @@ import { Form, Button } from "react-bootstrap";
 import { validate as emailValidator } from "email-validator";
 import { passwordStrength } from "check-password-strength";
 import { useMutation } from "@apollo/client";
-import jwtDecode from "jwt-decode";
+import * as Yup from "yup";
 
 import {
   logIn,
@@ -12,38 +12,27 @@ import {
 } from "../../graphql/operations/mutations/__generated__/logIn";
 import { LOG_IN } from "../../graphql/operations/mutations/logIn";
 import hashPassword from "../../functions/hashPassword";
-import { saveTokenPair } from "../../functions/authTokens";
 import { AuthContext } from "../AuthContext";
-import parseUserPermissions from "../../functions/parseUserPermissions";
-import { DecodedToken } from "../../types/types";
+
+const logInSchema = Yup.object().shape({
+  email: Yup.string().email("Invalid email").required("Required"),
+  password: Yup.string()
+    .test("strong-enough", "Too weak!", (value?: string) =>
+      Boolean(value && passwordStrength(value).id !== 0)
+    )
+    .required("Required"),
+});
 
 interface Props {
   onSuccess: () => void;
 }
 
 const StageOne: React.FC<Props> = ({ onSuccess }) => {
-  const { setUser } = useContext(AuthContext)!;
+  const { applyTokens } = useContext(AuthContext)!;
 
   const initialValues = {
     email: "",
     password: "",
-  };
-  const validate = (values: typeof initialValues) => {
-    const errors: any = {};
-
-    if (!values.email) {
-      errors.email = "Required";
-    } else if (!emailValidator(values.email)) {
-      errors.email = "Incorrect email";
-    }
-
-    if (!values.password) {
-      errors.password = "Required";
-    } else if (passwordStrength(values.password).id === 0) {
-      errors.password = "Password is too weak";
-    }
-
-    return errors;
   };
 
   const [logIn] = useMutation<logIn, logInVariables>(LOG_IN);
@@ -60,17 +49,8 @@ const StageOne: React.FC<Props> = ({ onSuccess }) => {
         },
       });
 
-      if (response.data) {
-        saveTokenPair(response.data.logIn);
-        const data = jwtDecode(response.data.logIn.accessToken) as DecodedToken;
-        console.log(data);
-        setUser({
-          id: data.userID,
-          name: data.fullName,
-          email: data.email,
-          isVerified: data.accountStatus === "EMAIL VERIFIED",
-          permissions: parseUserPermissions(data.permissions),
-        });
+      if (response.data?.logIn) {
+        applyTokens(response.data.logIn);
         onSuccess();
       }
     } catch (error) {
@@ -86,7 +66,7 @@ const StageOne: React.FC<Props> = ({ onSuccess }) => {
       <h1 className="text-center fw-bold mb-4">Log In</h1>
       <Formik
         initialValues={initialValues}
-        validate={validate}
+        validationSchema={logInSchema}
         /* eslint-disable-next-line no-console */
         onSubmit={handleSubmit}
       >

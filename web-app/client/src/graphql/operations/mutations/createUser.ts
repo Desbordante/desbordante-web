@@ -4,7 +4,10 @@ export const CREATE_USER = gql`
   mutation createUser($props: CreatingUserProps!) {
     createUser(props: $props) {
       message
-      userID
+      tokens {
+        accessToken
+        refreshToken
+      }
     }
   }
 `;
