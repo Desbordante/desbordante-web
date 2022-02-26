@@ -93,7 +93,7 @@ export const UserResolvers : Resolvers = {
         },
         // @ts-ignore
         users: async (parent, args, { models, logger, sessionInfo }) => {
-            if (!sessionInfo?.permissions.includes(PermissionEnum[PermissionEnum.VIEW_ADMIN_INFO])) {
+            if (!sessionInfo || !sessionInfo.permissions.includes(PermissionEnum[PermissionEnum.VIEW_ADMIN_INFO])) {
                 throw new ForbiddenError("User don't have permission");
             }
             return await models.User.findAll(args);
@@ -128,10 +128,11 @@ export const UserResolvers : Resolvers = {
                 throw new ApolloError("Session wasn't updated");
             }
         },
-        reissueVerificationCode: async (parent, { userID }, { models, logger, device, sessionInfo }) => {
-            if (sessionInfo) {
-                throw new AuthenticationError("User mustn't have sessionInfo");
+        issueVerificationCode: async (parent, args , { models, logger, device, sessionInfo }) => {
+            if (!sessionInfo) {
+                throw new AuthenticationError("User must be logged in");
             }
+            const { userID } = sessionInfo;
             const user = await models.User.findByPk(userID);
 
             if (!user) {
@@ -146,8 +147,8 @@ export const UserResolvers : Resolvers = {
             }
             code = await models.Code.createEmailVerificationCode(userID, device.deviceID);
 
-            logger(`Reissue new verification code = ${code.value}`);
-            return { message: "Verification code was sent to email", userID };
+            logger(`Issue new verification code = ${code.value}`);
+            return { message: "Verification code was sent to email" };
         },
         createUser: async (parent, { props }, { models, logger, sessionInfo, device }) => {
             if (sessionInfo) {
@@ -161,22 +162,21 @@ export const UserResolvers : Resolvers = {
             const newUser = await models.User.create({ ...props, accountStatus: "EMAIL VERIFICATION" });
             await newUser.addRole(RoleEnum.ANONYMOUS);
 
-            const code = await models.Code.createEmailVerificationCode(newUser.userID, device.deviceID);
+            const session = await newUser.createSession(device.deviceID);
 
-            logger(`New account created, sent verification code = ${code.value}`);
-            return {
-                message: "Verification code was sent to email",
-                userID: newUser.userID,
-            };
+            logger("New account created");
+            const tokens = await session.issueTokenPair();
+            return { message: "New account created", tokens };
         },
-        approveUserEmail: async (parent, { codeValue, userID }, { models, logger, device, sessionInfo }) => {
-            if (sessionInfo) {
-                throw new AuthenticationError("User mustn't have sessionInfo");
+        approveUserEmail: async (parent, { codeValue }, { models, logger, device, sessionInfo }) => {
+            if (!sessionInfo) {
+                throw new AuthenticationError("User must be logged in");
             }
+            const { userID } = sessionInfo;
             const user = await models.User.findByPk(userID);
 
             if (!user) {
-                throw new UserInputError("Incorrect userID was provided");
+                throw new ApolloError("User not found");
             }
             if (user.accountStatus !== "EMAIL VERIFICATION") {
                 throw new UserInputError("User has incorrect account status");
@@ -203,7 +203,10 @@ export const UserResolvers : Resolvers = {
                 await user.update({ accountStatus: "EMAIL VERIFIED" });
                 await user.addRole(RoleEnum.USER);
 
-                const session = await user.createSession(device.deviceID);
+                const session = await models.Session.findByPk(sessionInfo.sessionID);
+                if (!session) {
+                    throw new ApolloError("Session not found");
+                }
                 return session.issueTokenPair();
             }
         },

@@ -285,7 +285,11 @@ const typeDefs = gql`
     
     type CreateUserAnswer {
         message: String!
-        userID: String!
+        tokens: TokenPair!
+    }
+    
+    type IssueVerificationCodeAnswer {
+        message: String!
     }
     
     type TokenPair {
@@ -305,21 +309,22 @@ const typeDefs = gql`
     
     type Mutation {
         """
-        After creating new account user must approve his email.
-        Verification expires after 24 hours, destroys after first attempt to enter.
+        After creating new account user will have anonymous permissions;
         """
         createUser(props: CreatingUserProps!): CreateUserAnswer!
         
         """
         Code for email approving is temporary (24 hours, destroys after first attempt).
+        User must be logged in account and have account status Email Verification.
+        Returns new token pair.
         """
-        approveUserEmail(codeValue: Int!, userID: String!): TokenPair!
+        approveUserEmail(codeValue: Int!): TokenPair!
         
         """
-        This query issues new verification code.
+        This query issues (or reissues) new verification code.
         Previous code will be destroyed.
         """
-        reissueVerificationCode(userID: String!): CreateUserAnswer!
+        issueVerificationCode: IssueVerificationCodeAnswer!
         
         """
         User can be logged in to multiple accounts at once.
