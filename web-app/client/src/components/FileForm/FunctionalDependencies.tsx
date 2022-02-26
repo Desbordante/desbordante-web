@@ -10,16 +10,22 @@ import Slider from "../Slider/Slider";
 import BuiltinDatasetSelector from "../BuiltinDatasetSelector/BuiltinDatasetSelector";
 import FormItem from "../FormItem/FormItem";
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
-import { builtinDataset, FDAlgorithm } from "../../types/types";
+import { BuiltinDataset, FDAlgorithm } from "../../types/types";
 import { CREATE_TASK_WITH_UPLOADING_DATASET } from "../../graphql/operations/mutations/createTask";
-import { FileProps, IntersectionTaskProps, PrimitiveType } from "../../types/globalTypes";
+import {
+  FileProps,
+  IntersectionTaskProps,
+  PrimitiveType,
+} from "../../types/globalTypes";
 import { ErrorContext } from "../ErrorContext";
 import { CREATE_TASK_WITH_CHOOSING_DATASET } from "../../graphql/operations/mutations/chooseTask";
 import {
-  createTaskWithDatasetChoosing, createTaskWithDatasetChoosingVariables
+  createTaskWithDatasetChoosing,
+  createTaskWithDatasetChoosingVariables,
 } from "../../graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing";
 import {
-  createTaskWithDatasetUploading, createTaskWithDatasetUploadingVariables
+  createTaskWithDatasetUploading,
+  createTaskWithDatasetUploadingVariables,
 } from "../../graphql/operations/mutations/__generated__/createTaskWithDatasetUploading";
 
 interface Props {
@@ -39,7 +45,7 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
 
   // Builtin kDatasets
   const [isWindowShown, setIsWindowShown] = useState(false);
-  const [builtinDataset, setBuiltinDataset] = useState<builtinDataset>();
+  const [builtinDataset, setBuiltinDataset] = useState<BuiltinDataset>();
 
   useEffect(() => {
     setAlgorithm(
@@ -64,8 +70,10 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
       loading: createTaskLoading,
       error: createTaskError,
     },
-  ] = useMutation<createTaskWithDatasetUploading, createTaskWithDatasetUploadingVariables>(
-      CREATE_TASK_WITH_UPLOADING_DATASET);
+  ] = useMutation<
+    createTaskWithDatasetUploading,
+    createTaskWithDatasetUploadingVariables
+  >(CREATE_TASK_WITH_UPLOADING_DATASET);
   const [
     chooseTask,
     {
@@ -73,8 +81,10 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
       loading: chooseTaskLoading,
       error: chooseTaskError,
     },
-  ] = useMutation<createTaskWithDatasetChoosing, createTaskWithDatasetChoosingVariables>(
-      CREATE_TASK_WITH_CHOOSING_DATASET);
+  ] = useMutation<
+    createTaskWithDatasetChoosing,
+    createTaskWithDatasetChoosingVariables
+  >(CREATE_TASK_WITH_CHOOSING_DATASET);
   const data =
     (createTaskData && createTaskData.createTaskWithDatasetUploading) ||
     (chooseTaskData && chooseTaskData.createTaskWithDatasetChoosing);
