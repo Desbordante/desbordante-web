@@ -22,7 +22,7 @@ export function setRefreshToken(token: string, lifetime = 15 * 24 * 60 * 60) {
 }
 
 export function saveTokenPair(tokenPair: TokenPair) {
-  setAccessToken(tokenPair.accessToken, 20);
+  setAccessToken(tokenPair.accessToken);
   setRefreshToken(tokenPair.refreshToken);
 }
 
