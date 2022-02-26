@@ -4,9 +4,9 @@ import path from "path";
 import { BOOLEAN, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
 import { BelongsTo, Column, ForeignKey, HasMany, IsUUID, Model, Table, Unique } from "sequelize-typescript";
 import { finished } from "stream/promises";
-import { generateHeaderByPath } from "../../graphql/schema/TaskCreating/generateHeader";
-import { FileProps } from "../../graphql/types/types";
-import { BaseTaskConfig } from "./BaseTaskConfig";
+import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/generateHeader";
+import { FileProps } from "../../../graphql/types/types";
+import { BaseTaskConfig } from "../TaskData/BaseTaskConfig";
 import { User } from "./User";
 
 @Table({

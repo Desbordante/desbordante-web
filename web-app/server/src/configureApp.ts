@@ -8,10 +8,11 @@ import { isDevelopment } from "./app";
 import configureDB from "./db/configureDB";
 import { configureSequelizeModels } from "./db/configureSequelize";
 import initBuiltInDatasets from "./db/initBuiltInDatasets";
-import { Device, DeviceInfoInstance } from "./db/models/Device";
-import { RoleEnum } from "./db/models/permissionsConfig";
-import { Session } from "./db/models/Session";
-import { Permission, User } from "./db/models/User";
+import { Device, DeviceInfoInstance } from "./db/models/Authorization/Device";
+import { Permission } from "./db/models/Authorization/Permission";
+import { RoleType } from "./db/models/Authorization/Role";
+import { Session } from "./db/models/Authorization/Session";
+import { User } from "./db/models/Authorization/User";
 import { sequelize } from "./db/sequelize";
 import configureGraphQL from "./graphql/configureGraphQL";
 import { AccessTokenExpiredError } from "./graphql/types/errorTypes";
@@ -47,11 +48,11 @@ async function setMiddlewares(app: Application) {
     });
 }
 
-async function createAccountWithLongLiveRefreshToken(roles: RoleEnum[]) {
-    console.log(`Creating accounts for following roles: ${JSON.stringify(roles.map(role => RoleEnum[role]))}`);
+async function createAccountWithLongLiveRefreshToken(roles: RoleType[]) {
+    console.log(`Creating accounts for following roles: ${JSON.stringify(roles)}`);
     const answers: string[] = [];
     for (const role of roles) {
-        const roleName = RoleEnum[role].toLowerCase();
+        const roleName = role.toLowerCase();
         const props: CreatingUserProps = {
             companyOrAffiliation: "company",
             country: "Russia",
@@ -61,7 +62,7 @@ async function createAccountWithLongLiveRefreshToken(roles: RoleEnum[]) {
             pwdHash: "pwdHash",
         };
         const [user, _] = await User.findOrCreate({ where: { ...props, accountStatus: "EMAIL VERIFIED" } });
-        await user.addRole(RoleEnum.DEVELOPER);
+        await user.addRole("DEVELOPER");
 
         const deviceInfoString = `{
         "deviceID":"bc6e5ac3-54fd-4041-93b2-a0a5e7dd7405:203313997",
@@ -91,7 +92,7 @@ async function createAccountWithLongLiveRefreshToken(roles: RoleEnum[]) {
         }
         const token = await session.issueAccessToken("30d");
         let answer = "";
-        answer += `${roleName} account was successfully created (userID = ${user.userID}, email = ${user.email}, pwdHash = ${user.pwdHash}).\nYou can use token with permissions ${JSON.stringify(await user.getPermissionNames())}`;
+        answer += `${roleName} account was successfully created (userID = ${user.userID}, email = ${user.email}, pwdHash = ${user.pwdHash}).\nYou can use token with permissions ${JSON.stringify(await user.getPermissions())}`;
         answer += "\nFor example, you can use plugin ModHeader and set these headers:";
         answer += "\nX-Request-ID: bc6e5ac3-54fd-4041-93b2-a0a5e7dd7405:203313997::4d756056-a2d3-4ea5-8f15-4a72f2689d09";
         answer += "\nX-Device: eyJkZXZpY2VJRCI6ImJjNmU1YWMzLTU0ZmQtNDA0MS05M2IyLWEwYTVlN2RkNzQwNToyMDMzMTM5OTciLCJ1c2VyQWdlbnQiOiJNb3ppbGxhLzUuMCAoWDExOyBMaW51eCB4ODZfNjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS85OC4wLjQ3NTguMTAyIFNhZmFyaS81MzcuMzYiLCJicm93c2VyIjoiQ2hyb21lIiwiZW5naW5lIjoiQmxpbmsiLCJvcyI6IkxpbnV4Iiwib3NWZXJzaW9uIjoieDg2XzY0IiwiY3B1IjoiYW1kNjQiLCJzY3JlZW4iOiJDdXJyZW50IFJlc29sdXRpb246IDE5MjB4MTA4MCwgQXZhaWxhYmxlIFJlc29sdXRpb246IDE5MjB4MTA1MywgQ29sb3IgRGVwdGg6IDI0LCBEZXZpY2UgWERQSTogdW5kZWZpbmVkLCBEZXZpY2UgWURQSTogdW5kZWZpbmVkIiwicGx1Z2lucyI6IlBERiBWaWV3ZXIsIENocm9tZSBQREYgVmlld2VyLCBDaHJvbWl1bSBQREYgVmlld2VyLCBNaWNyb3NvZnQgRWRnZSBQREYgVmlld2VyLCBXZWJLaXQgYnVpbHQtaW4gUERGIiwidGltZVpvbmUiOiIrMDMiLCJsYW5ndWFnZSI6ImVuLVVTIn0=";
@@ -161,7 +162,7 @@ async function configureApp() {
         });
 
     if (isDevelopment) {
-        await createAccountWithLongLiveRefreshToken([RoleEnum.USER, RoleEnum.SUPPORT, RoleEnum.ADMIN, RoleEnum.DEVELOPER])
+        await createAccountWithLongLiveRefreshToken(["ANONYMOUS", "USER", "SUPPORT", "ADMIN", "DEVELOPER"])
             .then(results => results.map(res => console.log(res)))
             .catch(e => console.error("Problems with accounts creating", e.message));
     }

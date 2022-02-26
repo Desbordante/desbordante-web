@@ -1,12 +1,12 @@
 import { ApolloError, UserInputError } from "apollo-server-core";
 import { BOOLEAN, FLOAT, INTEGER, STRING, UUID, UUIDV4 } from "sequelize";
 import { BelongsTo, Column, ForeignKey, HasOne, IsUUID, Model, Table } from "sequelize-typescript";
-import { IntersectionTaskProps } from "../../graphql/types/types";
-import sendEvent from "../../producer/sendEvent";
+import { IntersectionTaskProps } from "../../../graphql/types/types";
+import sendEvent from "../../../producer/sendEvent";
 import { BaseTaskConfig } from "./BaseTaskConfig";
 import { CFDTaskConfig, FDTaskConfig } from "./TaskConfigurations";
 import { CFDTaskResult, FDTaskResult } from "./TaskResults";
-import { User } from "./User";
+import { User } from "../Authorization/User";
 
 @Table({
     tableName: "TasksInfo",

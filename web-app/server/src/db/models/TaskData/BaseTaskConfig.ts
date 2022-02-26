@@ -1,6 +1,6 @@
 import { BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
 import { STRING, UUID } from "sequelize";
-import { FileInfo } from "./FileInfo";
+import { FileInfo } from "../Authorization/FileInfo";
 import { TaskInfo } from "./TaskInfo";
 
 @Table({
