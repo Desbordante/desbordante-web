@@ -5,7 +5,7 @@ import { Col, Container, Row } from "react-bootstrap";
 import PieChartFull from "../PieChartFull/PieChartFull";
 import DependencyListFull from "../DependencyListFull/DependencyListFull";
 import StatusDisplay from "../StatusDisplay/StatusDisplay";
-import { attribute, dependency } from "../../types/types";
+import { Attribute, Dependency } from "../../types/types";
 import { TaskContext } from "../TaskContext";
 import Snippet from "../Snippet/Snippet";
 import Navigation from "./Navigation";
@@ -19,14 +19,14 @@ const Viewer = () => {
 
   const [partShown, setPartShown] = useState(0);
   const [selectedAttributesLHS, setSelectedAttributesLHS] = useState<
-    attribute[]
+    Attribute[]
   >([]);
   const [selectedAttributesRHS, setSelectedAttributesRHS] = useState<
-    attribute[]
+    Attribute[]
   >([]);
 
   const [selectedDependency, setSelectedDependency] =
-    useState<dependency | null>(null);
+    useState<Dependency | null>(null);
 
   return isExecuted ? (
     <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">

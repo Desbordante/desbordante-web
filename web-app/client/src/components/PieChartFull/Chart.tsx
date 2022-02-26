@@ -2,7 +2,7 @@ import React from "react";
 import { Doughnut } from "react-chartjs-2";
 import { animated } from "react-spring";
 
-import { attribute } from "../../types/types";
+import { Attribute } from "../../types/types";
 import "./PieChartFull.scss";
 import AttributeLabel from "../AttributeLabel/AttributeLabel";
 import SelectedAttribute from "../SelectedAttribute/SelectedAttribute";
@@ -20,7 +20,7 @@ interface Props {
   selectedAttributes?:
     | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
     | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
-  setSelectedAttributes: React.Dispatch<React.SetStateAction<attribute[]>>;
+  setSelectedAttributes: React.Dispatch<React.SetStateAction<Attribute[]>>;
 }
 /* eslint-enable no-unused-vars */
 

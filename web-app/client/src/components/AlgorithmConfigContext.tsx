@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useQuery } from "@apollo/client";
 
-import { tableInfo, allowedAlgorithms, ARAlgorithm } from "../types/types";
+import { TableInfo, AllowedAlgorithms, ARAlgorithm } from "../types/types";
 import { GET_ALGORITHMS_CONFIG } from "../graphql/operations/queries/getAlgorithmsConfig";
 import { algorithmsConfig } from "../graphql/operations/queries/__generated__/algorithmsConfig";
 import { ErrorContext } from "./ErrorContext";
@@ -10,7 +10,7 @@ import { BuiltinDataset } from "../types/dataset";
 type AlgorithmConfigContextType = {
   allowedValues: {
     allowedSeparators?: string[];
-    allowedAlgorithms?: allowedAlgorithms;
+    allowedAlgorithms?: AllowedAlgorithms;
     allowedBuiltinDatasets?: BuiltinDataset[];
   };
   validators: {
@@ -30,11 +30,11 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
   const { showError } = useContext(ErrorContext)!;
 
   const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] =
-    useState<tableInfo[]>();
+    useState<TableInfo[]>();
   const [allowedFileFormats, setAllowedFileFormats] = useState<string[]>();
   const [allowedSeparators, setAllowedSeparators] = useState<string[]>();
   const [allowedAlgorithms, setAllowedAlgorithms] =
-    useState<allowedAlgorithms>();
+    useState<AllowedAlgorithms>();
   const [maxfilesize, setMaxFileSize] = useState<number>();
 
   const { loading, data, error } = useQuery<algorithmsConfig>(

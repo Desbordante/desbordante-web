@@ -13,7 +13,7 @@ const WelcomeMessage: React.FC<Props> = ({ onClose }) => {
     <>
       <h1 className="text-center fw-bold mb-4">
         Welcome,{" "}
-        <span className="text-primary">{user?.name || "Kirill Stupakov"}</span>!
+        <span className="text-primary">{user?.name || "Kirill Stupakov"}</span>
       </h1>
       <p className="mb-4">You may now use all standard features.</p>
       <Button
