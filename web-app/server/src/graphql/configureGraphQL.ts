@@ -3,8 +3,8 @@ import { Application } from "express";
 import { graphqlHTTP } from "express-graphql";
 import { Sequelize } from "sequelize";
 import { ModelsType } from "../db/models";
-import { Device, DeviceInfoInstance } from "../db/models/Device";
-import { AccessTokenInstance } from "../db/models/Session";
+import { Device, DeviceInfoInstance } from "../db/models/Authorization/Device";
+import { AccessTokenInstance } from "../db/models/Authorization/Session";
 
 import schema from "./schema/schema";
 import { Context } from "./types/context";

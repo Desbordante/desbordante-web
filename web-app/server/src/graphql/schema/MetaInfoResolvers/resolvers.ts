@@ -1,7 +1,6 @@
 import { ForbiddenError } from "apollo-server-core";
 import { AuthenticationError } from "apollo-server-express";
 import { FindOptions } from "sequelize";
-import { PermissionEnum } from "../../../db/models/permissionsConfig";
 import { Resolvers } from "../../types/types";
 
 const MetaInfoResolvers : Resolvers = {
@@ -10,7 +9,7 @@ const MetaInfoResolvers : Resolvers = {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
             }
-            if (!sessionInfo.permissions.includes(PermissionEnum[PermissionEnum.VIEW_ADMIN_INFO])) {
+            if (!sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
                 throw new ForbiddenError("User doesn't have permissions");
             }
 

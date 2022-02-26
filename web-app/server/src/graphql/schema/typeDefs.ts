@@ -338,7 +338,7 @@ const typeDefs = gql`
         By default, only current session will be closed.
         If the request throws an error, then the user wasn't logged out of the account (session still valid)
         """
-        logOut(allSessions: Boolean = false): String!
+        logOut(allSessions: Boolean! = false): String!
         
         """
         When user's access token expired, client must send request fir refreshToken.
