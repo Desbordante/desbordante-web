@@ -1,4 +1,6 @@
 import { gql } from "apollo-server-core";
+import { Session } from "../../db/models/Authorization/Session";
+import { getAllAccountStatus } from "../../db/models/Authorization/User";
 
 const typeDefs = gql`
 
@@ -36,7 +38,7 @@ const typeDefs = gql`
         userID: String!
         feedbacks: [Feedback!]
         roles: [Role!]
-        permissions: [String!]
+        permissions: [PermissionType!]
         fullName: String!
         email: String!
         country: String!
@@ -45,6 +47,26 @@ const typeDefs = gql`
         accountStatus: String!
         tasks: [TaskInfo!]
         datasets: [DatasetInfo!]
+    }
+    
+    enum AccountStatusType {
+        EMAIL_VERIFICATION
+        EMAIL_VERIFIED
+    }
+    
+    enum SessionStatusType {
+        VALID
+        INVALID
+    }
+    
+    type Session {
+        sessionID: String!
+        userID: String!
+        user: User!
+        deviceID: String!
+        status: SessionStatusType!
+        accessTokenIat: Int
+        refreshTokenIat: Int
     }
     
     type FDAlgorithmProps {
@@ -78,7 +100,7 @@ const typeDefs = gql`
     type AlgorithmsConfig {
         fileConfig: InputFileConfig!
         allowedFDAlgorithms: [FDAlgorithmConfig!]!
-        allowedDatasets: [DatasetInfo!]! # TODO CHECK
+        allowedDatasets: [DatasetInfo!]!
         allowedCFDAlgorithms: [CFDAlgorithmConfig!]!
     }
     
@@ -237,7 +259,7 @@ const typeDefs = gql`
         ***
         Tasks, created by anonymous, can't be private
         """
-        getAnonymousPermissions: [String!]!
+        getAnonymousPermissions: [PermissionType!]!
         
         """
         Query for admins with permission "VIEW_ADMIN_INFO"
@@ -262,6 +284,10 @@ const typeDefs = gql`
         Query for admins with permission "VIEW_ADMIN_INFO"
         """
         users(limit: Int! = 10 offset: Int! = 0): [User!]!
+        """
+        Query for admins with permission "VIEW_ADMIN_INFO"
+        """
+        sessions(limit: Int! = 10 offset: Int! = 0 onlyValid: Boolean! = true): [Session]!
     }
     
     input FileProps {
@@ -390,6 +416,8 @@ const typeDefs = gql`
         This query allows client to set task privacy.
         """
         changeTaskResultsPrivacy(taskID: String!, isPrivate: Boolean!): TaskInfo!
+        
+        
     }
 `;
 
