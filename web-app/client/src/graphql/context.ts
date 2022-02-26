@@ -1,9 +1,16 @@
+import { ApolloClient, Operation } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
+import { TokenRefreshLink } from "apollo-link-token-refresh";
 import { v4 as uuidv4 } from "uuid";
-import { getAccessToken } from "../functions/authTokens";
+import { graphQLEndpoint } from "../APIFunctions";
+import {
+  getAccessToken,
+  getRefreshToken,
+  removeTokenPair,
+  setAccessToken,
+} from "../functions/authTokens";
 
-export const requestIdLink = setContext((operation, previousContext) => {
-  const { headers } = previousContext;
+export function generateRequestHeaders() {
   const deviceID = localStorage.getItem("deviceID") || "";
   const deviceInfo = localStorage.getItem("deviceInfo") || "";
   const userID = localStorage.getItem("userID") || "";
@@ -11,10 +18,18 @@ export const requestIdLink = setContext((operation, previousContext) => {
 
   const requestId = `${deviceID}:${userID}:${randomID}`;
 
-  const newHeaders = {
-    ...headers,
+  return {
     "X-Request-ID": requestId,
     "X-Device": deviceInfo,
+  };
+}
+
+export const requestIdLink = setContext((operation, previousContext) => {
+  const { headers } = previousContext;
+
+  const newHeaders = {
+    ...headers,
+    ...generateRequestHeaders(),
   };
 
   if (getAccessToken()) {
@@ -26,3 +41,36 @@ export const requestIdLink = setContext((operation, previousContext) => {
     headers: newHeaders,
   };
 });
+
+// export const tokenRefreshLink = new TokenRefreshLink({
+//   accessTokenField: "accessToken",
+//   isTokenValidOrUndefined: () => !!getAccessToken(),
+//   fetchAccessToken: () => {
+//     if (!getRefreshToken()) {
+//       removeTokenPair();
+//     }
+
+//     return fetch(graphQLEndpoint, {
+//       method: "POST",
+//       headers: {
+//         ...generateRequestHeaders(),
+//         accept: "*/*",
+//         "content-type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         query: `
+//         mutation {
+//           refresh(refreshToken: ${getRefreshToken()}) {
+//             accessToken
+//             refreshToken
+//           }
+//         }
+//         `,
+//       }),
+//     });
+//   },
+//   handleFetch: (accessToken: string, operation: Operation) => {
+//     console.log("Got new access token", accessToken);
+//     setAccessToken(accessToken, 20);
+//   },
+// });

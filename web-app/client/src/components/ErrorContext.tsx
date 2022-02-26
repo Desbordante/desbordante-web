@@ -1,9 +1,9 @@
 import React, { createContext, useEffect, useState } from "react";
-import { error } from "../types/types";
+import { Error } from "../types/types";
 
 type ErrorContextType = {
-  error: error | undefined;
-  showError: (error: error) => void;
+  error: Error | undefined;
+  showError: (error: Error) => void;
   hideError: () => void;
   isErrorShown: boolean;
 };
@@ -11,10 +11,10 @@ type ErrorContextType = {
 export const ErrorContext = createContext<ErrorContextType | null>(null);
 
 export const ErrorContextProvider: React.FC = ({ children }) => {
-  const [error, setError] = useState<error>();
+  const [error, setError] = useState<Error>();
   const [isErrorShown, setIsErrorShown] = useState(false);
 
-  const showError = (error: error) => {
+  const showError = (error: Error) => {
     setError(error);
     setIsErrorShown(true);
   };

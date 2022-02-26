@@ -4,7 +4,7 @@ import "./PieChartFull.scss";
 import SearchBar from "../SearchBar/SearchBar";
 import Chart from "./Chart";
 import Button from "../Button/Button";
-import { attribute } from "../../types/types";
+import { Attribute } from "../../types/types";
 import {
   taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs,
   taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs,
@@ -18,8 +18,8 @@ interface Props {
     | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
   maxItemsShown?: number;
   maxItemsSelected?: number;
-  selectedAttributes: attribute[];
-  setSelectedAttributes: React.Dispatch<React.SetStateAction<attribute[]>>;
+  selectedAttributes: Attribute[];
+  setSelectedAttributes: React.Dispatch<React.SetStateAction<Attribute[]>>;
 }
 /* eslint-enable no-unused-vars */
 
@@ -32,9 +32,9 @@ const PieChartFull: React.FC<Props> = ({
   setSelectedAttributes,
 }) => {
   const [searchString, setSearchString] = useState("");
-  const [foundAttributes, setFoundAttributes] = useState<attribute[]>([]);
+  const [foundAttributes, setFoundAttributes] = useState<Attribute[]>([]);
   const [depth, setDepth] = useState(0);
-  const [displayAttributes, setDisplayAttributes] = useState<attribute[]>([]);
+  const [displayAttributes, setDisplayAttributes] = useState<Attribute[]>([]);
 
   // Update found attributes if search string changes or attributes change.
   // Keep found attributes sorted.

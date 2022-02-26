@@ -17,6 +17,7 @@ const App: React.FC = () => {
   const { isSignUpShown, isFeedbackShown, isLogInShown } =
     useContext(AuthContext)!;
 
+
   return (
     <div className="App bg-light d-flex flex-column min-vh-100">
       <Router>
