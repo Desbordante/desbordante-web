@@ -1,7 +1,7 @@
 import { STRING, UUID, UUIDV4 } from "sequelize";
 import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
 
-import { PermissionType } from "./Permission";
+import { Permission, PermissionType } from "./Permission";
 import { User } from "./User";
 
 const ALL_ROLES = ["ANONYMOUS", "USER", "SUPPORT", "ADMIN", "DEVELOPER"] as const;
@@ -55,4 +55,9 @@ export class Role extends Model {
 
     static getPermissionsForRole = (role: RoleType) =>
         rolesPermissions.find(item => role === item.role)?.permissions || null;
+
+    static getPermissionIndicesForRole = (role: RoleType) =>
+        Role.getPermissionsForRole(role)
+            ?.map(permission =>
+                Permission.getAllPermissions().indexOf(permission));
 }

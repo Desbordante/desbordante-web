@@ -12,7 +12,7 @@ import { Device, DeviceInfoInstance } from "./db/models/Authorization/Device";
 import { Permission } from "./db/models/Authorization/Permission";
 import { RoleType } from "./db/models/Authorization/Role";
 import { Session } from "./db/models/Authorization/Session";
-import { User } from "./db/models/Authorization/User";
+import { AccountStatusType, User } from "./db/models/Authorization/User";
 import { sequelize } from "./db/sequelize";
 import configureGraphQL from "./graphql/configureGraphQL";
 import { AccessTokenExpiredError } from "./graphql/types/errorTypes";
@@ -61,8 +61,9 @@ async function createAccountWithLongLiveRefreshToken(roles: RoleType[]) {
             occupation: "occupation",
             pwdHash: "pwdHash",
         };
-        const [user, _] = await User.findOrCreate({ where: { ...props, accountStatus: "EMAIL VERIFIED" } });
-        await user.addRole("DEVELOPER");
+        const accountStatus: AccountStatusType = "EMAIL_VERIFIED";
+        const [user, _] = await User.findOrCreate({ where: { ...props, accountStatus } });
+        await user.addRole(role);
 
         const deviceInfoString = `{
         "deviceID":"bc6e5ac3-54fd-4041-93b2-a0a5e7dd7405:203313997",
