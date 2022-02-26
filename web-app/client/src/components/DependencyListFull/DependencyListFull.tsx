@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Container, Stack } from "react-bootstrap";
 
-import Dependency from "../Dependency/Dependency";
+import DependencySelect from "../DependencySelect/DependencySelect";
 import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";
-import { attribute, dependency } from "../../types/types";
+import { Attribute, Dependency } from "../../types/types";
 import { TaskContext } from "../TaskContext";
 
-type sortMethod = "LHS" | "RHS";
+type SortMethod = "LHS" | "RHS";
+const allowedSortMethods: SortMethod[] = ["LHS", "RHS"];
 
 interface Props {
-  selectedAttributesLHS: attribute[];
-  selectedAttributesRHS: attribute[];
-  selectedDependency: dependency | null;
+  selectedAttributesLHS: Attribute[];
+  selectedAttributesRHS: Attribute[];
+  selectedDependency: Dependency | null;
   setSelectedDependency: React.Dispatch<
-    React.SetStateAction<dependency | null>
+    React.SetStateAction<Dependency | null>
   >;
   className?: string;
 }
@@ -28,13 +29,12 @@ const DependencyListFull: React.FC<Props> = ({
 }) => {
   const { dependencies, keys } = useContext(TaskContext)!;
 
-  const [sortedDependencies, setSortedDependencies] = useState<dependency[]>(
+  const [sortedDependencies, setSortedDependencies] = useState<Dependency[]>(
     []
   );
-  const [sortBy, setSortBy] = useState<sortMethod>("LHS");
+  const [sortBy, setSortBy] = useState<SortMethod>("LHS");
   const [searchString, setSearchString] = useState("");
   const [showKeys, setShowKeys] = useState(true);
-  const allowedSortMethods: sortMethod[] = ["LHS", "RHS"];
 
   // update displayed dependencies on search
   useEffect(() => {
@@ -120,7 +120,7 @@ const DependencyListFull: React.FC<Props> = ({
       </Container>
       <Stack className="my-2 w-100">
         {sortedDependencies.map((dep, index) => (
-          <Dependency
+          <DependencySelect
             dep={dep}
             key={index}
             onClick={() => {

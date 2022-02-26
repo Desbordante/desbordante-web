@@ -7,15 +7,19 @@ import React, {
   useState,
 } from "react";
 import { DELETE_TASK } from "../graphql/operations/mutations/deleteTask";
-import { deleteTask, deleteTaskVariables } from "../graphql/operations/mutations/__generated__/deleteTask";
+import {
+  deleteTask,
+  deleteTaskVariables,
+} from "../graphql/operations/mutations/__generated__/deleteTask";
 
 import { GET_TASK_INFO } from "../graphql/operations/queries/getTaskInfo";
 import {
   taskInfo,
   taskInfo_taskInfo_dataset_snippet,
-  taskInfo_taskInfo_data_FDTask, taskInfoVariables,
+  taskInfo_taskInfo_data_FDTask,
+  taskInfoVariables,
 } from "../graphql/operations/queries/__generated__/taskInfo";
-import { dependency, pieChartData } from "../types/types";
+import { Dependency, PieChartData } from "../types/types";
 import { ErrorContext } from "./ErrorContext";
 
 type TaskContextType = {
@@ -29,8 +33,8 @@ type TaskContextType = {
   maxPhase: number | undefined;
   fileName: string | undefined;
   snippet: taskInfo_taskInfo_dataset_snippet | undefined;
-  pieChartData: pieChartData | undefined;
-  dependencies: dependency[] | undefined;
+  pieChartData: PieChartData | undefined;
+  dependencies: Dependency[] | undefined;
   keys: string[] | undefined;
   resetTask: () => void;
   deleteTask: () => Promise<any>;
@@ -52,8 +56,8 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   const [fileName, setFileName] = useState<string>();
   const [snippet, setSnippet] = useState<taskInfo_taskInfo_dataset_snippet>();
 
-  const [pieChartData, setPieChartData] = useState<pieChartData>();
-  const [dependencies, setDependencies] = useState<dependency[]>();
+  const [pieChartData, setPieChartData] = useState<PieChartData>();
+  const [dependencies, setDependencies] = useState<Dependency[]>();
   const [keys, setKeys] = useState<string[]>();
 
   const resetTask = async () => {
@@ -73,18 +77,19 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     setKeys(undefined);
   };
 
-  const [query, { data, error }] = useLazyQuery<taskInfo, taskInfoVariables>(GET_TASK_INFO);
-  const [deleteTask, { error: deleteError }] = useMutation<deleteTask, deleteTaskVariables>(
-    DELETE_TASK,
-    { variables: { taskID: taskId! } }
+  const [query, { data, error }] = useLazyQuery<taskInfo, taskInfoVariables>(
+    GET_TASK_INFO
   );
+  const [deleteTask, { error: deleteError }] = useMutation<
+    deleteTask,
+    deleteTaskVariables
+  >(DELETE_TASK, { variables: { taskID: taskId! } });
 
   const queryRef = useRef<NodeJS.Timer>();
 
   useEffect(() => {
     queryRef.current = setInterval(
-      () =>
-        taskId && query({ variables: { taskID: taskId } }),
+      () => taskId && query({ variables: { taskID: taskId } }),
       500
     );
   }, [taskId]);

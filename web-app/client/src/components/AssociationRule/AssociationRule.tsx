@@ -1,11 +1,11 @@
 import React from "react";
 
-import { associationRule } from "../../types/types";
+import { AssociationRule } from "../../types/types";
 import stringToColor from "../../functions/stringToColor";
 import "./AssociationRule.scss";
 
 interface Props {
-  rule: associationRule;
+  rule: AssociationRule;
   isActive: boolean;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   onActiveClick: React.MouseEventHandler<HTMLDivElement>;

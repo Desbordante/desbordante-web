@@ -16,12 +16,12 @@ import {
   getUser,
   getUserVariables,
 } from "../graphql/operations/queries/__generated__/getUser";
-import { user } from "../types/types";
+import { User } from "../types/types";
 import { ErrorContext } from "./ErrorContext";
 
 type AuthContextType = {
-  user: user | undefined;
-  setUser: React.Dispatch<React.SetStateAction<user | undefined>>;
+  user: User | undefined;
+  setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
   isSignUpShown: boolean;
   setIsSignUpShown: React.Dispatch<React.SetStateAction<boolean>>;
   isFeedbackShown: boolean;
@@ -35,7 +35,7 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthContextProvider: React.FC = ({ children }) => {
   const { showError } = useContext(ErrorContext)!;
-  const [user, setUser] = useState<user | undefined>(
+  const [user, setUser] = useState<User | undefined>(
     localStorage.getItem("user")
       ? JSON.parse(localStorage.getItem("user")!)
       : undefined
@@ -51,13 +51,17 @@ export const AuthContextProvider: React.FC = ({ children }) => {
     },
   });
 
+  const removeUser = () => {
+    localStorage.removeItem("user");
+    removeTokenPair();
+    setUser(undefined);
+  };
+
   const signOut = async () => {
     try {
       const response = await logOut();
       if (response.data) {
-        localStorage.removeItem("user");
-        removeTokenPair();
-        setUser(undefined);
+        removeUser();
       }
     } catch (error: any) {
       showError({ message: error?.message });
@@ -65,6 +69,38 @@ export const AuthContextProvider: React.FC = ({ children }) => {
   };
 
   const renewTokens = () => {};
+
+  useEffect(() => {
+    if (user?.id) {
+      try {
+        (async () => {
+          const response = await getUser({
+            variables: {
+              userID: user.id!,
+            },
+          });
+
+          if (response.data?.user) {
+            setUser({
+              id: response.data.user.userID,
+              name: response.data.user.fullName,
+              email: response.data.user.email,
+              isVerified: response.data.user.accountStatus === "EMAIL VERIFIED",
+              permissions: parseUserPermissions(response.data.user.permissions),
+            });
+          } else {
+            showError({
+              message: "Your authentication expired.",
+              suggestion: "Please, log in again.",
+            });
+            removeUser();
+          }
+        })();
+      } catch (error: any) {
+        showError({ message: error.message });
+      }
+    }
+  }, []);
 
   useEffect(() => {
     setupDeviceInfo();
