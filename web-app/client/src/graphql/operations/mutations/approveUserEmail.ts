@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const APPROVE_USER_EMAIL = gql`
-  mutation approveUserEmail($codeValue: Int!, $userID: String!) {
-    approveUserEmail(codeValue: $codeValue, userID: $userID) {
+  mutation approveUserEmail($codeValue: Int!) {
+    approveUserEmail(codeValue: $codeValue) {
       refreshToken
       accessToken
     }
