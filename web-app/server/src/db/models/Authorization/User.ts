@@ -1,12 +1,12 @@
 import {
-    AllowNull, Column, HasMany, IsEmail, IsUUID, Model, Table,
+    Column, HasMany, IsEmail, IsUUID, Model, Table,
 } from "sequelize-typescript";
+import { Role, RoleType } from "./Role";
 import { STRING, UUID, UUIDV4 } from "sequelize";
+import { Session, SessionStatusType } from "./Session";
 import { Feedback } from "./Feedback";
 import { FileInfo } from "./FileInfo";
 import { Permission } from "./Permission";
-import { Role, RoleType } from "./Role";
-import { Session, SessionStatusType } from "./Session";
 import { TaskInfo } from "../TaskData/TaskInfo";
 
 const ALL_ACCOUNT_STATUS = ["EMAIL VERIFICATION", "EMAIL VERIFIED"] as const;
@@ -100,8 +100,7 @@ export class User extends Model implements UserModelMethods {
     };
 
     createSession = async (deviceID: string) => {
-        return await Session.create(
-            { userID: this.userID, status: "VALID" as SessionStatusType, deviceID }
-        );
+        const status: SessionStatusType = "VALID";
+        return await Session.create({ userID: this.userID, status, deviceID });
     };
 }
