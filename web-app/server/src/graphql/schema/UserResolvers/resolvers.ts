@@ -13,7 +13,7 @@ export const UserResolvers : Resolvers = {
         // @ts-ignore
         permissions: async ({ permissionIndices }, _, { models, sessionInfo, logger }) => {
             const indices = JSON.parse(permissionIndices) as number[];
-            return indices.map((id) => Permission.getAllPermissions()[id]);
+            return indices.map(id => Permission.getAllPermissions()[id]);
         },
     },
     User: {
@@ -126,8 +126,9 @@ export const UserResolvers : Resolvers = {
             if (!sessionInfo) {
                 throw new UserInputError("Session information wasn't provided");
             }
-            const [affectedRows] = await models.Session.update({ status: "INVALID" as SessionStatusType },
-                allSessions ? { where: { userID: sessionInfo.userID } } : { where: { sessionID: sessionInfo.sessionID } });
+            const status: SessionStatusType = "INVALID";
+            const options = allSessions ? { where: { userID: sessionInfo.userID } } : { where: { sessionID: sessionInfo.sessionID } };
+            const [affectedRows] = await models.Session.update({ status }, options);
             if (affectedRows >= 1) {
                 return `Successfully updated ${affectedRows} sessions`;
             } else {
@@ -147,9 +148,11 @@ export const UserResolvers : Resolvers = {
             if (user.accountStatus !== "EMAIL VERIFICATION") {
                 throw new UserInputError("User has incorrect account status");
             }
-            let code = await models.Code.findOne({ where: { userID, type: "EMAIL VERIFICATION" as CodeType } });
+            const type: CodeType = "EMAIL_VERIFICATION";
+            const options = { where: { userID, type } };
+            let code = await models.Code.findOne(options);
             if (code) {
-                await models.Code.destroy({ where: { userID, type: "EMAIL VERIFICATION" as CodeType } });
+                await models.Code.destroy(options);
             }
             code = await models.Code.createEmailVerificationCode(userID, device.deviceID);
 
@@ -164,8 +167,8 @@ export const UserResolvers : Resolvers = {
             if (user) {
                 throw new UserInputError(`Email ${props.email} already used`);
             }
-
-            const newUser = await models.User.create({ ...props, accountStatus: "EMAIL VERIFICATION" as AccountStatusType });
+            const accountStatus: AccountStatusType = "EMAIL VERIFICATION";
+            const newUser = await models.User.create({ ...props, accountStatus });
             await newUser.addRole("ANONYMOUS");
 
             const session = await newUser.createSession(device.deviceID);
@@ -174,7 +177,7 @@ export const UserResolvers : Resolvers = {
             const tokens = await session.issueTokenPair();
             return { message: "New account created", tokens };
         },
-        approveUserEmail: async (parent, { codeValue }, { models, logger, device, sessionInfo }) => {
+        approveUserEmail: async (parent, { codeValue }, { models, device, sessionInfo }) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be logged in");
             }
@@ -187,7 +190,8 @@ export const UserResolvers : Resolvers = {
             if (user.accountStatus !== "EMAIL VERIFICATION") {
                 throw new UserInputError("User has incorrect account status");
             }
-            const code = await models.Code.findOne({ where: { userID, type: "EMAIL_VERIFICATION" as CodeType } });
+            const type: CodeType = "EMAIL_VERIFICATION";
+            const code = await models.Code.findOne({ where: { userID, type } });
             if (!code) {
                 throw new UserInputError("User hasn't email verification codes");
             }
@@ -206,7 +210,8 @@ export const UserResolvers : Resolvers = {
                 throw new UserInputError("Received incorrect code value, temporary code was destroyed");
             } else {
                 await code.destroy();
-                await user.update({ accountStatus: "EMAIL VERIFIED" as AccountStatusType });
+                const accountStatus: AccountStatusType = "EMAIL VERIFIED";
+                await user.update({ accountStatus });
                 await user.addRole("USER");
 
                 const session = await models.Session.findByPk(sessionInfo.sessionID);
@@ -216,7 +221,7 @@ export const UserResolvers : Resolvers = {
                 return session.issueTokenPair();
             }
         },
-        refresh: async (parent, { refreshToken }, { models, logger, device }) => {
+        refresh: async (parent, { refreshToken }, { models, device }) => {
             let decoded: RefreshTokenInstance;
             try {
                 decoded = jwt.verify(refreshToken, process.env.SECRET_KEY!) as RefreshTokenInstance;
