@@ -9,8 +9,9 @@ import { FileInfo } from "./FileInfo";
 import { Permission } from "./Permission";
 import { TaskInfo } from "../TaskData/TaskInfo";
 
-const ALL_ACCOUNT_STATUS = ["EMAIL VERIFICATION", "EMAIL VERIFIED"] as const;
+const ALL_ACCOUNT_STATUS = ["EMAIL_VERIFICATION", "EMAIL_VERIFIED"] as const;
 export type AccountStatusType = typeof ALL_ACCOUNT_STATUS[number];
+export const getAllAccountStatus = () => ALL_ACCOUNT_STATUS;
 
 interface UserModelMethods {
     getPermissions: () => Promise<string[]>;
@@ -90,7 +91,7 @@ export class User extends Model implements UserModelMethods {
         if (~roleIdx) {
             return roles[roleIdx];
         }
-        const permissionIndices = JSON.stringify(Role.getPermissionsForRole(role));
+        const permissionIndices = JSON.stringify(Role.getPermissionIndicesForRole(role));
         return await this.$create("role",
             { type: role, permissionIndices }) as Role;
     };

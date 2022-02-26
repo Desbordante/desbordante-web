@@ -1,6 +1,7 @@
 import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core";
 import { AuthenticationError } from "apollo-server-express";
 import jwt from "jsonwebtoken";
+import { FindOptions } from "sequelize";
 import { CodeType } from "../../../db/models/Authorization/Code";
 import { Permission } from "../../../db/models/Authorization/Permission";
 import { Role } from "../../../db/models/Authorization/Role";
@@ -16,7 +17,18 @@ export const UserResolvers : Resolvers = {
             return indices.map(id => Permission.getAllPermissions()[id]);
         },
     },
+    Session: {
+        // @ts-ignore
+        user: async ({ userID }, _, { models, sessionInfo, logger }) => {
+            const user = await models.User.findByPk(userID);
+            if (!user) {
+                throw new ApolloError("User not found");
+            }
+            return user;
+        },
+    },
     User: {
+        // @ts-ignore
         permissions: async ({ userID }, _, { models, sessionInfo, logger }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
@@ -76,6 +88,7 @@ export const UserResolvers : Resolvers = {
             }
             return await models.Feedback.findAll(args);
         },
+        // @ts-ignore
         getAnonymousPermissions: (parent, obj, { models, logger }) => {
             const permissions = Role.getPermissionsForRole("ANONYMOUS");
             if (!permissions) {
@@ -103,6 +116,21 @@ export const UserResolvers : Resolvers = {
                 throw new ForbiddenError("User don't have permission");
             }
             return await models.User.findAll(args);
+        },
+        // @ts-ignore
+        sessions: async (parent, { offset, limit, onlyValid }, { models, logger, sessionInfo }) => {
+            if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
+                throw new ForbiddenError("User don't have permission");
+            }
+            if (limit < 1 || limit > 100 || offset < 0) {
+                throw new UserInputError("Incorrect limit or offset");
+            }
+            let options: FindOptions = { offset, limit };
+            if (onlyValid) {
+                const status: SessionStatusType = "VALID";
+                options = { ...options, where: { status } };
+            }
+            return await models.Session.findAll(options);
         },
     },
     Mutation: {
@@ -145,7 +173,7 @@ export const UserResolvers : Resolvers = {
             if (!user) {
                 throw new UserInputError("Incorrect userID was provided");
             }
-            if (user.accountStatus !== "EMAIL VERIFICATION") {
+            if (user.accountStatus !== "EMAIL_VERIFICATION") {
                 throw new UserInputError("User has incorrect account status");
             }
             const type: CodeType = "EMAIL_VERIFICATION";
@@ -167,7 +195,7 @@ export const UserResolvers : Resolvers = {
             if (user) {
                 throw new UserInputError(`Email ${props.email} already used`);
             }
-            const accountStatus: AccountStatusType = "EMAIL VERIFICATION";
+            const accountStatus: AccountStatusType = "EMAIL_VERIFICATION";
             const newUser = await models.User.create({ ...props, accountStatus });
             await newUser.addRole("ANONYMOUS");
 
@@ -187,7 +215,7 @@ export const UserResolvers : Resolvers = {
             if (!user) {
                 throw new ApolloError("User not found");
             }
-            if (user.accountStatus !== "EMAIL VERIFICATION") {
+            if (user.accountStatus !== "EMAIL_VERIFICATION") {
                 throw new UserInputError("User has incorrect account status");
             }
             const type: CodeType = "EMAIL_VERIFICATION";
@@ -210,7 +238,7 @@ export const UserResolvers : Resolvers = {
                 throw new UserInputError("Received incorrect code value, temporary code was destroyed");
             } else {
                 await code.destroy();
-                const accountStatus: AccountStatusType = "EMAIL VERIFIED";
+                const accountStatus: AccountStatusType = "EMAIL_VERIFIED";
                 await user.update({ accountStatus });
                 await user.addRole("USER");
 

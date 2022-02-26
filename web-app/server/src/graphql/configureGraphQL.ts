@@ -35,7 +35,7 @@ const configureGraphQL = async (app: Application, sequelize: Sequelize) => {
             } else {
                 if (!device.isEqualTo(deviceInfo)) {
                     logger(`FATAL ERROR: Received device with duplicate deviceID = ${device.deviceID}`,
-                            JSON.stringify(device), JSON.stringify(deviceInfo));
+                        JSON.stringify(device), JSON.stringify(deviceInfo));
                 }
             }
             const tokenPayload = req.user as AccessTokenInstance | null;

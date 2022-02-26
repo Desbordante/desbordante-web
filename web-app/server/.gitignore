@@ -25,5 +25,7 @@ yarn.lock
 uploads/*.csv
 package-lock.json
 dist
+
+src/db/test
 src/graphql/types/types.d.ts
 graphql.schema.json
