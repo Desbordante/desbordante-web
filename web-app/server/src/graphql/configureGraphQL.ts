@@ -1,6 +1,8 @@
 import { ApolloServer, AuthenticationError } from "apollo-server-express";
 import { Application } from "express";
 import { graphqlHTTP } from "express-graphql";
+import { applyMiddleware } from "graphql-middleware";
+import jwt, { VerifyOptions } from "jsonwebtoken";
 import { Sequelize } from "sequelize";
 import { ModelsType } from "../db/models";
 import { Device, DeviceInfoInstance } from "../db/models/Authorization/Device";
@@ -8,12 +10,43 @@ import { AccessTokenInstance } from "../db/models/Authorization/Session";
 
 import schema from "./schema/schema";
 import { Context } from "./types/context";
+import { AccessTokenExpiredError, InvalidHeaderError } from "./types/errorTypes";
+
+// @ts-ignore
+const logInput = async (resolve, root, args, context, info) => {
+    return await resolve(root, args, context, info);
+};
+
+const schemaWithMiddleware = applyMiddleware(schema, logInput);
+
+const getTokenPayloadIfValid = (req: any, secret: string) => {
+    if (req.headers && req.headers.authorization) {
+        const parts = req.headers.authorization.split(" ");
+        if (parts.length !== 2) {
+            throw new InvalidHeaderError("Invalid authorization header");
+        }
+        const [scheme, accessToken] = parts;
+        if (scheme !== "Bearer") {
+            throw new InvalidHeaderError("Invalid authorization header");
+        }
+        const options: VerifyOptions = {
+            algorithms: ["HS256"],
+        };
+        try {
+            const decoded = jwt.verify(accessToken, secret, options);
+            return decoded as AccessTokenInstance;
+        } catch (err) {
+            throw new AccessTokenExpiredError("Token expired or has invalid signature");
+        }
+    }
+    return null;
+};
 
 const configureGraphQL = async (app: Application, sequelize: Sequelize) => {
     const models = sequelize.models as ModelsType;
     const logger = console.log;
     const graphqlServer = new ApolloServer({
-        schema,
+        schema: schemaWithMiddleware,
         context: async ({ req }) => {
             const requestID = req.headers["x-request-id"];
             if (typeof requestID !== "string") {
@@ -34,11 +67,11 @@ const configureGraphQL = async (app: Application, sequelize: Sequelize) => {
                 device = await Device.addDevice(deviceInfo);
             } else {
                 if (!device.isEqualTo(deviceInfo)) {
-                    logger(`FATAL ERROR: Received device with duplicate deviceID = ${device.deviceID}`,
-                        JSON.stringify(device), JSON.stringify(deviceInfo));
+                    //logger(`FATAL ERROR: Received device with duplicate deviceID = ${device.deviceID}`,
+                    //    JSON.stringify(device), JSON.stringify(deviceInfo));
                 }
             }
-            const tokenPayload = req.user as AccessTokenInstance | null;
+            const tokenPayload = getTokenPayloadIfValid(req, process.env.SECRET_KEY!);
             if (tokenPayload) {
                 const { userID, deviceID, sessionID } = tokenPayload;
                 if (deviceID !== device.deviceID) {
@@ -57,6 +90,7 @@ const configureGraphQL = async (app: Application, sequelize: Sequelize) => {
                 if (session.userID != userID) {
                     throw new AuthenticationError("Received incorrect userID");
                 }
+                console.log(JSON.stringify(session));
                 if (session.status === "INVALID") {
                     throw new AuthenticationError("Session is INVALID");
                 }
