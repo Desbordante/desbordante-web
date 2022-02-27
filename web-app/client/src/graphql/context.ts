@@ -49,60 +49,86 @@ export const requestIdLink = setContext((operation, previousContext) => {
   };
 });
 
-export const errorLink = onError(
-  ({ graphQLErrors, networkError, operation, forward }) => {
-    if (graphQLErrors) {
-      graphQLErrors.forEach((err) => {
-        switch (err.extensions.code) {
-          case "UNAUTHENTICATED":
-          case "TOKEN_EXPIRED":
-            return fromPromise(
-              fetch(graphQLEndpoint, {
-                method: "POST",
-                headers: {
-                  ...generateRequestHeaders(),
-                  accept: "*/*",
-                  "content-type": "application/json",
-                },
-                body: JSON.stringify({
-                  query: `mutation refresh($refreshToken: String!) {
+let isRefreshing = false;
+let pendingRequests: any = [];
+
+const resolvePendingRequests = () => {
+  pendingRequests.map((callback: any) => callback());
+  pendingRequests = [];
+};
+
+const getNewTokens = () => {
+  return fetch(graphQLEndpoint, {
+    method: "POST",
+    headers: {
+      ...generateRequestHeaders(),
+      accept: "*/*",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      query: `mutation refresh($refreshToken: String!) {
                     refresh(refreshToken: $refreshToken) {
                       accessToken
                       refreshToken
                     }
                   }`,
-                  variables: {
-                    refreshToken: getRefreshToken(),
-                  },
-                }),
-              })
-                .then((res) => res.json())
-                .then((res) => {
-                  console.log("New tokens:", res.data.refresh);
-                  saveTokenPair(res.data.refresh as TokenPair);
-                  // Store the new tokens for your auth link
-                  return res.data.accessToken;
-                })
-                .catch((error) => {
-                  // Handle token refresh errors e.g clear stored tokens, redirect to login, ...
-                  removeTokenPair();
-                  removeUser();
-                })
-            )
-              .filter((value) => Boolean(value))
-              .flatMap(() => {
-                // retry the request, returning the new observable
-                return forward(operation);
-              });
-        }
-      });
-    }
+      variables: {
+        refreshToken: getRefreshToken(),
+      },
+    }),
+  })
+    .then((res) => res.json())
+    .then((res) => res.data.refresh);
+};
 
+export const errorLink = onError(
+  ({ graphQLErrors, networkError, operation, forward }) => {
+    if (graphQLErrors) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const err of graphQLErrors) {
+        switch (err.extensions.code) {
+          case "TOKEN_EXPIRED":
+            // eslint-disable-next-line no-case-declarations
+            let forward$;
+
+            if (!isRefreshing) {
+              isRefreshing = true;
+              forward$ = fromPromise(
+                getNewTokens()
+                  .then((tokens: TokenPair) => {
+                    saveTokenPair(tokens);
+                    resolvePendingRequests();
+                    return tokens.accessToken;
+                  })
+                  // eslint-disable-next-line @typescript-eslint/no-loop-func
+                  .catch((error) => {
+                    console.error("Received an error! Logging out: ", error);
+                    pendingRequests = [];
+                    removeUser();
+                    removeTokenPair();
+                    // eslint-disable-next-line no-useless-return
+                    return;
+                  })
+                  // eslint-disable-next-line @typescript-eslint/no-loop-func
+                  .finally(() => {
+                    isRefreshing = false;
+                  })
+              ).filter((value) => Boolean(value));
+            } else {
+              forward$ = fromPromise(
+                // eslint-disable-next-line @typescript-eslint/no-loop-func
+                new Promise<void>((resolve) => {
+                  pendingRequests.push(() => resolve());
+                })
+              );
+            }
+
+            return forward$.flatMap(() => forward(operation));
+        }
+      }
+    }
     if (networkError) {
       console.log(`[Network error]: ${networkError}`);
-      // if you would also like to retry automatically on
-      // network errors, we recommend that you use
-      // apollo-link-retry
     }
   }
 );
