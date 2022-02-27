@@ -4,6 +4,7 @@ import sys
 import json
 import pathlib
 import os
+import signal
 import confluent_kafka
 import docker
 import psycopg
@@ -110,14 +111,14 @@ def create_container(taskID):
                                         environment=env_variables)
 
 
-def main():
+def main(containers):
     consumer = create_consumer()
-    active_tasks = dict()
 
     while True:
-        check_active_containers(active_tasks)
+        check_active_containers(containers)
 
-        if len(active_tasks) >= MAX_ACTIVE_TASKS:
+        containers_amount = len(containers)
+        if containers_amount >= MAX_ACTIVE_TASKS:
             time.sleep(1)
             continue
 
@@ -133,9 +134,21 @@ def main():
         taskID = json.loads(msg.value().decode('utf-8'))['taskID']
 
         container = create_container(taskID)
-        active_tasks[taskID] = (container, time.time())
+        containers[taskID] = (container, time.time())
 
     consumer.close()
 
 
-main()
+def exit_gracefully(*args):
+    for taskID, (container, t) in containers.items():
+        container.stop(timeout=1)
+        container.remove(force=True)
+
+
+containers = dict()
+signal.signal(signal.SIGINT, exit_gracefully)
+signal.signal(signal.SIGTERM, exit_gracefully)
+try:
+    main(containers)
+except:
+    exit_gracefully()
