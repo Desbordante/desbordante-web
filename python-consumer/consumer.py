@@ -108,7 +108,8 @@ def create_container(taskID):
                                             'desbordante_datasets:/build/target/inputData/'],
                                         detach=True,
                                         mem_limit=f'{MAX_RAM}m',
-                                        environment=env_variables)
+                                        environment=env_variables,
+                                        labels={"type": "cpp-consumer"})
 
 
 def main(containers):
@@ -145,10 +146,20 @@ def exit_gracefully(*args):
         container.remove(force=True)
 
 
+def remove_dangling_containers():
+    active_cpp_containers = docker_client.containers.list(
+        filters={"label": "type=cpp-consumer"})
+    for container in active_cpp_containers:
+        print("removing", container.id, file=sys.stderr)
+        container.stop(timeout=1)
+        container.remove(force=True)
+
+
 containers = dict()
 signal.signal(signal.SIGINT, exit_gracefully)
 signal.signal(signal.SIGTERM, exit_gracefully)
 try:
+    remove_dangling_containers()
     main(containers)
 except:
     exit_gracefully()
