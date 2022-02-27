@@ -1,6 +1,5 @@
 import cors from "cors";
 import express, { Application } from "express";
-import expressJwt from "express-jwt";
 import { graphqlUploadExpress } from "graphql-upload";
 import createError from "http-errors";
 import morgan from "morgan";
@@ -11,11 +10,10 @@ import initBuiltInDatasets from "./db/initBuiltInDatasets";
 import { Device, DeviceInfoInstance } from "./db/models/Authorization/Device";
 import { Permission } from "./db/models/Authorization/Permission";
 import { RoleType } from "./db/models/Authorization/Role";
-import { Session } from "./db/models/Authorization/Session";
+import { Session, SessionStatusType } from "./db/models/Authorization/Session";
 import { AccountStatusType, User } from "./db/models/Authorization/User";
 import { sequelize } from "./db/sequelize";
 import configureGraphQL from "./graphql/configureGraphQL";
-import { AccessTokenExpiredError } from "./graphql/types/errorTypes";
 import { CreatingUserProps } from "./graphql/types/types";
 
 function normalizePort(val: string | undefined) {
@@ -33,19 +31,6 @@ async function setMiddlewares(app: Application) {
     app.use(cors());
     app.use(graphqlUploadExpress());
     app.use(morgan("dev"));
-    app.use(
-        expressJwt({
-            secret: process.env.SECRET_KEY!,
-            algorithms: ["HS256"],
-            credentialsRequired: false,
-        })
-    );
-    // @ts-ignore
-    app.use((err, req, res, next) => {
-        if (err.name === "UnauthorizedError") {
-            res.status(200).send(new AccessTokenExpiredError("invalid token"));
-        }
-    });
 }
 
 async function createAccountWithLongLiveRefreshToken(roles: RoleType[]) {
@@ -87,7 +72,8 @@ async function createAccountWithLongLiveRefreshToken(roles: RoleType[]) {
                     JSON.stringify(device), JSON.stringify(deviceInfo));
             }
         }
-        let session = await Session.findOne({ where: { userID: user.userID } });
+        const status: SessionStatusType = "VALID";
+        let session = await Session.findOne({ where: { userID: user.userID, status } });
         if (!session) {
             session = await user.createSession(deviceInfo.deviceID);
         }
