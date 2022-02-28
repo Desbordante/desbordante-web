@@ -7,6 +7,7 @@ import Toggle from "../../Toggle/Toggle";
 import FormItem from "../../FormItem/FormItem";
 import { AlgorithmConfigContext } from "../../AlgorithmConfigContext";
 import { FileFormContext } from "../../FileFormContext";
+import Selector from "../../Selector/Selector";
 
 const EDPAlgorithmProps = () => {
   const { algorithmProps, setAlgorithmProps } = useContext(FileFormContext)!;
@@ -41,10 +42,10 @@ const EDPAlgorithmProps = () => {
     }));
   };
 
-  const changeArityConstant = (newArityConstant: string) => {
+  const changearityConstraint = (newarityConstraint: string) => {
     setAlgorithmProps((prevProps) => ({
       ...prevProps,
-      arityConstant: newArityConstant,
+      arityConstraint: newarityConstraint,
     }));
   };
 
@@ -71,40 +72,56 @@ const EDPAlgorithmProps = () => {
   }, [allowedValues]);
 
   const errorThreshold = algorithmProps?.errorThreshold || "0.005";
-  const arityConstant = algorithmProps?.arityConstant || "5";
+  const arityConstraint = algorithmProps?.arityConstraint || "5";
   const threadsCount = algorithmProps?.threadsCount || "2";
 
   return (
     <>
       <FormItem>
         <h5 className="text-white mb-0 mx-2">Exact algorithm:</h5>
-        {allowedValues.allowedAlgorithms?.allowedFDAlgorithms
-          .filter((algo) => !algo.properties.hasErrorThreshold)
-          .map((algo) => (
-            <Toggle
-              onClick={() => changeExactAlgorithm(algo)}
-              toggleCondition={algorithmProps?.exact?.algorithm === algo}
-              key={algo.name}
-              className="mx-2"
-            >
-              {algo.name}
-            </Toggle>
-          ))}
+        <Selector
+          options={
+            allowedValues.allowedAlgorithms?.allowedFDAlgorithms.filter(
+              (algo) => !algo.properties.hasErrorThreshold
+            ) || []
+          }
+          current={
+            algorithmProps.exact?.algorithm || {
+              name: "",
+              properties: {
+                hasArityConstraint: true,
+                hasErrorThreshold: true,
+                isMultiThreaded: true,
+              },
+            }
+          }
+          onSelect={changeExactAlgorithm}
+          label={(algo) => algo.name}
+          className="mx-2"
+        />
       </FormItem>
       <FormItem>
         <h5 className="text-white mb-0 mx-2">Approximate algorithm:</h5>
-        {allowedValues.allowedAlgorithms?.allowedFDAlgorithms
-          .filter((algo) => algo.properties.hasErrorThreshold)
-          .map((algo) => (
-            <Toggle
-              onClick={() => changeApproximateAlgorithm(algo)}
-              toggleCondition={algorithmProps?.approximate?.algorithm === algo}
-              key={algo.name}
-              className="mx-2"
-            >
-              {algo.name}
-            </Toggle>
-          ))}
+        <Selector
+          options={
+            allowedValues.allowedAlgorithms?.allowedFDAlgorithms.filter(
+              (algo) => algo.properties.hasErrorThreshold
+            ) || []
+          }
+          current={
+            algorithmProps.approximate?.algorithm || {
+              name: "",
+              properties: {
+                hasArityConstraint: true,
+                hasErrorThreshold: true,
+                isMultiThreaded: true,
+              },
+            }
+          }
+          onSelect={changeApproximateAlgorithm}
+          label={(algo) => algo.name}
+          className="mx-2"
+        />
       </FormItem>
 
       <FormItem
@@ -131,19 +148,19 @@ const EDPAlgorithmProps = () => {
           algorithmProps?.approximate?.algorithm?.properties.hasArityConstraint
         }
       >
-        <h5 className="text-white mb-0 mx-2">Arity constant:</h5>
+        <h5 className="text-white mb-0 mx-2">Arity constraint:</h5>
         <Value
-          value={arityConstant}
-          onChange={changeArityConstant}
+          value={arityConstraint}
+          onChange={changearityConstraint}
           size={3}
           inputValidator={validators.isInteger}
           className="mx-2"
         />
         <Slider
-          value={arityConstant}
+          value={arityConstraint}
           min={1}
           max={10}
-          onChange={changeArityConstant}
+          onChange={changearityConstraint}
           step={1}
           className="mx-2"
         />

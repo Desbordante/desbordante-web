@@ -5,7 +5,7 @@ import FileForm from "../FileForm/FileForm";
 import { FileFormContextProvider } from "../FileFormContext";
 
 const HomeScreen = () => (
-  <div className="bg-dark h-100 flex-grow-1">
+  <div className="bg-dark flex-grow-1 d-flex flex-column">
     <Header />
     <FileFormContextProvider>
       <FileForm />
