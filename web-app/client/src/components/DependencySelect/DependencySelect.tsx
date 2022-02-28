@@ -2,7 +2,7 @@ import React from "react";
 
 import { Dependency } from "../../types/types";
 import stringToColor from "../../functions/stringToColor";
-import "./Dependency.scss";
+import "./DependencySelect.scss";
 
 interface Props {
   dep: Dependency;
@@ -18,7 +18,7 @@ const DependencySelect: React.FC<Props> = ({
   onActiveClick,
 }) => (
   <div
-    className="Dependency d-flex my-1"
+    className="dependency d-flex my-1"
     role="button"
     tabIndex={0}
     onClick={isActive ? onActiveClick : onClick}
@@ -44,7 +44,7 @@ const DependencySelect: React.FC<Props> = ({
     ))}
 
     <svg
-      className={`arrow ${isActive ? "active" : ""}`}
+      className={`arrow${isActive ? " active" : ""}`}
       viewBox="0 0 58.73 20.09"
     >
       <line x1="48.68" y1="0.5" x2="58.23" y2="10.05" />

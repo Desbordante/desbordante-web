@@ -32,7 +32,7 @@ const defaultFileProps: FileProps = {
 };
 
 const defaultAlgorithmProps: AlgorithmProps = {
-  arityConstant: "5",
+  arityConstraint: "5",
   errorThreshold: "0.005",
   minConfidence: "0.5",
   minSupport: "1",
@@ -105,7 +105,7 @@ export const FileFormContextProvider: React.FC = ({ children }) => {
             (hasConfidence &&
               !validators.isBetweenZeroAndOne(algorithmProps.minConfidence)) ||
             (hasArityConstraint &&
-              !validators.isInteger(algorithmProps.arityConstant)) ||
+              !validators.isInteger(algorithmProps.arityConstraint)) ||
             (isMultiThreaded &&
               !validators.isInteger(algorithmProps.threadsCount)) ||
             (hasSupport &&

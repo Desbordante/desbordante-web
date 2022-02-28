@@ -15,7 +15,7 @@ const FileForm = () => {
   return (
     <Container
       fluid="md"
-      className="file-form h-100 flex-shrink-0 d-flex flex-column justify-content-start align-items-center"
+      className="file-form flex-grow-1 flex-shrink-0 d-flex flex-column justify-content-start align-items-center"
     >
       {fileUploadProgress > 0 && <LoadingScreen />}
       <ChoosePrimitive />

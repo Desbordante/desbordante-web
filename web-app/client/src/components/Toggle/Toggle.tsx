@@ -25,7 +25,7 @@ const Toggle: React.FC<Props> = ({
         : "bg-transparent text-grey"
     } text-nowrap border border-${
       variant === "light" ? "lighter-dark" : "secondary"
-    } border-2 outline-0 px-3 py-2 rounded-pill cursor-pointer ${className}`}
+    } border-2 outline-0 px-3 py-2 rounded-pill ${className}`}
     style={{}}
     onClick={isEnabled ? onClick : () => {}}
   >
