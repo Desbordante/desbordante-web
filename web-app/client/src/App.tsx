@@ -6,7 +6,7 @@ import ErrorScreen from "./components/ErrorScreen/ErrorScreen";
 import Viewer from "./components/Viewer/Viewer";
 import TopBar from "./components/TopBar/TopBar";
 import SignUpForm from "./components/SignUpForm";
-import FeedbackForm from "./components/FeedbackForm/FeedbackForm";
+import Index from "./components/FeedbackForm";
 import { ErrorContext } from "./components/ErrorContext";
 import { AuthContext } from "./components/AuthContext";
 import LogInForm from "./components/LogInForm/LogInForm";
@@ -22,7 +22,7 @@ const App: React.FC = () => {
       <Router>
         <TopBar />
         {isSignUpShown && <SignUpForm />}
-        {isFeedbackShown && <FeedbackForm />}
+        {isFeedbackShown && <Index />}
         {isLogInShown && <LogInForm />}
         {isErrorShown && <ErrorScreen />}
         <FeedbackButton />
