@@ -6,6 +6,7 @@ import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";
 import { Attribute, Dependency } from "../../types/types";
 import { TaskContext } from "../TaskContext";
+import Selector from "../Selector/Selector";
 
 type SortMethod = "LHS" | "RHS";
 const allowedSortMethods: SortMethod[] = ["LHS", "RHS"];
@@ -93,17 +94,14 @@ const DependencyListFull: React.FC<Props> = ({
     <Container fluid className={`flex-grow-1 d-flex flex-column ${className}`}>
       <Container fluid className="d-flex flex-wrap align-items-center p-0 my-2">
         <h3 className="mx-2 fw-bold">Sort by</h3>
-        {allowedSortMethods.map((value, index) => (
-          <Toggle
-            onClick={() => setSortBy(value)}
-            toggleCondition={sortBy === value}
-            variant="dark"
-            key={index}
-            className="mx-2"
-          >
-            {value}
-          </Toggle>
-        ))}
+        <Selector
+          options={allowedSortMethods}
+          current={sortBy}
+          onSelect={setSortBy}
+          label={(sortMethod) => sortMethod}
+          variant="dark"
+          className="mx-2"
+        />
         <SearchBar
           defaultText="Filter dependencies"
           onChange={(str) => setSearchString(str)}
