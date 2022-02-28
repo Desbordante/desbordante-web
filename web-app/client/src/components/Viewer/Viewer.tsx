@@ -31,42 +31,38 @@ const Viewer = () => {
   return isExecuted ? (
     <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">
       <Navigation partShown={partShown} setPartShown={setPartShown} />
-      <Row
-        className={`w-100 flex-grow-1 justify-content-evenly ${
-          partShown === 0 ? "" : "d-none"
-        }`}
-      >
-        <Col xl={6} className="mt-5">
-          <PieChartFull
-            title="Left-hand side"
-            attributes={pieChartData ? pieChartData.lhs : []}
-            selectedAttributes={selectedAttributesLHS}
-            setSelectedAttributes={setSelectedAttributesLHS}
-          />
-        </Col>
-        <Col xl={6} className="mt-5">
-          <PieChartFull
-            title="Right-hand side"
-            attributes={pieChartData ? pieChartData.rhs : []}
-            maxItemsSelected={1}
-            selectedAttributes={selectedAttributesRHS}
-            setSelectedAttributes={setSelectedAttributesRHS}
-          />
-        </Col>
-      </Row>
+      {partShown === 0 && (
+        <Row className="w-100 flex-grow-1 justify-content-evenly">
+          <Col xl={6} className="mt-5">
+            <PieChartFull
+              title="Left-hand side"
+              attributes={pieChartData ? pieChartData.lhs : []}
+              selectedAttributes={selectedAttributesLHS}
+              setSelectedAttributes={setSelectedAttributesLHS}
+            />
+          </Col>
+          <Col xl={6} className="mt-5">
+            <PieChartFull
+              title="Right-hand side"
+              attributes={pieChartData ? pieChartData.rhs : []}
+              maxItemsSelected={1}
+              selectedAttributes={selectedAttributesRHS}
+              setSelectedAttributes={setSelectedAttributesRHS}
+            />
+          </Col>
+        </Row>
+      )}
 
-      <DependencyListFull
-        selectedAttributesLHS={selectedAttributesLHS}
-        selectedAttributesRHS={selectedAttributesRHS}
-        selectedDependency={selectedDependency}
-        setSelectedDependency={setSelectedDependency}
-        className={partShown === 1 ? "" : "d-none"}
-      />
+      {partShown === 1 && (
+        <DependencyListFull
+          selectedAttributesLHS={selectedAttributesLHS}
+          selectedAttributesRHS={selectedAttributesRHS}
+          selectedDependency={selectedDependency}
+          setSelectedDependency={setSelectedDependency}
+        />
+      )}
 
-      <Snippet
-        selectedDependency={selectedDependency}
-        className={partShown === 2 ? "" : "d-none"}
-      />
+      {partShown === 2 && <Snippet selectedDependency={selectedDependency} />}
     </Container>
   ) : (
     <StatusDisplay text="Loading" />
