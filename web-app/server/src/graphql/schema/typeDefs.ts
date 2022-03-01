@@ -220,7 +220,7 @@ const typeDefs = gql`
     union TaskInfoAnswer = TaskInfo | TaskNotFoundError
     
     type Snippet {
-        header: [String]!
+        header: [String!]!
         rows: [[String!]!]
         datasetInfo: DatasetInfo!
     }
