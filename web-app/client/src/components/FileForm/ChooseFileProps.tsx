@@ -7,6 +7,7 @@ import { FileFormContext } from "../FileFormContext";
 import FormItem from "../FormItem/FormItem";
 import Toggle from "../Toggle/Toggle";
 import Value from "../Value/Value";
+import Selector from "../Selector/Selector";
 
 const ChooseFileProps = () => {
   const { fileProps, setFileProps, primitiveType, dataset } =
@@ -70,16 +71,13 @@ const ChooseFileProps = () => {
         {primitiveType === "Association Rules" ? (
           <>
             <h5 className="text-white mb-0 mx-2">File format:</h5>
-            {fileFormatList.map((format) => (
-              <Toggle
-                key={format}
-                onClick={() => changeFileFormat(format)}
-                toggleCondition={fileProps.fileFormat === format}
-                className="mx-2"
-              >
-                {format}
-              </Toggle>
-            ))}
+            <Selector
+              options={[...fileFormatList]}
+              current={fileProps.fileFormat}
+              onSelect={changeFileFormat}
+              label={(format) => format}
+              className="mx-2"
+            />
           </>
         ) : (
           <>

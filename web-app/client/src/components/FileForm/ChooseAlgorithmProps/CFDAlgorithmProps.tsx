@@ -3,10 +3,10 @@ import React, { useContext, useEffect } from "react";
 import { CFDAlgorithm } from "../../../types/types";
 import Value from "../../Value/Value";
 import Slider from "../../Slider/Slider";
-import Toggle from "../../Toggle/Toggle";
 import FormItem from "../../FormItem/FormItem";
 import { AlgorithmConfigContext } from "../../AlgorithmConfigContext";
 import { FileFormContext } from "../../FileFormContext";
+import Selector from "../../Selector/Selector";
 
 const CFDAlgorithmProps = () => {
   const { algorithmProps, setAlgorithmProps } = useContext(FileFormContext)!;
@@ -27,10 +27,10 @@ const CFDAlgorithmProps = () => {
     }));
   };
 
-  const changeArityConstant = (newArityConstant: string) => {
+  const changearityConstraint = (newarityConstraint: string) => {
     setAlgorithmProps((prevProps) => ({
       ...prevProps,
-      arityConstant: newArityConstant,
+      arityConstraint: newarityConstraint,
     }));
   };
 
@@ -50,25 +50,29 @@ const CFDAlgorithmProps = () => {
   }, [allowedValues]);
 
   const minConfidence = algorithmProps?.minConfidence || "0.005";
-  const arityConstant = algorithmProps?.arityConstant || "5";
+  const arityConstraint = algorithmProps?.arityConstraint || "5";
   const minSupport = algorithmProps?.minSupport || "2";
 
   return (
     <>
       <FormItem>
         <h5 className="text-white mb-0 mx-2">Algorithm:</h5>
-        <div className="d-flex flex-wrap align-items-center">
-          {allowedValues.allowedAlgorithms?.allowedCFDAlgorithms.map((algo) => (
-            <Toggle
-              onClick={() => changeAlgorithm(algo)}
-              toggleCondition={algorithmProps?.algorithm === algo}
-              key={algo.name}
-              className="mx-2"
-            >
-              {algo.name}
-            </Toggle>
-          ))}
-        </div>
+        <Selector
+          options={allowedValues.allowedAlgorithms?.allowedCFDAlgorithms || []}
+          current={
+            algorithmProps.algorithm || {
+              name: "",
+              properties: {
+                hasArityConstraint: true,
+                hasConfidence: true,
+                hasSupport: true,
+              },
+            }
+          }
+          onSelect={changeAlgorithm}
+          label={(algo) => algo.name}
+          className="mx-2"
+        />
       </FormItem>
       <FormItem enabled={algorithmProps?.algorithm?.properties.hasConfidence}>
         <h5 className="text-white mb-0 mx-2">Minimum confidence:</h5>
@@ -89,19 +93,19 @@ const CFDAlgorithmProps = () => {
       <FormItem
         enabled={algorithmProps?.algorithm?.properties.hasArityConstraint}
       >
-        <h5 className="text-white mb-0 mx-2">Arity constant:</h5>
+        <h5 className="text-white mb-0 mx-2">Arity constraint:</h5>
         <Value
-          value={arityConstant}
-          onChange={changeArityConstant}
+          value={arityConstraint}
+          onChange={changearityConstraint}
           size={3}
           inputValidator={validators.isInteger}
           className="mx-2"
         />
         <Slider
-          value={arityConstant}
+          value={arityConstraint}
           min={1}
           max={10}
-          onChange={changeArityConstant}
+          onChange={changearityConstraint}
           step={1}
           className="mx-2"
         />

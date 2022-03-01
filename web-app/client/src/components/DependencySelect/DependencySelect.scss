@@ -1,0 +1,21 @@
+@import "../../variables.scss";
+
+.dependency {
+  transition: 0.3s;
+  * {
+    transition: 0.3s;
+  }
+
+  &:hover {
+    transform: translateX(0.5rem);
+  }
+
+  .arrow {
+    width: 5rem;
+    stroke: $light;
+
+    &.active {
+      stroke: $button-black;
+    }
+  }
+}

@@ -3,13 +3,13 @@ import { ARAlgorithm, CFDAlgorithm, EDPAlgorithm, FDAlgorithm } from "./types";
 export type FDAlgorithmProps = {
   algorithm?: FDAlgorithm;
   errorThreshold?: string;
-  arityConstant?: string;
+  arityConstraint?: string;
   threadsCount?: string;
 };
 
 export type CFDAlgorithmProps = {
   algorithm?: CFDAlgorithm;
-  arityConstant?: string;
+  arityConstraint?: string;
   minSupport?: string;
   minConfidence?: string;
 };
