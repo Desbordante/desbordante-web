@@ -1,6 +1,4 @@
 import { gql } from "apollo-server-core";
-import { Session } from "../../db/models/Authorization/Session";
-import { getAllAccountStatus } from "../../db/models/Authorization/User";
 
 const typeDefs = gql`
 
@@ -130,15 +128,15 @@ const typeDefs = gql`
     type FDTaskConfig {
         baseConfig: BaseTaskConfig!
         errorThreshold: Float!
-        maxLHS: Int
+        maxLHS: Int!
         threadsCount: Int!
     }
     
     type CFDTaskConfig {
         baseConfig: BaseTaskConfig!
-        maxLHS: Int
-        minSupport: Int
-        minConfidence: Float
+        maxLHS: Int!
+        minSupport: Int!
+        minConfidence: Float!
     }
     
     type Column {
@@ -157,49 +155,51 @@ const typeDefs = gql`
         rhsPattern: String!
     }
 
-    type TaskNotFoundError {
-        msg: String!
-    }
-    
-    type UnauthorizedError {
-        msg: String!
-    }
-
     type FDPieChartRow {
         column: Column!
         value: Float!
     }
     
-    type FDPieChart {
-        lhs: [FDPieChartRow]
-        rhs: [FDPieChartRow]
+    type PieChartWithoutPatterns {
+        lhs: [FDPieChartRow!]!
+        rhs: [FDPieChartRow!]!
     }
 
     type CFDPieChartRow {
         column: Column!
-        pattern: String
+        pattern: String!
         value: Float!
     }
     
+    type PieChartWithPatterns {
+        lhs: [CFDPieChartRow!]!
+        rhs: [CFDPieChartRow!]!
+    }
+    
+    type CFDPieCharts {
+        withPatterns: [PieChartWithPatterns!]!
+        withoutPatterns: [PieChartWithoutPatterns!]! 
+    }
+    
     type FDResult {
-        FDs: [FD]
-        PKs: [Column]
-        pieChartData: FDPieChart
+        FDs: [FD!]!
+        PKs: [Column!]!
+        pieChartData: PieChartWithoutPatterns!
     }
     
     type CFDResult {
-        CFDs: [CFD]
-        PKs: [Column]
-        pieChartData: [CFDPieChartRow]
+        CFDs: [CFD!]!
+        PKs: [Column!]!
+        pieChartData: CFDPieCharts!
     }
     
     type FDTask {
-        config: FDTaskConfig
+        config: FDTaskConfig!
         result: FDResult
     }
     
     type CFDTask {
-        config: CFDTaskConfig
+        config: CFDTaskConfig!
         result: CFDResult
     }
     
@@ -208,7 +208,7 @@ const typeDefs = gql`
     type TaskInfo {
         taskID: String!
         state: TaskState!
-        data: TaskData
+        data: TaskData!
         dataset: DatasetInfo!
     }
     enum PermissionType {
@@ -217,8 +217,6 @@ const typeDefs = gql`
         MANAGE_USERS_SESSIONS, MANAGE_APP_CONFIG
     }
     
-    union TaskInfoAnswer = TaskInfo | TaskNotFoundError
-    
     type Snippet {
         header: [String!]!
         rows: [[String!]!]
@@ -226,23 +224,23 @@ const typeDefs = gql`
     }
     
     input DatasetsQueryProps {
-        includeBuiltInDatasets: Boolean = true
-        includeDeletedDatasets: Boolean = false
+        includeBuiltInDatasets: Boolean! = true
+        includeDeletedDatasets: Boolean! = false
         offset: Int! = 1
         limit: Int! = 10
     }
     
     input TasksInfoFilter {
-        includeExecutedTasks: Boolean = true
-        includeCurrentTasks: Boolean = true
-        includeTasksWithError: Boolean = true
-        includeTasksWithoutError: Boolean = true
+        includeExecutedTasks: Boolean! = true
+        includeCurrentTasks: Boolean! = true
+        includeTasksWithError: Boolean! = true
+        includeTasksWithoutError: Boolean! = true
     }
     
     type DatasetInfo {
         fileID: String!
         tableInfo: TableInfo!
-        snippet(offset: Int!, limit: Int!): Snippet!
+        snippet(offset: Int! = 0, limit: Int! = 10): Snippet!
         tasks(filter: TasksInfoFilter!): [TaskInfo!]
     }
     
@@ -294,7 +292,6 @@ const typeDefs = gql`
         delimiter: String!
         hasHeader: Boolean!
     }
-    
     
     type DeleteTaskAnswer {
         message: String!
