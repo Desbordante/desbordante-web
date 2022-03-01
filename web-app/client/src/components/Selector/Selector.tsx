@@ -58,11 +58,18 @@ const Selector = <T,>({
     // transform: `translateX(${left}px) translateY(${top}px)`,
     width,
     height,
-    opacity: isLoaded ? 1 : 0,
     onRest: () => setIsLoaded(true),
+    config: {
+      duration: isLoaded ? undefined : 0,
+    },
   });
 
   const AnimatedFiller = animated(Filler);
+  const selectedClass = `bg-${
+    variant === "dark" ? "dark" : "white"
+  } rounded-pill shadow-sm border-2 border-${
+    variant === "dark" ? "dark" : "white"
+  }`;
 
   return (
     <Container
@@ -71,14 +78,7 @@ const Selector = <T,>({
         variant === "light" ? "lighter-dark" : "secondary"
       } border-2 rounded-pill ${className}`}
     >
-      <AnimatedFiller
-        className={`bg-${
-          variant === "dark" ? "dark" : "white"
-        } rounded-pill shadow-sm border-2 border-${
-          variant === "dark" ? "dark" : "white"
-        }`}
-        style={{ ...props, opacity: isLoaded ? 1 : 0 }}
-      />
+      {isLoaded && <AnimatedFiller className={selectedClass} style={props} />}
       {options.map((option, index) => (
         <ResetButton
           ref={(node) => {
@@ -86,7 +86,7 @@ const Selector = <T,>({
           }}
           className={`px-3 py-2 text-${
             // eslint-disable-next-line no-nested-ternary
-            selectedIndex === index && isLoaded
+            selectedIndex === index
               ? variant === "light"
                 ? "black"
                 : "white"
