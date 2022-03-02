@@ -55,7 +55,6 @@ const Selector = <T,>({
   const props = useSpring({
     left: offset.left,
     top: offset.top,
-    // transform: `translateX(${left}px) translateY(${top}px)`,
     width,
     height,
     onRest: () => setIsLoaded(true),
@@ -78,7 +77,7 @@ const Selector = <T,>({
         variant === "light" ? "lighter-dark" : "secondary"
       } border-2 rounded-pill ${className}`}
     >
-      {isLoaded && <AnimatedFiller className={selectedClass} style={props} />}
+      <AnimatedFiller className={selectedClass} style={props} />
       {options.map((option, index) => (
         <ResetButton
           ref={(node) => {

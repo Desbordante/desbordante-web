@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const GET_TASK_INFO = gql`
-  query taskInfo($taskID: ID!) {
+  query getTaskInfo($taskID: ID!) {
     taskInfo(taskID: $taskID) {
       __typename
       ... on TaskInfo {
@@ -57,11 +57,36 @@ export const GET_TASK_INFO = gql`
                 name
               }
               pieChartData {
-                column {
-                  name
+                withPatterns {
+                  lhs {
+                    column {
+                      name
+                    }
+                    pattern
+                    value
+                  }
+                  rhs {
+                    column {
+                      name
+                    }
+                    pattern
+                    value
+                  }
                 }
-                pattern
-                value
+                withoutPatterns {
+                  lhs {
+                    column {
+                      name
+                    }
+                    value
+                  }
+                  rhs {
+                    column {
+                      name
+                    }
+                    value
+                  }
+                }
               }
             }
           }
