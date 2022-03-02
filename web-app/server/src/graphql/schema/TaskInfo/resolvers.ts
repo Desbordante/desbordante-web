@@ -124,7 +124,7 @@ const resolvers: Resolvers = {
     DatasetInfo: {
         // Todo: refactor (add params for field snippet && add resolvers for type Snippet)
         // @ts-ignore
-        snippet: async ({ fileID }, { taskID, offset, limit }, { models, logger, sessionInfo }) => {
+        snippet: async ({ fileID }, { offset, limit }, { models, logger, sessionInfo }) => {
             if (!fileID) {
                 throw new ApolloError("received null fileID");
             }
