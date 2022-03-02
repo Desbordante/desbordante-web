@@ -152,6 +152,7 @@ const StageOne: React.FC<Props> = ({ onSuccess }) => {
                 <Button
                   variant="outline-primary"
                   onClick={switchIsPasswordShown}
+                  className="rounded-end"
                 >
                   {isPasswordShown ? (
                     <i className="bi bi-eye-slash" />
@@ -159,10 +160,10 @@ const StageOne: React.FC<Props> = ({ onSuccess }) => {
                     <i className="bi bi-eye-fill" />
                   )}
                 </Button>
+                <Form.Control.Feedback type="invalid">
+                  {errors.password}
+                </Form.Control.Feedback>
               </InputGroup>
-              <Form.Control.Feedback type="invalid">
-                {errors.password}
-              </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group className="mb-3">

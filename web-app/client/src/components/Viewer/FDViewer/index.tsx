@@ -1,34 +1,33 @@
-import React, { useState, useContext, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 
-import PieChartFull from "../PieChartFull/PieChartFull";
-import DependencyListFull from "../DependencyListFull/DependencyListFull";
-import StatusDisplay from "../StatusDisplay/StatusDisplay";
-import { Attribute, Dependency } from "../../types/types";
-import { TaskContext } from "../TaskContext";
-import Snippet from "../Snippet/Snippet";
-import Navigation from "./Navigation";
+import PieChartFull from "./PieChartFull/PieChartFull";
+import FDList from "./FDList";
+import TableSnippet from "./TableSnippet/TableSnippet";
+import Navigation from "../Navigation";
+import {
+  FDAttribute,
+  FDTaskResult,
+  FunctionalDependency,
+} from "../../../types/taskInfo";
 
-const Viewer = () => {
-  const { taskID } = useParams();
+interface Props {
+  result: FDTaskResult;
+}
 
-  const { setTaskId, isExecuted, pieChartData } = useContext(TaskContext)!;
-
-  useEffect(() => setTaskId(taskID), []);
-
+const Index: React.FC<Props> = ({ result }) => {
   const [partShown, setPartShown] = useState(0);
   const [selectedAttributesLHS, setSelectedAttributesLHS] = useState<
-    Attribute[]
+    FDAttribute[]
   >([]);
   const [selectedAttributesRHS, setSelectedAttributesRHS] = useState<
-    Attribute[]
+    FDAttribute[]
   >([]);
 
   const [selectedDependency, setSelectedDependency] =
-    useState<Dependency | null>(null);
+    useState<FunctionalDependency | null>(null);
 
-  return isExecuted ? (
+  return (
     <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">
       <Navigation partShown={partShown} setPartShown={setPartShown} />
       {partShown === 0 && (
@@ -36,7 +35,7 @@ const Viewer = () => {
           <Col xl={6} className="mt-5">
             <PieChartFull
               title="Left-hand side"
-              attributes={pieChartData ? pieChartData.lhs : []}
+              attributes={result.pieChartData ? result.pieChartData.lhs : []}
               selectedAttributes={selectedAttributesLHS}
               setSelectedAttributes={setSelectedAttributesLHS}
             />
@@ -44,7 +43,7 @@ const Viewer = () => {
           <Col xl={6} className="mt-5">
             <PieChartFull
               title="Right-hand side"
-              attributes={pieChartData ? pieChartData.rhs : []}
+              attributes={result.pieChartData ? result.pieChartData.rhs : []}
               maxItemsSelected={1}
               selectedAttributes={selectedAttributesRHS}
               setSelectedAttributes={setSelectedAttributesRHS}
@@ -54,7 +53,9 @@ const Viewer = () => {
       )}
 
       {partShown === 1 && (
-        <DependencyListFull
+        <FDList
+          dependencies={result.dependencies}
+          keys={result.keys}
           selectedAttributesLHS={selectedAttributesLHS}
           selectedAttributesRHS={selectedAttributesRHS}
           selectedDependency={selectedDependency}
@@ -62,11 +63,11 @@ const Viewer = () => {
         />
       )}
 
-      {partShown === 2 && <Snippet selectedDependency={selectedDependency} />}
+      {partShown === 2 && (
+        <TableSnippet selectedDependency={selectedDependency} />
+      )}
     </Container>
-  ) : (
-    <StatusDisplay text="Loading" />
   );
 };
 
-export default Viewer;
+export default Index;

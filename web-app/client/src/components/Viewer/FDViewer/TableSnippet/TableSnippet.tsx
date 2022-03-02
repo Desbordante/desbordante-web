@@ -2,19 +2,23 @@
 import React, { useState, useContext } from "react";
 import { Container } from "react-bootstrap";
 
-import "./Snippet.scss";
-import Toggle from "../Toggle/Toggle";
-import { Dependency } from "../../types/types";
+import "./TableSnippet.scss";
+import Toggle from "../../../Toggle/Toggle";
 import Table from "./Table";
-import { TaskContext } from "../TaskContext";
+import { TaskContext } from "../../../TaskContext";
+import { FunctionalDependency } from "../../../../types/taskInfo";
 
 interface Props {
-  selectedDependency: Dependency | null;
+  selectedDependency: FunctionalDependency | null;
   className?: string;
 }
 
-const Snippet: React.FC<Props> = ({ selectedDependency, className = "" }) => {
-  const { snippet } = useContext(TaskContext)!;
+const TableSnippet: React.FC<Props> = ({
+  selectedDependency,
+  className = "",
+}) => {
+  const { dataset } = useContext(TaskContext)!;
+  const { snippet } = dataset!;
   const header =
     snippet && snippet.header
       ? snippet.header.map((elem) => elem || "null")
@@ -52,4 +56,4 @@ const Snippet: React.FC<Props> = ({ selectedDependency, className = "" }) => {
   );
 };
 
-export default Snippet;
+export default TableSnippet;
