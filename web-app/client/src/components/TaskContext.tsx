@@ -90,38 +90,42 @@ export const TaskContextProvider: React.FC = ({ children }) => {
       // eslint-disable-next-line no-underscore-dangle
       switch (data?.__typename) {
         case "FDTask": {
-          const result = (data as getTaskInfo_taskInfo_data_FDTask).FDResult!;
-          setTaskType("Functional Dependencies");
-          setTaskResult({
-            FD: {
-              pieChartData: result.pieChartData,
-              dependencies: result?.FDs?.map((dep) =>
-                parseFunctionalDependency(dep, taskDataset.snippet.header)
-              ),
-              keys: result?.PKs?.map((attr) => attr?.name!),
-            },
-          });
-          break;
+          const result = (data as getTaskInfo_taskInfo_data_FDTask).FDResult;
+          if (result) {
+            setTaskType("Functional Dependencies");
+            setTaskResult({
+              FD: {
+                pieChartData: result.pieChartData,
+                dependencies: result.FDs?.map((dep) =>
+                  parseFunctionalDependency(dep, taskDataset.snippet.header)
+                ),
+                keys: result?.PKs?.map((attr) => attr?.name!),
+              },
+            });
+          }
+          return;
         }
 
         case "CFDTask": {
-          const result = (data as getTaskInfo_taskInfo_data_CFDTask).CFDResult!;
-          setTaskType("Conditional Functional Dependencies");
-          setTaskResult({
-            CFD: {
-              pieChartData: result.pieChartData,
-              dependencies: result.CFDs?.map((cfd) => ({
-                lhsPatterns: cfd.lhsPatterns,
-                rhsPattern: cfd.rhsPattern,
-                fd: parseFunctionalDependency(
-                  cfd?.fd,
-                  taskDataset.snippet.header
-                ),
-              })),
-              keys: result.PKs?.map((attr) => attr?.name),
-            },
-          });
-          break;
+          const result = (data as getTaskInfo_taskInfo_data_CFDTask).CFDResult;
+          if (result) {
+            setTaskType("Conditional Functional Dependencies");
+            setTaskResult({
+              CFD: {
+                pieChartData: result.pieChartData,
+                dependencies: result.CFDs?.map((cfd) => ({
+                  lhsPatterns: cfd.lhsPatterns,
+                  rhsPattern: cfd.rhsPattern,
+                  fd: parseFunctionalDependency(
+                    cfd?.fd,
+                    taskDataset.snippet.header
+                  ),
+                })),
+                keys: result.PKs?.map((attr) => attr?.name),
+              },
+            });
+          }
+          return;
         }
 
         default: {
