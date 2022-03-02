@@ -1,21 +1,7 @@
-import {
-  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs,
-  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs,
-} from "../graphql/operations/queries/__generated__/taskInfo";
-
 export type Attribute = {
   column: { name: string; index?: number };
   value: number;
 };
-export type PieChartData = {
-  lhs:
-    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
-    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
-  rhs:
-    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
-    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
-};
-export type Dependency = { lhs: string[]; rhs: string };
 export type TaskStatus =
   | "UNSCHEDULED"
   | "PROCESSING"

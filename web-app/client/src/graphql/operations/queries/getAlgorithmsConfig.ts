@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const GET_ALGORITHMS_CONFIG = gql`
-  query algorithmsConfig {
+  query getAlgorithmsConfig {
     algorithmsConfig {
       allowedDatasets {
         tableInfo {

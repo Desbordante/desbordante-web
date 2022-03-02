@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Container } from "react-bootstrap";
-import stringToColor from "../../functions/stringToColor";
+import stringToColor from "../../../../functions/stringToColor";
 
 interface Props {
   header: string[];
