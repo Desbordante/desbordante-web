@@ -57,13 +57,7 @@ module.exports = {
     "import/no-unresolved": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "react/jsx-filename-extension": [
-      1,
-      { extensions: [".js", ".jsx", ".tsx"] },
-    ],
     "react/button-has-type": "off",
-    "react/require-default-props": "warn",
-    "react/no-unused-prop-types": "warn",
     "object-curly-newline": "off",
     "no-use-before-define": ["off", "error", { variables: false }],
     "import/prefer-default-export": "off",
