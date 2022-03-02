@@ -2,25 +2,18 @@ import React from "react";
 import { Doughnut } from "react-chartjs-2";
 import { animated } from "react-spring";
 
-import { Attribute } from "../../types/types";
 import "./PieChartFull.scss";
-import AttributeLabel from "../AttributeLabel/AttributeLabel";
-import SelectedAttribute from "../SelectedAttribute/SelectedAttribute";
-import {
-  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs,
-  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs,
-} from "../../graphql/operations/queries/__generated__/taskInfo";
+import AttributeLabel from "../../../AttributeLabel/AttributeLabel";
+import SelectedAttribute from "../../../SelectedAttribute/SelectedAttribute";
+import { FDAttribute } from "../../../../types/taskInfo";
+import colors from "../../../../colors";
 
 /* eslint-disable no-unused-vars */
 interface Props {
-  displayAttributes:
-    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
-    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
+  displayAttributes: FDAttribute[];
   onSelect: (a: any, b: any) => void;
-  selectedAttributes?:
-    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
-    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
-  setSelectedAttributes: React.Dispatch<React.SetStateAction<Attribute[]>>;
+  selectedAttributes?: FDAttribute[];
+  setSelectedAttributes: React.Dispatch<React.SetStateAction<FDAttribute[]>>;
 }
 /* eslint-enable no-unused-vars */
 
@@ -33,20 +26,6 @@ const Chart: React.FC<Props> = ({
   // Get how much px is one rem, later used in chart dimensions
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
-  // Pre-defined colors
-  const colors = [
-    "#ff5757",
-    "#575fff",
-    "#4de3a2",
-    "#edc645",
-    "#d159de",
-    "#32bbc2",
-    "#ffa857",
-    "#8dd44a",
-    "#6298d1",
-    "#969696",
-  ];
-
   const AnimatedDoughnut = animated(Doughnut);
   return (
     <>
@@ -57,7 +36,7 @@ const Chart: React.FC<Props> = ({
             .map((attr, index) => (
               <AttributeLabel
                 text={attr.column.name}
-                labelColor={colors[index]}
+                labelColor={colors.chart[index]}
                 key={attr.column.name}
               />
             ))}
@@ -73,7 +52,7 @@ const Chart: React.FC<Props> = ({
               datasets: [
                 {
                   data: displayAttributes.map((attr) => attr.value),
-                  backgroundColor: colors,
+                  backgroundColor: colors.chart,
                   borderColor: "#ffffff",
                   hoverBorderColor: "#ffffff",
                   borderWidth: 0.2 * rem,

@@ -14,28 +14,23 @@ import {
 
 import { GET_TASK_INFO } from "../graphql/operations/queries/getTaskInfo";
 import {
-  taskInfo,
-  taskInfo_taskInfo_dataset_snippet,
-  taskInfo_taskInfo_data_FDTask,
-  taskInfoVariables,
-} from "../graphql/operations/queries/__generated__/taskInfo";
-import { Dependency, PieChartData } from "../types/types";
+  getTaskInfo,
+  getTaskInfo_taskInfo_data_FDTask,
+  getTaskInfo_taskInfo_data_CFDTask,
+  getTaskInfoVariables,
+} from "../graphql/operations/queries/__generated__/getTaskInfo";
+import { PrimitiveType } from "../types/types";
 import { ErrorContext } from "./ErrorContext";
+import { Dataset, TaskResult, TaskState } from "../types/taskInfo";
+import parseFunctionalDependency from "../functions/parseDependency";
 
 type TaskContextType = {
   taskId: string | undefined;
   setTaskId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  isExecuted: boolean | undefined;
-  status: string | undefined;
-  progress: number;
-  phaseName: string | undefined;
-  currentPhase: number | undefined;
-  maxPhase: number | undefined;
-  fileName: string | undefined;
-  snippet: taskInfo_taskInfo_dataset_snippet | undefined;
-  pieChartData: PieChartData | undefined;
-  dependencies: Dependency[] | undefined;
-  keys: string[] | undefined;
+  taskState: TaskState | undefined;
+  dataset: Dataset | undefined;
+  taskType: PrimitiveType | undefined;
+  taskResult: TaskResult | undefined;
   resetTask: () => void;
   deleteTask: () => Promise<any>;
 };
@@ -46,40 +41,22 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   const { showError } = useContext(ErrorContext)!;
 
   const [taskId, setTaskId] = useState<string>();
-  const [isExecuted, setIsExecuted] = useState<boolean>();
-  const [status, setStatus] = useState<string>();
-  const [progress, setProgress] = useState<number>(0);
-  const [phaseName, setPhaseName] = useState<string>();
-  const [currentPhase, setCurrentPhase] = useState<number>();
-  const [maxPhase, setMaxPhase] = useState<number>();
-
-  const [fileName, setFileName] = useState<string>();
-  const [snippet, setSnippet] = useState<taskInfo_taskInfo_dataset_snippet>();
-
-  const [pieChartData, setPieChartData] = useState<PieChartData>();
-  const [dependencies, setDependencies] = useState<Dependency[]>();
-  const [keys, setKeys] = useState<string[]>();
+  const [dataset, setDataset] = useState<Dataset>();
+  const [taskState, setTaskState] = useState<TaskState>();
+  const [taskType, setTaskType] = useState<PrimitiveType>();
+  const [taskResult, setTaskResult] = useState<TaskResult>();
 
   const resetTask = async () => {
     setTaskId(undefined);
-    setIsExecuted(undefined);
-    setStatus(undefined);
-    setProgress(0);
-    setPhaseName(undefined);
-    setCurrentPhase(undefined);
-    setMaxPhase(undefined);
-
-    setFileName(undefined);
-    setSnippet(undefined);
-
-    setPieChartData(undefined);
-    setDependencies(undefined);
-    setKeys(undefined);
+    setTaskState(undefined);
+    setDataset(undefined);
+    setTaskResult(undefined);
   };
 
-  const [query, { data, error }] = useLazyQuery<taskInfo, taskInfoVariables>(
-    GET_TASK_INFO
-  );
+  const [query, { data: taskData, error }] = useLazyQuery<
+    getTaskInfo,
+    getTaskInfoVariables
+  >(GET_TASK_INFO);
   const [deleteTask, { error: deleteError }] = useMutation<
     deleteTask,
     deleteTaskVariables
@@ -92,76 +69,87 @@ export const TaskContextProvider: React.FC = ({ children }) => {
       () => taskId && query({ variables: { taskID: taskId } }),
       500
     );
-  }, [taskId]);
+  }, [taskId, query]);
 
   useEffect(() => {
-    if (!taskId || isExecuted || error) {
+    if (!taskId || taskState?.isExecuted || error) {
       clearInterval(queryRef.current!);
     }
-  }, [taskId, isExecuted, error]);
+  }, [taskId, taskState, error]);
 
   useEffect(() => {
-    if (data) {
-      setIsExecuted(data.taskInfo.state.isExecuted);
-      setStatus(data.taskInfo.state.status);
-      setProgress(data.taskInfo.state.progress / 100);
-      setPhaseName(data.taskInfo.state.phaseName || undefined);
-      setCurrentPhase(data.taskInfo.state.currentPhase || undefined);
-      setMaxPhase(data.taskInfo.state.maxPhase || undefined);
+    if (taskData) {
+      const { state, data, dataset: taskDataset } = taskData.taskInfo;
+      setTaskState(state);
 
-      setFileName(data.taskInfo.dataset.tableInfo.originalFileName);
-      setSnippet(data.taskInfo.dataset.snippet);
+      setDataset({
+        fileName: taskDataset.tableInfo.originalFileName,
+        snippet: taskDataset.snippet,
+      });
 
-      setPieChartData(
-        // @ts-ignore
-        (data.taskInfo.data as taskInfo_taskInfo_data_FDTask).FDResult
-          ?.pieChartData || undefined
-      );
-      setDependencies(
-        (
-          data.taskInfo.data as taskInfo_taskInfo_data_FDTask
-        ).FDResult?.FDs?.map((dep) => ({
-          lhs:
-            dep?.lhs.map(
-              (index) => data.taskInfo.dataset.snippet.header[index] || "null"
-            ) || [],
-          rhs: data.taskInfo.dataset.snippet.header[dep?.rhs || 0] || "null",
-        }))
-      );
-      setKeys(
-        (
-          data.taskInfo.data as taskInfo_taskInfo_data_FDTask
-        ).FDResult?.PKs?.map((attr) => attr?.name!) || undefined
-      );
+      // eslint-disable-next-line no-underscore-dangle
+      switch (data?.__typename) {
+        case "FDTask": {
+          const result = (data as getTaskInfo_taskInfo_data_FDTask).FDResult!;
+          setTaskType("Functional Dependencies");
+          setTaskResult({
+            FD: {
+              pieChartData: result.pieChartData,
+              dependencies: result?.FDs?.map((dep) =>
+                parseFunctionalDependency(dep, taskDataset.snippet.header)
+              ),
+              keys: result?.PKs?.map((attr) => attr?.name!),
+            },
+          });
+          break;
+        }
+
+        case "CFDTask": {
+          const result = (data as getTaskInfo_taskInfo_data_CFDTask).CFDResult!;
+          setTaskType("Conditional Functional Dependencies");
+          setTaskResult({
+            CFD: {
+              pieChartData: result.pieChartData,
+              dependencies: result.CFDs?.map((cfd) => ({
+                lhsPatterns: cfd.lhsPatterns,
+                rhsPattern: cfd.rhsPattern,
+                fd: parseFunctionalDependency(
+                  cfd?.fd,
+                  taskDataset.snippet.header
+                ),
+              })),
+              keys: result.PKs?.map((attr) => attr?.name),
+            },
+          });
+          break;
+        }
+
+        default: {
+          showError({ message: "Server error" });
+        }
+      }
     }
-  }, [data]);
+  }, [taskData]);
 
   useEffect(() => {
     if (error) {
       showError({ message: error.message });
     }
-  }, [error]);
+  }, [showError, error]);
 
   useEffect(() => {
     if (deleteError) {
       showError({ message: deleteError.message });
     }
-  }, [deleteError]);
+  }, [showError, deleteError]);
 
   const outValue = {
     taskId,
     setTaskId,
-    isExecuted,
-    status,
-    progress,
-    phaseName,
-    currentPhase,
-    maxPhase,
-    fileName,
-    snippet,
-    pieChartData,
-    dependencies,
-    keys,
+    taskState,
+    dataset,
+    taskType,
+    taskResult,
     resetTask,
     deleteTask,
   };

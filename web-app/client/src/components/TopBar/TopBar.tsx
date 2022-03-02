@@ -6,15 +6,16 @@ import Button from "../Button/Button";
 import { TaskContext } from "../TaskContext";
 import { AuthContext } from "../AuthContext";
 import ProgressBar from "../ProgressBar/ProgressBar";
-import Phasename from "../Phasename/Phasename";
+import Phasename from "./Phasename/Phasename";
 
 const TopBar = () => {
   const history = useHistory();
 
-  const { fileName, status, resetTask, progress } = useContext(TaskContext)!;
+  const { taskState, resetTask, dataset } = useContext(TaskContext)!;
   const { user, setIsSignUpShown, setIsLogInShown, signOut } =
     useContext(AuthContext)!;
 
+  // @ts-ignore
   return (
     <Navbar variant="dark" bg="dark" sticky="top" className="d-block pb-0">
       <Container fluid className="mb-2">
@@ -35,11 +36,11 @@ const TopBar = () => {
           Desbordante
         </Navbar.Brand>
         <Container fluid className="d-flex text-muted ps-0">
-          {fileName && (
-            <p className="mx-1 my-auto text-secondary">{fileName}</p>
+          {dataset?.fileName && (
+            <p className="mx-1 my-auto text-secondary">{dataset?.fileName}</p>
           )}
-          {status !== "UNSCHEDULED" && (
-            <p className="mx-1 my-auto text-secondary">{status}</p>
+          {taskState?.status !== "UNSCHEDULED" && (
+            <p className="mx-1 my-auto text-secondary">{taskState?.status}</p>
           )}
         </Container>
         {user?.name ? (
@@ -71,10 +72,15 @@ const TopBar = () => {
           </>
         )}
       </Container>
-      {!!progress && (
+      {!!taskState?.progress && (
         <>
-          <ProgressBar progress={progress} maxWidth={100} thickness={0.35} />
-          <Phasename />
+          <ProgressBar
+            progress={taskState.progress}
+            maxWidth={100}
+            thickness={0.35}
+          />
+          {/* @ts-ignore */}
+          <Phasename {...taskState} />
         </>
       )}
     </Navbar>

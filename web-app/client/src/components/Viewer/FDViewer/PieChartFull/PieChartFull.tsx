@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from "react";
 
 import "./PieChartFull.scss";
-import SearchBar from "../SearchBar/SearchBar";
+import SearchBar from "../../../SearchBar/SearchBar";
 import Chart from "./Chart";
-import Button from "../Button/Button";
-import { Attribute } from "../../types/types";
-import {
-  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs,
-  taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs,
-} from "../../graphql/operations/queries/__generated__/taskInfo";
+import Button from "../../../Button/Button";
+import { FDAttribute } from "../../../../types/taskInfo";
 
 /* eslint-disable no-unused-vars */
 interface Props {
   title: string;
-  attributes?:
-    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
-    | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[];
+  attributes?: FDAttribute[];
   maxItemsShown?: number;
   maxItemsSelected?: number;
-  selectedAttributes: Attribute[];
-  setSelectedAttributes: React.Dispatch<React.SetStateAction<Attribute[]>>;
+  selectedAttributes: FDAttribute[];
+  setSelectedAttributes: React.Dispatch<React.SetStateAction<FDAttribute[]>>;
 }
 /* eslint-enable no-unused-vars */
 
@@ -32,9 +26,9 @@ const PieChartFull: React.FC<Props> = ({
   setSelectedAttributes,
 }) => {
   const [searchString, setSearchString] = useState("");
-  const [foundAttributes, setFoundAttributes] = useState<Attribute[]>([]);
+  const [foundAttributes, setFoundAttributes] = useState<FDAttribute[]>([]);
   const [depth, setDepth] = useState(0);
-  const [displayAttributes, setDisplayAttributes] = useState<Attribute[]>([]);
+  const [displayAttributes, setDisplayAttributes] = useState<FDAttribute[]>([]);
 
   // Update found attributes if search string changes or attributes change.
   // Keep found attributes sorted.
@@ -68,9 +62,10 @@ const PieChartFull: React.FC<Props> = ({
       newDisplayAttributes.push({
         column: {
           name: "Other",
-          index: -1,
+          __typename: "Column",
         },
         value: newOtherValue,
+        __typename: "FDPieChartRow",
       });
     }
 
@@ -78,9 +73,10 @@ const PieChartFull: React.FC<Props> = ({
       newDisplayAttributes.push({
         column: {
           name: "",
-          index: -1,
+          __typename: "Column",
         },
         value: 0,
+        __typename: "FDPieChartRow",
       });
     }
 
@@ -119,17 +115,8 @@ const PieChartFull: React.FC<Props> = ({
               );
             }
           }}
-          displayAttributes={
-            displayAttributes as
-              | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
-              | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[]
-          }
-          selectedAttributes={
-            selectedAttributes as
-              | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_rhs[]
-              | taskInfo_taskInfo_data_FDTask_FDResult_pieChartData_lhs[]
-              | undefined
-          }
+          displayAttributes={displayAttributes}
+          selectedAttributes={selectedAttributes}
           setSelectedAttributes={setSelectedAttributes}
         />
       )}

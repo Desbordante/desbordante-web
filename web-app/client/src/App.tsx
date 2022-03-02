@@ -3,10 +3,10 @@ import { Switch, BrowserRouter as Router, Route } from "react-router-dom";
 
 import HomeScreen from "./components/HomeScreen/HomeScreen";
 import ErrorScreen from "./components/ErrorScreen/ErrorScreen";
-import Viewer from "./components/Viewer/Viewer";
+import Viewer from "./components/Viewer";
 import TopBar from "./components/TopBar/TopBar";
 import SignUpForm from "./components/SignUpForm";
-import Index from "./components/FeedbackForm";
+import FeedbackForm from "./components/FeedbackForm";
 import { ErrorContext } from "./components/ErrorContext";
 import { AuthContext } from "./components/AuthContext";
 import LogInForm from "./components/LogInForm/LogInForm";
@@ -22,7 +22,7 @@ const App: React.FC = () => {
       <Router>
         <TopBar />
         {isSignUpShown && <SignUpForm />}
-        {isFeedbackShown && <Index />}
+        {isFeedbackShown && <FeedbackForm />}
         {isLogInShown && <LogInForm />}
         {isErrorShown && <ErrorScreen />}
         <FeedbackButton />

@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client";
 
 import { TableInfo, AllowedAlgorithms, ARAlgorithm } from "../types/types";
 import { GET_ALGORITHMS_CONFIG } from "../graphql/operations/queries/getAlgorithmsConfig";
-import { algorithmsConfig } from "../graphql/operations/queries/__generated__/algorithmsConfig";
+import { getAlgorithmsConfig } from "../graphql/operations/queries/__generated__/getAlgorithmsConfig";
 import { ErrorContext } from "./ErrorContext";
 import { BuiltinDataset } from "../types/dataset";
 
@@ -37,7 +37,7 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
     useState<AllowedAlgorithms>();
   const [maxfilesize, setMaxFileSize] = useState<number>();
 
-  const { loading, data, error } = useQuery<algorithmsConfig>(
+  const { loading, data, error } = useQuery<getAlgorithmsConfig>(
     GET_ALGORITHMS_CONFIG
   );
 
