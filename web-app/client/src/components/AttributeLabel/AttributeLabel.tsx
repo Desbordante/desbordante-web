@@ -8,7 +8,7 @@ interface Props {
 
 const AttributeLabel: React.FC<Props> = ({ text, labelColor }) => (
   <p className="attribute-label text-black d-flex align-items-center my-0">
-    <div
+    <span
       className="circle rounded-pill me-2"
       style={{ backgroundColor: labelColor }}
     />

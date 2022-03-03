@@ -6,6 +6,7 @@ $primary: #7600d1;
 $light: #ffffff;
 $lighter-dark: #2c2730;
 $grey: #969696;
+$success: #39b46b;
 
 $theme-colors: (
   "dark": $dark,
@@ -14,9 +15,20 @@ $theme-colors: (
   "primary": $primary,
   "light": $light,
   "grey": $grey,
+  "success": $success,
 );
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 @import "../node_modules/bootstrap/scss/bootstrap";
+
+$h0-font-size: $font-size-base * 6;
+
+.fs-0 {
+  font-size: $h0-font-size;
+}
 
 $utilities: map-merge(
   $utilities,

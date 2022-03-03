@@ -1,30 +1,31 @@
 import React, { useContext } from "react";
 import { Container, Navbar } from "react-bootstrap";
-import axios from "axios";
 import { useHistory } from "react-router-dom";
 
-import "./TopBar.scss";
 import Button from "../Button/Button";
-import { TaskContext } from "../TaskContext/TaskContext";
-import { serverURL } from "../../APIFunctions";
+import { TaskContext } from "../TaskContext";
 import { AuthContext } from "../AuthContext";
+import ProgressBar from "../ProgressBar/ProgressBar";
+import Phasename from "./Phasename/Phasename";
 
 const TopBar = () => {
   const history = useHistory();
-  const {
-    fileName,
-    setFileName,
-    taskId,
-    setTaskId,
-    taskStatus,
-    setTaskStatus,
-  } = useContext(TaskContext)!;
-  const { user } = useContext(AuthContext)!;
 
+  const { taskState, resetTask, dataset } = useContext(TaskContext)!;
+  const { user, setIsSignUpShown, setIsLogInShown, signOut } =
+    useContext(AuthContext)!;
+
+  // @ts-ignore
   return (
-    <Navbar variant="dark" bg="dark" sticky="top">
-      <Container fluid>
-        <Navbar.Brand href="/">
+    <Navbar variant="dark" bg="dark" sticky="top" className="d-block pb-0">
+      <Container fluid className="mb-2">
+        <Navbar.Brand
+          className="cursor-pointer"
+          onClick={() => {
+            resetTask();
+            history.push("/");
+          }}
+        >
           <img
             src="/icons/logo.svg"
             alt="logo"
@@ -35,47 +36,53 @@ const TopBar = () => {
           Desbordante
         </Navbar.Brand>
         <Container fluid className="d-flex text-muted ps-0">
-          {fileName && (
-            <p className="mx-1 my-auto text-secondary">{fileName}</p>
+          {dataset?.fileName && (
+            <p className="mx-1 my-auto text-secondary">{dataset?.fileName}</p>
           )}
-          {taskStatus !== "UNSCHEDULED" && (
-            <p className="mx-1 my-auto text-secondary">{taskStatus}</p>
+          {taskState?.status !== "UNSCHEDULED" && (
+            <p className="mx-1 my-auto text-secondary">{taskState?.status}</p>
           )}
         </Container>
-        <Button
-          onClick={() => {
-            window.location.href = "/feedback";
-          }}
-          className="mx-2"
-        >
-          Send Feedback
-        </Button>
-        {!user && (
-          <Button
-            onClick={() => {
-              window.location.href = "/signup";
-            }}
-            className="mx-2"
-          >
-            Sign Up
-          </Button>
-        )}
-        {taskId && (
-          <Button
-            variant="danger"
-            onClick={() => {
-              axios.post(`${serverURL}/cancelTask?taskID=${taskId}`);
-              history.push("/");
-              setFileName("");
-              setTaskId("");
-              setTaskStatus("UNSCHEDULED");
-            }}
-            className="mx-2"
-          >
-            Cancel
-          </Button>
+        {user?.name ? (
+          <>
+            <p className="mb-0 mx-2 text-light text-nowrap">
+              Logged in as <span className="fw-bold">{user.name}</span>
+            </p>
+            {!user.isVerified && (
+              <Button onClick={() => setIsSignUpShown(true)} className="mx-2">
+                Verify Email
+              </Button>
+            )}
+            <Button variant="outline-danger" onClick={signOut} className="mx-2">
+              Sign Out
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="outline-light"
+              onClick={() => setIsLogInShown(true)}
+              className="mx-2"
+            >
+              Log In
+            </Button>
+            <Button onClick={() => setIsSignUpShown(true)} className="mx-2">
+              Sign Up
+            </Button>
+          </>
         )}
       </Container>
+      {!!taskState?.progress && (
+        <>
+          <ProgressBar
+            progress={taskState.progress}
+            maxWidth={100}
+            thickness={0.35}
+          />
+          {/* @ts-ignore */}
+          <Phasename {...taskState} />
+        </>
+      )}
     </Navbar>
   );
 };

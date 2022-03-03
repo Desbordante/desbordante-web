@@ -1,24 +1,25 @@
-import React, { useEffect } from "react";
+import React, { useContext } from "react";
+import { Container } from "react-bootstrap";
+
+import { FileFormContext } from "../FileFormContext";
+import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";
 import ProgressBar from "../ProgressBar/ProgressBar";
-import "./LoadingScreen.scss";
 
-interface Props {
-  onComplete: () => void;
-  progress: number;
-}
-
-const LoadingScreen: React.FC<Props> = ({ onComplete, progress }) => {
-  useEffect(() => {
-    if (progress >= 1) {
-      onComplete();
-    }
-  }, [progress, onComplete]);
+const LoadingScreen = () => {
+  const { fileUploadProgress } = useContext(FileFormContext)!;
 
   return (
-    <div className="w-100 h-100 flex-grow-1 bg-dark d-flex flex-column justify-content-center align-items-center">
-      <h1 className="text-white my-4">Uploading your file. Please, wait.</h1>
-      <ProgressBar maxWidth={50} progress={progress} thickness={0.8} rounded />
-    </div>
+    <PopupWindowContainer onOutsideClick={() => {}}>
+      <Container className="p-5 bg-dark rounded-3 shadow d-flex flex-column">
+        <h1 className="text-white mb-4">Uploading your file. Please, wait.</h1>
+        <ProgressBar
+          maxWidth={100}
+          progress={fileUploadProgress}
+          thickness={0.8}
+          rounded
+        />
+      </Container>
+    </PopupWindowContainer>
   );
 };
 

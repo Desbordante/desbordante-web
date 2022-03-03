@@ -1,12 +1,15 @@
 import React from "react";
+import { Button as Btn } from "react-bootstrap";
 
 import "./Button.scss";
 
 interface Props {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   enabled?: boolean;
-  variant?: "light" | "dark" | "danger";
+  variant?: string;
   className?: string;
+  style?: React.CSSProperties;
+  size?: "sm" | "lg";
 }
 
 const Button: React.FC<Props> = ({
@@ -15,16 +18,19 @@ const Button: React.FC<Props> = ({
   variant = "light",
   className = "",
   children,
+  style,
+  size,
 }) => (
-  <button
-    type="button"
-    className={`button ${enabled ? "" : "disabled"} bg-${variant} text-${
-      variant === "light" ? "black" : "white"
-    } text-nowrap border-0 outline-0 px-3 py-2 rounded-pill cursor-pointer ${className}`}
+  <Btn
+    disabled={!enabled}
+    variant={variant}
+    className={`text-nowrap px-3 py-2 rounded-pill cursor-pointer ${className}`}
     onClick={enabled ? onClick : () => {}}
+    style={style}
+    size={size}
   >
     {children}
-  </button>
+  </Btn>
 );
 
 export default Button;
