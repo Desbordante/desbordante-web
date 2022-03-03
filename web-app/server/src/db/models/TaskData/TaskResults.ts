@@ -45,5 +45,8 @@ export class CFDTaskResult extends Model{
     CFDs?: string;
 
     @Column(TEXT)
-    pieChartData?: string;
+    withPatterns: string;
+
+    @Column(TEXT)
+    withoutPatterns: string;
 }
