@@ -150,7 +150,8 @@ const typeDefs = gql`
     }
     
     type CFD {
-        fd: FD!
+        lhs: [String!]!
+        rhs: String!
         lhsPatterns: [String!]!
         rhsPattern: String!
     }
@@ -177,8 +178,8 @@ const typeDefs = gql`
     }
     
     type CFDPieCharts {
-        withPatterns: [PieChartWithPatterns!]!
-        withoutPatterns: [PieChartWithoutPatterns!]! 
+        withPatterns: PieChartWithPatterns!
+        withoutPatterns: PieChartWithoutPatterns!
     }
     
     type FDResult {

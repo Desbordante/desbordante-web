@@ -25,7 +25,31 @@ const resolvers: Resolvers = {
             }
         },
     },
+    CFD: {
+        lhs: (parent, obj, context) => {
+            // @ts-ignore
+            return parent.l;
+        },
+        rhs: (parent, obj, context) => {
+            // @ts-ignore
+            return parent.r;
+        },
+        lhsPatterns: (parent, obj, context) => {
+            // @ts-ignore
+            return parent.lp;
+        },
+        rhsPattern: (parent, obj, context) => {
+            // @ts-ignore
+            return parent.rp;
+        },
+    },
     FDTaskConfig: {
+        // @ts-ignore
+        baseConfig: async({ taskID }, __, { models, logger }) => {
+            return await models.BaseTaskConfig.findByPk(taskID);
+        },
+    },
+    CFDTaskConfig: {
         // @ts-ignore
         baseConfig: async({ taskID }, __, { models, logger }) => {
             return await models.BaseTaskConfig.findByPk(taskID);
@@ -61,6 +85,23 @@ const resolvers: Resolvers = {
         // @ts-ignore
         config: async ({ taskID }, _, { models, logger }) => {
             return await models.FDTaskConfig.findByPk(taskID);
+        },
+    },
+    CFDTask: {
+        // @ts-ignore
+        result: async (parent, _, { models, logger }) => {
+            // @ts-ignore
+            const { taskID } = parent;
+            const taskInfo = await models.TaskInfo.findByPk(taskID,
+                { attributes: ["isExecuted"] });
+            if (!taskInfo) {
+                throw new ApolloError("Task not found");
+            }
+            return taskInfo.isExecuted ? parent : null;
+        },
+        // @ts-ignore
+        config: async ({ taskID }, _, { models, logger }) => {
+            return await models.CFDTaskConfig.findByPk(taskID);
         },
     },
     FDResult: {
@@ -119,6 +160,60 @@ const resolvers: Resolvers = {
                 { column: { index: idx, name: columnNames[idx] }, value });
 
             return { lhs: lhs.map(transform), rhs: rhs.map(transform) };
+        },
+    },
+    CFDPieCharts: {
+        // @ts-ignore
+        withoutPatterns: async({ columnNames, fileID, taskID }, _, { models, logger }) => {
+            const result = await models.CFDTaskResult.findByPk(taskID, { attributes: ["withoutPatterns"] });
+            if (!result) {
+                throw new ApolloError("Result not found");
+            }
+            const { withoutPatterns } = result;
+            type withoutPatternsRow = { id: number, value: string };
+            const withoutPatternsObject: { lhs: [withoutPatternsRow], rhs: [withoutPatternsRow] } = JSON.parse(withoutPatterns);
+            const transform = ({ id, value }: withoutPatternsRow) => ({
+                column: { index: id, name: columnNames[id] },
+                value,
+            });
+            return { lhs: withoutPatternsObject.lhs.map(transform), rhs: withoutPatternsObject.rhs.map(transform) };
+        },
+        // @ts-ignore
+        withPatterns: async({ columnNames, fileID, taskID }, _, { models, logger }) => {
+            const result = await models.CFDTaskResult.findByPk(taskID, { attributes: ["withPatterns"] });
+            if (!result) {
+                throw new ApolloError("Result not found");
+            }
+            const { withPatterns } = result;
+            type withPatternsRow = { id: number, value: string, pattern: string };
+            const withPatternsObject: { lhs: [withPatternsRow], rhs: [withPatternsRow] } = JSON.parse(withPatterns);
+            const transform = ({ id, value, pattern }: withPatternsRow) => ({
+                column: { index: id, name: columnNames[id] },
+                value,
+                pattern,
+            });
+            return { lhs: withPatternsObject.lhs.map(transform), rhs: withPatternsObject.rhs.map(transform) };
+        },
+    },
+    CFDResult: {
+        // @ts-ignore
+        CFDs: async ({ taskID }, _, { models, logger }) => {
+            const result = await models.CFDTaskResult.findByPk(
+                taskID, { attributes: ["CFDs"] });
+            if (!result) {
+                throw new UserInputError("Invalid taskID was provided", { taskID });
+            }
+            return JSON.parse(result.CFDs || "[]");
+        },
+        // @ts-ignore
+        pieChartData: async ({ taskID, fileID }, obj, { models, logger }) => {
+            const file = await models.FileInfo.findByPk(
+                fileID, { attributes: ["renamedHeader"] });
+            if (!file) {
+                throw new UserInputError("Invalid fileID was provided", { fileID });
+            }
+            const columnNames: string[] = JSON.parse(file.renamedHeader);
+            return { fileID, columnNames, taskID };
         },
     },
     DatasetInfo: {
