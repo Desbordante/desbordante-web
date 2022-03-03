@@ -1,3 +1,4 @@
+import { UserInputError } from "apollo-server-core";
 import cors from "cors";
 import express, { Application } from "express";
 import { graphqlUploadExpress } from "graphql-upload";
@@ -8,13 +9,15 @@ import configureDB from "./db/configureDB";
 import { configureSequelizeModels } from "./db/configureSequelize";
 import initBuiltInDatasets from "./db/initBuiltInDatasets";
 import { Device, DeviceInfoInstance } from "./db/models/Authorization/Device";
+import { FileInfo } from "./db/models/Authorization/FileInfo";
 import { Permission } from "./db/models/Authorization/Permission";
-import { RoleType } from "./db/models/Authorization/Role";
+import { Role, RoleType } from "./db/models/Authorization/Role";
 import { Session, SessionStatusType } from "./db/models/Authorization/Session";
 import { AccountStatusType, User } from "./db/models/Authorization/User";
+import { TaskInfo } from "./db/models/TaskData/TaskInfo";
 import { sequelize } from "./db/sequelize";
 import configureGraphQL from "./graphql/configureGraphQL";
-import { CreatingUserProps } from "./graphql/types/types";
+import { CreatingUserProps, InputMaybe, IntersectionTaskProps, Scalars } from "./graphql/types/types";
 
 function normalizePort(val: string | undefined) {
     if (val) {
@@ -89,6 +92,128 @@ async function createAccountWithLongLiveRefreshToken(roles: RoleType[]) {
     return answers;
 }
 
+// Function for client (test UI)
+async function createCfdTask() {
+    const jsonStr = `[
+{ "l": ["First"], "lp": ["1"], "r": "Second", "rp": "2" },
+{ "l": ["Third"], "lp": ["1"], "r": "First", "rp": "1" },
+{ "l": ["Third"], "lp": ["3"], "r": "First", "rp": "1" },
+{ "l": ["Second"], "lp": ["4"], "r": "First", "rp": "3" },
+{ "l": ["Third"], "lp": ["4"], "r": "First", "rp": "3" },
+{ "l": ["Third"], "lp": ["5"], "r": "First", "rp": "3" },
+{ "l": ["Third"], "lp": ["8"], "r": "First", "rp": "5" },
+{ "l": ["Second"], "lp": ["4"], "r": "Third", "rp": "5" },
+{ "l": ["Third"], "lp": ["5"], "r": "Second", "rp": "4" },
+{ "l": ["Third"], "lp": ["2"], "r": "Second", "rp": "3" },
+{ "l": ["Third"], "lp": ["4"], "r": "Second", "rp": "3" },
+{ "l": ["Third"], "lp": ["8"], "r": "Second", "rp": "3" },
+{ "l": ["Third"], "lp": ["1"], "r": "Second", "rp": "2" },
+{ "l": ["Third"], "lp": ["3"], "r": "Second", "rp": "2" },
+{ "l": ["Third"], "lp": ["7"], "r": "Second", "rp": "2" },
+{ "l": ["First","Third"], "lp": ["_","_"], "r": "Second", "rp": "_" },
+{ "l": ["Second","Third"], "lp": ["_","8"], "r": "First", "rp": "_" },
+{ "l": ["First","Third"], "lp": ["_","8"], "r": "Second", "rp": "_" },
+{ "l": ["First","Third"], "lp": ["_","7"], "r": "Second", "rp": "_" },
+{ "l": ["First","Third"], "lp": ["_","5"], "r": "Second", "rp": "_" },
+{ "l": ["Second","Third"], "lp": ["_","4"], "r": "First", "rp": "_" },
+{ "l": ["First","Third"], "lp": ["_","4"], "r": "Second", "rp": "_" },
+{ "l": ["Second","Third"], "lp": ["_","3"], "r": "First", "rp": "_" },
+{ "l": ["First","Third"], "lp": ["_","3"], "r": "Second", "rp": "_" },
+{ "l": ["Second","Third"], "lp": ["_","2"], "r": "First", "rp": "_" },
+{ "l": ["First","Third"], "lp": ["_","2"], "r": "Second", "rp": "_" },
+{ "l": ["Second","Third"], "lp": ["_","1"], "r": "First", "rp": "_" },
+{ "l": ["First","Third"], "lp": ["_","1"], "r": "Second", "rp": "_" },
+{ "l": ["First","Second"], "lp": ["_","3"], "r": "Third", "rp": "_" },
+{ "l": ["First","Second"], "lp": ["_","4"], "r": "Third", "rp": "_" },
+{ "l": ["First","Second"], "lp": ["5","_"], "r": "Third", "rp": "_" },
+{ "l": ["First","Second"], "lp": ["5","2"], "r": "Third", "rp": "6" },
+{ "l": ["First","Second"], "lp": ["5","3"], "r": "Third", "rp": "7" },
+{ "l": ["First","Second"], "lp": ["3","3"], "r": "Third", "rp": "4" },
+{ "l": ["First","Second"], "lp": ["2","_"], "r": "Third", "rp": "_" },
+{ "l": ["First","Third"], "lp": ["2","_"], "r": "Second", "rp": "_" },
+{ "l": ["First","Second"], "lp": ["2","2"], "r": "Third", "rp": "6" },
+{ "l": ["First","Second"], "lp": ["2","3"], "r": "Third", "rp": "2" }
+ ]
+`;
+    type cfd = { l: [string], lp:[string], r: string, rp: string }
+    const json: { cfds: [cfd] } = JSON.parse(jsonStr);
+
+    const pieChartDataJsonStr = `
+    { "lhs":[{ "id": 0, "value":10.000000 },
+{ "id": 1, "value":9.000000 },
+{ "id": 2, "value":19.000000 }
+], "rhs":[{ "id": 0, "value":8.500000 },
+{ "id": 1, "value":12.500000 },
+{ "id": 2, "value":5.500000 }
+] }`;
+    type WithoutPatternRow = { id: number, value: number };
+    const pieChartDataWithoutPatternsJson: { lhs: [WithoutPatternRow], rhs: [WithoutPatternRow] } = JSON.parse(pieChartDataJsonStr);
+
+    const pieChartDataWithPatternsJsonStr = `
+    { "lhs":[{ "id": 0, "pattern":"1", "value":1.000000 },
+{ "id": 0, "pattern":"2", "value":2.000000 },
+{ "id": 0, "pattern":"3", "value":0.500000 },
+{ "id": 0, "pattern":"5", "value":1.500000 },
+{ "id": 0, "pattern":"_", "value":5.000000 },
+{ "id": 1, "pattern":"2", "value":1.000000 },
+{ "id": 1, "pattern":"3", "value":2.000000 },
+{ "id": 1, "pattern":"4", "value":2.500000 },
+{ "id": 1, "pattern":"_", "value":3.500000 },
+{ "id": 2, "pattern":"1", "value":3.000000 },
+{ "id": 2, "pattern":"2", "value":2.000000 },
+{ "id": 2, "pattern":"3", "value":3.000000 },
+{ "id": 2, "pattern":"4", "value":3.000000 },
+{ "id": 2, "pattern":"5", "value":2.500000 },
+{ "id": 2, "pattern":"7", "value":1.500000 },
+{ "id": 2, "pattern":"8", "value":3.000000 },
+{ "id": 2, "pattern":"_", "value":1.000000 }
+], "rhs":[{ "id": 0, "pattern":"1", "value":2.000000 },
+{ "id": 0, "pattern":"3", "value":3.000000 },
+{ "id": 0, "pattern":"5", "value":1.000000 },
+{ "id": 0, "pattern":"_", "value":2.500000 },
+{ "id": 1, "pattern":"2", "value":4.000000 },
+{ "id": 1, "pattern":"3", "value":3.000000 },
+{ "id": 1, "pattern":"4", "value":1.000000 },
+{ "id": 1, "pattern":"_", "value":4.500000 },
+{ "id": 2, "pattern":"2", "value":0.500000 },
+{ "id": 2, "pattern":"4", "value":0.500000 },
+{ "id": 2, "pattern":"5", "value":1.000000 },
+{ "id": 2, "pattern":"7", "value":1.000000 },
+{ "id": 2, "pattern":"8", "value":0.500000 },
+{ "id": 2, "pattern":"_", "value":2.000000 }
+] }`;
+    type WithPatternRow = { id: number, value: number, pattern: string };
+    const pieChartDataWithPatternsJson: { lhs: [WithPatternRow], rhs: [WithPatternRow] } = JSON.parse(pieChartDataWithPatternsJsonStr);
+
+    const fileName = "TestLong.csv";
+    const file = await FileInfo.findOne({ where: { fileName } });
+    if (!file) {
+        throw new UserInputError("File not found", { fileName });
+    }
+    const props: IntersectionTaskProps = {
+        algorithmName: "CTane",
+        // @ts-ignore
+        type: "CFD",
+        maxLHS: -1,
+        minConfidence: 1,
+        minSupport: 1,
+    };
+    const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, file.ID, null);
+
+    const res = await taskInfo.$get("CFDResult");
+    if (!res) {
+        throw new Error("got nul result");
+    }
+    await taskInfo.update({
+        isExecuted: true, status: "Test data", phaseName: "CFD mining",
+        currentPhase: 1, progress:100, maxPhase: 1, elapsedTime: 1,
+    });
+    await res.update({ CFDs: JSON.stringify(json) });
+    await res.update({ withPatterns: JSON.stringify(pieChartDataWithPatternsJson) });
+    await res.update({ withoutPatterns: JSON.stringify(pieChartDataWithoutPatternsJson) });
+    console.log(`Created task cfd with id = ${taskInfo.taskID}`);
+}
+
 async function configureApp() {
     const app = express();
     app.set("port", normalizePort(process.env.SERVER_PORT));
@@ -152,6 +277,8 @@ async function configureApp() {
         await createAccountWithLongLiveRefreshToken(["ANONYMOUS", "USER", "SUPPORT", "ADMIN", "DEVELOPER"])
             .then(results => results.map(res => console.log(res)))
             .catch(e => console.error("Problems with accounts creating", e.message));
+        await createCfdTask()
+            .catch(e => console.error("Problems with task creating", e.message));
     }
 
     // Catch 404 and forward to error handler
