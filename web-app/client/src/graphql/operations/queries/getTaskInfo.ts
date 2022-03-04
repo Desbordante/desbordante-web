@@ -46,10 +46,8 @@ export const GET_TASK_INFO = gql`
           ... on CFDTask {
             CFDResult: result {
               CFDs {
-                fd {
-                  lhs
-                  rhs
-                }
+                lhs
+                rhs
                 lhsPatterns
                 rhsPattern
               }

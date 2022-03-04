@@ -9,9 +9,10 @@ import { TaskContext } from "../TaskContext";
 interface Props {
   partShown: number;
   setPartShown: React.Dispatch<React.SetStateAction<number>>;
+  options: string[];
 }
 
-const Navigation: React.FC<Props> = ({ partShown, setPartShown }) => {
+const Navigation: React.FC<Props> = ({ partShown, setPartShown, options }) => {
   const { resetTask, deleteTask } = useContext(TaskContext)!;
   const history = useHistory();
 
@@ -21,30 +22,17 @@ const Navigation: React.FC<Props> = ({ partShown, setPartShown }) => {
       className="d-flex flex-wrap align-items-center mb-2 position-sticky"
     >
       <h3 className="mx-2 fw-bold">Display</h3>
-      <Toggle
-        toggleCondition={partShown === 0}
-        variant="dark"
-        onClick={() => setPartShown(0)}
-        className="mx-2"
-      >
-        Attributes
-      </Toggle>
-      <Toggle
-        toggleCondition={partShown === 1}
-        variant="dark"
-        onClick={() => setPartShown(1)}
-        className="mx-2"
-      >
-        Dependencies
-      </Toggle>
-      <Toggle
-        toggleCondition={partShown === 2}
-        variant="dark"
-        onClick={() => setPartShown(2)}
-        className="mx-2"
-      >
-        Dataset
-      </Toggle>
+      {options.map((option, index) => (
+        <Toggle
+          key={option}
+          toggleCondition={partShown === index}
+          variant="dark"
+          onClick={() => setPartShown(index)}
+          className="mx-2"
+        >
+          {option}
+        </Toggle>
+      ))}
       <Button
         variant="outline-danger"
         className="ms-auto justify-self-end"
