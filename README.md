@@ -122,15 +122,16 @@ The web application requires the following components:
 * ### Web-Client and Web-Server
   Firstly, you need to install package manager `yarn`:
   ```
-  sudo apt install yarnpkg
+  sudo apt install npm
+  npm install --global yarn
   ```
   Then you need to install all dependencies for web-server and web-client:
   
   ```
   cd web-app/server
-  yarnpkg
+  yarn
   cd ../client
-  yarnpkg
+  yarn
   ```
 * ### Consumer
 Ensure that you have installed the dependencies required to build the program without a web application. Then you need to install the following dependencies:
@@ -170,22 +171,22 @@ Ensure that you have installed the dependencies required to build the program wi
   cd web-app/kafka-server
   sudo docker-compose up
   ```
-  Note: if an error occurred while trying to start the server, then enter 
+  `Note`: if an error occurred while trying to start the server, then enter:
   ```
   sudo docker-compose down
   ```
   Secondly, you need to run web-server:
   ```
   cd web-app/server
-  yarnpkg build
-  yarnpkg start
+  yarn build
+  yarn start
   ```
-  The command `yarnpkg build` is needed only for the first launch web-server.
+  `Note`: By default, all tables will be recreated after each server restart. You can change this behavior in the '.env' file (server/.env).
 
   Next, you need to run web-client:
   ```
   cd web-app/client
-  yarnpkg start
+  yarn start
   ```
   Then, it remains to start the consumer:
   ```
