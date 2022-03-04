@@ -26,7 +26,10 @@ const TaskCreatingResolvers: Resolvers = {
             if (!sessionInfo ||  !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
                 throw new AuthenticationError("User must be logged in and have permission USE_OWN_DATASETS");
             }
-            return await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID);
+            const file = await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID);
+            // throws an UserInputError, if file is invalid
+            await findAndUpdateFileRowsCount(file, datasetProps.delimiter);
+            return file;
         },
         // @ts-ignore
         setDatasetBuiltInStatus: async (parent, { fileID, isBuiltIn }, { models, logger, sessionInfo }) => {
