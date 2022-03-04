@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { DefaultContext, useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
@@ -37,47 +37,16 @@ const CreateTaskButton = () => {
   const { isValid, dataset, fileProps, algorithmProps, setFileUploadProgress } =
     useContext(FileFormContext)!;
   const { showError } = useContext(ErrorContext)!;
+  const history = useHistory();
 
-  const [
-    createTask,
-    {
-      data: createTaskData,
-      loading: createTaskLoading,
-      error: createTaskError,
-    },
-  ] = useMutation<
+  const [createTask] = useMutation<
     createTaskWithDatasetUploading,
     createTaskWithDatasetUploadingVariables
   >(CREATE_TASK_WITH_UPLOADING_DATASET);
-  const [
-    chooseTask,
-    {
-      data: chooseTaskData,
-      loading: chooseTaskLoading,
-      error: chooseTaskError,
-    },
-  ] = useMutation<
+  const [chooseTask] = useMutation<
     createTaskWithDatasetChoosing,
     createTaskWithDatasetChoosingVariables
   >(CREATE_TASK_WITH_CHOOSING_DATASET);
-  const data =
-    (createTaskData && createTaskData.createTaskWithDatasetUploading) ||
-    (chooseTaskData && chooseTaskData.createTaskWithDatasetChoosing);
-
-  const loading = createTaskLoading || chooseTaskLoading;
-  const error = createTaskError || chooseTaskError;
-
-  const history = useHistory();
-  useEffect(() => {
-    if (error) {
-      showError({ message: error.message });
-    }
-  }, [error]);
-  useEffect(() => {
-    if (data) {
-      history.push(`/${data.state.taskID}`);
-    }
-  }, [data]);
 
   const submit = () => {
     if (isValid) {
@@ -106,16 +75,31 @@ const CreateTaskButton = () => {
           },
         },
       };
+
       if (isBuiltinDataset(dataset)) {
         chooseTask({
           variables: { props, fileID: (dataset as BuiltinDataset).ID },
           context,
-        });
+        })
+          .then((res) =>
+            history.push(res.data?.createTaskWithDatasetChoosing.state.taskID)
+          )
+          .catch((error) => {
+            showError({ message: error.message });
+            setFileUploadProgress(0);
+          });
       } else {
         createTask({
           variables: { props, datasetProps, table: dataset as File },
           context,
-        });
+        })
+          .then((res) =>
+            history.push(res.data?.createTaskWithDatasetUploading.state.taskID)
+          )
+          .catch((error) => {
+            showError({ message: error.message });
+            setFileUploadProgress(0);
+          });
       }
     }
   };
