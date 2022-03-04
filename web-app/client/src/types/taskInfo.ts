@@ -27,7 +27,8 @@ export type FDAttribute =
 export type CFDPieChartData =
   getTaskInfo_taskInfo_data_CFDTask_CFDResult_pieChartData;
 export type ConditionalDependency = {
-  fd: FunctionalDependency;
+  lhs: string[];
+  rhs: string;
   lhsPatterns: string[];
   rhsPattern: string;
 };
@@ -48,3 +49,10 @@ export type TaskResult = {
   FD?: FDTaskResult;
   CFD?: CFDTaskResult;
 };
+
+export type SortMethod<T> = {
+  name: string;
+  comparator: (a: T, b: T) => number;
+};
+
+export type Dependency = FunctionalDependency | ConditionalDependency;
