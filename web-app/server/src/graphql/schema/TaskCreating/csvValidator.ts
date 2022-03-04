@@ -11,9 +11,32 @@ export async function findAndUpdateFileRowsCount(file: FileInfo, sep: string) {
     return true;
 }
 
+function csvLinetoArray(line: string, sep: string) {
+    const re_valid = new RegExp(`^\\s*(?:'[^'\\\\]*(?:\\\\[\\S\\s][^'\\\\]*)*'|"[^"\\\\]*(?:\\\\[\\S\\s][^"\\\\]*)*"|[^${sep}'"\\s\\\\]*(?:\\s+[^${sep}'"\\s\\\\]+)*)\\s*(?:${sep}\\s*(?:'[^'\\\\]*(?:\\\\[\\S\\s][^'\\\\]*)*'|"[^"\\\\]*(?:\\\\[\\S\\s][^"\\\\]*)*"|[^${sep}'"\\s\\\\]*(?:\\s+[^${sep}'"\\s\\\\]+)*)\\s*)*$`);
+    const re_value = new RegExp(`(?!\\s*$)\\s*(?:'([^'\\\\]*(?:\\\\[\\S\\s][^'\\\\]*)*)'|"([^"\\\\]*(?:\\\\[\\S\\s][^"\\\\]*)*)"|([^${sep}'"\\s\\\\]*(?:\\s+[^${sep}'"\\s\\\\]+)*))\\s*(?:${sep}|$)`, "g");
+
+    if (!re_valid.test(line)) {
+        throw new UserInputError("Invalid csv string was provided", { line });
+    }
+    const a = [];
+    line.replace(re_value, (m0, m1, m2, m3) => {
+        if (m1 !== undefined) {
+            a.push(m1.replace(/\\'/g, "'"));
+        } else if (m2 !== undefined) {
+            a.push(m2.replace(/\\"/g, "\""));
+        } else if (m3 !== undefined) {
+            a.push(m3);
+        }
+        return "";
+    });
+    if (/,\s*$/.test(line)) {
+        a.push("");
+    }
+    return a;
+}
+
 function getNumberOfColumns(line: string, sep: string) {
-    const re = new RegExp(`\\${sep}`, "g");
-    return (line.match(re) || []).length + 1;
+    return csvLinetoArray(line, sep).length;
 }
 
 async function tryFindCorrectSeparator(path: fs.PathLike) {
