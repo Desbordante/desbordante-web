@@ -2,6 +2,7 @@ import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core"
 import { AuthenticationError } from "apollo-server-express";
 import { Role } from "../../../db/models/Authorization/Role";
 import { Resolvers } from "../../types/types";
+import { findAndUpdateFileRowsCount } from "./csvValidator";
 
 const TaskCreatingResolvers: Resolvers = {
     Mutation: {
@@ -49,12 +50,15 @@ const TaskCreatingResolvers: Resolvers = {
             if (!sessionInfo || !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
                 throw new AuthenticationError("User must be authorized and has permission USE_OWN_DATASETS");
             }
-            const { ID: fileID } = await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID)
+            const file = await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID)
                 .catch(e => {
                     logger("Error while file uploading", e);
                     throw new ApolloError("Error while uploading dataset");
                 });
-            return await models.TaskInfo.saveTaskToDBAndSendEvent(props, fileID, topicNames.DepAlgs, sessionInfo.userID);
+            // throws an UserInputError, if file is invalid
+            await findAndUpdateFileRowsCount(file, datasetProps.delimiter);
+
+            return await models.TaskInfo.saveTaskToDBAndSendEvent(props, file.ID, topicNames.DepAlgs, sessionInfo.userID);
         },
         deleteTask: async (parent, { taskID }, { models, logger, sessionInfo }) => {
             if (!sessionInfo) {
