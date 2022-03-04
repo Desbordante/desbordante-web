@@ -65,7 +65,7 @@ const TaskCreatingResolvers: Resolvers = {
         },
         deleteTask: async (parent, { taskID }, { models, logger, sessionInfo }) => {
             if (!sessionInfo) {
-                throw new AuthenticationError("User doesn't authorized");
+                throw new AuthenticationError("User must be authorized");
             }
             const taskInfo = await models.TaskInfo.findByPk(taskID);
             if (!taskInfo) {
