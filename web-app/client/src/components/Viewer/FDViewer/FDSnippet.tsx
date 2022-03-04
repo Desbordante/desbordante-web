@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import stringToColor from "../../../functions/stringToColor";
 import colors from "../../../colors";
-import { FunctionalDependency } from "../../../types/taskInfo";
+import { Dependency } from "../../../types/taskInfo";
 
 const DependencyContainer = styled.div`
   transition: 0.3s;
@@ -27,7 +27,7 @@ const Arrow = styled.svg`
 `;
 
 interface Props {
-  dependency: FunctionalDependency;
+  dependency: Dependency;
   isActive: boolean;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   onActiveClick: React.MouseEventHandler<HTMLDivElement>;
@@ -65,11 +65,16 @@ const FDSnippet: React.FC<Props> = ({
       </Attribute>
     ))}
 
-    <Arrow className={isActive ? " active" : ""} viewBox="0 0 58.73 20.09">
-      <line x1="48.68" y1="0.5" x2="58.23" y2="10.05" />
-      <line x1="58.23" y1="10.05" x2="48.68" y2="19.59" />
-      <line x1="58.23" y1="10.05" x2="0.5" y2="10.05" />
-    </Arrow>
+    <div className="d-flex align-items-center justify-content-center position-relative mx-2">
+      <Arrow
+        className={`arrow ${isActive ? "active" : ""}`}
+        viewBox="0 0 58.73 20.09"
+      >
+        <line x1="58.23" y1="10.05" x2="0.5" y2="10.05" />
+        <line x1="48.68" y1="0.5" x2="58.23" y2="10.05" />
+        <line x1="58.23" y1="10.05" x2="48.68" y2="19.59" />
+      </Arrow>
+    </div>
 
     <Attribute
       style={

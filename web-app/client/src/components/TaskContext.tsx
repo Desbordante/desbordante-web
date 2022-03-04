@@ -69,7 +69,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
       () => taskId && query({ variables: { taskID: taskId } }),
       500
     );
-  }, [taskId, query]);
+  }, [taskId]);
 
   useEffect(() => {
     if (!taskId || taskState?.isExecuted || error) {
@@ -113,14 +113,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
             setTaskResult({
               CFD: {
                 pieChartData: result.pieChartData,
-                dependencies: result.CFDs?.map((cfd) => ({
-                  lhsPatterns: cfd.lhsPatterns,
-                  rhsPattern: cfd.rhsPattern,
-                  fd: parseFunctionalDependency(
-                    cfd?.fd,
-                    taskDataset.snippet.header
-                  ),
-                })),
+                dependencies: result.CFDs,
                 keys: result.PKs?.map((attr) => attr?.name),
               },
             });
