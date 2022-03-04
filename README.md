@@ -85,39 +85,115 @@ In the second case, to build the project, you also need to have dependencies tha
   The `<dataset_name>.csv`, which is a user-provided dataset, should be placed in the `\path\to\Desbordante\build\target` directory.
 
 ## Installation (with web application)
-Requires docker, docker-compose 
-```
-git clone https://github.com/Elluran/Desbordante.git
-cd Desbordante/
-git checkout origin/Docker
-docker build -t cpp-consumer -f=Dockerfile-cpp-consumer .
-mkdir -m777 volumes
-cd volumes/
-mkdir -m777 -p {data/kafka,data/zk,logs/kafka,logs/zk,uploads,postgres-data,datasets}
-cd ..
-unzip datasets/datasets.zip -d volumes/datasets/
-docker-compose build
-```
-## Configuring
-1) Create .env file in Desbordante/
-2) Set those variables:
-  * POSTGRES_PASSWORD
-  * POSTGRES_USER
-  * POSTGRES_DB
-  * KAFKA_ADMIN_CLIENT_ID
-  * CONSUMER_TL_SEC
-  * CONSUMER_ML_MB
 
-.env file format example:  
-  VARIABLE_1=VALUE1  
-  VARIABLE_2=VALUE2
+Currently, you can build this part of the project only on the operating system Ubuntu. 
+The following instructions were tested on Ubuntu 20.04.3 LTS.
+
+The web application requires the following components:
+1) DBMS
+2) Message Broker
+3) Web-Client and Web-Server
+4) Consumer (for Message Broker)
+
+* ### DBMS
+  You need to install `PostgreSQL`.
+
+  After installation, do the following steps:
+  - Create a PostgreSQL role with ability to create databases. You can achive this by executing the following commands:
+  ```
+  sudo -i -u postgres
+  psql postgres
+  $ CREATE USER your_username WITH CREATEDB ENCRYPTED PASSWORD 'your_password'
+  $ ALTER USER your_username WITH PASSWORD 'your_password'
+  ```
+  - Make changes to the appropriate config files (`/path/to/Desbordante/web-app/server/.env` and `/path/to/Desbordante/cfg/db_config.json`)
+
+* ### Message Broker
+  You need to install `docker-compose` and run message broker:
+  ```
+  sudo apt-get install docker-compose
+  ```
+
+  After installation, write the following lines:
+  ```
+  cd web-app/kafka-server
+  sudo docker-compose up
+  ```
+
+* ### Web-Client and Web-Server
+  Firstly, you need to install package manager `yarn`:
+  ```
+  sudo apt install npm
+  npm install --global yarn
+  ```
+  Then you need to install all dependencies for web-server and web-client:
   
-## Running
-```
-docker-compose up --force-recreate
-```
-After the launch it will be available at http://localhost:3000/
+  ```
+  cd web-app/server
+  yarn
+  cd ../client
+  yarn
+  ```
+* ### Consumer
+Ensure that you have installed the dependencies required to build the program without a web application. Then you need to install the following dependencies:
 
+  - libpqxx:
+  ```
+  sudo apt-get install libpqxx-dev
+  ```
+  - librdkafka:
+  ```
+  sudo apt-get install librdkafka-dev
+  ```
+  - cppKafka:
+  ```
+  git clone https://github.com/mfontanini/cppkafka.git
+  cd cppkafka
+  mkdir build
+  cd build
+  cmake ..
+  make
+  sudo make install
+  ```
+#### Building
+  Cd into the project directory and launch the build script with the flag to build the consumer:
+  ```
+  cd Desbordante
+  ./build.sh -c
+  ```
+  The script generates the following file structure in `/path/to/Desbordante/build/target`:
+  ```bash
+  ├───...
+  ├───Desbordante_kafka_consumer
+  ```
+* ### Launching the web application
+  Firstly, you need to run kafka server:
+  ```
+  cd web-app/kafka-server
+  sudo docker-compose up
+  ```
+  `Note`: if an error occurred while trying to start the server, then enter:
+  ```
+  sudo docker-compose down
+  ```
+  Secondly, you need to run web-server:
+  ```
+  cd web-app/server
+  yarn build
+  yarn start
+  ```
+  `Note`: By default, all tables will be recreated after each server restart. You can change this behavior in the '.env' file (server/.env).
+
+  Next, you need to run web-client:
+  ```
+  cd web-app/client
+  yarn start
+  ```
+  Then, it remains to start the consumer:
+  ```
+  cd build/target
+  ./Desbordante_kafka_consumer
+  ```
 # Developers
 
 Kirill Stupakov     &mdash; Client side of the web application
