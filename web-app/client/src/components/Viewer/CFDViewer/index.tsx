@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 
-import PieChartFull from "./PieChartFull/PieChartFull";
+import PieChartFull from "../FDViewer/PieChartFull/PieChartFull";
 import DependencyList from "../DependencyList";
 import TableSnippet from "../TableSnippet/TableSnippet";
 import Navigation from "../Navigation";
 import {
+  CFDTaskResult,
+  ConditionalDependency,
   Dependency,
   FDAttribute,
-  FDTaskResult,
-  FunctionalDependency,
   SortMethod,
 } from "../../../types/taskInfo";
 
@@ -30,7 +30,7 @@ const sortMethods: SortMethod<Dependency>[] = [
 ];
 
 interface Props {
-  result: FDTaskResult;
+  result: CFDTaskResult;
 }
 
 const Index: React.FC<Props> = ({ result }) => {
@@ -42,8 +42,9 @@ const Index: React.FC<Props> = ({ result }) => {
     FDAttribute[]
   >([]);
   const [selectedDependency, setSelectedDependency] =
-    useState<FunctionalDependency | null>(null);
+    useState<ConditionalDependency | null>(null);
 
+  // @ts-ignore
   return (
     <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">
       <Navigation
@@ -56,7 +57,7 @@ const Index: React.FC<Props> = ({ result }) => {
           <Col xl={6} className="mt-5">
             <PieChartFull
               title="Left-hand side"
-              attributes={result.pieChartData.lhs}
+              attributes={result.pieChartData.withoutPatterns.lhs}
               selectedAttributes={selectedAttributesLHS}
               setSelectedAttributes={setSelectedAttributesLHS}
             />
@@ -64,7 +65,7 @@ const Index: React.FC<Props> = ({ result }) => {
           <Col xl={6} className="mt-5">
             <PieChartFull
               title="Right-hand side"
-              attributes={result.pieChartData.rhs}
+              attributes={result.pieChartData.withoutPatterns.rhs}
               maxItemsSelected={1}
               selectedAttributes={selectedAttributesRHS}
               setSelectedAttributes={setSelectedAttributesRHS}
@@ -81,6 +82,7 @@ const Index: React.FC<Props> = ({ result }) => {
           selectedAttributesLHS={selectedAttributesLHS}
           selectedAttributesRHS={selectedAttributesRHS}
           selectedDependency={selectedDependency}
+          /* @ts-ignore */
           setSelectedDependency={setSelectedDependency}
         />
       )}

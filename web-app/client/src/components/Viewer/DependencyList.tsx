@@ -1,40 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { Container, Stack } from "react-bootstrap";
 
-import FDSnippet from "./FDSnippet";
-import SearchBar from "../../SearchBar/SearchBar";
-import Toggle from "../../Toggle/Toggle";
-import Selector from "../../Selector/Selector";
-import { FDAttribute, FunctionalDependency } from "../../../types/taskInfo";
-
-type SortMethod = "LHS" | "RHS";
-const allowedSortMethods: SortMethod[] = ["LHS", "RHS"];
+import FDSnippet from "./FDViewer/FDSnippet";
+import SearchBar from "../SearchBar/SearchBar";
+import Toggle from "../Toggle/Toggle";
+import Selector from "../Selector/Selector";
+import { Dependency, FDAttribute, SortMethod } from "../../types/taskInfo";
 
 interface Props {
   selectedAttributesLHS: FDAttribute[];
   selectedAttributesRHS: FDAttribute[];
-  selectedDependency: FunctionalDependency | null;
+  selectedDependency: Dependency | null;
   setSelectedDependency: React.Dispatch<
-    React.SetStateAction<FunctionalDependency | null>
+    React.SetStateAction<Dependency | null>
   >;
-  dependencies: FunctionalDependency[];
+  dependencies: Dependency[];
+  sortMethods: SortMethod<Dependency>[];
   keys: string[];
   className?: string;
 }
 
-const FDList: React.FC<Props> = ({
+const DependencyList: React.FC<Props> = ({
   selectedAttributesLHS,
   selectedAttributesRHS,
   selectedDependency,
   setSelectedDependency,
   dependencies,
+  sortMethods,
   keys,
   className = "",
 }) => {
-  const [sortedDependencies, setSortedDependencies] = useState<
-    FunctionalDependency[]
-  >([]);
-  const [sortBy, setSortBy] = useState<SortMethod>("LHS");
+  const [sortedDependencies, setSortedDependencies] = useState<Dependency[]>(
+    []
+  );
+  const [currentSortMethod, setCurrentSortMethod] = useState<
+    SortMethod<Dependency>
+  >(sortMethods[0]);
   const [searchString, setSearchString] = useState("");
   const [showKeys, setShowKeys] = useState(true);
 
@@ -71,23 +72,16 @@ const FDList: React.FC<Props> = ({
       );
 
     // sort found dependencies
-    const newSortedDependencies = foundDependencies.sort((d1, d2) => {
-      if (sortBy === "LHS") {
-        return (d1.lhs.join("") + d1.rhs).localeCompare(
-          d2.lhs.join("") + d2.rhs
-        );
-      }
-
-      return d1.rhs.localeCompare(d2.rhs);
-    });
-
+    const newSortedDependencies = foundDependencies.sort(
+      currentSortMethod.comparator
+    );
     setSortedDependencies(newSortedDependencies);
   }, [
     dependencies,
     selectedAttributesLHS,
     selectedAttributesRHS,
     searchString,
-    sortBy,
+    currentSortMethod,
     showKeys,
   ]);
 
@@ -96,16 +90,16 @@ const FDList: React.FC<Props> = ({
       <Container fluid className="d-flex flex-wrap align-items-center p-0 my-2">
         <h3 className="mx-2 fw-bold">Sort by</h3>
         <Selector
-          options={allowedSortMethods}
-          current={sortBy}
-          onSelect={setSortBy}
-          label={(sortMethod) => sortMethod}
+          options={sortMethods}
+          current={currentSortMethod}
+          onSelect={setCurrentSortMethod}
+          label={(sortMethod) => sortMethod.name}
           variant="dark"
           className="mx-2"
         />
         <SearchBar
           defaultText="Filter dependencies"
-          onChange={(str) => setSearchString(str)}
+          onChange={setSearchString}
           className="mx-2"
         />
         <Toggle
@@ -138,4 +132,4 @@ const FDList: React.FC<Props> = ({
   );
 };
 
-export default FDList;
+export default DependencyList;

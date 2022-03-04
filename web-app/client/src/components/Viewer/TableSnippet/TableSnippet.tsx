@@ -3,10 +3,10 @@ import React, { useState, useContext } from "react";
 import { Container } from "react-bootstrap";
 
 import "./TableSnippet.scss";
-import Toggle from "../../../Toggle/Toggle";
+import Toggle from "../../Toggle/Toggle";
 import Table from "./Table";
-import { TaskContext } from "../../../TaskContext";
-import { FunctionalDependency } from "../../../../types/taskInfo";
+import { TaskContext } from "../../TaskContext";
+import { FunctionalDependency } from "../../../types/taskInfo";
 
 interface Props {
   selectedDependency: FunctionalDependency | null;
