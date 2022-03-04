@@ -16,6 +16,7 @@ const typeDefs = gql`
         renamedHeader: String!
         path: String!
         delimiter: String!
+        rowsCount: Int!
     }
     
     type Feedback {
