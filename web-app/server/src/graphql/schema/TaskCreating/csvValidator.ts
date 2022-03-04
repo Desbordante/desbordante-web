@@ -1,7 +1,6 @@
 import { UserInputError } from "apollo-server-core";
 import fs from "fs";
 import readline from "readline";
-import { ModelsType } from "../../../db/models";
 import { FileInfo } from "../../../db/models/Authorization/FileInfo";
 import { fileConfig } from "../AppConfiguration/resolvers";
 
@@ -12,6 +11,9 @@ export async function findAndUpdateFileRowsCount(file: FileInfo, sep: string) {
 }
 
 function csvLinetoArray(line: string, sep: string) {
+    if (sep=="|") {
+        sep = "\\|";
+    }
     const re_valid = new RegExp(`^\\s*(?:'[^'\\\\]*(?:\\\\[\\S\\s][^'\\\\]*)*'|"[^"\\\\]*(?:\\\\[\\S\\s][^"\\\\]*)*"|[^${sep}'"\\s\\\\]*(?:\\s+[^${sep}'"\\s\\\\]+)*)\\s*(?:${sep}\\s*(?:'[^'\\\\]*(?:\\\\[\\S\\s][^'\\\\]*)*'|"[^"\\\\]*(?:\\\\[\\S\\s][^"\\\\]*)*"|[^${sep}'"\\s\\\\]*(?:\\s+[^${sep}'"\\s\\\\]+)*)\\s*)*$`);
     const re_value = new RegExp(`(?!\\s*$)\\s*(?:'([^'\\\\]*(?:\\\\[\\S\\s][^'\\\\]*)*)'|"([^"\\\\]*(?:\\\\[\\S\\s][^"\\\\]*)*)"|([^${sep}'"\\s\\\\]*(?:\\s+[^${sep}'"\\s\\\\]+)*))\\s*(?:${sep}|$)`, "g");
 
