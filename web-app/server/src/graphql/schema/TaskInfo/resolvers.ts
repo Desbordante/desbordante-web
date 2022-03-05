@@ -215,6 +215,23 @@ const resolvers: Resolvers = {
             const columnNames: string[] = JSON.parse(file.renamedHeader);
             return { fileID, columnNames, taskID };
         },
+        // @ts-ignore
+        PKs: async ({ taskID, fileID }, _, { models, logger }) => {
+            const result = await models.CFDTaskResult.findByPk(
+                taskID, { attributes: ["PKColumnIndices"] });
+            if (!result) {
+                throw new UserInputError("Invalid taskID was provided", { taskID });
+            }
+            const indices: number[] = JSON.parse(result.PKColumnIndices || "[]");
+            const file = await models.FileInfo.findByPk(
+                fileID, { attributes: ["renamedHeader"] }
+            );
+            if (!file) {
+                throw new UserInputError("Invalid fileID was provided", { fileID });
+            }
+            const columnNames = JSON.parse(file.renamedHeader);
+            return indices.map((index) => ({ index, name: columnNames[index] }));
+        },
     },
     DatasetInfo: {
         // Todo: refactor (add params for field snippet && add resolvers for type Snippet)
