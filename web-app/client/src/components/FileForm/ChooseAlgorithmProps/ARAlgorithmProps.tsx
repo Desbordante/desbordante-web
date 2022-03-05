@@ -1,7 +1,6 @@
 import React, { useContext, useEffect } from "react";
 
 import { ARAlgorithm } from "../../../types/types";
-import Toggle from "../../Toggle/Toggle";
 import FormItem from "../../FormItem/FormItem";
 import { AlgorithmConfigContext } from "../../AlgorithmConfigContext";
 import { FileFormContext } from "../../FileFormContext";

@@ -5,18 +5,23 @@ import { Container } from "react-bootstrap";
 import StatusDisplay from "../StatusDisplay/StatusDisplay";
 import { TaskContext } from "../TaskContext";
 import FDViewer from "./FDViewer";
+import CFDViewer from "./CFDViewer";
+import { PrimitiveType } from "../../types/globalTypes";
 
 const Index = () => {
   const { setTaskId, taskState, taskType, taskResult } =
     useContext(TaskContext)!;
   const { taskID } = useParams();
 
-  useEffect(() => setTaskId(taskID), []);
+  useEffect(() => setTaskId(taskID), [taskID, setTaskId]);
 
   return taskState?.isExecuted ? (
     <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">
-      {taskType === "Functional Dependencies" && taskResult?.FD && (
+      {taskType === PrimitiveType.FD && taskResult?.FD && (
         <FDViewer result={taskResult.FD} />
+      )}
+      {taskType === PrimitiveType.CFD && taskResult?.CFD && (
+        <CFDViewer result={taskResult.CFD} />
       )}
     </Container>
   ) : (
