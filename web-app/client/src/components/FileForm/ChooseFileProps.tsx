@@ -8,6 +8,7 @@ import FormItem from "../FormItem/FormItem";
 import Toggle from "../Toggle/Toggle";
 import Value from "../Value/Value";
 import Selector from "../Selector/Selector";
+import { PrimitiveType } from "../../types/globalTypes";
 
 const ChooseFileProps = () => {
   const { fileProps, setFileProps, primitiveType, dataset } =
@@ -68,7 +69,7 @@ const ChooseFileProps = () => {
           inputValidator={validators.isValidSeparator}
           className="mx-2"
         />
-        {primitiveType === "Association Rules" ? (
+        {primitiveType === PrimitiveType.AR ? (
           <>
             <h5 className="text-white mb-0 mx-2">File format:</h5>
             <Selector
@@ -92,7 +93,7 @@ const ChooseFileProps = () => {
           </>
         )}
       </FormItem>
-      {primitiveType === "Association Rules" && (
+      {primitiveType === PrimitiveType.AR && (
         <>
           <FormItem enabled={fileProps.fileFormat === "Singular"}>
             <h5 className="text-white mb-0 mx-2">ID column:</h5>
