@@ -12,6 +12,7 @@ const colors = {
 
   backgroundActive: "#1b181e",
   light: "#e5e5e5",
+  darkerLight: "#d0d0d0",
   border: "#2c2730",
   borderActive: "#403946",
 

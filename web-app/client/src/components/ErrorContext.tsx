@@ -1,4 +1,5 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useState } from "react";
+
 import { Error } from "../types/types";
 
 type ErrorContextType = {
@@ -14,14 +15,14 @@ export const ErrorContextProvider: React.FC = ({ children }) => {
   const [error, setError] = useState<Error>();
   const [isErrorShown, setIsErrorShown] = useState(false);
 
-  const showError = (error: Error) => {
-    setError(error);
+  const showError = useCallback((err: Error) => {
+    setError(err);
     setIsErrorShown(true);
-  };
+  }, []);
 
-  const hideError = () => {
+  const hideError = useCallback(() => {
     setIsErrorShown(false);
-  };
+  }, []);
 
   const outValue = {
     error,
@@ -29,6 +30,7 @@ export const ErrorContextProvider: React.FC = ({ children }) => {
     hideError,
     isErrorShown,
   };
+  console.log("Update!");
 
   return (
     <ErrorContext.Provider value={outValue}>{children}</ErrorContext.Provider>

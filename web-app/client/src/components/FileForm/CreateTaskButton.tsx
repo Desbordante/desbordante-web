@@ -8,11 +8,7 @@ import { CREATE_TASK_WITH_CHOOSING_DATASET } from "../../graphql/operations/muta
 import { FileFormContext } from "../FileFormContext";
 import { ErrorContext } from "../ErrorContext";
 import { BuiltinDataset, isBuiltinDataset } from "../../types/dataset";
-import {
-  FileProps,
-  IntersectionTaskProps,
-  PrimitiveType,
-} from "../../types/globalTypes";
+import { FileProps, IntersectionTaskProps } from "../../types/globalTypes";
 import {
   createTaskWithDatasetUploading,
   createTaskWithDatasetUploadingVariables,
@@ -34,8 +30,14 @@ const SubmitButton = styled.button`
 `;
 
 const CreateTaskButton = () => {
-  const { isValid, dataset, fileProps, algorithmProps, setFileUploadProgress } =
-    useContext(FileFormContext)!;
+  const {
+    isValid,
+    dataset,
+    fileProps,
+    algorithmProps,
+    setFileUploadProgress,
+    primitiveType,
+  } = useContext(FileFormContext)!;
   const { showError } = useContext(ErrorContext)!;
   const history = useHistory();
 
@@ -52,7 +54,7 @@ const CreateTaskButton = () => {
     if (isValid) {
       const props: IntersectionTaskProps = {
         algorithmName: algorithmProps.algorithm!.name,
-        type: PrimitiveType.FD,
+        type: primitiveType,
         errorThreshold: algorithmProps.algorithm!.properties.hasErrorThreshold
           ? +algorithmProps.errorThreshold!
           : 0,
@@ -62,6 +64,8 @@ const CreateTaskButton = () => {
         threadsCount: algorithmProps.algorithm!.properties.isMultiThreaded
           ? +algorithmProps.threadsCount!
           : 1,
+        minConfidence: +algorithmProps.minConfidence!,
+        minSupport: +algorithmProps.minSupport!,
       };
       const datasetProps: FileProps = {
         delimiter: fileProps.delimiter,

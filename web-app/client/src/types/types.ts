@@ -89,7 +89,6 @@ export const primitiveTypeList = [
   "Association Rules",
   "Error Detection Pipeline",
 ] as const;
-export type PrimitiveType = typeof primitiveTypeList[number];
 
 export type SignUpFormProps = {
   fullName: string;
