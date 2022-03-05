@@ -8,6 +8,7 @@ import { Role } from "../../../db/models/Authorization/Role";
 import { RefreshTokenInstance, SessionStatusType } from "../../../db/models/Authorization/Session";
 import { AccountStatusType } from "../../../db/models/Authorization/User";
 import { Resolvers } from "../../types/types";
+import { sendVerificationCode } from "./emailSender";
 
 export const UserResolvers : Resolvers = {
     Role: {
@@ -183,8 +184,18 @@ export const UserResolvers : Resolvers = {
                 await models.Code.destroy(options);
             }
             code = await models.Code.createEmailVerificationCode(userID, device.deviceID);
-
-            logger(`Issue new verification code = ${code.value}`);
+            if (process.env.USE_NODEMAILER === "true") {
+                try {
+                    await sendVerificationCode(code.value, user.email);
+                } catch (e) {
+                    logger("Problem while sending verification code", e);
+                    throw new ApolloError("Incorrect server work");
+                }
+                logger("Code was sent to email");
+            } else {
+                logger("Code wasn't sent to email [NODEMAILER DISABLED]");
+                logger(`Issue new verification code = ${code.value}`);
+            }
             return { message: "Verification code was sent to email" };
         },
         createUser: async (parent, { props }, { models, logger, sessionInfo, device }) => {
