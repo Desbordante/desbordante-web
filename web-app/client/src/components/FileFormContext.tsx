@@ -1,10 +1,9 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { AlgorithmProps } from "../types/algorithmProps";
 import { Dataset, isBuiltinDataset } from "../types/dataset";
 import { FileProps } from "../types/fileProps";
-
-import { PrimitiveType, primitiveTypeList } from "../types/types";
 import { AlgorithmConfigContext } from "./AlgorithmConfigContext";
+import { PrimitiveType } from "../types/globalTypes";
 
 type FileFormContextType = {
   primitiveType: PrimitiveType;
@@ -43,7 +42,7 @@ export const FileFormContextProvider: React.FC = ({ children }) => {
   const { validators } = useContext(AlgorithmConfigContext)!;
 
   const [primitiveType, setPrimitiveType] = useState<PrimitiveType>(
-    primitiveTypeList[0]
+    PrimitiveType.FD
   );
 
   const [dataset, setDataset] = useState<Dataset>();
@@ -79,7 +78,7 @@ export const FileFormContextProvider: React.FC = ({ children }) => {
       ...prevError,
       fileProps:
         !validators.isValidSeparator(fileProps.delimiter) ||
-        (primitiveType === "Association Rules" &&
+        (primitiveType === PrimitiveType.AR &&
           !(
             validators.isInteger(fileProps.itemSetColumn) &&
             validators.isInteger(fileProps.transactionIdColumn)
@@ -109,7 +108,7 @@ export const FileFormContextProvider: React.FC = ({ children }) => {
             (isMultiThreaded &&
               !validators.isInteger(algorithmProps.threadsCount)) ||
             (hasSupport &&
-              !(primitiveType === "Association Rules"
+              !(primitiveType === PrimitiveType.AR
                 ? validators.isBetweenZeroAndOne(algorithmProps.minSupport)
                 : validators.isInteger(algorithmProps.minSupport)))
         ),

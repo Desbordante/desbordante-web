@@ -15,14 +15,14 @@ import {
 import { GET_TASK_INFO } from "../graphql/operations/queries/getTaskInfo";
 import {
   getTaskInfo,
-  getTaskInfo_taskInfo_data_FDTask,
   getTaskInfo_taskInfo_data_CFDTask,
+  getTaskInfo_taskInfo_data_FDTask,
   getTaskInfoVariables,
 } from "../graphql/operations/queries/__generated__/getTaskInfo";
-import { PrimitiveType } from "../types/types";
 import { ErrorContext } from "./ErrorContext";
 import { Dataset, TaskResult, TaskState } from "../types/taskInfo";
 import parseFunctionalDependency from "../functions/parseDependency";
+import { PrimitiveType } from "../types/globalTypes";
 
 type TaskContextType = {
   taskId: string | undefined;
@@ -62,18 +62,20 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     deleteTaskVariables
   >(DELETE_TASK, { variables: { taskID: taskId! } });
 
-  const queryRef = useRef<NodeJS.Timer>();
+  const queryRef = useRef<NodeJS.Timer | null>(null);
 
   useEffect(() => {
-    queryRef.current = setInterval(
-      () => taskId && query({ variables: { taskID: taskId } }),
-      500
-    );
+    if (!queryRef.current && taskId) {
+      queryRef.current = setInterval(
+        () => query({ variables: { taskID: taskId } }),
+        500
+      );
+    }
   }, [taskId]);
 
   useEffect(() => {
-    if (!taskId || taskState?.isExecuted || error) {
-      clearInterval(queryRef.current!);
+    if (queryRef.current && (!taskId || taskState?.isExecuted || error)) {
+      clearInterval(queryRef.current);
     }
   }, [taskId, taskState, error]);
 
@@ -92,7 +94,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
         case "FDTask": {
           const result = (data as getTaskInfo_taskInfo_data_FDTask).FDResult;
           if (result) {
-            setTaskType("Functional Dependencies");
+            setTaskType(PrimitiveType.FD);
             setTaskResult({
               FD: {
                 pieChartData: result.pieChartData,
@@ -109,7 +111,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
         case "CFDTask": {
           const result = (data as getTaskInfo_taskInfo_data_CFDTask).CFDResult;
           if (result) {
-            setTaskType("Conditional Functional Dependencies");
+            setTaskType(PrimitiveType.CFD);
             setTaskResult({
               CFD: {
                 pieChartData: result.pieChartData,

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Container, Stack } from "react-bootstrap";
 
-import FDSnippet from "./FDViewer/FDSnippet";
-import SearchBar from "../SearchBar/SearchBar";
-import Toggle from "../Toggle/Toggle";
-import Selector from "../Selector/Selector";
-import { Dependency, FDAttribute, SortMethod } from "../../types/taskInfo";
+import FDSnippet from "./FDSnippet";
+import SearchBar from "../../SearchBar/SearchBar";
+import Toggle from "../../Toggle/Toggle";
+import Selector from "../../Selector/Selector";
+import { Dependency, FDAttribute, SortMethod } from "../../../types/taskInfo";
 
 interface Props {
   selectedAttributesLHS: FDAttribute[];
@@ -20,7 +20,7 @@ interface Props {
   className?: string;
 }
 
-const DependencyList: React.FC<Props> = ({
+const FDList: React.FC<Props> = ({
   selectedAttributesLHS,
   selectedAttributesRHS,
   selectedDependency,
@@ -132,4 +132,4 @@ const DependencyList: React.FC<Props> = ({
   );
 };
 
-export default DependencyList;
+export default FDList;

@@ -3,18 +3,16 @@ import styled from "styled-components";
 
 import stringToColor from "../../../functions/stringToColor";
 import colors from "../../../colors";
-import { Dependency } from "../../../types/taskInfo";
+import { ConditionalDependency } from "../../../types/taskInfo";
+import Toggle from "../../Toggle/Toggle";
+import CFDAttribute from "./CFDAttribute";
 
 const DependencyContainer = styled.div`
   transition: 0.3s;
 
   &:hover {
-    transform: translateX(0.5rem);
+    transform: translateX(0.3rem);
   }
-`;
-
-const Attribute = styled.div`
-  transition: 0.3s;
 `;
 
 const Arrow = styled.svg`
@@ -27,17 +25,19 @@ const Arrow = styled.svg`
 `;
 
 interface Props {
-  dependency: Dependency;
+  dependency: ConditionalDependency;
   isActive: boolean;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   onActiveClick: React.MouseEventHandler<HTMLDivElement>;
+  isPatternShown: boolean;
 }
 
-const FDSnippet: React.FC<Props> = ({
+const CFDSnippet: React.FC<Props> = ({
   dependency,
   isActive,
   onClick,
   onActiveClick,
+  isPatternShown,
 }) => (
   <DependencyContainer
     className="d-flex my-1"
@@ -45,24 +45,14 @@ const FDSnippet: React.FC<Props> = ({
     tabIndex={0}
     onClick={isActive ? onActiveClick : onClick}
   >
-    {dependency.lhs.map((attr) => (
-      <Attribute
-        style={
-          isActive
-            ? {
-                backgroundColor: stringToColor(attr, 60, 70),
-              }
-            : {
-                backgroundColor: "#E5E5E5",
-              }
-        }
-        className={`d-flex align-items-center px-3 py-2 mx-2 rounded-pill text-${
-          isActive ? "white" : "black"
-        }`}
+    {dependency.lhs.map((attr, index) => (
+      <CFDAttribute
         key={attr}
-      >
-        {attr}
-      </Attribute>
+        attribute={attr}
+        pattern={dependency.lhsPatterns[index]}
+        isSelected={isActive}
+        isPatternShown={isPatternShown}
+      />
     ))}
 
     <div className="d-flex align-items-center justify-content-center position-relative mx-2">
@@ -76,21 +66,13 @@ const FDSnippet: React.FC<Props> = ({
       </Arrow>
     </div>
 
-    <Attribute
-      style={
-        isActive
-          ? {
-              backgroundColor: stringToColor(dependency.rhs, 60, 70),
-            }
-          : { backgroundColor: "#E5E5E5" }
-      }
-      className={`d-flex align-items-center px-3 py-2 mx-2 rounded-pill text-${
-        isActive ? "white" : "black"
-      }`}
-    >
-      {dependency.rhs}
-    </Attribute>
+    <CFDAttribute
+      attribute={dependency.rhs}
+      pattern={dependency.rhsPattern}
+      isSelected={isActive}
+      isPatternShown={isPatternShown}
+    />
   </DependencyContainer>
 );
 
-export default FDSnippet;
+export default CFDSnippet;

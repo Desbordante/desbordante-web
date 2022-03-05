@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 
 import PieChartFull from "./PieChartFull/PieChartFull";
-import DependencyList from "../DependencyList";
+import FDList from "./FDList";
 import TableSnippet from "../TableSnippet/TableSnippet";
 import Navigation from "../Navigation";
 import {
@@ -74,7 +74,7 @@ const Index: React.FC<Props> = ({ result }) => {
       )}
 
       {partShown === 1 && (
-        <DependencyList
+        <FDList
           dependencies={result.dependencies}
           sortMethods={sortMethods}
           keys={result.keys}

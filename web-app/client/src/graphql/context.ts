@@ -88,6 +88,7 @@ export const errorLink = onError(
       for (const err of graphQLErrors) {
         switch (err.extensions.code) {
           case "TOKEN_EXPIRED":
+          case "UNAUTHENTICATED":
             // eslint-disable-next-line no-case-declarations
             let forward$;
 
