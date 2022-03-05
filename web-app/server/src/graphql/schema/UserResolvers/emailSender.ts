@@ -16,6 +16,6 @@ export const sendVerificationCode = async (code: number, userEmail: string) => {
         from: "Desbordante enjoyer <sashasmolenfab@gmail.com>",
         to: userEmail,
         subject: "Email verification code",
-        text: `Your verification code is: ${code}.`,
+        text: `Your verification code is: ${code}`,
     });
 };
