@@ -84,6 +84,7 @@ def check_active_containers(active_tasks):
                 # Cpp error
                 print(f"{taskID} desbordante has crashed", file=sys.stderr)
                 update_errorStatus(taskID, "CRASH")
+                print(container.logs())
             else:
                 print(f"{taskID} task done successfully", file=sys.stderr)
             container.remove()
