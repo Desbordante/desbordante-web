@@ -1,7 +1,10 @@
 FROM debian:bookworm-slim
-RUN apt-get update && apt-get -y install yarnpkg python3 make g++
+RUN apt-get update && apt-get -y install python3 make g++ npm curl
+RUN npm install --global yarn
+RUN npm install -g n
+RUN n stable
 COPY client/ client/
 WORKDIR client/
-RUN yarnpkg global add node-gyp --ignore-engines
-RUN yarnpkg
-ENTRYPOINT ["yarnpkg", "start"]
+RUN yarn
+COPY --from=desbordante_server:latest /server/graphql.schema.json /server/graphql.schema.json
+ENTRYPOINT ["yarn", "start"]
