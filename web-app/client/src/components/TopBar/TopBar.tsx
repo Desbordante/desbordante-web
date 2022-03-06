@@ -75,7 +75,7 @@ const TopBar = () => {
       {!!taskState?.progress && (
         <>
           <ProgressBar
-            progress={taskState.progress}
+            progress={taskState.progress / 100}
             maxWidth={100}
             thickness={0.35}
           />

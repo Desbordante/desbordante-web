@@ -59,7 +59,7 @@ export class FileInfo extends Model {
     renamedHeader!: string;
 
     @Column(INTEGER)
-    rowsCount?: number;
+    rowsCount!: number;
 
     @Unique
     @Column(STRING)
