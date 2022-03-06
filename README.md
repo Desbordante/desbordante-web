@@ -85,48 +85,32 @@ In the second case, to build the project, you also need to have dependencies tha
   The `<dataset_name>.csv`, which is a user-provided dataset, should be placed in the `\path\to\Desbordante\build\target` directory.
 
 ## Installation (with web application)
+Requires docker, docker-compose 
+```
+git clone https://github.com/vs9h/Desbordante.git
+cd Desbordante/
+git checkout origin/web-app
+docker build -t cpp-consumer -f=Dockerfile-cpp-consumer .
+mkdir -m777 volumes
+cd volumes/
+mkdir -m777 -p data/kafka, data/zk, logs/kafka, logs/zk, uploads, postgres-data, datasets
+cd ..
+unzip datasets/datasets.zip -d volumes/datasets/
+docker-compose build
+```
+## Configuring
+1) Create .env file in Desbordante/
+2) Set those variables:
+  * POSTGRES_PASSWORD
+  * POSTGRES_USER
+  * POSTGRES_DB
+  * KAFKA_ADMIN_CLIENT_ID
+  * CONSUMER_TL_SEC
+  * CONSUMER_ML_MB
 
-Currently, you can build this part of the project only on the operating system Ubuntu. 
-The following instructions were tested on Ubuntu 20.04.3 LTS.
-
-The web application requires the following components:
-1) DBMS
-2) Message Broker
-3) Web-Client and Web-Server
-4) Consumer (for Message Broker)
-
-* ### DBMS
-  You need to install `PostgreSQL`.
-
-  After installation, do the following steps:
-  - Create a PostgreSQL role with ability to create databases. You can achive this by executing the following commands:
-  ```
-  sudo -i -u postgres
-  psql postgres
-  $ CREATE USER your_username WITH CREATEDB ENCRYPTED PASSWORD 'your_password'
-  $ ALTER USER your_username WITH PASSWORD 'your_password'
-  ```
-  - Make changes to the appropriate config files (`/path/to/Desbordante/web-app/server/.env` and `/path/to/Desbordante/cfg/db_config.json`)
-
-* ### Message Broker
-  You need to install `docker-compose` and run message broker:
-  ```
-  sudo apt-get install docker-compose
-  ```
-
-  After installation, write the following lines:
-  ```
-  cd web-app/kafka-server
-  sudo docker-compose up
-  ```
-
-* ### Web-Client and Web-Server
-  Firstly, you need to install package manager `yarn`:
-  ```
-  sudo apt install npm
-  npm install --global yarn
-  ```
-  Then you need to install all dependencies for web-server and web-client:
+.env file format example:  
+  VARIABLE_1=VALUE1  
+  VARIABLE_2=VALUE2
   
   ```
   cd web-app/server
