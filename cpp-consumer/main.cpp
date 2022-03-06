@@ -45,56 +45,6 @@ static std::string dbConnection() {
     return "postgresql://" + user + ":" + password + "@" + host + ":" + port + "/" + dbname;
 }
 
-std::vector<std::string> generateRenamedColumns(std::vector<std::string> const &colNames, 
-                                                bool hasHeader) {
-    std::vector<std::string> renamedColNames;
-    if (hasHeader) {
-        for (auto colName : colNames) {
-            if (colName[0] == '\"' && colName[colName.size()-1] == '\"') {
-                colName = std::string(colName.begin() + 1, colName.end() - 1);
-            }
-            colName.erase(
-                colName.begin(), 
-                std::find_if(colName.begin(), colName.end(), 
-                             [](unsigned char ch) { return !std::isspace(ch); })
-            );
-            if (colName.size() == 0) {
-                colName = "empty";
-            }
-            TaskConfig::prepareString(colName);
-            renamedColNames.push_back(colName);
-        }
-        // Vector contains information about how many times the given name occurs
-        // (filling goes in ascending order of indices)
-        // For example: { "col1", "col1", "col2", "col1", "col2"} 
-        //           -> { 0,      1,      0,      2,      1     }
-        std::vector<size_t> numberOfOccurrences(renamedColNames.size(), 0);
-        for (size_t i = 1; i < renamedColNames.size(); ++i) {
-            auto lastOccurenceIt = std::find(
-                renamedColNames.rbegin() + (renamedColNames.size() - i),
-                renamedColNames.rend(),
-                renamedColNames[i]
-            );
-            if (lastOccurenceIt == renamedColNames.rend()) {
-                continue;
-            } else {
-                size_t idx = renamedColNames.rend() - lastOccurenceIt - 1;
-                numberOfOccurrences[i] = numberOfOccurrences[idx] + 1;
-            }
-        }
-        for (size_t i = 1; i < renamedColNames.size(); ++i) {
-            if (numberOfOccurrences[i] != 0) {
-                renamedColNames[i] += "_" + std::to_string(numberOfOccurrences[i]);
-            }
-        }
-    } else {
-        for (size_t i = 0; i != colNames.size(); ++i) {
-            renamedColNames.push_back(std::string("Attr " + std::to_string(i)));
-        }
-    }
-    return renamedColNames;
-}
-
 void processTask(TaskConfig const& task, 
                                DBManager const& manager) {
     auto algName     = task.getAlgName();
