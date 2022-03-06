@@ -107,10 +107,6 @@ public:
         rows = manager.defaultQuery(query);
         char delimiter = rows[0]["\"delimiter\""].c_str()[0];
         std::string path = rows[0]["\"path\""].c_str();
-        auto algName      = rows[0]["algname"].c_str();
-        auto errorPercent = std::stod(rows[0]["errorpercent"].c_str());
-        char separator    = rows[0]["separator"].c_str()[0];
-        auto datasetPath  = std::string(rows[0]["datasetpath"].c_str());
         bool hasHeader;
         rows[0]["\"hasHeader\""] >> hasHeader;
         
