@@ -2,7 +2,6 @@ import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core"
 import { AuthenticationError } from "apollo-server-express";
 import { Role } from "../../../db/models/Authorization/Role";
 import { Resolvers } from "../../types/types";
-import { findAndUpdateFileRowsCount } from "./csvValidator";
 
 const TaskCreatingResolvers: Resolvers = {
     Mutation: {
@@ -26,10 +25,7 @@ const TaskCreatingResolvers: Resolvers = {
             if (!sessionInfo ||  !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
                 throw new AuthenticationError("User must be logged in and have permission USE_OWN_DATASETS");
             }
-            const file = await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID);
-            // throws an UserInputError, if file is invalid
-            await findAndUpdateFileRowsCount(file, datasetProps.delimiter);
-            return file;
+            return await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID);
         },
         // @ts-ignore
         setDatasetBuiltInStatus: async (parent, { fileID, isBuiltIn }, { models, logger, sessionInfo }) => {
@@ -41,7 +37,7 @@ const TaskCreatingResolvers: Resolvers = {
                 throw new UserInputError("Incorrect fileID was provided");
             }
             if (file.isBuiltIn === isBuiltIn) {
-                logger("Adin tries to change dataset status, but file already has this status");
+                logger("Admin tries to change dataset status, but file already has this status");
             } else {
                 await file.update({ where: { isBuiltIn } });
             }
@@ -53,14 +49,12 @@ const TaskCreatingResolvers: Resolvers = {
             if (!sessionInfo || !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
                 throw new AuthenticationError("User must be authorized and has permission USE_OWN_DATASETS");
             }
-            const file = await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID)
+            const file = await models.FileInfo.uploadDataset(datasetProps, table,
+                sessionInfo.userID, props.type === "AR")
                 .catch(e => {
                     logger("Error while file uploading", e);
                     throw new ApolloError("Error while uploading dataset");
                 });
-            // throws an UserInputError, if file is invalid
-            await findAndUpdateFileRowsCount(file, datasetProps.delimiter);
-
             return await models.TaskInfo.saveTaskToDBAndSendEvent(props, file.ID, topicNames.DepAlgs, sessionInfo.userID);
         },
         deleteTask: async (parent, { taskID }, { models, logger, sessionInfo }) => {

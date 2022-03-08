@@ -8,17 +8,17 @@ import { Session } from "./Authorization/Session";
 import { User } from "./Authorization/User";
 import { TaskInfo } from "./TaskData/TaskInfo";
 import { BaseTaskConfig } from "./TaskData/BaseTaskConfig";
-import { CFDTaskConfig, FDTaskConfig } from "./TaskData/TaskConfigurations";
-import { CFDTaskResult, FDTaskResult } from "./TaskData/TaskResults";
+import { ARTaskConfig, CFDTaskConfig, FDTaskConfig } from "./TaskData/TaskConfigurations";
+import { ARTaskResult, CFDTaskResult, FDTaskResult } from "./TaskData/TaskResults";
+import { FileFormat } from "./Authorization/FileFormat";
 
 export const models = {
-    User, FileInfo, Feedback,
+    User, FileInfo, FileFormat, Feedback,
     Session, Device,
     Role, Code, Permission,
     TaskInfo, BaseTaskConfig,
-    FDTaskConfig, FDTaskResult,
-    CFDTaskConfig,
-    CFDTaskResult,
+    FDTaskConfig, CFDTaskConfig, ARTaskConfig,
+    FDTaskResult, CFDTaskResult, ARTaskResult,
 };
 
 export type ModelsType = typeof models;

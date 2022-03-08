@@ -1,4 +1,4 @@
-import { UserInputError } from "apollo-server-core";
+import { ApolloError, UserInputError } from "apollo-server-core";
 import cors from "cors";
 import express, { Application } from "express";
 import { graphqlUploadExpress } from "graphql-upload";
@@ -7,17 +7,17 @@ import morgan from "morgan";
 import { isDevelopment } from "./app";
 import configureDB from "./db/configureDB";
 import { configureSequelizeModels } from "./db/configureSequelize";
-import initBuiltInDatasets from "./db/initBuiltInDatasets";
 import { Device, DeviceInfoInstance } from "./db/models/Authorization/Device";
 import { FileInfo } from "./db/models/Authorization/FileInfo";
 import { Permission } from "./db/models/Authorization/Permission";
-import { Role, RoleType } from "./db/models/Authorization/Role";
+import { RoleType } from "./db/models/Authorization/Role";
 import { Session, SessionStatusType } from "./db/models/Authorization/Session";
 import { AccountStatusType, User } from "./db/models/Authorization/User";
 import { TaskInfo } from "./db/models/TaskData/TaskInfo";
 import { sequelize } from "./db/sequelize";
 import configureGraphQL from "./graphql/configureGraphQL";
-import { CreatingUserProps, InputMaybe, IntersectionTaskProps, Scalars } from "./graphql/types/types";
+import { CreatingUserProps, IntersectionTaskProps, PrimitiveType } from "./graphql/types/types";
+import { initBuiltInDatasets } from "./db/initBuiltInDatasets";
 
 function normalizePort(val: string | undefined) {
     if (val) {
@@ -92,11 +92,37 @@ async function createAccountWithLongLiveRefreshToken(roles: RoleType[]) {
     return answers;
 }
 
+async function createARTask(fileName: string, minConfidence: number, minSupportAR: number,
+                            cfdsCompactString: string, valueDictionary: string) {
+    const props: IntersectionTaskProps = {
+        algorithmName: "AR algorithm",
+        type: "AR" as PrimitiveType,
+        minConfidence,
+        minSupportAR,
+    };
+    const file = await FileInfo.findOne({ where: { fileName } });
+    if (!file) {
+        throw new Error(`File not found ${file}`);
+    }
+    const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, file.ID, null);
+
+    const res = await taskInfo.$get("ARResult");
+    if (!res) {
+        throw new Error("got null result");
+    }
+    await taskInfo.update({
+        isExecuted: true, status: "Test data", phaseName: "AR mining",
+        currentPhase: 1, progress:100, maxPhase: 1, elapsedTime: 1,
+    });
+    await res.update({ ARs: cfdsCompactString, valueDictionary });
+    return `Created task AR with id = ${taskInfo.taskID} (dataset ${fileName}).`;
+}
+
 // Function for client (test UI)
 async function createCfdTask(fileName: string, cfdsStr: string,
                              pieChartDataWithoutPatternsStr: string,
                              pieChartDataWithPatternsStr: string,
-                             maxLHS = -1, minConfidence = 1, minSupport = 1) {
+                             maxLHS = -1, minConfidence = 1, minSupportCFD = 1) {
     type cfd = { l: [string], lp:[string], r: string, rp: string }
     const json: { cfds: [cfd] } = JSON.parse(cfdsStr);
 
@@ -112,21 +138,20 @@ async function createCfdTask(fileName: string, cfdsStr: string,
 
     const file = await FileInfo.findOne({ where: { fileName } });
     if (!file) {
-        throw new UserInputError("File not found", { fileName });
+        throw new Error(`File not found ${file}`);
     }
     const props: IntersectionTaskProps = {
         algorithmName: "CTane",
-        // @ts-ignore
-        type: "CFD",
+        type: "CFD" as PrimitiveType,
         maxLHS,
         minConfidence,
-        minSupport,
+        minSupportCFD,
     };
     const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, file.ID, null);
 
     const res = await taskInfo.$get("CFDResult");
     if (!res) {
-        throw new Error("got nul result");
+        throw new Error("got null result");
     }
     await taskInfo.update({
         isExecuted: true, status: "Test data", phaseName: "CFD mining",
@@ -138,7 +163,7 @@ async function createCfdTask(fileName: string, cfdsStr: string,
     return `Created task CFD with id = ${taskInfo.taskID} (dataset ${fileName}).`;
 }
 
-async function createBuiltInCfdTasks() {
+async function createBuiltInTasks() {
     const testlong = await createCfdTask(
         "TestLong.csv",
         `[
@@ -342,7 +367,15 @@ async function createBuiltInCfdTasks() {
 { "id": 17, "pattern":"", "value":13.000000 },
 { "id": 17, "pattern":"_", "value":17.000000 }
 ] }`, 2, 1, 5);
-    console.log(testlong, ciPublicHIghway700);
+    const compactARsString = "0.800000:0:1;0.571429:2:1;0.571429:4:1;0.750000:5:1;1.000000:6:1;0.600000:7:1;0.666667:10:1;0.500000:3:2;0.666667:9:2;0.500000:8:3;0.666667:3:8;0.666667:9:3;0.500000:5:4;0.800000:7:4;0.571429:4:7;0.500000:5:10;1.000000:6:7;1.000000:9:8;0.666667:10:8;0.500000:8:10;0.500000:1,2:0;1.000000:0,2:1;0.500000:0,1:2;1.000000:4,5:1;0.666667:1,5:4;0.500000:1,4:5;0.500000:4,7:1;0.666667:1,7:4;0.500000:1,4:7;1.000000:6,7:1;0.666667:1,7:6;1.000000:1,6:7;0.500000:8,10:1;0.500000:1,10:8;0.666667:1,8:10;0.500000:3,8:2;1.000000:2,8:3;0.666667:2,3:8;1.000000:3,9:2;1.000000:2,9:3;0.666667:2,3:9;0.500000:4,7:2;1.000000:2,7:4;1.000000:2,4:7;0.666667:8,9:2;1.000000:2,9:8;1.000000:2,8:9;0.666667:8,9:3;1.000000:3,9:8;0.500000:3,8:9;1.000000:3,8,9:2;1.000000:2,8,9:3;1.000000:2,3,9:8;1.000000:2,3,8:9";
+    const valueDictionary = "[MILK,BREAD,BISCUIT,CORNFLAKES,TEA,BOURNVITA,JAM,MAGGI,COFFEE,COCK,SUGER]";
+
+    const rules_kaggle = await createARTask("rules-kaggle.csv", 0.5, 0.1,
+        compactARsString, valueDictionary);
+    const rules_kaggle_rows_2 = await createARTask("rules-kaggle-rows-2.csv", 0.5, 0.1,
+        compactARsString, valueDictionary);
+
+    console.log(testlong, ciPublicHIghway700, rules_kaggle, rules_kaggle_rows_2);
 }
 
 async function configureApp() {
@@ -378,11 +411,11 @@ async function configureApp() {
             console.log("Permissions table was initialized");
         });
 
-    await initBuiltInDatasets(sequelize)
+    await initBuiltInDatasets()
         .then(() => {
             console.debug("BuiltIn datasets was initialized");
         })
-        .catch(err => {
+        .catch((err: any) => {
             throw new Error(`Error while initializing built-in datasets ${err}`);
         });
 
@@ -408,7 +441,7 @@ async function configureApp() {
         await createAccountWithLongLiveRefreshToken(["ANONYMOUS", "USER", "SUPPORT", "ADMIN", "DEVELOPER"])
             .then(results => results.map(res => console.log(res)))
             .catch(e => console.error("Problems with accounts creating", e.message));
-        await createBuiltInCfdTasks()
+        await createBuiltInTasks()
             .catch(e => console.error("Problems with task creating", e.message));
     }
 
