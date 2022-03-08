@@ -4,8 +4,8 @@ import { BelongsTo, Column, ForeignKey, HasOne, IsUUID, Model, Table } from "seq
 import { IntersectionTaskProps } from "../../../graphql/types/types";
 import sendEvent from "../../../producer/sendEvent";
 import { BaseTaskConfig } from "./BaseTaskConfig";
-import { CFDTaskConfig, FDTaskConfig } from "./TaskConfigurations";
-import { CFDTaskResult, FDTaskResult } from "./TaskResults";
+import { ARTaskConfig, CFDTaskConfig, FDTaskConfig } from "./TaskConfigurations";
+import { ARTaskResult, CFDTaskResult, FDTaskResult } from "./TaskResults";
 import { User } from "../Authorization/User";
 
 @Table({
@@ -65,6 +65,9 @@ export class TaskInfo extends Model {
     @HasOne(() => CFDTaskConfig)
     CFDConfig?: CFDTaskConfig;
 
+    @HasOne(() => ARTaskConfig)
+    ARConfig?: ARTaskConfig;
+
     ///
 
     @HasOne(() => FDTaskResult)
@@ -73,7 +76,11 @@ export class TaskInfo extends Model {
     @HasOne(() => CFDTaskResult)
     CFDResult?: CFDTaskResult;
 
+    @HasOne(() => ARTaskResult)
+    ARResult?: ARTaskResult;
+
     ///
+
     static saveToDB = async (props: IntersectionTaskProps, fileID: string, userID: string | null) => {
         const { type: propertyPrefix } = props;
         const taskInfo = await TaskInfo.create({ status: "ADDING TO DB", userID });
@@ -94,7 +101,8 @@ export class TaskInfo extends Model {
                 isValid = CFDTaskConfig.isPropsValid(props);
                 break;
             case "AR":
-                throw new ApolloError("Not implemented yet");
+                isValid = ARTaskConfig.isPropsValid(props);
+                break;
             default:
                 throw new UserInputError("Passed incorrect type", { type });
         }

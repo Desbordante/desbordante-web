@@ -1,6 +1,7 @@
 import { CsvParserStream, parse } from "fast-csv";
 import { Row } from "@fast-csv/parse";
 import fs from "fs";
+import { ApolloError } from "apollo-server-core";
 
 const getFirstRow = (path: any, delimiter: any) => {
     return new Promise(resolve => {
@@ -51,6 +52,6 @@ export const generateHeaderByPath = async (path: string, hasHeader: boolean, del
         }
         return header;
     } catch (e) {
-        throw new Error(`Problem with generating new header: ${e}`);
+        throw new ApolloError(`Problem with generating new header: ${e}`);
     }
 };
