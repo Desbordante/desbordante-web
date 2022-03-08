@@ -76,6 +76,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   useEffect(() => {
     if (queryRef.current && (!taskId || taskState?.isExecuted || error)) {
       clearInterval(queryRef.current);
+      queryRef.current = null;
     }
   }, [taskId, taskState, error]);
 
