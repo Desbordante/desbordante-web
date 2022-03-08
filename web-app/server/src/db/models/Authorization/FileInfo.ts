@@ -2,12 +2,15 @@ import { ApolloError } from "apollo-server-core";
 import fs from "fs";
 import path from "path";
 import { BOOLEAN, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
-import { BelongsTo, Column, ForeignKey, HasMany, IsUUID, Model, Table, Unique } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, HasMany, HasOne, IsUUID, Model, Table, Unique } from "sequelize-typescript";
 import { finished } from "stream/promises";
 import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/generateHeader";
 import { FileProps } from "../../../graphql/types/types";
 import { BaseTaskConfig } from "../TaskData/BaseTaskConfig";
 import { User } from "./User";
+import { FileFormat } from "./FileFormat";
+import { findAndUpdateFileRowsAndColumnsCount } from "../../../graphql/schema/TaskCreating/csvValidator";
+import { BuiltInDatasetInfoType, getPathToBuiltInDataset } from "../../initBuiltInDatasets";
 
 @Table({
     paranoid: true,
@@ -34,6 +37,9 @@ export class FileInfo extends Model {
     @HasMany(() => BaseTaskConfig)
     baseConfigs?: [BaseTaskConfig];
 
+    @HasOne(() => FileFormat)
+    fileFormat?: FileFormat;
+
     @Column({ type: BOOLEAN, defaultValue: false, allowNull: false })
     isBuiltIn!: boolean;
 
@@ -58,8 +64,11 @@ export class FileInfo extends Model {
     @Column(TEXT)
     renamedHeader!: string;
 
-    @Column(INTEGER)
+    @Column({ type: INTEGER, allowNull: true })
     rowsCount!: number;
+
+    @Column({ type: INTEGER, allowNull: true })
+    countOfColumns!: number;
 
     @Unique
     @Column(STRING)
@@ -86,23 +95,66 @@ export class FileInfo extends Model {
         return await generateHeaderByPath(path, hasHeader, delimiter);
     };
 
-    static uploadDataset = async (props: FileProps, table: any, userID: string | null = null) => {
+    static saveBuiltInDataset = async (props: BuiltInDatasetInfoType) => {
+        const { fileName, datasetProps } = props;
+        const withFileFormat = props.datasetProps.inputFormat != null;
+
+        const path = getPathToBuiltInDataset(props.fileName);
+        const { hasHeader, delimiter } = datasetProps;
+        let header: string[] | null = await generateHeaderByPath(path, hasHeader, delimiter);
+        if (withFileFormat) {
+            header = null;
+        }
+        const renamedHeader = JSON.stringify(header);
+
+        const [file, created] = await FileInfo.findOrCreate({
+            where: { path },
+            defaults: {
+                fileName, originalFileName: fileName, renamedHeader,
+                isBuiltIn: true, hasHeader, delimiter,
+            },
+        });
+        if (created) {
+            console.log(`Built in dataset ${fileName} was created`);
+        } else {
+            console.log(`Built in dataset ${fileName} already exists`);
+            return file;
+        }
+        await findAndUpdateFileRowsAndColumnsCount(file, delimiter);
+
+        if (withFileFormat) {
+            await FileFormat.createFileFormatIfPropsValid(file, datasetProps);
+        }
+        return file;
+    };
+
+    static uploadDataset = async (datasetProps: FileProps, table: any, userID: string | null = null, withFileFormat = false) => {
         const { createReadStream, filename: originalFileName, mimetype: mimeType, encoding } = await table;
 
         const stream = createReadStream();
         const file = await FileInfo.create(
-            { ...props, encoding, mimeType, originalFileName, userID });
+            { ...datasetProps, encoding, mimeType, originalFileName, userID });
 
         const fileID = file.ID;
         const fileName = `${fileID}.csv`;
 
-        await file.update({ fileName, path: FileInfo.getPathToUploadedDataset(fileName) });
+        const path = FileInfo.getPathToUploadedDataset(fileName);
+
+        await file.update({ fileName, path });
 
         const out = fs.createWriteStream(`uploads/${fileName}`);
         stream.pipe(out);
         await finished(out);
 
         await file.update({ renamedHeader: JSON.stringify(await file.generateHeader()) });
+
+        // throws an UserInputError, if file is invalid
+        await findAndUpdateFileRowsAndColumnsCount(file, datasetProps.delimiter);
+
+        if (withFileFormat) {
+            await FileFormat.createFileFormatIfPropsValid(file, datasetProps);
+        }
+
         return file;
     };
 }

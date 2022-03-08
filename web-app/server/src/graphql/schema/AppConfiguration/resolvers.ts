@@ -11,6 +11,10 @@ export const allowedCFDAlgorithms = [
     { name: "CTane", properties: { hasArityConstraint: true, hasSupport: true, hasConfidence: true } },
 ];
 
+export const allowedARAlgorithms = [
+    { name: "AR algorithm", properties: { hasSupport: true, hasConfidence: true } },
+];
+
 export const fileConfig = {
     allowedFileFormats: ["text/csv", "application/vnd.ms-excel"],
     allowedDelimiters: [",", "\\t", "\\n", "|", ";"],
@@ -31,6 +35,7 @@ export const AppConfigResolvers: Resolvers = {
                 fileConfig,
                 allowedFDAlgorithms,
                 allowedCFDAlgorithms,
+                allowedARAlgorithms,
             };
         },
     },

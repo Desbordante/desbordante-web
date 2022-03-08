@@ -4,9 +4,9 @@ import readline from "readline";
 import { FileInfo } from "../../../db/models/Authorization/FileInfo";
 import { fileConfig } from "../AppConfiguration/resolvers";
 
-export async function findAndUpdateFileRowsCount(file: FileInfo, sep: string) {
-    const rowsCount = await processLineByLine(file.path, sep);
-    await file.update({ rowsCount });
+export async function findAndUpdateFileRowsAndColumnsCount(file: FileInfo, sep: string) {
+    const counters = await processLineByLine(file.path, sep);
+    await file.update(counters);
     return true;
 }
 
@@ -107,5 +107,5 @@ async function processLineByLine(path: fs.PathLike, sep: string) {
             countOfColumns = curColsNumber;
         }
     }
-    return linesCount;
+    return { linesCount, countOfColumns };
 }

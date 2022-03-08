@@ -1,9 +1,8 @@
-import { Sequelize } from "sequelize";
-import async from "async";
-import { generateHeaderByPath }  from "../graphql/schema/TaskCreating/generateHeader";
 import path from "path";
+import { FileProps, InputFileFormat } from "../graphql/types/types";
+import { FileInfo } from "./models/Authorization/FileInfo";
 
-const getPathToBuiltInDataset = (fileName: string) => {
+export const getPathToBuiltInDataset = (fileName: string) => {
     if (!require.main) {
         throw Error("FATAL SERVER ERROR");
     }
@@ -19,37 +18,31 @@ const getPathToBuiltInDataset = (fileName: string) => {
     return rootPath.join("/");
 };
 
-const initBuiltInDatasets = async (sequelize: Sequelize) => {
-    const allowedDatasets = [
-        { fileName: "EpicMeds.csv", delimiter: "|", hasHeader: true },
-        { fileName: "WDC_age.csv", delimiter: ",", hasHeader: true },
-        { fileName: "TestLong.csv", delimiter: ",", hasHeader: true },
-        { fileName: "Workshop.csv", delimiter: ",", hasHeader: true },
-        { fileName: "breast_cancer.csv", delimiter: ",", hasHeader: true },
-        { fileName: "CIPublicHighway700.csv", delimiter: ",", hasHeader: true },
-    ];
-    return await async.eachSeries(allowedDatasets,
-        ({ fileName, delimiter, hasHeader }, callback) => {
-        const path = getPathToBuiltInDataset(fileName);
+export type BuiltInDatasetInfoType = { fileName: string, datasetProps: FileProps };
 
-        sequelize.models.FileInfo.findOrCreate({
-            where: { path },
-            defaults: {
-                fileName, originalFileName: fileName,
-                isBuiltIn: true, hasHeader, delimiter,
+export const initBuiltInDatasets = async () => {
+    const builtInDatasets: BuiltInDatasetInfoType[] = [
+        { fileName: "EpicMeds.csv", datasetProps: { delimiter: "|", hasHeader: true } },
+        { fileName: "WDC_age.csv", datasetProps: { delimiter: ",", hasHeader: true } },
+        { fileName: "TestLong.csv", datasetProps: { delimiter: ",", hasHeader: true } },
+        { fileName: "Workshop.csv", datasetProps: { delimiter: ",", hasHeader: true } },
+        { fileName: "breast_cancer.csv", datasetProps: { delimiter: ",", hasHeader: true } },
+        { fileName: "CIPublicHighway700.csv", datasetProps: { delimiter: ",", hasHeader: true } },
+        {
+            fileName: "rules-kaggle.csv", datasetProps: {
+                delimiter: ",", hasHeader: false,
+                inputFormat: "SINGULAR" as InputFileFormat, tidColumnIndex: 1, itemColumnIndex: 2,
             },
-        }
-        ).then(async ([file, created]) => {
-                if (!created) {
-                    console.log("File already exists");
-                } else {
-                    const renamedHeader = JSON.stringify(await generateHeaderByPath(path, hasHeader, delimiter));
-                    await file.update({ renamedHeader });
-                    console.log("File was created, header was updated");
-                }
-                callback();
-            });
-        });
-};
+        },
+        {
+            fileName: "rules-kaggle-rows-2.csv", datasetProps: {
+                delimiter: ",", hasHeader: false,
+                inputFormat: "TABULAR" as InputFileFormat, hasTid: false,
+            },
+        },
+    ];
 
-export = initBuiltInDatasets;
+    await Promise.all(builtInDatasets.map(async (datasetInfo) =>
+        await FileInfo.saveBuiltInDataset(datasetInfo))
+    );
+};

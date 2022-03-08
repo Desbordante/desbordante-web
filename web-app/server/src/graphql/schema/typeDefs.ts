@@ -18,6 +18,24 @@ const typeDefs = gql`
         delimiter: String!
         rowsCount: Int!
     }
+
+    enum InputFileFormat {
+        SINGULAR
+        TABULAR
+    }
+    
+    type FileFormat {
+        fileID: String!
+        dataset: DatasetInfo!
+        # For AR algorithm
+        inputFormat: InputFileFormat!
+        # For AR algorithm, when type = "SINGULAR"
+        tidColumnIndex: Int
+        # For AR algorithm, when type = "SINGULAR"
+        itemColumnIndex: Int
+        # For AR algorithm, when type = "TABULAR"
+        hasTid: Boolean
+    }
     
     type Feedback {
         feedbackID: String!
@@ -80,6 +98,11 @@ const typeDefs = gql`
         hasConfidence: Boolean!
     }
     
+    type ARAlgorithmProps {
+        hasSupport: Boolean!
+        hasConfidence: Boolean!
+    }
+    
     type FDAlgorithmConfig {
         name: String!
         properties: FDAlgorithmProps!
@@ -90,6 +113,11 @@ const typeDefs = gql`
         properties: CFDAlgorithmProps!
     }
     
+    type ARAlgorithmConfig {
+        name: String!
+        properties: ARAlgorithmProps!
+    }
+    
     type InputFileConfig {
         allowedFileFormats: [String!]!
         allowedDelimiters: [String!]!
@@ -98,6 +126,7 @@ const typeDefs = gql`
     
     type AlgorithmsConfig {
         fileConfig: InputFileConfig!
+        allowedARAlgorithms: [ARAlgorithmConfig!]!
         allowedFDAlgorithms: [FDAlgorithmConfig!]!
         allowedDatasets: [DatasetInfo!]!
         allowedCFDAlgorithms: [CFDAlgorithmConfig!]!
@@ -136,8 +165,15 @@ const typeDefs = gql`
     type CFDTaskConfig {
         baseConfig: BaseTaskConfig!
         maxLHS: Int!
-        minSupport: Int!
+        minSupportCFD: Int!
         minConfidence: Float!
+    }
+    
+    type ARTaskConfig {
+        baseConfig: BaseTaskConfig!
+        minSupportAR: Float!
+        minConfidence: Float!
+        fileFormat: FileFormat!
     }
     
     type Column {
@@ -155,6 +191,12 @@ const typeDefs = gql`
         rhs: String!
         lhsPatterns: [String!]!
         rhsPattern: String!
+    }
+    
+    type AR {
+        lhs: [String!]!
+        rhs: [String!]!
+        support: Float!
     }
 
     type FDPieChartRow {
@@ -195,6 +237,10 @@ const typeDefs = gql`
         pieChartData: CFDPieCharts!
     }
     
+    type ARTaskResult {
+        ARs: [AR!]!
+    }
+    
     type FDTask {
         config: FDTaskConfig!
         result: FDResult
@@ -205,7 +251,12 @@ const typeDefs = gql`
         result: CFDResult
     }
     
-    union TaskData = FDTask | CFDTask
+    type ARTask {
+        config: ARTaskConfig!
+        result: ARTaskResult
+    }
+    
+    union TaskData = FDTask | CFDTask | ARTask
     
     type TaskInfo {
         taskID: String!
@@ -220,7 +271,7 @@ const typeDefs = gql`
     }
     
     type Snippet {
-        header: [String!]!
+        header: [String!]
         rows: [[String!]!]
         datasetInfo: DatasetInfo!
     }
@@ -243,6 +294,7 @@ const typeDefs = gql`
         fileID: String!
         tableInfo: TableInfo!
         snippet(offset: Int! = 0, limit: Int! = 10): Snippet!
+        supportedPrimitives: [PrimitiveType!]!
         tasks(filter: TasksInfoFilter!): [TaskInfo!]
     }
     
@@ -293,6 +345,14 @@ const typeDefs = gql`
     input FileProps {
         delimiter: String!
         hasHeader: Boolean!
+        # For AR algorithm
+        inputFormat: InputFileFormat
+        # For AR algorithm, when type = "SINGULAR"
+        tidColumnIndex: Int
+        # For AR algorithm, when type = "SINGULAR"
+        itemColumnIndex: Int
+        # For AR algorithm, when type = "TABULAR"
+        hasTid: Boolean
     }
     
     type DeleteTaskAnswer {
@@ -328,7 +388,8 @@ const typeDefs = gql`
         errorThreshold: Float
         maxLHS: Int
         threadsCount: Int
-        minSupport: Int
+        minSupportCFD: Int
+        minSupportAR: Float
         minConfidence: Float
     }
     
