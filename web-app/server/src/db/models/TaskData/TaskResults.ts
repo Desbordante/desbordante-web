@@ -45,8 +45,28 @@ export class CFDTaskResult extends Model{
     CFDs?: string;
 
     @Column(TEXT)
-    withPatterns: string;
+    withPatterns?: string;
 
     @Column(TEXT)
-    withoutPatterns: string;
+    withoutPatterns?: string;
+}
+
+@Table({
+    tableName: "ARTasksResult",
+    updatedAt: false,
+})
+export class ARTaskResult extends Model{
+    @IsUUID(4)
+    @ForeignKey(() => TaskInfo)
+    @Column({ type: UUID, primaryKey: true })
+    taskID!: string;
+
+    @BelongsTo(() => TaskInfo)
+    taskState!: TaskInfo;
+
+    @Column(TEXT)
+    ARs?: string;
+
+    @Column(TEXT)
+    valueDictionary?: string;
 }

@@ -20,6 +20,8 @@ const resolvers: Resolvers = {
                     return "FDTask";
                  case "CFD":
                      return "CFDTask";
+                 case "AR":
+                     return "ARTask";
                  default:
                      return null;
             }
@@ -43,6 +45,20 @@ const resolvers: Resolvers = {
             return parent.rp;
         },
     },
+    AR: {
+        lhs: (parent, obj, { logger }) => {
+            // @ts-ignore
+            return parent[1].split(",");
+        },
+        rhs: (parent, obj, { logger }) => {
+            // @ts-ignore
+            return parent[2].split(",");
+        },
+        support: (parent, obj, { logger }) => {
+            // @ts-ignore
+            return parent[0];
+        },
+    },
     FDTaskConfig: {
         // @ts-ignore
         baseConfig: async({ taskID }, __, { models, logger }) => {
@@ -53,6 +69,24 @@ const resolvers: Resolvers = {
         // @ts-ignore
         baseConfig: async({ taskID }, __, { models, logger }) => {
             return await models.BaseTaskConfig.findByPk(taskID);
+        },
+    },
+    ARTaskConfig: {
+        // @ts-ignore
+        baseConfig: async({ taskID }, __, { models, logger }) => {
+            return await models.BaseTaskConfig.findByPk(taskID);
+        },
+        // @ts-ignore
+        fileFormat: async({ taskID }, __, { models, logger }) => {
+            const config = await models.BaseTaskConfig.findByPk(taskID);
+            if (!config) {
+                throw new ApolloError("AR task config not found");
+            }
+            const format = await models.FileFormat.findByPk(config.fileID);
+            if (!format) {
+                throw new ApolloError("File format for AR config not found");
+            }
+            return format;
         },
     },
     TaskInfo: {
@@ -68,6 +102,23 @@ const resolvers: Resolvers = {
         // @ts-ignore
         dataset: async ({ taskID, fileID }, _, { models, logger }) => {
             return { fileID };
+        },
+    },
+    ARTask: {
+        // @ts-ignore
+        result: async (parent, _, { models, logger }) => {
+            // @ts-ignore
+            const { taskID } = parent;
+            const taskInfo = await models.TaskInfo.findByPk(taskID,
+                { attributes: ["isExecuted"] });
+            if (!taskInfo) {
+                throw new ApolloError("Task not found");
+            }
+            return taskInfo.isExecuted ? parent : null;
+        },
+        // @ts-ignore
+        config: async ({ taskID }, _, { models, logger }) => {
+            return await models.ARTaskConfig.findByPk(taskID);
         },
     },
     FDTask: {
@@ -162,6 +213,21 @@ const resolvers: Resolvers = {
             return { lhs: lhs.map(transform), rhs: rhs.map(transform) };
         },
     },
+    ARTaskResult: {
+        // @ts-ignore
+        ARs: async ({ taskID }, _, { models, logger }) => {
+            const result = await models.ARTaskResult.findByPk(
+                taskID, { attributes: ["ARs"] });
+            if (!result) {
+                throw new UserInputError("Invalid taskID was provided", { taskID });
+            }
+            const { ARs } = result;
+            if (!ARs) {
+                throw new ApolloError("ARs not found");
+            }
+            return ARs.split(";").map(compactAR => compactAR.split(":"));
+        },
+    },
     CFDPieCharts: {
         // @ts-ignore
         withoutPatterns: async({ columnNames, fileID, taskID }, _, { models, logger }) => {
@@ -171,6 +237,9 @@ const resolvers: Resolvers = {
             }
             const { withoutPatterns } = result;
             type withoutPatternsRow = { id: number, value: string };
+            if (!withoutPatterns) {
+                throw new ApolloError("Received undefined withoutPatterns pie chart data");
+            }
             const withoutPatternsObject: { lhs: [withoutPatternsRow], rhs: [withoutPatternsRow] } = JSON.parse(withoutPatterns);
             const transform = ({ id, value }: withoutPatternsRow) => ({
                 column: { index: id, name: columnNames[id] },
@@ -185,6 +254,9 @@ const resolvers: Resolvers = {
                 throw new ApolloError("Result not found");
             }
             const { withPatterns } = result;
+            if (!withPatterns) {
+                throw new ApolloError("Received undefined withPatterns pie chart data");
+            }
             type withPatternsRow = { id: number, value: string, pattern: string };
             const withPatternsObject: { lhs: [withPatternsRow], rhs: [withPatternsRow] } = JSON.parse(withPatterns);
             const transform = ({ id, value, pattern }: withPatternsRow) => ({
@@ -249,8 +321,9 @@ const resolvers: Resolvers = {
                 throw new InternalServerError(`Incorrect fileID = '${fileID}' was provided`);
             }
             const { path, delimiter, hasHeader, renamedHeader } = fileInfo;
+            const header = JSON.parse(renamedHeader) || null;
             if (limit === 0) {
-                return { rows: null, header: JSON.parse(renamedHeader), fileID };
+                return { rows: null, header, fileID };
             }
             const rows: string[][] = [];
             if (hasHeader) {
@@ -301,6 +374,15 @@ const resolvers: Resolvers = {
                 };
             }
             return await models.TaskInfo.findAll({ where });
+        },
+        // @ts-ignore
+        supportedPrimitives: async({ fileID }, obj, { logger, models }) => {
+            const fileFormat = await models.FileFormat.findByPk(fileID);
+            if (!fileFormat) {
+                return ["FD", "CFD"];
+            } else {
+                return ["AR"];
+            }
         },
     },
 
