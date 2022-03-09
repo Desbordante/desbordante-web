@@ -3,22 +3,7 @@ import { gql } from "apollo-server-core";
 const typeDefs = gql`
 
     scalar Upload
-
-    type TableInfo {
-        ID: ID!
-        userID: ID
-        isBuiltIn: Boolean!
-        fileName: String!
-        originalFileName: String!
-        mimeType: String
-        encoding: String
-        hasHeader: Boolean!
-        renamedHeader: String!
-        path: String!
-        delimiter: String!
-        rowsCount: Int!
-    }
-
+    
     enum InputFileFormat {
         SINGULAR
         TABULAR
@@ -156,21 +141,25 @@ const typeDefs = gql`
         type: PrimitiveType!
     }
     
-    type FDTaskConfig {
+    interface PrimitiveBaseTaskConfig {
+        baseConfig: BaseTaskConfig!
+    }
+    
+    type FDTaskConfig implements  PrimitiveBaseTaskConfig {
         baseConfig: BaseTaskConfig!
         errorThreshold: Float!
         maxLHS: Int!
         threadsCount: Int!
     }
     
-    type CFDTaskConfig {
+    type CFDTaskConfig implements  PrimitiveBaseTaskConfig {
         baseConfig: BaseTaskConfig!
         maxLHS: Int!
         minSupportCFD: Int!
         minConfidence: Float!
     }
     
-    type ARTaskConfig {
+    type ARTaskConfig implements  PrimitiveBaseTaskConfig {
         baseConfig: BaseTaskConfig!
         minSupportAR: Float!
         minConfidence: Float!
@@ -183,8 +172,8 @@ const typeDefs = gql`
     }
     
     type FD {
-        lhs: [Int!]! #[Column]!
-        rhs: Int! #Column!
+        lhs: [Int!]!
+        rhs: Int!
     }
     
     type CFD {
@@ -265,6 +254,7 @@ const typeDefs = gql`
         data: TaskData!
         dataset: DatasetInfo!
     }
+    
     enum PermissionType {
         USE_BUILTIN_DATASETS, USE_OWN_DATASETS, USE_USERS_DATASETS,
         VIEW_ADMIN_INFO,
@@ -293,7 +283,19 @@ const typeDefs = gql`
     
     type DatasetInfo {
         fileID: String!
-        tableInfo: TableInfo!
+        userID: ID
+        isBuiltIn: Boolean!
+        fileName: String!
+        originalFileName: String!
+        mimeType: String
+        encoding: String
+        hasHeader: Boolean!
+        renamedHeader: [String!]!
+        path: String!
+        delimiter: String!
+        rowsCount: Int!
+        # Only for AR datasets
+        fileFormat: FileFormat
         snippet(offset: Int! = 0, limit: Int! = 10): Snippet!
         supportedPrimitives: [PrimitiveType!]!
         tasks(filter: TasksInfoFilter!): [TaskInfo!]
@@ -332,6 +334,10 @@ const typeDefs = gql`
         4) User has permission "VIEW_ADMIN_INFO"
         """
         taskInfo(taskID: ID!): TaskInfo!
+        """
+        Query for admins with permission "VIEW_ADMIN_INFO"
+        """
+        tasksInfo(limit: Int! = 10 offset: Int! = 0): [TaskInfo!]
         user(userID: ID!): User
         """
         Query for admins with permission "VIEW_ADMIN_INFO"

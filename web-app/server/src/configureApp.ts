@@ -104,7 +104,7 @@ async function createARTask(fileName: string, minConfidence: number, minSupportA
     if (!file) {
         throw new Error(`File not found ${file}`);
     }
-    const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, file.ID, null);
+    const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, file.fileID, null);
 
     const res = await taskInfo.$get("ARResult");
     if (!res) {
@@ -147,7 +147,7 @@ async function createCfdTask(fileName: string, cfdsStr: string,
         minConfidence,
         minSupportCFD,
     };
-    const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, file.ID, null);
+    const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, file.fileID, null);
 
     const res = await taskInfo.$get("CFDResult");
     if (!res) {

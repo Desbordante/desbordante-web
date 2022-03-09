@@ -11,6 +11,12 @@ const TaskCreatingResolvers: Resolvers = {
             if (!file) {
                 throw new UserInputError("File not found", { fileID });
             }
+            if (props.type === "AR") {
+                const fileFormat = await file.$get("fileFormat");
+                if (!fileFormat) {
+                    throw new UserInputError("This dataset doesn't support AR algorithms");
+                }
+            }
             const permissions = sessionInfo ? sessionInfo.permissions : Role.getPermissionsForRole("ANONYMOUS")!;
             if (permissions.includes("USE_BUILTIN_DATASETS") && file.isBuiltIn
                 || permissions.includes("USE_OWN_DATASETS") && sessionInfo && file.userID === sessionInfo.userID
@@ -39,10 +45,9 @@ const TaskCreatingResolvers: Resolvers = {
             if (file.isBuiltIn === isBuiltIn) {
                 logger("Admin tries to change dataset status, but file already has this status");
             } else {
-                await file.update({ where: { isBuiltIn } });
+                await file.update({ isBuiltIn });
             }
             return file;
-
         },
         createTaskWithDatasetUploading: async (parent, { props, datasetProps, table },
             { models, logger, topicNames, sessionInfo }) => {
@@ -55,7 +60,7 @@ const TaskCreatingResolvers: Resolvers = {
                     logger("Error while file uploading", e);
                     throw new ApolloError("Error while uploading dataset");
                 });
-            return await models.TaskInfo.saveTaskToDBAndSendEvent(props, file.ID, topicNames.DepAlgs, sessionInfo.userID);
+            return await models.TaskInfo.saveTaskToDBAndSendEvent(props, file.fileID, topicNames.DepAlgs, sessionInfo.userID);
         },
         deleteTask: async (parent, { taskID }, { models, logger, sessionInfo }) => {
             if (!sessionInfo) {

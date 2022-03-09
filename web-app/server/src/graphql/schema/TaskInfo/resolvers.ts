@@ -3,7 +3,6 @@ import { AuthenticationError } from "apollo-server-express";
 import { CsvParserStream, parse } from "fast-csv";
 import { Row } from "@fast-csv/parse";
 import fs from "fs";
-import { InternalServerError } from "http-errors";
 import { Op } from "sequelize";
 import validator from "validator";
 
@@ -59,23 +58,13 @@ const resolvers: Resolvers = {
             return parent[0];
         },
     },
-    FDTaskConfig: {
+    PrimitiveBaseTaskConfig: {
         // @ts-ignore
-        baseConfig: async({ taskID }, __, { models, logger }) => {
-            return await models.BaseTaskConfig.findByPk(taskID);
-        },
-    },
-    CFDTaskConfig: {
-        // @ts-ignore
-        baseConfig: async({ taskID }, __, { models, logger }) => {
+        baseConfig: async ({ taskID }, __, { models }) => {
             return await models.BaseTaskConfig.findByPk(taskID);
         },
     },
     ARTaskConfig: {
-        // @ts-ignore
-        baseConfig: async({ taskID }, __, { models, logger }) => {
-            return await models.BaseTaskConfig.findByPk(taskID);
-        },
         // @ts-ignore
         fileFormat: async({ taskID }, __, { models, logger }) => {
             const config = await models.BaseTaskConfig.findByPk(taskID);
@@ -101,20 +90,13 @@ const resolvers: Resolvers = {
         },
         // @ts-ignore
         dataset: async ({ taskID, fileID }, _, { models, logger }) => {
-            return { fileID };
+            return models.FileInfo.findByPk(fileID);
         },
     },
     ARTask: {
         // @ts-ignore
-        result: async (parent, _, { models, logger }) => {
-            // @ts-ignore
-            const { taskID } = parent;
-            const taskInfo = await models.TaskInfo.findByPk(taskID,
-                { attributes: ["isExecuted"] });
-            if (!taskInfo) {
-                throw new ApolloError("Task not found");
-            }
-            return taskInfo.isExecuted ? parent : null;
+        result: async ({ taskID }, _, { models, logger }) => {
+            return models.TaskInfo.getTaskInfoIfTaskIsExecuted(taskID);
         },
         // @ts-ignore
         config: async ({ taskID }, _, { models, logger }) => {
@@ -123,15 +105,8 @@ const resolvers: Resolvers = {
     },
     FDTask: {
         // @ts-ignore
-        result: async (parent, _, { models, logger }) => {
-            // @ts-ignore
-            const { taskID } = parent;
-            const taskInfo = await models.TaskInfo.findByPk(taskID,
-                { attributes: ["isExecuted"] });
-            if (!taskInfo) {
-                throw new ApolloError("Task not found");
-            }
-            return taskInfo.isExecuted ? parent : null;
+        result: async ({ taskID }, _, { models, logger }) => {
+            return models.TaskInfo.getTaskInfoIfTaskIsExecuted(taskID);
         },
         // @ts-ignore
         config: async ({ taskID }, _, { models, logger }) => {
@@ -140,15 +115,8 @@ const resolvers: Resolvers = {
     },
     CFDTask: {
         // @ts-ignore
-        result: async (parent, _, { models, logger }) => {
-            // @ts-ignore
-            const { taskID } = parent;
-            const taskInfo = await models.TaskInfo.findByPk(taskID,
-                { attributes: ["isExecuted"] });
-            if (!taskInfo) {
-                throw new ApolloError("Task not found");
-            }
-            return taskInfo.isExecuted ? parent : null;
+        result: async ({ taskID }, _, { models, logger }) => {
+            return models.TaskInfo.getTaskInfoIfTaskIsExecuted(taskID);
         },
         // @ts-ignore
         config: async ({ taskID }, _, { models, logger }) => {
@@ -305,6 +273,15 @@ const resolvers: Resolvers = {
             return indices.map((index) => ({ index, name: columnNames[index] }));
         },
     },
+    FileFormat: {
+        // @ts-ignore
+        dataset: async ({ fileID }, obj, { models }) => {
+            if (!fileID) {
+                throw new ApolloError("fileID wasn't provided");
+            }
+            return models.FileInfo.findByPk(fileID);
+        },
+    },
     DatasetInfo: {
         // Todo: refactor (add params for field snippet && add resolvers for type Snippet)
         // @ts-ignore
@@ -318,7 +295,7 @@ const resolvers: Resolvers = {
             const fileInfo = await models.FileInfo.findByPk(fileID,
                 { attributes: ["path", "delimiter", "hasHeader", "renamedHeader"] });
             if (!fileInfo) {
-                throw new InternalServerError(`Incorrect fileID = '${fileID}' was provided`);
+                throw new UserInputError(`Incorrect fileID = '${fileID}' was provided`);
             }
             const { path, delimiter, hasHeader, renamedHeader } = fileInfo;
             const header = JSON.parse(renamedHeader) || null;
@@ -352,10 +329,6 @@ const resolvers: Resolvers = {
             });
         },
         // @ts-ignore
-        tableInfo: async({ fileID }, args, { models, logger }) => {
-            return models.FileInfo.findByPk(fileID);
-        },
-        // @ts-ignore
         tasks: async({ fileID }, { filter }, { models, logger }) => {
             const { includeExecutedTasks, includeCurrentTasks,
                 includeTasksWithError, includeTasksWithoutError } = filter;
@@ -381,24 +354,36 @@ const resolvers: Resolvers = {
             if (!fileFormat) {
                 return ["FD", "CFD"];
             } else {
-                return ["AR"];
+                return ["AR", "FD", "CFD"];
             }
+        },
+        // @ts-ignore
+        fileFormat: async ({ fileID }, obj, { models }) => {
+            return await models.FileFormat.findByPk(fileID);
+        },
+        // @ts-ignore
+        renamedHeader: async (parent, obj, { models, logger }) => {
+            if (!parent.renamedHeader) {
+                throw new ApolloError("Renamed header not found");
+            }
+            return JSON.parse(parent.renamedHeader as any);
         },
     },
 
     Query: {
+        // @ts-ignore
         datasetInfo: async (parent, { fileID }, { models, logger, sessionInfo }) => {
             if (!isUUID(fileID, 4)) {
                 throw new UserInputError("Invalid fileID was provided");
             }
-            const fileInfo = await models.FileInfo.findByPk(fileID);
-            if (!fileInfo) {
+            const file = await models.FileInfo.findByPk(fileID);
+            if (!file) {
                 throw new UserInputError("File not found");
             }
-            if (fileInfo.isBuiltIn
-                || sessionInfo && sessionInfo.userID === fileInfo.userID
+            if (file.isBuiltIn
+                || sessionInfo && sessionInfo.userID === file.userID
                 || sessionInfo && sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
-                return { fileID };
+                return file;
             }
             throw new ForbiddenError("You don't have access");
         },
@@ -424,6 +409,16 @@ const resolvers: Resolvers = {
                 return taskConfig;
             }
             throw new ForbiddenError("User doesn't have permissions");
+        },
+        // @ts-ignore
+        tasksInfo: async (parent, { limit, offset }, { models, logger, sessionInfo }) => {
+            if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
+                return new AuthenticationError("User doesn't have permissions");
+            }
+            return models.BaseTaskConfig.findAll({
+                offset, limit,
+                attributes: ["taskID", "fileID", "type"],
+            });
         },
     },
 
