@@ -25,7 +25,7 @@ export class FileInfo extends Model {
         defaultValue: UUIDV4,
         primaryKey: true,
     })
-    ID!: string;
+    fileID!: string;
 
     @ForeignKey(() => User)
     @Column({ type: UUID, allowNull: true })
@@ -87,7 +87,7 @@ export class FileInfo extends Model {
     };
 
     generateHeader = async () => {
-        const file = await FileInfo.findByPk(this.ID);
+        const file = await FileInfo.findByPk(this.fileID);
         if (!file) {
             throw new ApolloError("File not found");
         }
@@ -101,10 +101,7 @@ export class FileInfo extends Model {
 
         const path = getPathToBuiltInDataset(props.fileName);
         const { hasHeader, delimiter } = datasetProps;
-        let header: string[] | null = await generateHeaderByPath(path, hasHeader, delimiter);
-        if (withFileFormat) {
-            header = null;
-        }
+        const header = await generateHeaderByPath(path, hasHeader, delimiter);
         const renamedHeader = JSON.stringify(header);
 
         const [file, created] = await FileInfo.findOrCreate({
@@ -135,7 +132,7 @@ export class FileInfo extends Model {
         const file = await FileInfo.create(
             { ...datasetProps, encoding, mimeType, originalFileName, userID });
 
-        const fileID = file.ID;
+        const { fileID } = file;
         const fileName = `${fileID}.csv`;
 
         const path = FileInfo.getPathToUploadedDataset(fileName);

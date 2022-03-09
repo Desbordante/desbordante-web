@@ -5,6 +5,7 @@ import { Resolvers } from "../../types/types";
 
 const MetaInfoResolvers : Resolvers = {
     Query: {
+        // @ts-ignore
         datasets: async (parent, { props }, { models, logger, sessionInfo }) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
@@ -15,7 +16,6 @@ const MetaInfoResolvers : Resolvers = {
 
             const { includeBuiltInDatasets, includeDeletedDatasets, offset, limit } = props;
             let options: FindOptions = {
-                attributes: ["ID"],
                 where: {},
                 offset, limit,
             };
@@ -27,8 +27,7 @@ const MetaInfoResolvers : Resolvers = {
                 options = { ...options, paranoid: false };
             }
 
-            return await models.FileInfo.findAll(options)
-                .then(files => files.map(file => ({ fileID: file.ID })));
+            return await models.FileInfo.findAll(options);
         },
     },
 };
