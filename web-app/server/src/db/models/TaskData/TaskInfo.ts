@@ -1,4 +1,4 @@
-import { UserInputError } from "apollo-server-core";
+import { ApolloError, UserInputError } from "apollo-server-core";
 import { BOOLEAN, FLOAT, INTEGER, STRING, UUID, UUIDV4 } from "sequelize";
 import { BelongsTo, Column, ForeignKey, HasOne, IsUUID, Model, Table } from "sequelize-typescript";
 import { IntersectionTaskProps } from "../../../graphql/types/types";
@@ -119,5 +119,15 @@ export class TaskInfo extends Model {
         await sendEvent(topicName, taskInfo.taskID);
         await taskInfo.update({ status: "ADDED TO THE TASK QUEUE" });
         return taskInfo;
+    };
+
+    // returns either taskInfo, either null;
+    static getTaskInfoIfTaskIsExecuted = async (taskID: string) => {
+        const taskInfo = await TaskInfo.findByPk(taskID,
+            { attributes: ["isExecuted"] });
+        if (!taskInfo) {
+            throw new ApolloError("Task not found");
+        }
+        return taskInfo.isExecuted ? parent : null;
     };
 }
