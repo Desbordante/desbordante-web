@@ -21,6 +21,8 @@ export const fileConfig = {
     maxFileSize: 1e10,
 };
 
+export const maxThreadsCount = Number(process.env.MAX_THREADS_COUNT);
+
 export const AppConfigResolvers: Resolvers = {
     AlgorithmsConfig: {
         allowedDatasets: async(parent, args, { models, logger }) => {
@@ -36,6 +38,7 @@ export const AppConfigResolvers: Resolvers = {
                 allowedFDAlgorithms,
                 allowedCFDAlgorithms,
                 allowedARAlgorithms,
+                maxThreadsCount,
             };
         },
     },

@@ -1,4 +1,4 @@
-import { ApolloError, UserInputError } from "apollo-server-core";
+import { UserInputError } from "apollo-server-core";
 import { BOOLEAN, FLOAT, INTEGER, STRING, UUID, UUIDV4 } from "sequelize";
 import { BelongsTo, Column, ForeignKey, HasOne, IsUUID, Model, Table } from "sequelize-typescript";
 import { IntersectionTaskProps } from "../../../graphql/types/types";

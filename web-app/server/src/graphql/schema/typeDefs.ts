@@ -125,11 +125,12 @@ const typeDefs = gql`
     }
     
     type AlgorithmsConfig {
-        fileConfig: InputFileConfig!
         allowedARAlgorithms: [ARAlgorithmConfig!]!
         allowedFDAlgorithms: [FDAlgorithmConfig!]!
         allowedDatasets: [DatasetInfo!]!
         allowedCFDAlgorithms: [CFDAlgorithmConfig!]!
+        fileConfig: InputFileConfig!
+        maxThreadsCount: Int!
     }
     
     enum PrimitiveType {

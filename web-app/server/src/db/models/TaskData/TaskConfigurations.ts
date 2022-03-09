@@ -1,14 +1,12 @@
-import { AllowNull, BelongsTo, Column, ForeignKey, HasOne, IsUUID, Model, Table } from "sequelize-typescript";
+import { AllowNull, BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
 import { INTEGER, REAL, UUID } from "sequelize";
 import {
     allowedARAlgorithms,
     allowedCFDAlgorithms,
-    allowedFDAlgorithms,
+    allowedFDAlgorithms, maxThreadsCount,
 } from "../../../graphql/schema/AppConfiguration/resolvers";
 import { IntersectionTaskProps } from "../../../graphql/types/types";
 import { TaskInfo } from "./TaskInfo";
-import { FileFormat } from "../Authorization/FileFormat";
-import { User } from "../Authorization/User";
 
 @Table({
     tableName: "FDTasksConfig",
@@ -49,8 +47,7 @@ export class FDTaskConfig extends Model{
             console.log("maxLHS isn't valid");
             return false;
         }
-        const MAX_THREADS_COUNT = 8;
-        if (typeof threadsCount !== "number" || threadsCount < 1 || threadsCount > MAX_THREADS_COUNT) {
+        if (typeof threadsCount !== "number" || threadsCount < 1 || threadsCount > maxThreadsCount) {
             console.log("threadsCount isn't valid");
             return false;
         }
