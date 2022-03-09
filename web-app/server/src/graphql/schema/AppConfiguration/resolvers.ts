@@ -25,10 +25,9 @@ export const maxThreadsCount = Number(process.env.MAX_THREADS_COUNT);
 
 export const AppConfigResolvers: Resolvers = {
     AlgorithmsConfig: {
+        // @ts-ignore
         allowedDatasets: async(parent, args, { models, logger }) => {
-            const options = { where: { isBuiltIn: true }, attributes: ["ID"] };
-            return await models.FileInfo.findAll(options)
-                .then(files => files.map(file => ({ fileID: file.ID })));
+            return await models.FileInfo.findAll({ where: { isBuiltIn: true } });
         },
     },
     Query: {

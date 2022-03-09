@@ -86,10 +86,10 @@ async function processLineByLine(path: fs.PathLike, sep: string) {
         input: fileStream,
         crlfDelay: Infinity,
     });
-    let linesCount = 0;
+    let rowsCount = 0;
     let countOfColumns = -1;
     for await (const line of rl) {
-        linesCount++;
+        rowsCount++;
         const curColsNumber = getNumberOfColumns(line, sep);
         if (curColsNumber === 1) {
             const sep: string | null = await tryFindCorrectSeparator(path);
@@ -101,11 +101,11 @@ async function processLineByLine(path: fs.PathLike, sep: string) {
         }
         if (~countOfColumns) {
             if (countOfColumns !== curColsNumber) {
-                throw new UserInputError(`Row ${linesCount} has ${curColsNumber} columns, but row ${linesCount - 1} has ${countOfColumns} columns.`);
+                throw new UserInputError(`Row ${rowsCount} has ${curColsNumber} columns, but row ${rowsCount - 1} has ${countOfColumns} columns.`);
             }
         } else {
             countOfColumns = curColsNumber;
         }
     }
-    return { linesCount, countOfColumns };
+    return { rowsCount, countOfColumns };
 }

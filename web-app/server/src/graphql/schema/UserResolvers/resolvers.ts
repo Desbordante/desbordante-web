@@ -65,15 +65,14 @@ export const UserResolvers : Resolvers = {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            return await models.FileInfo.findAll({ where: { userID } })
-                .then(files => files.map(file => ({ fileID: file.ID })));
+            return await models.FileInfo.findAll({ where: { userID } });
         },
     },
     Feedback: {
         // @ts-ignore
         user: async ({ userID }, _, { models, logger, sessionInfo }) => {
             if (!userID) {
-                return null;
+                throw new ApolloError("UserID is undefined");
             }
             return await models.User.findByPk(userID);
         },
