@@ -4,12 +4,14 @@ export const GET_ALGORITHMS_CONFIG = gql`
   query getAlgorithmsConfig {
     algorithmsConfig {
       allowedDatasets {
-        tableInfo {
-          ID
-          fileName
-          hasHeader
-          delimiter
-        }
+        fileID
+        fileName
+        hasHeader
+        delimiter
+        supportedPrimitives
+        rowsCount
+        countOfColumns
+        isBuiltIn
       }
       allowedFDAlgorithms {
         name
@@ -23,6 +25,13 @@ export const GET_ALGORITHMS_CONFIG = gql`
         name
         properties {
           hasArityConstraint
+          hasConfidence
+          hasSupport
+        }
+      }
+      allowedARAlgorithms {
+        name
+        properties {
           hasConfidence
           hasSupport
         }

@@ -4,6 +4,7 @@ import { Dataset, isBuiltinDataset } from "../types/dataset";
 import { FileProps } from "../types/fileProps";
 import { AlgorithmConfigContext } from "./AlgorithmConfigContext";
 import { PrimitiveType } from "../types/globalTypes";
+import { AllowedDataset } from "../types/types";
 
 type FileFormContextType = {
   primitiveType: PrimitiveType;
@@ -34,7 +35,8 @@ const defaultAlgorithmProps: AlgorithmProps = {
   arityConstraint: "5",
   errorThreshold: "0.005",
   minConfidence: "0.5",
-  minSupport: "1",
+  minSupportCFD: "1",
+  minSupportAR: "0.5",
   threadsCount: "2",
 };
 
@@ -69,7 +71,11 @@ export const FileFormContextProvider: React.FC = ({ children }) => {
           !validators.isOfValidSize(file),
       }));
     } else {
-      setError((prevError) => ({ ...prevError, dataset: false }));
+      const file = dataset as AllowedDataset;
+      setError((prevError) => ({
+        ...prevError,
+        dataset: !validators.isBuiltinDatasetValid(primitiveType, file),
+      }));
     }
   }, [dataset, validators]);
 
@@ -108,9 +114,8 @@ export const FileFormContextProvider: React.FC = ({ children }) => {
             (isMultiThreaded &&
               !validators.isInteger(algorithmProps.threadsCount)) ||
             (hasSupport &&
-              !(primitiveType === PrimitiveType.AR
-                ? validators.isBetweenZeroAndOne(algorithmProps.minSupport)
-                : validators.isInteger(algorithmProps.minSupport)))
+              !validators.isBetweenZeroAndOne(algorithmProps.minSupportAR)) ||
+            (hasSupport && !validators.isInteger(algorithmProps.minSupportCFD))
         ),
       }));
     } else {

@@ -1,14 +1,9 @@
-export type BuiltinDataset = {
-  ID: string;
-  fileName: string;
-  hasHeader: boolean;
-  delimiter: string;
-};
+import { AllowedDataset } from "./types";
 
-export type Dataset = File | BuiltinDataset;
+export type Dataset = File | AllowedDataset;
 
 export function isBuiltinDataset(dataset: Dataset | undefined) {
-  return dataset && (dataset as BuiltinDataset).delimiter !== undefined;
+  return dataset && (dataset as AllowedDataset).delimiter !== undefined;
 }
 
 export function isFile(d: Dataset) {

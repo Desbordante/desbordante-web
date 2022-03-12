@@ -10,13 +10,13 @@ export type FDAlgorithmProps = {
 export type CFDAlgorithmProps = {
   algorithm?: CFDAlgorithm;
   arityConstraint?: string;
-  minSupport?: string;
+  minSupportCFD?: string;
   minConfidence?: string;
 };
 
 export type ARAlgorithmProps = {
   algorithm?: ARAlgorithm;
-  minSupport?: string;
+  minSupportAR?: string;
   minConfidence?: string;
 };
 
