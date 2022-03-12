@@ -177,8 +177,8 @@ const typeDefs = gql`
     }
     
     type FD {
-        lhs: [Int!]!
-        rhs: Int!
+        lhs: [String!]!
+        rhs: String!
     }
     
     type CFD {
