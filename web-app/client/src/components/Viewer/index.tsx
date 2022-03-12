@@ -6,6 +6,7 @@ import StatusDisplay from "../StatusDisplay/StatusDisplay";
 import { TaskContext } from "../TaskContext";
 import FDViewer from "./FDViewer";
 import CFDViewer from "./CFDViewer";
+import ARViewer from "./ARViewer";
 import { PrimitiveType } from "../../types/globalTypes";
 
 const Index = () => {
@@ -22,6 +23,9 @@ const Index = () => {
       )}
       {taskType === PrimitiveType.CFD && taskResult?.CFD && (
         <CFDViewer result={taskResult.CFD} />
+      )}
+      {taskType === PrimitiveType.AR && taskResult?.AR && (
+        <ARViewer result={taskResult.AR} />
       )}
     </Container>
   ) : (

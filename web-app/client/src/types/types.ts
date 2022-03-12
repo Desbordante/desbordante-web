@@ -1,4 +1,5 @@
 import { getAlgorithmsConfig_algorithmsConfig_allowedDatasets } from "../graphql/operations/queries/__generated__/getAlgorithmsConfig";
+import { getTaskInfo_taskInfo_data_result_ARTaskResult_ARs } from "../graphql/operations/queries/__generated__/getTaskInfo";
 
 export type Attribute = {
   column: { name: string; index?: number };
@@ -75,11 +76,8 @@ export type BuiltinDataset = {
   fileName: string;
   ID: string;
 };
-export type AssociationRule = {
-  lhs: string[];
-  rhs: string[];
-  confidence: number;
-};
+
+export type AssociationRule = getTaskInfo_taskInfo_data_result_ARTaskResult_ARs;
 
 export const primitiveTypeList = [
   "Functional Dependencies",
