@@ -96,7 +96,7 @@ export const GET_TASK_INFO = gql`
 
           __typename
           ... on ARTaskResult {
-            ARs(pagination: { offset: 0, limit: 0 }) {
+            ARs(pagination: { offset: 0, limit: 100 }) {
               lhs
               rhs
               support

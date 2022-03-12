@@ -5,18 +5,23 @@ import FDSnippet from "./FDSnippet";
 import SearchBar from "../../SearchBar/SearchBar";
 import Toggle from "../../Toggle/Toggle";
 import Selector from "../../Selector/Selector";
-import { Dependency, FDAttribute, SortMethod } from "../../../types/taskInfo";
+import {
+  FDAttribute,
+  FunctionalDependency,
+  Key,
+  SortMethod,
+} from "../../../types/taskInfo";
 
 interface Props {
   selectedAttributesLHS: FDAttribute[];
   selectedAttributesRHS: FDAttribute[];
-  selectedDependency: Dependency | null;
+  selectedDependency: FunctionalDependency | null;
   setSelectedDependency: React.Dispatch<
-    React.SetStateAction<Dependency | null>
+    React.SetStateAction<FunctionalDependency | null>
   >;
-  dependencies: Dependency[];
-  sortMethods: SortMethod<Dependency>[];
-  keys: string[];
+  dependencies: FunctionalDependency[];
+  sortMethods: SortMethod<FunctionalDependency>[];
+  keys: Key[];
   className?: string;
 }
 
@@ -30,11 +35,11 @@ const FDList: React.FC<Props> = ({
   keys,
   className = "",
 }) => {
-  const [sortedDependencies, setSortedDependencies] = useState<Dependency[]>(
-    []
-  );
+  const [sortedDependencies, setSortedDependencies] = useState<
+    FunctionalDependency[]
+  >([]);
   const [currentSortMethod, setCurrentSortMethod] = useState<
-    SortMethod<Dependency>
+    SortMethod<FunctionalDependency>
   >(sortMethods[0]);
   const [searchString, setSearchString] = useState("");
   const [showKeys, setShowKeys] = useState(true);
@@ -47,7 +52,9 @@ const FDList: React.FC<Props> = ({
         : dependencies?.filter(
             (dep) =>
               !keys?.length ||
-              keys?.some((key) => dep.lhs.includes(key) || dep.rhs === key)
+              keys?.some(
+                (key) => dep.lhs.includes(key.name) || dep.rhs === key.name
+              )
           )) || [];
     const foundDependencies = (
       searchString

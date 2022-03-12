@@ -7,10 +7,10 @@ import Selector from "../../Selector/Selector";
 import {
   ConditionalDependency,
   FDAttribute,
+  Key,
   SortMethod,
 } from "../../../types/taskInfo";
 import CFDSnippet from "./CFDSnippet";
-import Button from "../../Button/Button";
 
 interface Props {
   selectedAttributesLHS: FDAttribute[];
@@ -21,7 +21,7 @@ interface Props {
   >;
   dependencies: ConditionalDependency[];
   sortMethods: SortMethod<ConditionalDependency>[];
-  keys: string[];
+  keys: Key[];
   className?: string;
 }
 
@@ -53,7 +53,9 @@ const CFDList: React.FC<Props> = ({
         : dependencies?.filter(
             (dep) =>
               !keys?.length ||
-              keys?.some((key) => dep.lhs.includes(key) || dep.rhs === key)
+              keys?.some(
+                (key) => dep.lhs.includes(key.name) || dep.rhs === key.name
+              )
           )) || [];
     const foundDependencies = (
       searchString
