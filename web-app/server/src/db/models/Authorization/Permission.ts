@@ -1,5 +1,7 @@
 import { Column, Model, Table } from "sequelize-typescript";
 import { INTEGER, STRING } from "sequelize";
+import { Role } from "./Role";
+import { AccessTokenInstance } from "./Session";
 
 const ALL_PERMISSIONS = [
     "USE_BUILTIN_DATASETS", "USE_OWN_DATASETS", "USE_USERS_DATASETS",
@@ -15,14 +17,18 @@ export class Permission extends Model {
     id!: number;
 
     @Column({ type: STRING, allowNull: false })
-    permission!: string;
+    permission!: PermissionType;
 
     static getAllPermissions = () => ALL_PERMISSIONS;
 
     static initPermissionsTable = async () =>
-        Promise.all(Permission.getAllPermissions()
-            .map(async (permission, id) =>
-                await Permission.findOrCreate({ where: { permission, id } })
-            )
-        );
+        Promise.all(
+            Permission.getAllPermissions()
+                .map(async (permission, id) =>
+                    await Permission.findOrCreate({ where: { permission, id } })
+                )
+        ).then(() => console.debug("Permissions table was initialized"));
+
+    static getPermissionsBySessionInfo = (sessionInfo: AccessTokenInstance | null) =>
+        sessionInfo ? sessionInfo.permissions : Role.getPermissionsForRole("ANONYMOUS");
 }

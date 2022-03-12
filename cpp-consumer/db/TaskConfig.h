@@ -103,7 +103,7 @@ public:
         std::string fileID = rows[0]["\"fileID\""].c_str();
 
         query = "SELECT \"hasHeader\", \"path\", \"delimiter\" FROM " + fileInfoTable 
-              + " WHERE \"ID\" = '" + fileID + "'";
+              + " WHERE \"fileID\" = '" + fileID + "'";
         rows = manager.defaultQuery(query);
         char delimiter = rows[0]["\"delimiter\""].c_str()[0];
         std::string path = rows[0]["\"path\""].c_str();

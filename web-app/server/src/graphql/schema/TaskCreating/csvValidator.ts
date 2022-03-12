@@ -1,14 +1,8 @@
 import { UserInputError } from "apollo-server-core";
 import fs from "fs";
 import readline from "readline";
-import { FileInfo } from "../../../db/models/Authorization/FileInfo";
-import { fileConfig } from "../AppConfiguration/resolvers";
 
-export async function findAndUpdateFileRowsAndColumnsCount(file: FileInfo, sep: string) {
-    const counters = await processLineByLine(file.path, sep);
-    await file.update(counters);
-    return true;
-}
+import { fileConfig } from "../AppConfiguration/resolvers";
 
 function csvLinetoArray(line: string, sep: string) {
     if (sep=="|") {
@@ -43,10 +37,7 @@ function getNumberOfColumns(line: string, sep: string) {
 
 async function tryFindCorrectSeparator(path: fs.PathLike) {
     const fileStream = fs.createReadStream(path);
-    const rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity,
-    });
+    const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
 
     const lines: string[] = [];
     for await (const line of rl) {
@@ -55,7 +46,7 @@ async function tryFindCorrectSeparator(path: fs.PathLike) {
             break;
         }
     }
-    if (lines.length < 3) {
+    if (lines.length < 4) {
         return null;
     }
 
@@ -79,33 +70,32 @@ async function tryFindCorrectSeparator(path: fs.PathLike) {
     return null;
 }
 
-async function processLineByLine(path: fs.PathLike, sep: string) {
+export const findRowsAndColumnsNumber = async (path: fs.PathLike, sep: string) => {
     const fileStream = fs.createReadStream(path);
 
-    const rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity,
-    });
+    const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
     let rowsCount = 0;
     let countOfColumns = -1;
     for await (const line of rl) {
         rowsCount++;
         const curColsNumber = getNumberOfColumns(line, sep);
         if (curColsNumber === 1) {
-            const sep: string | null = await tryFindCorrectSeparator(path);
+            const sep = await tryFindCorrectSeparator(path);
             let errorMessage = "Either the table has 1 column or an invalid delimiter is specified.";
             if (sep) {
-                errorMessage += ` Maybe you want to provide delimiter ${sep}`;
+                errorMessage += ` Maybe you want to provide delimiter '${sep}'`;
             }
             throw new UserInputError(errorMessage);
         }
         if (~countOfColumns) {
             if (countOfColumns !== curColsNumber) {
-                throw new UserInputError(`Row ${rowsCount} has ${curColsNumber} columns, but row ${rowsCount - 1} has ${countOfColumns} columns.`);
+                throw new UserInputError(
+                    `Row ${rowsCount} has ${curColsNumber} columns, `
+                    + `but row ${rowsCount - 1} has ${countOfColumns} columns.`);
             }
         } else {
             countOfColumns = curColsNumber;
         }
     }
     return { rowsCount, countOfColumns };
-}
+};

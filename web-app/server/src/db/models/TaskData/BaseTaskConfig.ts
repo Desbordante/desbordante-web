@@ -1,11 +1,15 @@
 import { BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
 import { STRING, UUID } from "sequelize";
-import { FileInfo } from "../Authorization/FileInfo";
+import { FileInfo } from "../FileInfo/FileInfo";
 import { TaskInfo } from "./TaskInfo";
+
+const ALL_PRIMITIVES = ["AR", "CFD", "FD"] as const;
+export type PrimitiveType = typeof ALL_PRIMITIVES[number];
 
 @Table({
     tableName: "TasksConfig",
     updatedAt: false,
+    paranoid: true,
 })
 export class BaseTaskConfig extends Model {
     @IsUUID(4)
@@ -26,5 +30,5 @@ export class BaseTaskConfig extends Model {
     algorithmName!: string;
 
     @Column({ type: STRING, allowNull: false })
-    type!: string;
+    type!: PrimitiveType;
 }

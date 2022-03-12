@@ -4,6 +4,7 @@ import { TaskInfo } from "./TaskInfo";
 
 @Table({
     tableName: "FDTasksResult",
+    paranoid: true,
     updatedAt: false,
 })
 export class FDTaskResult extends Model{
@@ -15,18 +16,19 @@ export class FDTaskResult extends Model{
     @BelongsTo(() => TaskInfo)
     taskState!: TaskInfo;
 
-    @Column(TEXT)
-    PKColumnIndices?: string;
+    @Column({ type: TEXT, allowNull: true })
+    PKColumnIndices!: string | null;
 
-    @Column(TEXT)
-    FDs?: string;
+    @Column({ type: TEXT, allowNull: true })
+    FDs!: string | null;
 
-    @Column(TEXT)
-    pieChartData?: string;
+    @Column({ type: TEXT, allowNull: true })
+    pieChartData!: string | null;
 }
 
 @Table({
     tableName: "CFDTasksResult",
+    paranoid: true,
     updatedAt: false,
 })
 export class CFDTaskResult extends Model{
@@ -38,21 +40,22 @@ export class CFDTaskResult extends Model{
     @BelongsTo(() => TaskInfo)
     taskState!: TaskInfo;
 
-    @Column(TEXT)
-    PKColumnIndices?: string;
+    @Column({ type: TEXT, allowNull: true })
+    PKColumnIndices!: string | null;
 
-    @Column(TEXT)
-    CFDs?: string;
+    @Column({ type: TEXT, allowNull: true })
+    CFDs!: string | null;
 
-    @Column(TEXT)
-    withPatterns?: string;
+    @Column({ type: TEXT, allowNull: true })
+    withPatterns!: string | null;
 
-    @Column(TEXT)
-    withoutPatterns?: string;
+    @Column({ type: TEXT, allowNull: true })
+    withoutPatterns!: string | null;
 }
 
 @Table({
     tableName: "ARTasksResult",
+    paranoid: true,
     updatedAt: false,
 })
 export class ARTaskResult extends Model{
@@ -64,9 +67,9 @@ export class ARTaskResult extends Model{
     @BelongsTo(() => TaskInfo)
     taskState!: TaskInfo;
 
-    @Column(TEXT)
-    ARs?: string;
+    @Column({ type: TEXT, allowNull: true })
+    ARs!: string | null;
 
-    @Column(TEXT)
-    valueDictionary?: string;
+    @Column({ type: TEXT, allowNull: true })
+    valueDictionary!: string | null;
 }
