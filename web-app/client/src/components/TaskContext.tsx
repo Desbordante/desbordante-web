@@ -15,12 +15,15 @@ import {
 import { GET_TASK_INFO } from "../graphql/operations/queries/getTaskInfo";
 import {
   getTaskInfo,
-  getTaskInfo_taskInfo_data_CFDTask,
-  getTaskInfo_taskInfo_data_FDTask,
   getTaskInfoVariables,
 } from "../graphql/operations/queries/__generated__/getTaskInfo";
 import { ErrorContext } from "./ErrorContext";
-import { Dataset, TaskResult, TaskState } from "../types/taskInfo";
+import {
+  Dataset,
+  FDTaskResult,
+  TaskResult,
+  TaskState,
+} from "../types/taskInfo";
 import parseFunctionalDependency from "../functions/parseDependency";
 import { PrimitiveType } from "../types/globalTypes";
 
@@ -84,24 +87,18 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     if (taskData) {
       const { state, data, dataset: taskDataset } = taskData.taskInfo;
       setTaskState(state);
-
-      setDataset({
-        fileName: taskDataset.tableInfo.originalFileName,
-        snippet: taskDataset.snippet,
-      });
+      setDataset(taskDataset);
 
       // eslint-disable-next-line no-underscore-dangle
-      switch (data?.__typename) {
-        case "FDTask": {
-          const result = (data as getTaskInfo_taskInfo_data_FDTask).FDResult;
+      switch (data?.result?.__typename) {
+        case "FDTaskResult": {
+          const { result } = data;
           if (result) {
             setTaskType(PrimitiveType.FD);
             setTaskResult({
               FD: {
                 pieChartData: result.pieChartData,
-                dependencies: result.FDs?.map((dep) =>
-                  parseFunctionalDependency(dep, taskDataset.snippet.header)
-                ),
+                dependencies: result.FDs,
                 keys: result?.PKs?.map((attr) => attr?.name!),
               },
             });
@@ -109,8 +106,8 @@ export const TaskContextProvider: React.FC = ({ children }) => {
           return;
         }
 
-        case "CFDTask": {
-          const result = (data as getTaskInfo_taskInfo_data_CFDTask).CFDResult;
+        case "CFDTaskResult": {
+          const { result } = data;
           if (result) {
             setTaskType(PrimitiveType.CFD);
             setTaskResult({

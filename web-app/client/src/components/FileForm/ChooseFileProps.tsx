@@ -69,7 +69,15 @@ const ChooseFileProps = () => {
           inputValidator={validators.isValidSeparator}
           className="mx-2"
         />
-        {primitiveType === PrimitiveType.AR ? (
+        <h5 className="text-white mb-0 mx-2">Has header row:</h5>
+        <Toggle
+          onClick={toggleHeader}
+          toggleCondition={fileProps.hasHeader}
+          className="mx-2"
+        >
+          {fileProps.hasHeader ? "Yes" : "No"}
+        </Toggle>
+        {primitiveType === PrimitiveType.AR && (
           <>
             <h5 className="text-white mb-0 mx-2">File format:</h5>
             <Selector
@@ -79,17 +87,6 @@ const ChooseFileProps = () => {
               label={(format) => format}
               className="mx-2"
             />
-          </>
-        ) : (
-          <>
-            <h5 className="text-white mb-0 mx-2">Has header row:</h5>
-            <Toggle
-              onClick={toggleHeader}
-              toggleCondition={fileProps.hasHeader}
-              className="mx-2"
-            >
-              {fileProps.hasHeader ? "Yes" : "No"}
-            </Toggle>
           </>
         )}
       </FormItem>

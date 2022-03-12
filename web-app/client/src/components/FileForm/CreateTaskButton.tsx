@@ -7,7 +7,7 @@ import { CREATE_TASK_WITH_UPLOADING_DATASET } from "../../graphql/operations/mut
 import { CREATE_TASK_WITH_CHOOSING_DATASET } from "../../graphql/operations/mutations/chooseTask";
 import { FileFormContext } from "../FileFormContext";
 import { ErrorContext } from "../ErrorContext";
-import { BuiltinDataset, isBuiltinDataset } from "../../types/dataset";
+import { isBuiltinDataset } from "../../types/dataset";
 import { FileProps, IntersectionTaskProps } from "../../types/globalTypes";
 import {
   createTaskWithDatasetUploading,
@@ -17,6 +17,7 @@ import {
   createTaskWithDatasetChoosing,
   createTaskWithDatasetChoosingVariables,
 } from "../../graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing";
+import { AllowedDataset } from "../../types/types";
 
 const SubmitButton = styled.button`
   transition: 0.3s;
@@ -65,7 +66,8 @@ const CreateTaskButton = () => {
           ? +algorithmProps.threadsCount!
           : 1,
         minConfidence: +algorithmProps.minConfidence!,
-        minSupport: +algorithmProps.minSupport!,
+        minSupportAR: +algorithmProps.minSupportAR!,
+        minSupportCFD: +algorithmProps.minSupportCFD!,
       };
       const datasetProps: FileProps = {
         delimiter: fileProps.delimiter,
@@ -82,7 +84,7 @@ const CreateTaskButton = () => {
 
       if (isBuiltinDataset(dataset)) {
         chooseTask({
-          variables: { props, fileID: (dataset as BuiltinDataset).ID },
+          variables: { props, fileID: (dataset as AllowedDataset).fileID },
           context,
         })
           .then((res) =>
