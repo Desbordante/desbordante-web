@@ -24,7 +24,6 @@ import {
   TaskResult,
   TaskState,
 } from "../types/taskInfo";
-import parseFunctionalDependency from "../functions/parseDependency";
 import { PrimitiveType } from "../types/globalTypes";
 
 type TaskContextType = {
@@ -96,11 +95,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
           if (result) {
             setTaskType(PrimitiveType.FD);
             setTaskResult({
-              FD: {
-                pieChartData: result.pieChartData,
-                dependencies: result.FDs,
-                keys: result?.PKs?.map((attr) => attr?.name!),
-              },
+              FD: result,
             });
           }
           return;
@@ -111,11 +106,18 @@ export const TaskContextProvider: React.FC = ({ children }) => {
           if (result) {
             setTaskType(PrimitiveType.CFD);
             setTaskResult({
-              CFD: {
-                pieChartData: result.pieChartData,
-                dependencies: result.CFDs,
-                keys: result.PKs?.map((attr) => attr?.name),
-              },
+              CFD: result,
+            });
+          }
+          return;
+        }
+
+        case "ARTaskResult": {
+          const { result } = data;
+          if (result) {
+            setTaskType(PrimitiveType.AR);
+            setTaskResult({
+              AR: result,
             });
           }
           return;

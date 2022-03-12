@@ -75,9 +75,9 @@ const Index: React.FC<Props> = ({ result }) => {
 
       {partShown === 1 && (
         <FDList
-          dependencies={result.dependencies}
+          dependencies={result.FDs}
           sortMethods={sortMethods}
-          keys={result.keys}
+          keys={result.PKs}
           selectedAttributesLHS={selectedAttributesLHS}
           selectedAttributesRHS={selectedAttributesRHS}
           selectedDependency={selectedDependency}
@@ -86,7 +86,13 @@ const Index: React.FC<Props> = ({ result }) => {
       )}
 
       {partShown === 2 && (
-        <TableSnippet selectedDependency={selectedDependency} />
+        <TableSnippet
+          selectedColumns={
+            selectedDependency
+              ? selectedDependency.lhs.concat(selectedDependency.rhs)
+              : []
+          }
+        />
       )}
     </Container>
   );
