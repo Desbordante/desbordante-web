@@ -1,5 +1,4 @@
-/* eslint-disable react/no-array-index-key */
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { Container } from "react-bootstrap";
 
@@ -59,7 +58,7 @@ const HeaderBackground = styled.div`
 interface Props {
   header: string[];
   rows: string[][];
-  colorizedColumns: number[];
+  colorizedColumns: string[];
   showUncolorizedColumns?: boolean;
   className?: string;
 }
@@ -86,9 +85,18 @@ const Table: React.FC<Props> = ({
     }
   }, []);
 
-  const uncolorizedColumns = [...Array(header.length)]
-    .map((_, index) => index)
-    .filter((index) => !colorizedColumns.includes(index));
+  const colorizedPart = header
+    .map((col, index) => ({
+      col,
+      index,
+    }))
+    .filter(({ col }) => colorizedColumns.includes(col));
+  const uncolorizedPart = header
+    .map((col, index) => ({
+      col,
+      index,
+    }))
+    .filter(({ col }) => !colorizedColumns.includes(col));
 
   const headerClassName =
     "px-4 py-3 text-white text-nowrap text-center position-relative";
@@ -110,27 +118,27 @@ const Table: React.FC<Props> = ({
         />
         <TableHeader className="bg-light position-relative">
           <tr className="bg-light" ref={changeHeight}>
-            {colorizedColumns.map((index) => (
+            {colorizedPart.map(({ col }) => (
               <th
-                key={header[index]}
+                key={col}
                 className={headerClassName}
                 style={{
-                  backgroundColor: stringToColor(header[index], 60, 70),
+                  backgroundColor: stringToColor(col, 60, 70),
                 }}
               >
-                {header[index]}
+                {col}
               </th>
             ))}
             {showUncolorizedColumns &&
-              uncolorizedColumns.map((index) => (
+              uncolorizedPart.map(({ col }) => (
                 <th
-                  key={header[index]}
+                  key={col}
                   className={headerClassName}
                   style={{
                     backgroundColor: "#17151a",
                   }}
                 >
-                  {header[index]}
+                  {col}
                 </th>
               ))}
           </tr>
@@ -139,13 +147,13 @@ const Table: React.FC<Props> = ({
         <TableBody>
           {rows.slice(1).map((row, rowIndex) => (
             <tr key={rowIndex} className="position-relative">
-              {colorizedColumns.map((index) => (
+              {colorizedPart.map(({ col, index }) => (
                 <td
                   key={index}
                   className={bodyClassName}
                   style={{
                     backgroundColor: stringToColor(
-                      header[index],
+                      col,
                       15,
                       rowIndex % 2 ? 80 : 90
                     ),
@@ -155,13 +163,13 @@ const Table: React.FC<Props> = ({
                 </td>
               ))}
               {showUncolorizedColumns &&
-                uncolorizedColumns.map((index) => (
+                uncolorizedPart.map(({ col, index }) => (
                   <td
                     key={index}
                     className={bodyClassName}
                     style={{
                       backgroundColor: stringToColor(
-                        header[index],
+                        col,
                         0,
                         rowIndex % 2 ? 80 : 90
                       ),

@@ -1,8 +1,33 @@
 import React from "react";
+import styled from "styled-components";
 
-import { AssociationRule } from "../../types/types";
-import stringToColor from "../../functions/stringToColor";
-import "./AssociationRule.scss";
+import { AssociationRule } from "../../../types/types";
+import colors from "../../../colors";
+import stringToColor from "../../../functions/stringToColor";
+
+const StyledRule = styled.div`
+  transition: 0.3s;
+  * {
+    transition: 0.3s;
+  }
+
+  &:hover {
+    transform: translateX(0.5rem);
+  }
+
+  .arrow {
+    width: 5rem;
+    stroke: ${colors.light};
+
+    &.active {
+      stroke: ${colors.buttonBlack};
+    }
+  }
+
+  p {
+    font-size: 0.8rem;
+  }
+`;
 
 interface Props {
   rule: AssociationRule;
@@ -11,14 +36,14 @@ interface Props {
   onActiveClick: React.MouseEventHandler<HTMLDivElement>;
 }
 
-const AssociationRule: React.FC<Props> = ({
+const ARSnippet: React.FC<Props> = ({
   rule,
   isActive,
   onClick,
   onActiveClick,
 }) => (
-  <div
-    className="association-rule d-flex my-1"
+  <StyledRule
+    className="d-flex my-1"
     role="button"
     tabIndex={0}
     onClick={isActive ? onActiveClick : onClick}
@@ -49,7 +74,7 @@ const AssociationRule: React.FC<Props> = ({
           isActive ? "dark" : ""
         } border-2 rounded-pill text-${isActive ? "black" : "grey"}`}
       >
-        {Math.round(rule.confidence * 1000) / 10}%
+        {Math.round(rule.support * 1000) / 10}%
       </p>
       <svg
         className={`arrow ${isActive ? "active" : ""}`}
@@ -80,7 +105,7 @@ const AssociationRule: React.FC<Props> = ({
         {attr}
       </div>
     ))}
-  </div>
+  </StyledRule>
 );
 
-export default AssociationRule;
+export default ARSnippet;
