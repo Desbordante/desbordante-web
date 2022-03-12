@@ -3,9 +3,9 @@ dotenv.config();
 
 import { Application } from "express";
 import { HttpError } from "http-errors";
-import configureApp from "./configureApp";
 import debug from "debug";
 import http from "http";
+import { configureApp } from "./configureApp";
 
 const environment = process.env.NODE_ENV;
 export const isDevelopment = environment === "development";
@@ -24,7 +24,7 @@ const configureServer = async(app: Application) => {
   const server = http.createServer(app);
   const port = app.get("port") as number;
   server.listen(port, () => {
-    console.log(`App listening at http://localhost:${port}`);
+    console.log(`App listening at http://${process.env.SERVER_HOST}:${port}`);
   });
   server.on("error", (error: HttpError) => {
     if (error.syscall !== "listen") {

@@ -1,4 +1,4 @@
-import { ApolloError } from "apollo-server-core";
+import { ApolloError, UserInputError } from "apollo-server-core";
 import fs from "fs";
 import path from "path";
 import { BOOLEAN, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
@@ -7,10 +7,16 @@ import { finished } from "stream/promises";
 import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/generateHeader";
 import { FileProps } from "../../../graphql/types/types";
 import { BaseTaskConfig } from "../TaskData/BaseTaskConfig";
-import { User } from "./User";
+import { User } from "../Authorization/User";
 import { FileFormat } from "./FileFormat";
-import { findAndUpdateFileRowsAndColumnsCount } from "../../../graphql/schema/TaskCreating/csvValidator";
+import { findRowsAndColumnsNumber } from "../../../graphql/schema/TaskCreating/csvValidator";
 import { BuiltInDatasetInfoType, getPathToBuiltInDataset } from "../../initBuiltInDatasets";
+import validator from "validator";
+import isUUID = validator.isUUID;
+
+interface FileInfoModelMethods {
+    getColumnNames: () => string[];
+}
 
 @Table({
     paranoid: true,
@@ -18,7 +24,7 @@ import { BuiltInDatasetInfoType, getPathToBuiltInDataset } from "../../initBuilt
     createdAt: false,
     tableName: "FilesInfo",
 })
-export class FileInfo extends Model {
+export class FileInfo extends Model implements FileInfoModelMethods {
     @IsUUID(4)
     @Column({
         type: UUID,
@@ -29,10 +35,10 @@ export class FileInfo extends Model {
 
     @ForeignKey(() => User)
     @Column({ type: UUID, allowNull: true })
-    userID?: string;
+    userID!: string | null;
 
     @BelongsTo(() => User)
-    user?: User;
+    user!: User | null;
 
     @HasMany(() => BaseTaskConfig)
     baseConfigs?: [BaseTaskConfig];
@@ -43,11 +49,11 @@ export class FileInfo extends Model {
     @Column({ type: BOOLEAN, defaultValue: false, allowNull: false })
     isBuiltIn!: boolean;
 
-    @Column(STRING)
-    mimeType?: string;
+    @Column({ type: STRING, allowNull: true })
+    mimeType!: string | null;
 
-    @Column(STRING)
-    encoding?: string;
+    @Column({ type: STRING })
+    encoding!: string | null;
 
     @Column({ type: TEXT, allowNull: true })
     fileName!: string;
@@ -61,7 +67,7 @@ export class FileInfo extends Model {
     @Column({ type: STRING, allowNull: false })
     delimiter!: string;
 
-    @Column(TEXT)
+    @Column({ type: TEXT })
     renamedHeader!: string;
 
     @Column({ type: INTEGER, allowNull: true })
@@ -70,8 +76,7 @@ export class FileInfo extends Model {
     @Column({ type: INTEGER, allowNull: true })
     countOfColumns!: number;
 
-    @Unique
-    @Column(STRING)
+    @Column({ type: STRING, unique: true })
     path!: string;
 
     static getPathToUploadedDataset = (fileName: string) => {
@@ -93,6 +98,19 @@ export class FileInfo extends Model {
         }
         const { path, hasHeader, delimiter } = file;
         return await generateHeaderByPath(path, hasHeader, delimiter);
+    };
+
+    getColumnNames = () => JSON.parse(this.renamedHeader);
+
+    static getColumnNamesForFile = async (fileID: string) => {
+        if (!isUUID(fileID, 4)) {
+            throw new ApolloError("Incorrect fileID");
+        }
+        const file = await FileInfo.findByPk(fileID, { attributes: ["renamedHeader"] });
+        if (!file) {
+            throw new ApolloError("File not found");
+        }
+        return file.getColumnNames();
     };
 
     static saveBuiltInDataset = async (props: BuiltInDatasetInfoType) => {
@@ -117,7 +135,8 @@ export class FileInfo extends Model {
             console.log(`Built in dataset ${fileName} already exists`);
             return file;
         }
-        await findAndUpdateFileRowsAndColumnsCount(file, delimiter);
+        const counters = await findRowsAndColumnsNumber(path, delimiter);
+        await file.update(counters);
 
         if (withFileFormat) {
             await FileFormat.createFileFormatIfPropsValid(file, datasetProps);
@@ -145,8 +164,8 @@ export class FileInfo extends Model {
 
         await file.update({ renamedHeader: JSON.stringify(await file.generateHeader()) });
 
-        // throws an UserInputError, if file is invalid
-        await findAndUpdateFileRowsAndColumnsCount(file, datasetProps.delimiter);
+        const counters = await findRowsAndColumnsNumber(path, datasetProps.delimiter);
+        await file.update(counters);
 
         if (withFileFormat) {
             await FileFormat.createFileFormatIfPropsValid(file, datasetProps);

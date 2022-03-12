@@ -3,17 +3,22 @@ import { BOOLEAN, FLOAT, INTEGER, STRING, UUID, UUIDV4 } from "sequelize";
 import { BelongsTo, Column, ForeignKey, HasOne, IsUUID, Model, Table } from "sequelize-typescript";
 import { IntersectionTaskProps } from "../../../graphql/types/types";
 import sendEvent from "../../../producer/sendEvent";
-import { BaseTaskConfig } from "./BaseTaskConfig";
+import { BaseTaskConfig, PrimitiveType } from "./BaseTaskConfig";
 import { ARTaskConfig, CFDTaskConfig, FDTaskConfig } from "./TaskConfigurations";
 import { ARTaskResult, CFDTaskResult, FDTaskResult } from "./TaskResults";
 import { User } from "../Authorization/User";
+
+interface TaskInfoModelMethods {
+    fullDestroy: (paranoid: boolean) => Promise<void>;
+    getSingleResultFieldAsString: (propertyPrefix: PrimitiveType, attribute: string) => Promise<string>;
+}
 
 @Table({
     tableName: "TasksInfo",
     updatedAt: false,
     paranoid: true,
 })
-export class TaskInfo extends Model {
+export class TaskInfo extends Model implements TaskInfoModelMethods {
     @IsUUID(4)
     @Column({ type: UUID, defaultValue: UUIDV4, primaryKey: true })
     taskID!: string;
@@ -55,7 +60,7 @@ export class TaskInfo extends Model {
     elapsedTime?: number;
 
     @HasOne(() => BaseTaskConfig)
-    baseConfig?: BaseTaskConfig;
+    baseConfig!: BaseTaskConfig;
 
     ///
 
@@ -81,12 +86,43 @@ export class TaskInfo extends Model {
 
     ///
 
+    fullDestroy = async (force = false) => {
+        if (force) {
+            await this.destroy({ force });
+        } else {
+            const baseConfig = await this.$get("baseConfig");
+            if (!baseConfig) {
+                throw new ApolloError(`Task config not found ${this.taskID}`);
+            }
+            const { type: propertyPrefix } = baseConfig;
+            const config = await this.$get(`${propertyPrefix}Config`);
+            if (!config) {
+                throw new ApolloError(`${propertyPrefix}Config not found`);
+            }
+            await config.destroy();
+            const result = await this.$get(`${propertyPrefix}Result`);
+            if (!result) {
+                throw new ApolloError(`${propertyPrefix}Result not found`);
+            }
+            await result.destroy();
+        }
+    };
+
+    getSingleResultFieldAsString = async (propertyPrefix: PrimitiveType, attribute: string) => {
+        const result = await this.$get(`${propertyPrefix}Result`,
+            { attributes: [[attribute,"value"]], raw: true }) as unknown as { value: string };
+        if (!result) {
+            throw new ApolloError(`Not found result for ${this.taskID}, primitiveType = ${propertyPrefix}`);
+        }
+        return result.value;
+    };
+
     static saveToDB = async (props: IntersectionTaskProps, fileID: string, userID: string | null) => {
         const { type: propertyPrefix } = props;
         const taskInfo = await TaskInfo.create({ status: "ADDING TO DB", userID });
         await taskInfo.$create("baseConfig", { ...props, fileID });
-        await taskInfo.$create(propertyPrefix + "Config", { ...props });
-        await taskInfo.$create(propertyPrefix + "Result", {});
+        await taskInfo.$create(`${propertyPrefix}Config`, { ...props });
+        await taskInfo.$create(`${propertyPrefix}Result`, {});
         return taskInfo;
     };
 
@@ -121,13 +157,12 @@ export class TaskInfo extends Model {
         return taskInfo;
     };
 
-    // returns either taskInfo, either null;
-    static getTaskInfoIfTaskIsExecuted = async (taskID: string) => {
+    static isTaskExecuted = async (taskID: string) => {
         const taskInfo = await TaskInfo.findByPk(taskID,
             { attributes: ["isExecuted"] });
         if (!taskInfo) {
             throw new ApolloError("Task not found");
         }
-        return taskInfo.isExecuted ? parent : null;
+        return taskInfo.isExecuted;
     };
 }

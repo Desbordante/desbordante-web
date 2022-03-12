@@ -1,9 +1,9 @@
 import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core";
 import { AuthenticationError } from "apollo-server-express";
-import { Role } from "../../../db/models/Authorization/Role";
 import { Resolvers } from "../../types/types";
+import { Permission } from "../../../db/models/Authorization/Permission";
 
-const TaskCreatingResolvers: Resolvers = {
+export const TaskCreatingResolvers: Resolvers = {
     Mutation: {
         createTaskWithDatasetChoosing: async (
             parent, { props, fileID }, { models, logger, sessionInfo, topicNames }) => {
@@ -17,38 +17,40 @@ const TaskCreatingResolvers: Resolvers = {
                     throw new UserInputError("This dataset doesn't support AR algorithms");
                 }
             }
-            const permissions = sessionInfo ? sessionInfo.permissions : Role.getPermissionsForRole("ANONYMOUS")!;
+            const permissions = Permission.getPermissionsBySessionInfo(sessionInfo);
             if (permissions.includes("USE_BUILTIN_DATASETS") && file.isBuiltIn
-                || permissions.includes("USE_OWN_DATASETS") && sessionInfo && file.userID === sessionInfo.userID
+                || permissions.includes("USE_OWN_DATASETS") && sessionInfo
+                   && file.userID === sessionInfo.userID
                 || permissions.includes("USE_USERS_DATASETS")) {
-                return await models.TaskInfo.saveTaskToDBAndSendEvent(props, fileID, topicNames.DepAlgs, sessionInfo?.userID || null);
+                return await models.TaskInfo.saveTaskToDBAndSendEvent(props, fileID,
+                    topicNames.DepAlgs, sessionInfo?.userID || null);
             } else {
                 throw new ForbiddenError("User hasn't permission for creating task with this dataset");
             }
         },
         // @ts-ignore
-        uploadDataset: async (parent, { datasetProps, table }, { models, logger, sessionInfo }) => {
+        uploadDataset: async (parent, { datasetProps, table }, { models, sessionInfo }) => {
             if (!sessionInfo ||  !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
                 throw new AuthenticationError("User must be logged in and have permission USE_OWN_DATASETS");
             }
             return await models.FileInfo.uploadDataset(datasetProps, table, sessionInfo.userID);
         },
-        // @ts-ignore
-        setDatasetBuiltInStatus: async (parent, { fileID, isBuiltIn }, { models, logger, sessionInfo }) => {
-            if (!sessionInfo || !sessionInfo.permissions.includes("MANAGE_APP_CONFIG")) {
-                throw new AuthenticationError("User must be logged in");
-            }
-            const file = await models.FileInfo.findByPk(fileID);
-            if (!file) {
-                throw new UserInputError("Incorrect fileID was provided");
-            }
-            if (file.isBuiltIn === isBuiltIn) {
-                logger("Admin tries to change dataset status, but file already has this status");
-            } else {
-                await file.update({ isBuiltIn });
-            }
-            return file;
-        },
+        // // @ts-ignore
+        // setDatasetBuiltInStatus: async (parent, { fileID, isBuiltIn }, { models, logger, sessionInfo }) => {
+        //     if (!sessionInfo || !sessionInfo.permissions.includes("MANAGE_APP_CONFIG")) {
+        //         throw new ForbiddenError("User doesn't have permission");
+        //     }
+        //     const file = await models.FileInfo.findByPk(fileID);
+        //     if (!file) {
+        //         throw new UserInputError("Incorrect fileID was provided");
+        //     }
+        //     if (file.isBuiltIn === isBuiltIn) {
+        //         logger("Admin tries to change dataset status, but file already has this status");
+        //     } else {
+        //         await file.update({ isBuiltIn });
+        //     }
+        //     return file;
+        // },
         createTaskWithDatasetUploading: async (parent, { props, datasetProps, table },
             { models, logger, topicNames, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
@@ -62,7 +64,7 @@ const TaskCreatingResolvers: Resolvers = {
                 });
             return await models.TaskInfo.saveTaskToDBAndSendEvent(props, file.fileID, topicNames.DepAlgs, sessionInfo.userID);
         },
-        deleteTask: async (parent, { taskID }, { models, logger, sessionInfo }) => {
+        deleteTask: async (parent, { taskID, safeDelete }, { models, logger, sessionInfo }) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
             }
@@ -72,14 +74,12 @@ const TaskCreatingResolvers: Resolvers = {
             }
             if (sessionInfo.permissions.includes("MANAGE_USERS_SESSIONS")
                 || taskInfo.userID === sessionInfo.userID) {
-                await taskInfo.destroy();
-                logger(`Task ${taskID} was deleted by ${sessionInfo.userID}`);
-                return { message: `Task with ID = ${taskID} was destroyed (soft)` };
+                await taskInfo.fullDestroy(!safeDelete);
+                logger(`Task ${taskID} was deleted by ${sessionInfo.userID} with safeDelete = ${safeDelete}`);
+                return { message: `Task with ID = ${taskID} was destroyed` };
             }
             logger(`User ${sessionInfo.userID} tries to delete task someone else's task ${taskInfo.userID}`);
-            throw new AuthenticationError("User doesn't have permission to delete task");
+            throw new AuthenticationError("User doesn't have permission to delete this task");
         },
     },
 };
-
-export = TaskCreatingResolvers;

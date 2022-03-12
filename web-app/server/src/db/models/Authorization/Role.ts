@@ -54,7 +54,7 @@ export class Role extends Model {
     static getAllRoles = () => ALL_ROLES;
 
     static getPermissionsForRole = (role: RoleType) =>
-        rolesPermissions.find(item => role === item.role)?.permissions || null;
+        rolesPermissions.find(item => role === item.role)!.permissions;
 
     static getPermissionIndicesForRole = (role: RoleType) =>
         Role.getPermissionsForRole(role)
