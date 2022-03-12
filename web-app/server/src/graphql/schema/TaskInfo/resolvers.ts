@@ -3,7 +3,7 @@ import { AuthenticationError } from "apollo-server-express";
 import { CsvParserStream, parse } from "fast-csv";
 import { Row } from "@fast-csv/parse";
 import fs from "fs";
-import { Op } from "sequelize";
+import { Op, col } from "sequelize";
 import validator from "validator";
 
 import { Pagination, PrimitiveType, Resolvers } from "../../types/types";
@@ -107,9 +107,14 @@ export const TaskInfoResolvers: Resolvers = {
     },
     FDTaskResult: {
         // @ts-ignore
-        FDs: async ({ propertyPrefix, taskInfo } : { propertyPrefix: PrimitiveType, taskInfo: TaskInfo }, { pagination }, { models, logger }) => {
+        FDs: async ({ propertyPrefix, taskInfo, fileID } : { propertyPrefix: PrimitiveType, taskInfo: TaskInfo }, { pagination }, { models, logger }) => {
+            // TODO: Create compact FDs string in DB
             const FDsString = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "FDs");
-            const FDs = JSON.parse(FDsString);
+            const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
+            type FDType = { lhs: number[], rhs: number };
+            const FDs = (JSON.parse(FDsString) as FDType[])
+                .map(({ lhs, rhs }) =>
+                    ({ lhs: lhs.map(id => columnNames[id]), rhs: columnNames[rhs] }));
             return getArrayOfDepsByPagination(FDs, pagination);
         },
         // @ts-ignore
