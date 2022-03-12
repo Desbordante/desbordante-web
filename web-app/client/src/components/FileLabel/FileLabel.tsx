@@ -3,7 +3,8 @@ import "./FileLabel.scss";
 import { useDropzone } from "react-dropzone";
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
 import { AuthContext } from "../AuthContext";
-import { BuiltinDataset, Dataset, isBuiltinDataset } from "../../types/dataset";
+import { Dataset, isBuiltinDataset } from "../../types/dataset";
+import { AllowedDataset } from "../../types/types";
 
 /* eslint-disable no-unused-vars */
 interface Props {
@@ -31,7 +32,7 @@ const FileLabel: React.FC<Props> = ({
 
   if (dataset) {
     if (isBuiltinDataset(dataset)) {
-      displayText = (dataset as BuiltinDataset).fileName;
+      displayText = (dataset as AllowedDataset).fileName;
     } else {
       displayText = (dataset as File)!.name;
       if (displayText.length > 40) {
@@ -61,7 +62,6 @@ const FileLabel: React.FC<Props> = ({
       className={`file-label rounded-pill px-3 py-2 border border-2 cursor-pointer ${
         isError ? "border-danger text-danger" : "border-lighter-dark text-grey"
       } ${className}`}
-      /* eslint-disable-next-line react/jsx-props-no-spreading */
       {...getRootProps()}
       onClick={onClick}
     >

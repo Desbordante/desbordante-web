@@ -1,3 +1,5 @@
+import { getAlgorithmsConfig_algorithmsConfig_allowedDatasets } from "../graphql/operations/queries/__generated__/getAlgorithmsConfig";
+
 export type Attribute = {
   column: { name: string; index?: number };
   value: number;
@@ -62,12 +64,8 @@ export type User = {
   isVerified?: boolean;
   permissions: UserPermissions;
 };
-export type TableInfo = {
-  ID: string;
-  fileName: string;
-  hasHeader: boolean;
-  delimiter: string;
-};
+export type AllowedDataset =
+  getAlgorithmsConfig_algorithmsConfig_allowedDatasets;
 export type Error = {
   code?: number;
   message: string;
