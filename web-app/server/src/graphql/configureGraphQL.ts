@@ -11,6 +11,7 @@ import { AccessTokenInstance } from "../db/models/Authorization/Session";
 import schema from "./schema/schema";
 import { Context } from "./types/context";
 import { AccessTokenExpiredError, InvalidHeaderError } from "./types/errorTypes";
+import { isDevelopment } from "../app";
 
 // @ts-ignore
 const logInput = async (resolve, root, args, context, info) => {
@@ -42,7 +43,7 @@ const getTokenPayloadIfValid = (req: any, secret: string) => {
     return null;
 };
 
-const configureGraphQL = async (app: Application, sequelize: Sequelize) => {
+export const configureGraphQL = async (app: Application, sequelize: Sequelize) => {
     const models = sequelize.models as ModelsType;
     const logger = console.log;
     const graphqlServer = new ApolloServer({
@@ -111,15 +112,17 @@ const configureGraphQL = async (app: Application, sequelize: Sequelize) => {
         "/graphql",
         graphqlHTTP({
             schema,
-            graphiql: true,
+            graphiql: isDevelopment,
         })
     );
-    await graphqlServer.start();
+    await graphqlServer.start()
+        .then(() => console.debug("GraphQL was successfully configured"))
+        .catch(() => {
+            throw new Error("Error while graphql configuring");
+        });
 
     graphqlServer.applyMiddleware({
         app,
         path: "/graphql",
     });
 };
-
-export = configureGraphQL;

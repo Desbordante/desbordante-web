@@ -3,7 +3,7 @@ import { AuthenticationError } from "apollo-server-express";
 import { FindOptions } from "sequelize";
 import { Resolvers } from "../../types/types";
 
-const MetaInfoResolvers : Resolvers = {
+export const MetaInfoResolvers: Resolvers = {
     Query: {
         // @ts-ignore
         datasets: async (parent, { props }, { models, logger, sessionInfo }) => {
@@ -14,11 +14,8 @@ const MetaInfoResolvers : Resolvers = {
                 throw new ForbiddenError("User doesn't have permissions");
             }
 
-            const { includeBuiltInDatasets, includeDeletedDatasets, offset, limit } = props;
-            let options: FindOptions = {
-                where: {},
-                offset, limit,
-            };
+            const { includeBuiltInDatasets, includeDeletedDatasets, pagination } = props;
+            let options: FindOptions = { where: {}, ...pagination };
 
             if (includeBuiltInDatasets === false) {
                 options.where = { ...options.where, isBuiltInDataset: false };
@@ -31,5 +28,3 @@ const MetaInfoResolvers : Resolvers = {
         },
     },
 };
-
-export = MetaInfoResolvers;

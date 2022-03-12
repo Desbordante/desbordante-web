@@ -73,7 +73,6 @@ export class Device extends Model implements  DeviceModelMethods {
     };
 
     isEqualTo = (device: DeviceInfoInstance) => {
-        const thisDevice = this as DeviceInfoInstance;
-        return thisDevice === device;
+        return this as DeviceInfoInstance === device;
     };
 }

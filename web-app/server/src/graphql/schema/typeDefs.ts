@@ -36,9 +36,14 @@ const typeDefs = gql`
         permissions: [String!]
     }
     
+    input Pagination {
+        offset: Int!
+        limit: Int!
+    }
+    
     type User {
         userID: String!
-        feedbacks: [Feedback!]
+        feedbacks(pagination: Pagination! = { offset: 0 limit: 10 }): [Feedback!]
         roles: [Role!]
         permissions: [PermissionType!]
         fullName: String!
@@ -47,8 +52,8 @@ const typeDefs = gql`
         companyOrAffiliation: String!
         occupation: String!
         accountStatus: String!
-        tasks: [TaskInfo!]
-        datasets: [DatasetInfo!]
+        tasks(pagination: Pagination! = { offset: 0 limit: 20 } withDeleted: Boolean! = False): [TaskInfo!]
+        datasets(pagination: Pagination! = { offset: 0 limit: 10 }): [DatasetInfo!]
     }
     
     enum AccountStatusType {
@@ -119,7 +124,7 @@ const typeDefs = gql`
     }
     
     enum PrimitiveType {
-        FD, CFD, AR 
+        FD, CFD, AR
     }
     
     type TaskState {
@@ -141,26 +146,26 @@ const typeDefs = gql`
         type: PrimitiveType!
     }
     
-    interface PrimitiveBaseTaskConfig {
-        baseConfig: BaseTaskConfig!
+    interface PrimitiveTaskConfig {
+        taskID: String!
     }
     
-    type FDTaskConfig implements  PrimitiveBaseTaskConfig {
-        baseConfig: BaseTaskConfig!
+    type FDTaskConfig implements PrimitiveTaskConfig {
+        taskID: String!
         errorThreshold: Float!
         maxLHS: Int!
         threadsCount: Int!
     }
     
-    type CFDTaskConfig implements  PrimitiveBaseTaskConfig {
-        baseConfig: BaseTaskConfig!
+    type CFDTaskConfig implements PrimitiveTaskConfig {
+        taskID: String!
         maxLHS: Int!
         minSupportCFD: Int!
         minConfidence: Float!
     }
     
-    type ARTaskConfig implements  PrimitiveBaseTaskConfig {
-        baseConfig: BaseTaskConfig!
+    type ARTaskConfig implements PrimitiveTaskConfig {
+        taskID: String!
         minSupportAR: Float!
         minConfidence: Float!
         fileFormat: FileFormat!
@@ -215,43 +220,39 @@ const typeDefs = gql`
         withoutPatterns: PieChartWithoutPatterns!
     }
     
-    type FDResult {
-        FDs: [FD!]!
+    interface PrimitiveTaskResult {
+        taskID: String!
+    }
+    
+    type FDTaskResult implements PrimitiveTaskResult {
+        taskID: String!
+        FDs(pagination: Pagination! = { offset: 0 limit: 100 }): [FD!]!
         PKs: [Column!]!
         pieChartData: PieChartWithoutPatterns!
     }
     
-    type CFDResult {
-        CFDs: [CFD!]!
+    type CFDTaskResult implements PrimitiveTaskResult {
+        taskID: String!
+        CFDs(pagination: Pagination! = { offset: 0 limit: 100 }): [CFD!]!
         PKs: [Column!]!
         pieChartData: CFDPieCharts!
     }
     
-    type ARTaskResult {
-        ARs: [AR!]!
+    type ARTaskResult implements PrimitiveTaskResult {
+        taskID: String!
+        ARs(pagination: Pagination! = { offset: 0 limit: 100 }): [AR!]!
     }
     
-    type FDTask {
-        config: FDTaskConfig!
-        result: FDResult
+    type PrimitiveTaskData {
+        baseConfig: BaseTaskConfig!
+        specificConfig: PrimitiveTaskConfig!
+        result: PrimitiveTaskResult!
     }
-    
-    type CFDTask {
-        config: CFDTaskConfig!
-        result: CFDResult
-    }
-    
-    type ARTask {
-        config: ARTaskConfig!
-        result: ARTaskResult
-    }
-    
-    union TaskData = FDTask | CFDTask | ARTask
     
     type TaskInfo {
         taskID: String!
         state: TaskState!
-        data: TaskData!
+        data: PrimitiveTaskData!
         dataset: DatasetInfo!
     }
     
@@ -263,18 +264,19 @@ const typeDefs = gql`
     
     type Snippet {
         header: [String!]
-        rows: [[String!]!]
+        rows(pagination: Pagination!): [[String!]!]!
+        rowsCount: Int!
         datasetInfo: DatasetInfo!
     }
     
     input DatasetsQueryProps {
         includeBuiltInDatasets: Boolean! = true
         includeDeletedDatasets: Boolean! = false
-        offset: Int! = 1
-        limit: Int! = 10
+        pagination: Pagination! = { offset: 0 limit: 10 }
     }
     
     input TasksInfoFilter {
+        includeDeletedTasks: Boolean! = true
         includeExecutedTasks: Boolean! = true
         includeCurrentTasks: Boolean! = true
         includeTasksWithError: Boolean! = true
@@ -290,13 +292,14 @@ const typeDefs = gql`
         mimeType: String
         encoding: String
         hasHeader: Boolean!
-        renamedHeader: [String!]!
+        header: [String!]!
         path: String!
         delimiter: String!
         rowsCount: Int!
+        countOfColumns: Int!
         # Only for AR datasets
         fileFormat: FileFormat
-        snippet(offset: Int! = 0, limit: Int! = 10): Snippet!
+        snippet: Snippet!
         supportedPrimitives: [PrimitiveType!]!
         tasks(filter: TasksInfoFilter!): [TaskInfo!]
     }
@@ -337,16 +340,16 @@ const typeDefs = gql`
         """
         Query for admins with permission "VIEW_ADMIN_INFO"
         """
-        tasksInfo(limit: Int! = 10 offset: Int! = 0): [TaskInfo!]
+        tasksInfo(pagination: Pagination!): [TaskInfo!]
         user(userID: ID!): User
         """
         Query for admins with permission "VIEW_ADMIN_INFO"
         """
-        users(limit: Int! = 10 offset: Int! = 0): [User!]!
+        users(pagination: Pagination!): [User!]!
         """
         Query for admins with permission "VIEW_ADMIN_INFO"
         """
-        sessions(limit: Int! = 10 offset: Int! = 0 onlyValid: Boolean! = true): [Session]!
+        sessions(pagination: Pagination! onlyValid: Boolean! = true): [Session]!
     }
     
     input FileProps {
@@ -468,23 +471,21 @@ const typeDefs = gql`
         """
         createTaskWithDatasetUploading(props: IntersectionTaskProps!, datasetProps: FileProps!, table: Upload!): TaskInfo!
         
-        """
-        This query allows admin with permission "MANAGE_APP_CONFIG" change dataset property "isBuiltIn".
-        """
-        setDatasetBuiltInStatus(fileID: String!, isBuiltIn: Boolean!): DatasetInfo!
+#        """
+#        This query allows admin with permission "MANAGE_APP_CONFIG" change dataset property "isBuiltIn".
+#        """
+#        setDatasetBuiltInStatus(fileID: String!, isBuiltIn: Boolean!): DatasetInfo!
         
         """
         Soft delete. Users can delete own tasks. Administrators can delete task of any user.
         """
-        deleteTask(taskID: ID!): DeleteTaskAnswer!
+        deleteTask(taskID: ID! safeDelete: Boolean! = true): DeleteTaskAnswer!
         
         """
         By default, task's result is public. (Only authorized people can look results)
         This query allows client to set task privacy.
         """
-        changeTaskResultsPrivacy(taskID: String!, isPrivate: Boolean!): TaskInfo!
-        
-        
+        changeTaskResultsPrivacy(taskID: String!, isPrivate: Boolean!): TaskInfo!        
     }
 `;
 
