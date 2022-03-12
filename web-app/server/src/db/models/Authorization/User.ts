@@ -5,7 +5,7 @@ import { Role, RoleType } from "./Role";
 import { STRING, UUID, UUIDV4 } from "sequelize";
 import { Session, SessionStatusType } from "./Session";
 import { Feedback } from "./Feedback";
-import { FileInfo } from "./FileInfo";
+import { FileInfo } from "../FileInfo/FileInfo";
 import { Permission } from "./Permission";
 import { TaskInfo } from "../TaskData/TaskInfo";
 

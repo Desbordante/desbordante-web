@@ -11,6 +11,7 @@ import { TaskInfo } from "./TaskInfo";
 @Table({
     tableName: "FDTasksConfig",
     updatedAt: false,
+    paranoid: true,
 })
 export class FDTaskConfig extends Model{
     @IsUUID(4)
@@ -59,6 +60,7 @@ export class FDTaskConfig extends Model{
 @Table({
     tableName : "CFDTasksConfig",
     updatedAt: false,
+    paranoid: true,
 })
 export class CFDTaskConfig extends Model{
     @IsUUID(4)
@@ -99,6 +101,7 @@ export class CFDTaskConfig extends Model{
 @Table({
     tableName : "ARTasksConfig",
     updatedAt: false,
+    paranoid: true,
 })
 export class ARTaskConfig extends Model{
     @IsUUID(4)
@@ -125,7 +128,6 @@ export class ARTaskConfig extends Model{
         if (typeof minConfidence !== "number" || minConfidence < 0 || minConfidence > 1) {
             return false;
         }
-
         if (typeof minSupportAR !== "number" || minSupportAR > 1 || minSupportAR < 0) {
             return false;
         }

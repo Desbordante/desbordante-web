@@ -58,7 +58,7 @@ export const UserResolvers : Resolvers = {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            return await models.TaskInfo.findAll({ where: { userID } });
+            return await models.TaskInfo.findAll({ where: { userID }, paranoid: true });
         },
         // @ts-ignore
         datasets: async ({ userID }, _, { models, logger }) => {
@@ -111,11 +111,11 @@ export const UserResolvers : Resolvers = {
             throw new ForbiddenError("User doesn't have permissions");
         },
         // @ts-ignore
-        users: async (parent, args, { models, logger, sessionInfo }) => {
+        users: async (parent, { pagination }, { models, logger, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
                 throw new ForbiddenError("User don't have permission");
             }
-            return await models.User.findAll(args);
+            return await models.User.findAll(pagination);
         },
         // @ts-ignore
         sessions: async (parent, { offset, limit, onlyValid }, { models, logger, sessionInfo }) => {
