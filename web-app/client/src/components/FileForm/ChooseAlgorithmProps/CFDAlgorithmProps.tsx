@@ -37,7 +37,7 @@ const CFDAlgorithmProps = () => {
   const changeMinSupport = (newMinSupport: string) => {
     setAlgorithmProps((prevProps) => ({
       ...prevProps,
-      minSupport: newMinSupport,
+      minSupportCFD: newMinSupport,
     }));
   };
 
@@ -51,7 +51,7 @@ const CFDAlgorithmProps = () => {
 
   const minConfidence = algorithmProps?.minConfidence || "0.005";
   const arityConstraint = algorithmProps?.arityConstraint || "5";
-  const minSupport = algorithmProps?.minSupport || "2";
+  const minSupportCFD = algorithmProps?.minSupportCFD || "2";
 
   return (
     <>
@@ -113,14 +113,14 @@ const CFDAlgorithmProps = () => {
       <FormItem enabled={algorithmProps?.algorithm?.properties.hasSupport}>
         <h5 className="text-white mb-0 mx-2">Minimum support:</h5>
         <Value
-          value={minSupport}
+          value={minSupportCFD}
           onChange={changeMinSupport}
           size={2}
           inputValidator={validators.isInteger}
           className="mx-2"
         />
         <Slider
-          value={minSupport}
+          value={minSupportCFD}
           min={1}
           max={16}
           onChange={changeMinSupport}

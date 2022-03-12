@@ -36,8 +36,10 @@ const TopBar = () => {
           Desbordante
         </Navbar.Brand>
         <Container fluid className="d-flex text-muted ps-0">
-          {dataset?.fileName && (
-            <p className="mx-1 my-auto text-secondary">{dataset?.fileName}</p>
+          {dataset?.originalFileName && (
+            <p className="mx-1 my-auto text-secondary">
+              {dataset.originalFileName}
+            </p>
           )}
           {taskState?.status !== "UNSCHEDULED" && (
             <p className="mx-1 my-auto text-secondary">{taskState?.status}</p>

@@ -30,7 +30,7 @@ const ARAlgorithmProps = () => {
   const changeMinSupport = (newMinSupport: string) => {
     setAlgorithmProps((prevProps) => ({
       ...prevProps,
-      minSupport: newMinSupport,
+      minSupportAR: newMinSupport,
     }));
   };
 
@@ -43,7 +43,7 @@ const ARAlgorithmProps = () => {
   }, [allowedValues]);
 
   const minConfidence = algorithmProps?.minConfidence || "0.005";
-  const minSupport = algorithmProps?.minSupport || "0.5";
+  const minSupportAR = algorithmProps?.minSupportAR || "0.5";
 
   return (
     <>
@@ -84,14 +84,14 @@ const ARAlgorithmProps = () => {
       <FormItem enabled={algorithmProps?.algorithm?.properties.hasSupport}>
         <h5 className="text-white mb-0 mx-2">Minimum support:</h5>
         <Value
-          value={minSupport}
+          value={minSupportAR}
           onChange={changeMinSupport}
           size={8}
           inputValidator={validators.isBetweenZeroAndOne}
           className="mx-2"
         />
         <Slider
-          value={minSupport}
+          value={minSupportAR}
           onChange={changeMinSupport}
           step={1e-6}
           className="mx-2"

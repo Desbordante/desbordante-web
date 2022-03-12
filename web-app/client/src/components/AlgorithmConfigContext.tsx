@@ -1,22 +1,26 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useQuery } from "@apollo/client";
 
-import { TableInfo, AllowedAlgorithms, ARAlgorithm } from "../types/types";
+import { AllowedDataset, AllowedAlgorithms } from "../types/types";
 import { GET_ALGORITHMS_CONFIG } from "../graphql/operations/queries/getAlgorithmsConfig";
 import { getAlgorithmsConfig } from "../graphql/operations/queries/__generated__/getAlgorithmsConfig";
 import { ErrorContext } from "./ErrorContext";
-import { BuiltinDataset } from "../types/dataset";
+import { PrimitiveType } from "../types/globalTypes";
 
 type AlgorithmConfigContextType = {
   allowedValues: {
     allowedSeparators?: string[];
     allowedAlgorithms?: AllowedAlgorithms;
-    allowedBuiltinDatasets?: BuiltinDataset[];
+    allowedBuiltinDatasets?: AllowedDataset[];
   };
   validators: {
     isFile: (file?: File) => boolean;
     isOfValidSize: (file?: File) => boolean;
     isOfValidFormat: (file?: File) => boolean;
+    isBuiltinDatasetValid: (
+      primitive: PrimitiveType,
+      file?: AllowedDataset
+    ) => boolean;
     isValidSeparator: (sep?: string) => boolean;
     isBetweenZeroAndOne: (err?: string) => boolean;
     isInteger: (lhs?: string) => boolean;
@@ -30,7 +34,7 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
   const { showError } = useContext(ErrorContext)!;
 
   const [allowedBuiltinDatasets, setAllowedBuiltinDatasets] =
-    useState<TableInfo[]>();
+    useState<AllowedDataset[]>();
   const [allowedFileFormats, setAllowedFileFormats] = useState<string[]>();
   const [allowedSeparators, setAllowedSeparators] = useState<string[]>();
   const [allowedAlgorithms, setAllowedAlgorithms] =
@@ -47,23 +51,16 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
         fileConfig,
         allowedFDAlgorithms,
         allowedCFDAlgorithms,
+        allowedARAlgorithms,
         allowedDatasets,
       } = data.algorithmsConfig;
-      const allowedARAlgorithms: ARAlgorithm[] = [
-        {
-          name: "Apriori",
-          properties: {
-            hasSupport: true,
-            hasConfidence: true,
-          },
-        },
-      ];
+
       const { allowedFileFormats, allowedDelimiters, maxFileSize } = fileConfig;
       setAllowedFileFormats(allowedFileFormats);
       setAllowedSeparators(allowedDelimiters);
       setMaxFileSize(maxFileSize);
 
-      setAllowedBuiltinDatasets(allowedDatasets.map((info) => info.tableInfo));
+      setAllowedBuiltinDatasets(allowedDatasets);
       setAllowedAlgorithms({
         allowedFDAlgorithms,
         allowedCFDAlgorithms,
@@ -89,6 +86,10 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
     Boolean(
       allowedFileFormats && file && allowedFileFormats.indexOf(file.type) !== -1
     );
+  const isBuiltinDatasetValid = (
+    primitive: PrimitiveType,
+    file?: AllowedDataset
+  ) => Boolean(file && file.supportedPrimitives.includes(primitive));
 
   const isValidSeparator = (sep?: string) =>
     Boolean(allowedSeparators && sep && allowedSeparators.indexOf(sep) !== -1);
@@ -108,6 +109,7 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
       isOfValidSize,
       isOfValidFormat,
       isValidSeparator,
+      isBuiltinDatasetValid,
       isBetweenZeroAndOne,
       isInteger,
     },

@@ -4,10 +4,8 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import Button from "../Button/Button";
 import FileLabel from "../FileLabel/FileLabel";
 import { AuthContext } from "../AuthContext";
-import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
 import FormItem from "../FormItem/FormItem";
-import BuiltinDatasetSelector from "../BuiltinDatasetSelector/BuiltinDatasetSelector";
-import Toggle from "../Toggle/Toggle";
+import BuiltinDatasetSelector from "./BuiltinDatasetSelector";
 import { FileFormContext } from "../FileFormContext";
 
 const ChooseDataset = () => {
@@ -20,24 +18,11 @@ const ChooseDataset = () => {
   // to hidden input file
   const inputFile = useRef<HTMLInputElement>(null);
   const { user } = useContext(AuthContext)!;
-  const { allowedValues } = useContext(AlgorithmConfigContext)!;
 
   return (
     <FormItem>
       {isWindowShown && (
-        <BuiltinDatasetSelector disable={() => setIsWindowShown(false)}>
-          {allowedValues.allowedBuiltinDatasets &&
-            allowedValues.allowedBuiltinDatasets.map((builtinDataset) => (
-              <Toggle
-                toggleCondition={builtinDataset === dataset}
-                onClick={() => setDataset(builtinDataset)}
-                key={builtinDataset.ID}
-                className="mx-2"
-              >
-                {builtinDataset.fileName}
-              </Toggle>
-            ))}
-        </BuiltinDatasetSelector>
+        <BuiltinDatasetSelector disable={() => setIsWindowShown(false)} />
       )}
       <h5 className="text-white mb-0 mx-2">File:</h5>
       <FileLabel

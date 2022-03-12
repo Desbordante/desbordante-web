@@ -3,29 +3,81 @@ import { gql } from "@apollo/client";
 export const GET_TASK_INFO = gql`
   query getTaskInfo($taskID: ID!) {
     taskInfo(taskID: $taskID) {
-      __typename
-      ... on TaskInfo {
-        state {
-          status
-          phaseName
-          currentPhase
-          progress
-          maxPhase
-          errorMsg
-          isExecuted
+      taskID
+      state {
+        status
+        phaseName
+        currentPhase
+        progress
+        maxPhase
+        errorMsg
+        isExecuted
+      }
+
+      dataset {
+        originalFileName
+        snippet {
+          header
+          rows(pagination: { offset: 0, limit: 100 })
         }
-        data {
+      }
+
+      data {
+        result {
           __typename
-          ... on FDTask {
-            FDResult: result {
-              FDs {
-                lhs
-                rhs
+          ... on FDTaskResult {
+            FDs(pagination: { offset: 0, limit: 100 }) {
+              lhs
+              rhs
+            }
+            PKs {
+              name
+            }
+            pieChartData {
+              lhs {
+                column {
+                  name
+                }
+                value
               }
-              PKs {
-                name
+              rhs {
+                column {
+                  name
+                }
+                value
               }
-              pieChartData {
+            }
+          }
+
+          __typename
+          ... on CFDTaskResult {
+            CFDs(pagination: { offset: 0, limit: 100 }) {
+              lhs
+              rhs
+              lhsPatterns
+              rhsPattern
+            }
+            PKs {
+              name
+            }
+            pieChartData {
+              withPatterns {
+                lhs {
+                  column {
+                    name
+                  }
+                  pattern
+                  value
+                }
+                rhs {
+                  column {
+                    name
+                  }
+                  pattern
+                  value
+                }
+              }
+              withoutPatterns {
                 lhs {
                   column {
                     name
@@ -43,59 +95,12 @@ export const GET_TASK_INFO = gql`
           }
 
           __typename
-          ... on CFDTask {
-            CFDResult: result {
-              CFDs {
-                lhs
-                rhs
-                lhsPatterns
-                rhsPattern
-              }
-              PKs {
-                name
-              }
-              pieChartData {
-                withPatterns {
-                  lhs {
-                    column {
-                      name
-                    }
-                    pattern
-                    value
-                  }
-                  rhs {
-                    column {
-                      name
-                    }
-                    pattern
-                    value
-                  }
-                }
-                withoutPatterns {
-                  lhs {
-                    column {
-                      name
-                    }
-                    value
-                  }
-                  rhs {
-                    column {
-                      name
-                    }
-                    value
-                  }
-                }
-              }
+          ... on ARTaskResult {
+            ARs(pagination: { offset: 0, limit: 0 }) {
+              lhs
+              rhs
+              support
             }
-          }
-        }
-        dataset {
-          tableInfo {
-            originalFileName
-          }
-          snippet(offset: 0, limit: 100) {
-            header
-            rows
           }
         }
       }
