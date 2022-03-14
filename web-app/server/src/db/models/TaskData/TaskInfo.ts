@@ -6,7 +6,7 @@ import sendEvent from "../../../producer/sendEvent";
 import { BaseTaskConfig, PrimitiveType } from "./BaseTaskConfig";
 import { ARTaskConfig, CFDTaskConfig, FDTaskConfig } from "./TaskConfigurations";
 import { ARTaskResult, CFDTaskResult, FDTaskResult } from "./TaskResults";
-import { User } from "../Authorization/User";
+import { User } from "../UserInfo/User";
 
 interface TaskInfoModelMethods {
     fullDestroy: (paranoid: boolean) => Promise<void>;
@@ -127,26 +127,11 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
     };
 
     static saveToDBIfPropsValid = async (props: IntersectionTaskProps, fileID: string, userID: string | null) => {
-        const { type } = props;
-        let isValid: boolean;
-        switch (type) {
-            case "FD":
-                isValid = FDTaskConfig.isPropsValid(props);
-                break;
-            case "CFD":
-                isValid = CFDTaskConfig.isPropsValid(props);
-                break;
-            case "AR":
-                isValid = ARTaskConfig.isPropsValid(props);
-                break;
-            default:
-                throw new UserInputError("Passed incorrect type", { type });
-        }
-        if (isValid) {
+        const validityAnswer = BaseTaskConfig.isPropsValid(props);
+        if (validityAnswer.isValid) {
             return await TaskInfo.saveToDB(props, fileID, userID);
-        } else {
-            throw new UserInputError("Invalid user input", { ...props });
         }
+        throw new UserInputError(validityAnswer.errorMessage);
     };
 
     static saveTaskToDBAndSendEvent = async (props: IntersectionTaskProps, fileID: string,

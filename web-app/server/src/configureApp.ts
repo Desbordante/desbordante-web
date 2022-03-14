@@ -5,14 +5,14 @@ import createError from "http-errors";
 import morgan from "morgan";
 import { isDevelopment } from "./app";
 import { configureSequelize } from "./db/configureSequelize";
-import { Permission } from "./db/models/Authorization/Permission";
+import { Permission } from "./db/models/UserInfo/Permission";
 import { sequelize } from "./db/sequelize";
 import { initBuiltInDatasets } from "./db/initBuiltInDatasets";
 import { createDB } from "./db/createDB";
 import { initTestData } from "./db/initTestData";
 import { configureGraphQL } from "./graphql/configureGraphQL";
 
-function normalizePort(val: string | undefined) {
+function normalizePort (val: string | undefined) {
     if (val) {
         const port = parseInt(val, 10);
         if (!isNaN(port) && port >= 0) {
@@ -23,13 +23,13 @@ function normalizePort(val: string | undefined) {
     throw new Error(errorMessage);
 }
 
-function setMiddlewares(app: Application) {
+function setMiddlewares (app: Application) {
     app.use(cors());
     app.use(graphqlUploadExpress());
     app.use(morgan("dev"));
 }
 
-async function configureDB() {
+async function configureDB () {
     console.debug("Configuring database");
     await createDB();
     await configureSequelize(sequelize);
@@ -56,7 +56,7 @@ export const configureApp = async () => {
 
     app.use((err: any, req: any, res: any, next: any) => {
         res.locals.message = err.message;
-        res.locals.error = req.app.get("env") === "development" ? err : {};
+        res.locals.error = isDevelopment ? err : {};
 
         res.status(err.status || 500).send(res.locals.error.message);
     });

@@ -2,6 +2,7 @@ import { BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-t
 import { STRING, UUID } from "sequelize";
 import { FileInfo } from "../FileInfo/FileInfo";
 import { TaskInfo } from "./TaskInfo";
+import { ARTaskConfig, CFDTaskConfig, FDTaskConfig, IsPropsValidFunctionType } from "./TaskConfigurations";
 
 const ALL_PRIMITIVES = ["AR", "CFD", "FD"] as const;
 export type PrimitiveType = typeof ALL_PRIMITIVES[number];
@@ -31,4 +32,17 @@ export class BaseTaskConfig extends Model {
 
     @Column({ type: STRING, allowNull: false })
     type!: PrimitiveType;
+
+    static isPropsValid: IsPropsValidFunctionType = props => {
+        switch (props.type) {
+            case "FD":
+                return FDTaskConfig.isPropsValid(props);
+            case "CFD":
+                return CFDTaskConfig.isPropsValid(props);
+            case "AR":
+                return ARTaskConfig.isPropsValid(props);
+            default:
+                return { errorMessage: `Incorrect primitive type ${props.type}`, isValid: false };
+        }
+    };
 }
