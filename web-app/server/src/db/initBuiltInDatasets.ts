@@ -45,8 +45,7 @@ export const builtInDatasets: BuiltInDatasetInfoType[] = [
 ];
 
 export const initBuiltInDatasets = async () =>
-    await Promise.all(
-        builtInDatasets.map(async (datasetInfo) =>
-            await FileInfo.saveBuiltInDataset(datasetInfo)))
+    await Promise.all(builtInDatasets.map(async (datasetInfo) =>
+        await FileInfo.saveBuiltInDataset(datasetInfo)))
         .then(() => console.debug("BuiltIn datasets was initialized"))
         .catch(err => new Error(`Error while initializing built-in datasets ${err.message}`));

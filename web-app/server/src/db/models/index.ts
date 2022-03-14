@@ -1,11 +1,11 @@
-import { Code } from "./Authorization/Code";
-import { Device } from "./Authorization/Device";
-import { Feedback } from "./Authorization/Feedback";
+import { Code } from "./UserInfo/Code";
+import { Device } from "./UserInfo/Device";
+import { Feedback } from "./UserInfo/Feedback";
 import { FileInfo } from "./FileInfo/FileInfo";
-import { Permission } from "./Authorization/Permission";
-import { Role } from "./Authorization/Role";
-import { Session } from "./Authorization/Session";
-import { User } from "./Authorization/User";
+import { Permission } from "./UserInfo/Permission";
+import { Role } from "./UserInfo/Role";
+import { Session } from "./UserInfo/Session";
+import { User } from "./UserInfo/User";
 import { TaskInfo } from "./TaskData/TaskInfo";
 import { BaseTaskConfig } from "./TaskData/BaseTaskConfig";
 import { ARTaskConfig, CFDTaskConfig, FDTaskConfig } from "./TaskData/TaskConfigurations";

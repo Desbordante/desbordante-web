@@ -246,7 +246,7 @@ const typeDefs = gql`
     type PrimitiveTaskData {
         baseConfig: BaseTaskConfig!
         specificConfig: PrimitiveTaskConfig!
-        result: PrimitiveTaskResult!
+        result: PrimitiveTaskResult
     }
     
     type TaskInfo {
