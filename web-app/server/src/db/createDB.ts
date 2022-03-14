@@ -13,16 +13,12 @@ const config = {
   user: process.env.DB_USER,
 };
 
-export const createDB = async () => {
-  return pgtools.createdb(config, process.env.DB_NAME)
-      .then(() => {
-        console.debug(`DB ${process.env.DB_NAME} was created successfully`);
-      })
-      .catch((err: CreateDbErrorType) => {
+export const createDB = async () => pgtools.createdb(config, process.env.DB_NAME)
+    .then(() => console.debug(`DB ${process.env.DB_NAME} was created successfully`))
+    .catch((err: CreateDbErrorType) => {
         if (err.name === "duplicate_database") {
-          console.log(`Database '${process.env.DB_NAME}' already exists`);
+            console.log(`Database '${process.env.DB_NAME}' already exists`);
         } else {
-          throw err;
+            throw err;
         }
-      });
-};
+    });

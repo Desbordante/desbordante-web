@@ -2,25 +2,25 @@ import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core"
 import { AuthenticationError } from "apollo-server-express";
 import jwt from "jsonwebtoken";
 import { FindOptions } from "sequelize";
-import { CodeType } from "../../../db/models/Authorization/Code";
-import { Permission } from "../../../db/models/Authorization/Permission";
-import { Role } from "../../../db/models/Authorization/Role";
-import { RefreshTokenInstance, SessionStatusType } from "../../../db/models/Authorization/Session";
-import { AccountStatusType } from "../../../db/models/Authorization/User";
+import { CodeType } from "../../../db/models/UserInfo/Code";
+import { Permission } from "../../../db/models/UserInfo/Permission";
+import { Role } from "../../../db/models/UserInfo/Role";
+import { RefreshTokenInstance, SessionStatusType } from "../../../db/models/UserInfo/Session";
+import { AccountStatusType } from "../../../db/models/UserInfo/User";
 import { Resolvers } from "../../types/types";
 import { sendVerificationCode } from "./emailSender";
 
 export const UserResolvers : Resolvers = {
     Role: {
         // @ts-ignore
-        permissions: async ({ permissionIndices }, _, { models, sessionInfo, logger }) => {
+        permissions: async ({ permissionIndices }) => {
             const indices = JSON.parse(permissionIndices) as number[];
             return indices.map(id => Permission.getAllPermissions()[id]);
         },
     },
     Session: {
         // @ts-ignore
-        user: async ({ userID }, _, { models, sessionInfo, logger }) => {
+        user: async ({ userID }, _, { models }) => {
             const user = await models.User.findByPk(userID);
             if (!user) {
                 throw new ApolloError("User not found");
@@ -30,7 +30,7 @@ export const UserResolvers : Resolvers = {
     },
     User: {
         // @ts-ignore
-        permissions: async ({ userID }, _, { models, sessionInfo, logger }) => {
+        permissions: async ({ userID }, _, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
@@ -40,28 +40,28 @@ export const UserResolvers : Resolvers = {
             }
             return await user.getPermissions();
         },
-        roles: async ({ userID }, _, { models, sessionInfo, logger }) => {
+        roles: async ({ userID }, _, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
             return models.Role.findAll({ where: { userID } });
         },
         // @ts-ignore
-        feedbacks: async ({ userID }, _, { models, sessionInfo, logger }) => {
+        feedbacks: async ({ userID }, _, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
             return await models.Feedback.findAll({ where: { userID } });
         },
         // @ts-ignore
-        tasks: async ({ userID }, _, { models, logger, sessionInfo }) => {
+        tasks: async ({ userID }, _, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
             return await models.TaskInfo.findAll({ where: { userID }, paranoid: true });
         },
         // @ts-ignore
-        datasets: async ({ userID }, _, { models, logger }) => {
+        datasets: async ({ userID }, _, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
@@ -70,7 +70,7 @@ export const UserResolvers : Resolvers = {
     },
     Feedback: {
         // @ts-ignore
-        user: async ({ userID }, _, { models, logger, sessionInfo }) => {
+        user: async ({ userID }, _, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
@@ -79,7 +79,7 @@ export const UserResolvers : Resolvers = {
     },
     Query: {
         // @ts-ignore
-        feedbacks: async (parent, args, { models, logger, sessionInfo }) => {
+        feedbacks: async (parent, args, { models, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
                 throw new ForbiddenError("User must have permission");
             }
@@ -89,15 +89,11 @@ export const UserResolvers : Resolvers = {
             return await models.Feedback.findAll(args);
         },
         // @ts-ignore
-        getAnonymousPermissions: (parent, obj, { models, logger }) => {
-            const permissions = Role.getPermissionsForRole("ANONYMOUS");
-            if (!permissions) {
-                throw new ApolloError("Permissions for anonymous not found");
-            }
-            return permissions;
+        getAnonymousPermissions: () => {
+            return Role.getPermissionsForRole("ANONYMOUS");
         },
         // @ts-ignore
-        user: async(parent, { userID }, { models, logger, sessionInfo }) => {
+        user: async (parent, { userID }, { models, sessionInfo }) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
             }
@@ -111,14 +107,14 @@ export const UserResolvers : Resolvers = {
             throw new ForbiddenError("User doesn't have permissions");
         },
         // @ts-ignore
-        users: async (parent, { pagination }, { models, logger, sessionInfo }) => {
+        users: async (parent, { pagination }, { models, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
                 throw new ForbiddenError("User don't have permission");
             }
             return await models.User.findAll(pagination);
         },
         // @ts-ignore
-        sessions: async (parent, { offset, limit, onlyValid }, { models, logger, sessionInfo }) => {
+        sessions: async (parent, { offset, limit, onlyValid }, { models, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
                 throw new ForbiddenError("User don't have permission");
             }
@@ -135,11 +131,11 @@ export const UserResolvers : Resolvers = {
     },
     Mutation: {
         // @ts-ignore
-        createFeedback: async (parent, args, { models, logger, sessionInfo }) => {
+        createFeedback: async (parent, args, { models, sessionInfo }) => {
             const userID = sessionInfo ? sessionInfo.userID : null;
             return await models.Feedback.create({ userID, ...args });
         },
-        logIn: async (parent, { email, pwdHash }, { models, logger, device, sessionInfo }) => {
+        logIn: async (parent, { email, pwdHash }, { models, device, sessionInfo }) => {
             if (sessionInfo) {
                 throw new AuthenticationError("You are already logged");
             }
@@ -150,7 +146,7 @@ export const UserResolvers : Resolvers = {
             const session = await user.createSession(device.deviceID);
             return await session.issueTokenPair();
         },
-        logOut: async (parent, { allSessions }, { models, logger, device, sessionInfo }) => {
+        logOut: async (parent, { allSessions }, { models, sessionInfo }) => {
             if (!sessionInfo) {
                 throw new UserInputError("Session information wasn't provided");
             }

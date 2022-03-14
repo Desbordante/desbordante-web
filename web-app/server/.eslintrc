@@ -9,6 +9,7 @@
     "@typescript-eslint/object-curly-spacing": [
       "warn", "always", { "arraysInObjects": true, "objectsInObjects": true }
     ],
+    "@typescript-eslint/ban-ts-comment": "warn",
     "linebreak-style": 1,
     "curly": 1,
     "implicit-arrow-linebreak": "off",
@@ -17,12 +18,19 @@
     "operator-linebreak": "off",
     "function-paren-newline": "off",
     "@typescript-eslint/brace-style": ["error", "1tbs"],
+    "@typescript-eslint/no-unused-vars": ["error"],
     "no-console": 0,
     "no-shadow": "off",
-    "no-unused-vars": "warn",
+    "no-unused-vars": "off",
     "quotes": ["error", "double"],
     "import/no-unresolved": "off",
     "no-trailing-spaces": "warn",
+    "space-before-function-paren": ["error",
+      {
+        "anonymous": "always",
+        "named": "always",
+        "asyncArrow": "always"
+      }],
     "object-curly-newline": "off",
     "no-use-before-define": ["off", "error", { "variables": false }],
     "import/prefer-default-export": "off",

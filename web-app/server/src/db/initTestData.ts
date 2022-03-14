@@ -1,12 +1,12 @@
-import { RoleType } from "./models/Authorization/Role";
+import { RoleType } from "./models/UserInfo/Role";
 import { CreatingUserProps, IntersectionTaskProps, PrimitiveType } from "../graphql/types/types";
-import { AccountStatusType, User } from "./models/Authorization/User";
-import { Device, DeviceInfoInstance } from "./models/Authorization/Device";
-import { Session, SessionStatusType } from "./models/Authorization/Session";
+import { AccountStatusType, User } from "./models/UserInfo/User";
+import { Device, DeviceInfoInstance } from "./models/UserInfo/Device";
+import { Session, SessionStatusType } from "./models/UserInfo/Session";
 import { FileInfo } from "./models/FileInfo/FileInfo";
 import { TaskInfo } from "./models/TaskData/TaskInfo";
 
-async function createAccountWithLongLiveRefreshToken(roles: RoleType[]) {
+async function createAccountWithLongLiveRefreshToken (roles: RoleType[]) {
     console.log(`Creating accounts for following roles: ${JSON.stringify(roles)}`);
     const answers: string[] = [];
     for (const role of roles) {
@@ -20,7 +20,7 @@ async function createAccountWithLongLiveRefreshToken(roles: RoleType[]) {
             pwdHash: "pwdHash",
         };
         const accountStatus: AccountStatusType = "EMAIL_VERIFIED";
-        const [user, _] = await User.findOrCreate({ where: { ...props, accountStatus } });
+        const [user] = await User.findOrCreate({ where: { ...props, accountStatus } });
         await user.addRole(role);
 
         const deviceInfoString = `{
@@ -62,7 +62,7 @@ async function createAccountWithLongLiveRefreshToken(roles: RoleType[]) {
     return answers;
 }
 
-async function createARTask(fileName: string, minConfidence: number, minSupportAR: number,
+async function createARTask (fileName: string, minConfidence: number, minSupportAR: number,
                             cfdsCompactString: string, valueDictionary: string) {
     const props: IntersectionTaskProps = {
         algorithmName: "AR algorithm",
@@ -88,7 +88,7 @@ async function createARTask(fileName: string, minConfidence: number, minSupportA
     return `Created task AR with id = ${taskInfo.taskID} (dataset ${fileName}).`;
 }
 
-async function createCfdTask(fileName: string, cfdsStr: string,
+async function createCfdTask (fileName: string, cfdsStr: string,
                              pieChartDataWithoutPatternsStr: string,
                              pieChartDataWithPatternsStr: string,
                              maxLHS = -1, minConfidence = 1, minSupportCFD = 1) {
@@ -132,7 +132,7 @@ async function createCfdTask(fileName: string, cfdsStr: string,
     return `Created task CFD with id = ${taskInfo.taskID} (dataset ${fileName}).`;
 }
 
-async function createBuiltInTasks() {
+async function createBuiltInTasks () {
     const testlong = await createCfdTask(
         "TestLong.csv",
         `[

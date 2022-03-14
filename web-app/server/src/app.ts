@@ -20,7 +20,7 @@ export const isDevelopment = environment === "development";
       });
 })();
 
-const configureServer = async(app: Application) => {
+const configureServer = async (app: Application) => {
   const server = http.createServer(app);
   const port = app.get("port") as number;
   server.listen(port, () => {
