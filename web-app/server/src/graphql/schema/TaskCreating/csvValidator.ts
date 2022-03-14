@@ -4,7 +4,7 @@ import readline from "readline";
 
 import { fileConfig } from "../AppConfiguration/resolvers";
 
-function csvLinetoArray(line: string, sep: string) {
+function csvLinetoArray (line: string, sep: string) {
     if (sep=="|") {
         sep = "\\|";
     }
@@ -31,11 +31,11 @@ function csvLinetoArray(line: string, sep: string) {
     return a;
 }
 
-function getNumberOfColumns(line: string, sep: string) {
+function getNumberOfColumns (line: string, sep: string) {
     return csvLinetoArray(line, sep).length;
 }
 
-async function tryFindCorrectSeparator(path: fs.PathLike) {
+async function tryFindCorrectSeparator (path: fs.PathLike) {
     const fileStream = fs.createReadStream(path);
     const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
 

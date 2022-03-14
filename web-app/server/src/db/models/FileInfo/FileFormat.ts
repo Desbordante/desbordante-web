@@ -49,7 +49,7 @@ export class FileFormat extends Model {
                     throw new UserInputError("invalid tidColumnIndex (less, than 1 or greater, than count of table column)", { tidColumnIndex });
                 }
                 if (itemColumnIndex < 1 || itemColumnIndex > file.countOfColumns) {
-                    throw new UserInputError("invalid tidColumnIndex (less, than 1 or greater, than count of table column)", { tidColumnIndex });
+                    throw new UserInputError("invalid itemColumnIndex (less, than 1 or greater, than count of table column)", { tidColumnIndex });
                 }
                 break;
             case "TABULAR":

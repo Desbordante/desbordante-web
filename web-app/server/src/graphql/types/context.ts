@@ -1,6 +1,6 @@
 import { ModelsType } from "../../db/models";
-import { Device } from "../../db/models/Authorization/Device";
-import { AccessTokenInstance } from "../../db/models/Authorization/Session";
+import { Device } from "../../db/models/UserInfo/Device";
+import { AccessTokenInstance } from "../../db/models/UserInfo/Session";
 
 export interface Context {
     models: ModelsType;

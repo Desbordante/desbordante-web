@@ -7,7 +7,7 @@ import { finished } from "stream/promises";
 import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/generateHeader";
 import { FileProps } from "../../../graphql/types/types";
 import { BaseTaskConfig } from "../TaskData/BaseTaskConfig";
-import { User } from "../Authorization/User";
+import { User } from "../UserInfo/User";
 import { FileFormat } from "./FileFormat";
 import { findRowsAndColumnsNumber } from "../../../graphql/schema/TaskCreating/csvValidator";
 import { BuiltInDatasetInfoType, getPathToBuiltInDataset } from "../../initBuiltInDatasets";

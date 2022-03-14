@@ -68,11 +68,7 @@ export class Device extends Model implements  DeviceModelMethods {
     @Column({ type: STRING, allowNull: true })
     language?: string;
 
-    static addDevice = async (props: DeviceInfoInstance) => {
-        return await Device.create({ ...props });
-    };
+    static addDevice = async (props: DeviceInfoInstance) => await Device.create({ ...props });
 
-    isEqualTo = (device: DeviceInfoInstance) => {
-        return this as DeviceInfoInstance === device;
-    };
+    isEqualTo = (device: DeviceInfoInstance) => this as DeviceInfoInstance === device;
 }

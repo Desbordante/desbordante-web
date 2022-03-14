@@ -58,6 +58,5 @@ export class Role extends Model {
 
     static getPermissionIndicesForRole = (role: RoleType) =>
         Role.getPermissionsForRole(role)
-            ?.map(permission =>
-                Permission.getAllPermissions().indexOf(permission));
+            .map(permission => Permission.getAllPermissions().indexOf(permission));
 }

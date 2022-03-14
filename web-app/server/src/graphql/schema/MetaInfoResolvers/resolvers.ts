@@ -6,7 +6,7 @@ import { Resolvers } from "../../types/types";
 export const MetaInfoResolvers: Resolvers = {
     Query: {
         // @ts-ignore
-        datasets: async (parent, { props }, { models, logger, sessionInfo }) => {
+        datasets: async (parent, { props }, { models, sessionInfo }) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
             }

@@ -5,8 +5,8 @@ import { applyMiddleware } from "graphql-middleware";
 import jwt, { VerifyOptions } from "jsonwebtoken";
 import { Sequelize } from "sequelize";
 import { ModelsType } from "../db/models";
-import { Device, DeviceInfoInstance } from "../db/models/Authorization/Device";
-import { AccessTokenInstance } from "../db/models/Authorization/Session";
+import { Device, DeviceInfoInstance } from "../db/models/UserInfo/Device";
+import { AccessTokenInstance } from "../db/models/UserInfo/Session";
 
 import schema from "./schema/schema";
 import { Context } from "./types/context";

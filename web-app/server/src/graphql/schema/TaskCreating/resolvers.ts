@@ -1,12 +1,12 @@
 import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core";
 import { AuthenticationError } from "apollo-server-express";
 import { Resolvers } from "../../types/types";
-import { Permission } from "../../../db/models/Authorization/Permission";
+import { Permission } from "../../../db/models/UserInfo/Permission";
 
 export const TaskCreatingResolvers: Resolvers = {
     Mutation: {
         createTaskWithDatasetChoosing: async (
-            parent, { props, fileID }, { models, logger, sessionInfo, topicNames }) => {
+            parent, { props, fileID }, { models, sessionInfo, topicNames }) => {
             const file = await models.FileInfo.findByPk(fileID);
             if (!file) {
                 throw new UserInputError("File not found", { fileID });
@@ -52,16 +52,13 @@ export const TaskCreatingResolvers: Resolvers = {
         //     return file;
         // },
         createTaskWithDatasetUploading: async (parent, { props, datasetProps, table },
-            { models, logger, topicNames, sessionInfo }) => {
+            { models, topicNames, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
                 throw new AuthenticationError("User must be authorized and has permission USE_OWN_DATASETS");
             }
             const file = await models.FileInfo.uploadDataset(datasetProps, table,
                 sessionInfo.userID, props.type === "AR")
-                .catch(e => {
-                    logger("Error while file uploading", e);
-                    throw new ApolloError("Error while uploading dataset");
-                });
+                .catch(() => new ApolloError("Error while uploading dataset"));
             return await models.TaskInfo.saveTaskToDBAndSendEvent(props, file.fileID, topicNames.DepAlgs, sessionInfo.userID);
         },
         deleteTask: async (parent, { taskID, safeDelete }, { models, logger, sessionInfo }) => {

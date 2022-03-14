@@ -8,6 +8,9 @@ import {
 import { IntersectionTaskProps } from "../../../graphql/types/types";
 import { TaskInfo } from "./TaskInfo";
 
+export type IsPropsValidFunctionType = (props: IntersectionTaskProps) =>
+    { isValid: true } | { errorMessage: string, isValid: false };
+
 @Table({
     tableName: "FDTasksConfig",
     updatedAt: false,
@@ -34,27 +37,23 @@ export class FDTaskConfig extends Model{
     @Column({ type: INTEGER })
     threadsCount!: number;
 
-    static isPropsValid = (props: IntersectionTaskProps) => {
+    static isPropsValid: IsPropsValidFunctionType = props => {
         const { algorithmName, errorThreshold, maxLHS, threadsCount } = props;
+        let errorMessage: string | undefined;
         if (!~allowedFDAlgorithms.findIndex(({ name }) => algorithmName === name)) {
-            console.log("Algorithm name not found");
-            return false;
+            errorMessage = `Algorithm name ${algorithmName} not found`;
         }
         if (typeof errorThreshold !== "number" || errorThreshold < 0 || errorThreshold > 1) {
-            console.log("Error threshold isn't valid");
-            return false;
+            errorMessage = `Error threshold isn't valid ${errorThreshold}`;
         }
         if (typeof maxLHS !== "number" || maxLHS < -1) {
-            console.log("maxLHS isn't valid");
-            return false;
+            errorMessage = `maxLHS ${maxLHS} isn't valid`;
         }
         if (typeof threadsCount !== "number" || threadsCount < 1 || threadsCount > maxThreadsCount) {
-            console.log("threadsCount isn't valid");
-            return false;
+            errorMessage = `threadsCount ${threadsCount} isn't valid (min = 1, max = ${maxThreadsCount})`;
         }
-        return true;
+        return errorMessage? { isValid: false, errorMessage } : { isValid: true };
     };
-
 }
 
 @Table({
@@ -83,18 +82,22 @@ export class CFDTaskConfig extends Model{
     @Column({ type: REAL })
     minConfidence!: number;
 
-    static isPropsValid = (props: IntersectionTaskProps) => {
+    static isPropsValid : IsPropsValidFunctionType = props => {
         const { algorithmName, maxLHS, minConfidence, minSupportCFD } = props;
+        let errorMessage: string | undefined;
         if (!~allowedCFDAlgorithms.findIndex(({ name }) => algorithmName === name)) {
-            return false;
+            errorMessage = `Algorithm name ${algorithmName} not found`;
         }
         if (typeof minConfidence !== "number" || minConfidence < 0 || minConfidence > 1) {
-            return false;
+            errorMessage = `minConfidence ${minConfidence} isn't valid`;
         }
         if (typeof maxLHS !== "number" || maxLHS < -1) {
-            return false;
+            errorMessage = `maxLHS ${maxLHS} isn't valid`;
         }
-        return !(typeof minSupportCFD !== "number" || minSupportCFD < 1);
+        if (typeof minSupportCFD !== "number" || minSupportCFD < 1) {
+            errorMessage = `minSupportCFD ${minSupportCFD} isn't valid`;
+        }
+        return errorMessage? { isValid: false, errorMessage } : { isValid: true };
     };
 }
 
@@ -120,17 +123,18 @@ export class ARTaskConfig extends Model{
     @Column({ type: REAL })
     minConfidence!: number;
 
-    static isPropsValid = (props: IntersectionTaskProps) => {
+    static isPropsValid: IsPropsValidFunctionType = props => {
         const { algorithmName, minConfidence, minSupportAR } = props;
+        let errorMessage: string | undefined;
         if (!~allowedARAlgorithms.findIndex(({ name }) => algorithmName === name)) {
-            return false;
+            errorMessage = `Algorithm name ${algorithmName} not found`;
         }
         if (typeof minConfidence !== "number" || minConfidence < 0 || minConfidence > 1) {
-            return false;
+            errorMessage = `minConfidence ${minConfidence} isn't valid`;
         }
         if (typeof minSupportAR !== "number" || minSupportAR > 1 || minSupportAR < 0) {
-            return false;
+            errorMessage = `minConfidence ${minSupportAR} isn't valid`;
         }
-        return true;
+        return errorMessage? { isValid: false, errorMessage } : { isValid: true };
     };
 }

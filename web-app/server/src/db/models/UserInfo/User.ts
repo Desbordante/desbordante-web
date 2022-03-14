@@ -27,7 +27,6 @@ interface UserModelMethods {
     paranoid: true,
 })
 export class User extends Model implements UserModelMethods {
-
     @IsUUID(4)
     @Column({ type: UUID, primaryKey: true, defaultValue: UUIDV4 })
     userID!: string;
@@ -96,9 +95,8 @@ export class User extends Model implements UserModelMethods {
             { type: role, permissionIndices }) as Role;
     };
 
-    addRoles = async (roles: RoleType[]): Promise<Role[]> => {
-        return Promise.all(roles.map(roleValue => this.addRole(roleValue)));
-    };
+    addRoles = async (roles: RoleType[]): Promise<Role[]> =>
+        Promise.all(roles.map(roleValue => this.addRole(roleValue)));
 
     createSession = async (deviceID: string) => {
         const status: SessionStatusType = "VALID";
