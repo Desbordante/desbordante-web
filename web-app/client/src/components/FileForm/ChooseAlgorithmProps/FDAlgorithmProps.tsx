@@ -122,7 +122,7 @@ const FDAlgorithmProps = () => {
         <Slider
           value={threadsCount}
           min={1}
-          max={16}
+          max={8}
           onChange={changeThreadsCount}
           step={1}
           className="mx-2"
