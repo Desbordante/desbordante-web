@@ -116,13 +116,12 @@ template <typename ParamsMap>
 FDAlgorithm::Config CreateFDAlgorithmConfigFromMap(ParamsMap params) {
     FDAlgorithm::Config c;
 
-    c.data = std::filesystem::current_path() / "input_data" /
-             ExtractParamFromMap<std::string>(params, posr::kData);
-    c.separator = ExtractParamFromMap<char>(params, posr::kSeparatorConfig);
-    c.has_header = ExtractParamFromMap<bool>(params, posr::kHasHeader);
-    c.is_null_equal_null = ExtractParamFromMap<bool>(params, posr::kEqualNulls);
-    c.max_lhs = ExtractParamFromMap<unsigned int>(params, posr::kMaximumLhs);
-    c.parallelism = ExtractParamFromMap<ushort>(params, posr::kThreads);
+    c.data = ExtractParamFromMap<std::filesystem::path>(params, "data");
+    c.separator = ExtractParamFromMap<char>(params, "separator");
+    c.has_header = ExtractParamFromMap<bool>(params, "has_header");
+    c.is_null_equal_null = ExtractParamFromMap<bool>(params, "is_null_equal_null");
+    c.max_lhs = ExtractParamFromMap<unsigned int>(params, "max_lhs");
+    c.parallelism = ExtractParamFromMap<ushort>(params, "threads");
 
     /* Is it correct to insert all specified parameters into the algorithm config, and not just the
      * necessary ones? It is definitely simpler, so for now leaving it like this

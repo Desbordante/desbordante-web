@@ -74,7 +74,7 @@ public:
     std::vector<Vertical> GetParents() const;
 
     std::string ToString() const;
-    std::string ToIndicesString() const;
+    std::string ToIndicesString(bool with_parentheses = true) const;
 
     explicit operator std::string() const { return ToString(); }
 

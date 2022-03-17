@@ -115,11 +115,14 @@ std::string Vertical::ToString() const {
     return result;
 }
 
-std::string Vertical::ToIndicesString() const {
-    std::string result = "[";
+std::string Vertical::ToIndicesString(bool with_parentheses) const {
+    std::string result = "";
+    if (with_parentheses) {
+        result += '[';
+    }
 
     if (column_indices_.find_first() == boost::dynamic_bitset<>::npos) {
-        return "[]";
+        return with_parentheses ? "[]" : "";
     }
 
     for (size_t index = column_indices_.find_first();
@@ -130,8 +133,9 @@ std::string Vertical::ToIndicesString() const {
             result += ',';
         }
     }
-
-    result += ']';
+    if (with_parentheses) {
+        result += ']';
+    }
 
     return result;
 }

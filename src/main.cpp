@@ -238,10 +238,12 @@ int main(int argc, char const* argv[]) {
         vm.at("lhs_indices").value() = lhs_indices;
     }
 
-    if (!CheckOptions(task, algo, metric, metric_algo, rhs_indices.size(), error)) {
-        std::cout << all_options << std::endl;
-        return 1;
-    }
+    auto& data = vm.at("data").value();
+    data = std::filesystem::current_path() / "inputData" / dataset;
+
+    /* Remove options that are not related to the algorithm configuration */
+    vm.erase("task");
+    vm.erase("algo");
 
     if (task == "fd" || task == "typos") {
         std::cout << "Input: algorithm \"" << algo
