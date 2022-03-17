@@ -174,6 +174,9 @@ int main(int argc, char const* argv[]) {
         return 1;
     }
 
+    auto& data = vm.at("data").value();
+    data = std::filesystem::current_path() / "inputData" / dataset;
+
     /* Remove options that are not related to the algorithm configuration */
     vm.erase("task");
     vm.erase("algo");
