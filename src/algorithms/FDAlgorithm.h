@@ -91,30 +91,32 @@ public:
         fd_collection_.push_back(std::move(fd_to_register));
     }
 
-    static std::vector<size_t> getPKColumnPositions(CSVParser);
-
-    // геттер к набору ФЗ - нужно для тестирования
-    std::list<FD> const& fdList() const { return fdCollection_; }
+    /* fd_collection_ getter and setter */
+    std::list<FD> const& FdList() const noexcept {
+        return fd_collection_;
+    }
+    std::list<FD>& FdList() noexcept {
+        return fd_collection_;
+    }
 
     /* возвращает набор ФЗ в виде JSON-а. По сути, это просто представление фиксированного формата для сравнения
      * результатов разных алгоритмов. JSON - на всякий случай, если потом, например, понадобится загрузить список в
      * питон и как-нибудь его поанализировать
      * */
-    std::string getJsonFDs(bool withNullLhs = true);
+    std::string GetJsonFDs() const;
 
-    std::vector<std::string> getColumnNames();
-
-    std::string getJsonColumnNames();
-
-    std::string getPieChartData(int degree = 1);
-
-    std::vector<std::string_view> const& getPhaseNames() const noexcept {
-        return phase_names_;
-    }
-    /* Returns pair with current progress state.
-     * Pair has the form <current phase id, current phase progess>
+    /* Returns a vector of columns containing only unique values (i.e. keys).
+     * Should be called after execute() only.
+     * NOTE: retrieves keys from mined fds, so could be quite slow on wide
+     * tables with many fds.
+     * If your algorithm is inherited from FDAlgorithm but not from
+     * PliBasedFDAlgorithm and generates ColumnLayoutRelationData from the
+     * input table or in some similar way parses table, override this method
+     * and use parsed table representation to retrieve keys (for performance
+     * purposes).
+     * PliBasedFDAlgorithm::GetKeys() is already overriding this method.
      */
-    std::pair<uint8_t, double> getProgress() const noexcept;
+    virtual std::vector<Column const*> GetKeys() const;
 
     // считает контрольную сумму Флетчера - нужно для тестирования по хешу
     unsigned int Fletcher16();
