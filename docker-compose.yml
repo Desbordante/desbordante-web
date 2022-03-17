@@ -39,7 +39,7 @@ services:
       DB_NAME: "${POSTGRES_DB}"
       DB_USER: "${POSTGRES_USER}"
       DB_PASSWORD: "${POSTGRES_PASSWORD}"
-      DB_TASKS_TABLE_NAME: tasks
+      DB_TASKS_TABLE_NAME: "tasksInfo"
       DB_HOST: postgres
       DB_PORT: 5432
       NODE_ENV: 'development'
@@ -62,7 +62,7 @@ services:
     restart: always
     # logging:
     #   driver: none
-  
+
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.0
     expose:
@@ -136,16 +136,16 @@ volumes:
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: '$PWD/volumes/uploads/'
+      device: './volumes/uploads/'
   postgres-data:
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: '$PWD/volumes/postgres-data/'   
+      device: './volumes/postgres-data/'
   datasets:
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: '$PWD/volumes/datasets/'
+      device: './volumes/datasets/'
