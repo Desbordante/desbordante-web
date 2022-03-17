@@ -1,8 +1,8 @@
 https://github.com/cupertank implemented essential data structures presented in src/model, src/parser, src/tests and src/util
 
 # Installation guide
-This project supports installation with and without a web application. 
-In the second case, to build the project, you also need to have dependencies that are specified for installation without a web application. 
+This project supports installation with and without a web application.
+In the second case, to build the project, you also need to have dependencies that are specified for installation without a web application.
 
 ## Installation (without web application)
 * ### Ubuntu
@@ -85,7 +85,7 @@ In the second case, to build the project, you also need to have dependencies tha
   The `<dataset_name>.csv`, which is a user-provided dataset, should be placed in the `\path\to\Desbordante\build\target` directory.
 
 ## Installation (with web application)
-Requires docker, docker-compose 
+Requires docker, docker-compose
 ```
 git clone https://github.com/vs9h/Desbordante.git
 cd Desbordante/
@@ -93,9 +93,10 @@ git checkout origin/web-app
 docker build -t cpp-consumer -f=Dockerfile-cpp-consumer .
 mkdir -m777 volumes
 cd volumes/
-mkdir -m777 -p data/kafka, data/zk, logs/kafka, logs/zk, uploads, postgres-data, datasets
+mkdir -m777 -p data/kafka data/zk logs/kafka logs/zk uploads postgres-data datasets
 cd ..
 unzip datasets/datasets.zip -d volumes/datasets/
+cp tests/inputData/* volumes/datasets/
 docker-compose build
 ```
 ## Configuring
@@ -107,38 +108,19 @@ docker-compose build
   * KAFKA_ADMIN_CLIENT_ID
   * CONSUMER_TL_SEC
   * CONSUMER_ML_MB
+  * HOST_SERVER_IP
 
-.env file format example:  
-  VARIABLE_1=VALUE1  
+.env file format example (you can use `.env.example`):
+  ```
+  VARIABLE_1=VALUE1
   VARIABLE_2=VALUE2
-  
   ```
-  cd web-app/server
-  yarn
-  cd ../client
-  yarn
-  ```
-* ### Consumer
-Ensure that you have installed the dependencies required to build the program without a web application. Then you need to install the following dependencies:
 
-  - libpqxx:
-  ```
-  sudo apt-get install libpqxx-dev
-  ```
-  - librdkafka:
-  ```
-  sudo apt-get install librdkafka-dev
-  ```
-  - cppKafka:
-  ```
-  git clone https://github.com/mfontanini/cppkafka.git
-  cd cppkafka
-  mkdir build
-  cd build
-  cmake ..
-  make
-  sudo make install
-  ```
+## Running
+```
+docker-compose up --force-recreate
+```
+After the launch it will be available at http://localhost:3000/
 #### Building
   Cd into the project directory and launch the build script with the flag to build the consumer:
   ```
