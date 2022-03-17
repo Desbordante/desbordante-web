@@ -11,7 +11,7 @@ public:
         connection = std::make_unique<pqxx::connection>(pg_connection);
     }
 
-    std::vector<pqxx::result> defaultQueries(std::vector<std::string> queries) {
+    std::vector<pqxx::result> DefaultQueries(std::vector<std::string> queries) {
         try {
             std::vector<pqxx::result> results;
             auto w = std::make_unique<pqxx::nontransaction>(*connection);
@@ -26,7 +26,7 @@ public:
         }
     }
 
-    pqxx::result defaultQuery(std::string query_text) const {
+    pqxx::result DefaultQuery(std::string query_text) const {
         try {
             auto w = std::make_unique<pqxx::nontransaction>(*connection);
             pqxx::result r = w->exec(query_text);
@@ -37,8 +37,8 @@ public:
             throw e;
         }
     }
-    
-    pqxx::result transactionQuery(std::string query) const {
+
+    pqxx::result TransactionQuery(std::string query) const {
         try {
             auto l_work = std::make_unique<pqxx::work>(*connection);
             pqxx::result r = l_work->exec(query);

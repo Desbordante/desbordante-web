@@ -66,8 +66,3 @@ add_subdirectory("tests")
 
 add_subdirectory("datasets")
 add_subdirectory("cfg")
-
-#target_link_libraries(metanome_cpp PRIVATE "stdc++fs" gmock)
-#target_link_libraries(metanome_cpp PRIVATE "stdc++fs" Boost::container)
-#install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-#install(FILES ${metanome_cpp_src} DESTINATION src)
