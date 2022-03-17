@@ -41,6 +41,17 @@ export const TaskInfoResolvers: Resolvers = {
         // @ts-ignore
         rhsPattern: parent => parent.rp,
     },
+    FD: {
+        // @ts-ignore
+        lhs: ({ dep, columnNames }: { dep: [ string[], string ], columnNames: string[] }) => {
+            return dep[0].map(i => columnNames[Number(i)]);
+        },
+        // @ts-ignore
+        rhs: ({ dep, columnNames }: { dep: [ string[], string ] }) => {
+            // @ts-ignore
+            return columnNames[dep[1]];
+        },
+    },
     AR: {
         // @ts-ignore
         lhs: ({ rule, valueDictionary }) => {
@@ -99,36 +110,36 @@ export const TaskInfoResolvers: Resolvers = {
     },
     FDTaskResult: {
         // @ts-ignore
-        FDs: async ({ propertyPrefix, taskInfo, fileID } : { propertyPrefix: PrimitiveType, taskInfo: TaskInfo }, { pagination }, { models }) => {
-            // TODO: Create compact FDs string in DB
-            const FDsString = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "FDs");
+        FDs: async ({ propertyPrefix, taskInfo, fileID } : { propertyPrefix: PrimitiveType, taskInfo: TaskInfo }, { pagination }, { models, logger }) => {
+            const FDs = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "FDs");
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
-            type FDType = { lhs: number[], rhs: number };
-            const FDs = (JSON.parse(FDsString) as FDType[])
-                .map(({ lhs, rhs }) =>
-                    ({ lhs: lhs.map(id => columnNames[id]), rhs: columnNames[rhs] }));
-            return getArrayOfDepsByPagination(FDs, pagination);
+            const compactFDs = FDs.split(";")
+                .map(unionIndices => unionIndices.split(","))
+                .map(depIndices => ({ dep: [ depIndices.slice(0, depIndices.length - 1), depIndices[depIndices.length - 1] ], columnNames }));
+            return getArrayOfDepsByPagination(compactFDs, pagination);
         },
         // @ts-ignore
         PKs: async ({ propertyPrefix, taskInfo, fileID }, _, { models }) => {
-            const PKColumnIndices = await (taskInfo as TaskInfo).getSingleResultFieldAsString(propertyPrefix, "PKColumnIndices");
-            const indices: number[] = JSON.parse(PKColumnIndices);
+            const keysString = await (taskInfo as TaskInfo).getSingleResultFieldAsString(propertyPrefix, "PKColumnIndices");
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
-            return indices.map((index) => ({ index, name: columnNames[index] }));
+            if (!keysString) {
+                return [];
+            }
+            return keysString.split(",").map((index) => ({ index, name: columnNames[index] }));
         },
         // @ts-ignore
         pieChartData: async ({ propertyPrefix, taskInfo, fileID }, obj, { models }) => {
             const pieChartData = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "pieChartData");
-
-            type itemType = { idx: number, value: number };
-            const { lhs, rhs } : { lhs: [itemType], rhs: [itemType] } = JSON.parse(pieChartData);
+            const [lhs, rhs] = pieChartData.split("|");
 
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
+            const transformFromCompactData = (data: string) => {
+                return data.split(";")
+                    .map((keyValueStr: string) => keyValueStr.split(","))
+                    .map(([index, value]) => ({ column: { index, name: columnNames[index] }, value }));
+            };
 
-            const transform = ({ idx, value } : itemType) => (
-                { column: { index: idx, name: columnNames[idx] }, value });
-
-            return { lhs: lhs.map(transform), rhs: rhs.map(transform) };
+            return { lhs: transformFromCompactData(lhs), rhs: transformFromCompactData(rhs) };
         },
     },
     ARTaskConfig: {
