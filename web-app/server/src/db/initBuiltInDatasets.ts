@@ -25,7 +25,7 @@ export const builtInDatasets: BuiltInDatasetInfoType[] = [
     { fileName: "EpicMeds.csv", datasetProps: { delimiter: "|", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
     { fileName: "WDC_age.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
     { fileName: "TestLong.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
-    { fileName: "Workshop.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
+    //{ fileName: "Workshop.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
     { fileName: "breast_cancer.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
     { fileName: "CIPublicHighway700.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
     {
