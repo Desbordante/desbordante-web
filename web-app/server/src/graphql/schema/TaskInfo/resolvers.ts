@@ -12,10 +12,12 @@ import { builtInDatasets } from "../../../db/initBuiltInDatasets";
 import { BaseTaskConfig } from "../../../db/models/TaskData/BaseTaskConfig";
 import isUUID = validator.isUUID;
 
-function getArrayOfDepsByPagination<DependencyType> (deps: DependencyType[], pagination: Pagination) {
+function getArrayOfDepsByPagination<DependencyType> (deps: DependencyType[],
+                                                     pagination: Pagination) {
     const { limit, offset } = pagination;
     if (limit < 1 || limit > 300 || offset < 0) {
-        throw new UserInputError("Limit must have value between 1 and 300, offset can't be negative", { pagination });
+        throw new UserInputError(
+            "Limit must have value between 1 and 300, offset can't be negative", { pagination });
     }
     const from = offset;
     const to = from + limit;
@@ -71,8 +73,10 @@ export const TaskInfoResolvers: Resolvers = {
     TaskStateAnswer: {
         // @ts-ignore
         __resolveType: ({ status } : { status: TaskStatusType }) => {
-            if (status == "INTERNAL_SERVER_ERROR" || status == "RESOURCE_LIMIT_IS_REACHED") {
-                return status;
+            if (status == "INTERNAL_SERVER_ERROR") {
+                return "InternalServerTaskError";
+            } else if(status == "RESOURCE_LIMIT_IS_REACHED") {
+                return "ResourceLimitTaskError";
             }
             return "TaskState";
         },
@@ -85,10 +89,14 @@ export const TaskInfoResolvers: Resolvers = {
             }
             return errorMsg;
         },
+        // @ts-ignore
+        errorStatus: ({ status }) => status,
     },
     ResourceLimitTaskError: {
         // @ts-ignore
         resourceLimitError: ({ errorMsg }) => errorMsg,
+        // @ts-ignore
+        errorStatus: ({ status }) => status,
     },
     TaskState: {
         // @ts-ignore
@@ -109,7 +117,8 @@ export const TaskInfoResolvers: Resolvers = {
     PrimitiveTaskData: {
         // @ts-ignore
         result: async ({ taskID, propertyPrefix, fileID }, _, { models }) => {
-            const taskInfo = await models.TaskInfo.findByPk(taskID, { attributes: ["taskID", "isExecuted"] });
+            const taskInfo = await models.TaskInfo.findByPk(taskID,
+                { attributes: ["taskID", "isExecuted"] });
             if (!taskInfo) {
                 throw new ApolloError("Task not found");
             }
@@ -119,7 +128,7 @@ export const TaskInfoResolvers: Resolvers = {
             return { taskInfo, propertyPrefix, fileID, taskID };
         },
         // @ts-ignore
-        specificConfig: async ({ propertyPrefix, taskID, fileID }: { propertyPrefix: PrimitiveType, taskID: string, fileID: string }, _, { models }) => {
+        specificConfig: async ({ propertyPrefix, taskID, fileID } : { propertyPrefix: PrimitiveType, taskID: string, fileID: string }, _, { models }) => {
             const taskInfo = await models.TaskInfo.findByPk(taskID, { attributes: ["taskID"] });
             if (!taskInfo) {
                 throw new ApolloError("TaskInfo not found");
