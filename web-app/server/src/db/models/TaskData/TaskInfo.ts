@@ -1,5 +1,5 @@
 import { ApolloError, UserInputError } from "apollo-server-core";
-import { BOOLEAN, FLOAT, INTEGER, STRING, UUID, UUIDV4 } from "sequelize";
+import { BOOLEAN, FLOAT, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
 import { BelongsTo, Column, ForeignKey, HasOne, IsUUID, Model, Table } from "sequelize-typescript";
 import { IntersectionTaskProps } from "../../../graphql/types/types";
 import sendEvent from "../../../producer/sendEvent";
@@ -7,6 +7,9 @@ import { BaseTaskConfig, PrimitiveType } from "./BaseTaskConfig";
 import { ARTaskConfig, CFDTaskConfig, FDTaskConfig } from "./TaskConfigurations";
 import { ARTaskResult, CFDTaskResult, FDTaskResult } from "./TaskResults";
 import { User } from "../UserInfo/User";
+
+const ALL_TASK_STATUSES = ["IN_PROCESS", "COMPLETED", "INTERNAL_SERVER_ERROR", "RESOURCE_LIMIT_IS_REACHED", "ADDED_TO_THE_TASK_QUEUE", "ADDING_TO_DB"] as const;
+export type TaskStatusType = typeof ALL_TASK_STATUSES[number];
 
 interface TaskInfoModelMethods {
     fullDestroy: (paranoid: boolean) => Promise<void>;
@@ -36,7 +39,7 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
     attemptNumber!: number;
 
     @Column({ type: STRING, allowNull: false })
-    status!: string;
+    status!: TaskStatusType;
 
     @Column({ type: STRING })
     phaseName!: string;
@@ -50,7 +53,7 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
     @Column({ type: INTEGER })
     maxPhase?: number;
 
-    @Column({ type: STRING })
+    @Column({ type: TEXT })
     errorMsg?: string;
 
     @Column({ type: BOOLEAN, defaultValue: false, allowNull: false })
@@ -117,16 +120,19 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
         return result.value;
     };
 
-    static saveToDB = async (props: IntersectionTaskProps, fileID: string, userID: string | null) => {
+    static saveToDB = async (props: IntersectionTaskProps,
+                             fileID: string, userID: string | null) => {
         const { type: propertyPrefix } = props;
-        const taskInfo = await TaskInfo.create({ status: "ADDING TO DB", userID });
+        const status: TaskStatusType = "ADDING_TO_DB";
+        const taskInfo = await TaskInfo.create({ status, userID });
         await taskInfo.$create("baseConfig", { ...props, fileID });
         await taskInfo.$create(`${propertyPrefix}Config`, { ...props });
         await taskInfo.$create(`${propertyPrefix}Result`, {});
         return taskInfo;
     };
 
-    static saveToDBIfPropsValid = async (props: IntersectionTaskProps, fileID: string, userID: string | null) => {
+    static saveToDBIfPropsValid = async (props: IntersectionTaskProps,
+                                         fileID: string, userID: string | null) => {
         const validityAnswer = BaseTaskConfig.isPropsValid(props);
         if (validityAnswer.isValid) {
             return await TaskInfo.saveToDB(props, fileID, userID);
@@ -138,13 +144,13 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
                                              topicName: string, userID: string | null) => {
         const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, fileID, userID);
         await sendEvent(topicName, taskInfo.taskID);
-        await taskInfo.update({ status: "ADDED TO THE TASK QUEUE" });
+        const status: TaskStatusType = "ADDED_TO_THE_TASK_QUEUE";
+        await taskInfo.update({ status });
         return taskInfo;
     };
 
     static isTaskExecuted = async (taskID: string) => {
-        const taskInfo = await TaskInfo.findByPk(taskID,
-            { attributes: ["isExecuted"] });
+        const taskInfo = await TaskInfo.findByPk(taskID, { attributes: ["isExecuted"] });
         if (!taskInfo) {
             throw new ApolloError("Task not found");
         }
