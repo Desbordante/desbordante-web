@@ -13,23 +13,15 @@ import {
 } from "../graphql/operations/mutations/__generated__/deleteTask";
 
 import { GET_TASK_INFO } from "../graphql/operations/queries/getTaskInfo";
-import {
-  getTaskInfo,
-  getTaskInfoVariables,
-} from "../graphql/operations/queries/__generated__/getTaskInfo";
+import { getTaskInfo, getTaskInfoVariables } from "../graphql/operations/queries/__generated__/getTaskInfo";
 import { ErrorContext } from "./ErrorContext";
-import {
-  Dataset,
-  FDTaskResult,
-  TaskResult,
-  TaskState,
-} from "../types/taskInfo";
+import { Dataset, FDTaskResult, TaskResult, TaskStateAnswer } from "../types/taskInfo";
 import { PrimitiveType } from "../types/globalTypes";
 
 type TaskContextType = {
   taskId: string | undefined;
   setTaskId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  taskState: TaskState | undefined;
+  taskState: TaskStateAnswer | undefined;
   dataset: Dataset | undefined;
   taskType: PrimitiveType | undefined;
   taskResult: TaskResult | undefined;
@@ -44,7 +36,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
 
   const [taskId, setTaskId] = useState<string>();
   const [dataset, setDataset] = useState<Dataset>();
-  const [taskState, setTaskState] = useState<TaskState>();
+  const [taskState, setTaskState] = useState<TaskStateAnswer>();
   const [taskType, setTaskType] = useState<PrimitiveType>();
   const [taskResult, setTaskResult] = useState<TaskResult>();
 
@@ -55,14 +47,13 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     setTaskResult(undefined);
   };
 
-  const [query, { data: taskData, error }] = useLazyQuery<
-    getTaskInfo,
-    getTaskInfoVariables
-  >(GET_TASK_INFO);
-  const [deleteTask, { error: deleteError }] = useMutation<
-    deleteTask,
-    deleteTaskVariables
-  >(DELETE_TASK, { variables: { taskID: taskId! } });
+  const [query, { data: taskData, error }] =
+      useLazyQuery<getTaskInfo, getTaskInfoVariables>(GET_TASK_INFO);
+
+  const [deleteTask, { error: deleteError }]
+      = useMutation <deleteTask, deleteTaskVariables>(
+          DELETE_TASK,
+      { variables: { taskID: taskId! } });
 
   const queryRef = useRef<NodeJS.Timer | null>(null);
 
@@ -76,7 +67,7 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   }, [taskId]);
 
   useEffect(() => {
-    if (queryRef.current && (!taskId || taskState?.isExecuted || error)) {
+    if (queryRef.current && (!taskId || taskState && "processStatus" in taskState && taskState.isExecuted || error)) {
       clearInterval(queryRef.current);
       queryRef.current = null;
     }
