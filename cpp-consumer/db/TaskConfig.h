@@ -2,12 +2,11 @@
 #include <string>
 #include <filesystem>
 
-#include "DBManager.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
 
-using variable_value = boost::program_options::variable_value;
-using variables_map = boost::program_options::variables_map;
+#include "AlgoFactory.h"
+#include "DBManager.h"
 
 class TaskConfig {
 private:
@@ -15,7 +14,7 @@ private:
     std::string const algo_;
     std::string const type_; // "FD", "CFD", "AR",
 
-    variables_map params_intersection_;
+    algos::StdParamsMap params_intersection_;
 
     static std::string task_info_table;
     static std::string file_info_table;
@@ -82,16 +81,15 @@ public:
                         double error_percent, char separator,
                         std::filesystem::path dataset_path, bool has_header,
                         unsigned int max_lhs, ushort threads)
-        :   task_id_(task_id), algo_(algo_name), type_(type) {
-        params_intersection_.emplace("data", variable_value(dataset_path, false));
-        params_intersection_.emplace("separator", variable_value(separator, false));
-        params_intersection_.emplace("has_header", variable_value(has_header, false));
-        params_intersection_.emplace("is_null_equal_null", variable_value(true, false));
-        params_intersection_.emplace("max_lhs", variable_value(max_lhs, false));
-        params_intersection_.emplace("threads", variable_value(threads, false));
-        params_intersection_.emplace("error", variable_value(error_percent, false));
-        params_intersection_.emplace("seed", variable_value(0, false));
-    }
+        :   task_id_(task_id), algo_(algo_name), type_(type),
+            params_intersection_{{"data", dataset_path},
+                               {"separator", separator},
+                               {"has_header", has_header},
+                               {"is_null_equal_null", true},
+                               {"max_lhs", max_lhs},
+                               {"threads", threads},
+                               {"error", error_percent},
+                               {"seed", 0}} {}
 
     static TaskConfig GetTaskConfig(DBManager const &manager, std::string task_id) {
         std::string postfix = " WHERE \"taskID\" = '" + task_id + "'";
