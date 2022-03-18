@@ -26,7 +26,8 @@ std::string TaskConfig::task_config_table = "\"TasksConfig\"";
 
 const std::map<std::string, std::string> algo_name_resolution {
     {"Pyro", "pyro"}, {"Dep Miner", "depminer"}, {"TaneX", "tane"},
-    {"FastFDs", "fastfds"}, {"FD mine", "fdmine"}, {"DFD", "dfd"}
+    {"FastFDs", "fastfds"}, {"FD mine", "fdmine"}, {"DFD", "dfd"},
+    {"FDep", "fdep"}
 };
 
 static std::string DBConnection() {
@@ -115,7 +116,7 @@ void processTask(TaskConfig const& task, DBManager const& manager) {
     std::unique_ptr<algos::Primitive> algorithm_instance =
         algos::CreateAlgorithmInstance(primitive_type, algo, params);
     try {
-        task.UpdateStatus(manager, "IN PROCESS");
+        task.UpdateStatus(manager, "IN_PROCESS");
 
         unsigned long long elapsedTime;
         const auto& phase_names = algorithm_instance->GetPhaseNames();
@@ -148,8 +149,6 @@ void processTask(TaskConfig const& task, DBManager const& manager) {
         if (TaskConfig::IsTaskValid(manager, task.GetTaskID())) {
             task.SetElapsedTime(manager, elapsedTime);
             SaveResultOfTheAlgorithm(task, manager, algorithm_instance.get());
-        } else {
-            task.UpdateStatus(manager, "CANCELLED");
         }
         task.SetIsExecuted(manager);
         return;
@@ -159,32 +158,36 @@ void processTask(TaskConfig const& task, DBManager const& manager) {
     }
 }
 
-void ProcessMsg(std::string taskID, DBManager const &manager) {
+enum class AnswerEnumType {
+    TASK_SUCCESSFULLY_PROCESSED = 0, TASK_CRASHED_STATUS_UPDATED = 1, TASK_CRASHED_WITHOUT_STATUS_UPDATING = 2,
+    TASK_NOT_FOUND = 3
+};
+
+AnswerEnumType ProcessMsg(std::string taskID, DBManager const &manager) {
     if (!TaskConfig::IsTaskValid(manager, taskID)) {
-        std::cout << "Task with ID = '" << taskID
-                  << "' isn't valid. (Cancelled or not found)" << std::endl;
-    } else {
-        auto task = TaskConfig::GetTaskConfig(manager, taskID);
-        try {
-            processTask(task, manager);
-            std::cout << "Task with ID = '" << taskID << "' was successfully processed."
-                      << std::endl;
-        } catch (const std::exception& e) {
-            std::cout << "Unexpected behaviour in 'process_task()'. (Task wasn't committed)"
-                      << std::endl;
-            task.UpdateErrorStatus(manager, "SERVER ERROR", e.what());
-        }
+        std::cout << "Task with ID = '" << taskID << "' isn't valid. (Cancelled or not found)\n";
+        return AnswerEnumType::TASK_NOT_FOUND;
+    }
+    TaskConfig task = TaskConfig::GetTaskConfig(manager, taskID);
+    try {
+        processTask(task, manager);
+        std::cout << "Task with ID = '" << taskID << "' was successfully processed.\n";
+        return AnswerEnumType::TASK_SUCCESSFULLY_PROCESSED;
+    } catch (const std::exception& e) {
+        std::cout << "Unexpected behaviour in 'process_task()'.\n" << e.what();
+        task.UpdateErrorStatus(manager, "INTERNAL_SERVER_ERROR", e.what());
+        return AnswerEnumType::TASK_CRASHED_STATUS_UPDATED;
     }
 }
 
 int main(int argc, char *argv[]) {
+    std::string task_id_ = argv[1];
     try {
-        std::string task_id_ = argv[1];
-        DBManager DBManager(DBConnection());
-        ProcessMsg(task_id_, DBManager);
+        DBManager manager(DBConnection());
+        return (int)ProcessMsg(task_id_, manager);
     } catch (const std::exception& e) {
         std::cerr << "% Unexpected exception caught: " << e.what() << std::endl;
-        return 1;
+        return (int)AnswerEnumType::TASK_CRASHED_WITHOUT_STATUS_UPDATING;
     }
     return 0;
 }

@@ -11,7 +11,6 @@ using variables_map = boost::program_options::variables_map;
 
 class TaskConfig {
 private:
-
     std::string const task_id_;
     std::string const algo_;
     std::string const type_; // "FD", "CFD", "AR",
@@ -21,21 +20,6 @@ private:
     static std::string task_info_table;
     static std::string file_info_table;
     static std::string task_config_table;
-
-    explicit TaskConfig(std::string task_id, std::string type, std::string algo_name,
-               double error_percent, char separator,
-               std::filesystem::path dataset_path, bool has_header,
-               unsigned int max_lhs, ushort threads)
-        :   task_id_(task_id), algo_(algo_name), type_(type) {
-        params_intersection_.emplace("data", variable_value(dataset_path, false));
-        params_intersection_.emplace("separator", variable_value(separator, false));
-        params_intersection_.emplace("has_header", variable_value(has_header, false));
-        params_intersection_.emplace("is_null_equal_null", variable_value(true, false));
-        params_intersection_.emplace("max_lhs", variable_value(max_lhs, false));
-        params_intersection_.emplace("threads", variable_value(threads, false));
-        params_intersection_.emplace("error", variable_value(error_percent, false));
-        params_intersection_.emplace("seed", variable_value(0, false));
-    }
 
     static std::string GetSpecificResultTableName(const TaskConfig& config) {
         return "\"" + config.GetType() + "TasksResult\"";
@@ -91,6 +75,23 @@ private:
     }
 
 public:
+
+    explicit TaskConfig() = default;
+
+    explicit TaskConfig(std::string task_id, std::string type, std::string algo_name,
+                        double error_percent, char separator,
+                        std::filesystem::path dataset_path, bool has_header,
+                        unsigned int max_lhs, ushort threads)
+        :   task_id_(task_id), algo_(algo_name), type_(type) {
+        params_intersection_.emplace("data", variable_value(dataset_path, false));
+        params_intersection_.emplace("separator", variable_value(separator, false));
+        params_intersection_.emplace("has_header", variable_value(has_header, false));
+        params_intersection_.emplace("is_null_equal_null", variable_value(true, false));
+        params_intersection_.emplace("max_lhs", variable_value(max_lhs, false));
+        params_intersection_.emplace("threads", variable_value(threads, false));
+        params_intersection_.emplace("error", variable_value(error_percent, false));
+        params_intersection_.emplace("seed", variable_value(0, false));
+    }
 
     static TaskConfig GetTaskConfig(DBManager const &manager, std::string task_id) {
         std::string postfix = " WHERE \"taskID\" = '" + task_id + "'";
@@ -182,7 +183,7 @@ public:
     }
 
     // Send a request to DB for changing task's status to 'ERROR'
-    // and update errorStatus;
+    // and update errorMsg;
     void UpdateErrorStatus(DBManager const& manager, std::string error,
                            std::string error_msg) const {
         UpdateTaskState(manager, {{ "status", error }, { "errorMsg", error_msg }});
