@@ -7,9 +7,7 @@ export const CREATE_TASK_WITH_UPLOADING_DATASET = gql`
     $table: Upload!
   ) {
       createTaskWithDatasetUploading(props: $props, datasetProps: $datasetProps, table: $table) {
-      state {
-        taskID
+          taskID
       }
-    }
   }
 `;

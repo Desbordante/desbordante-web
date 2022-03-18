@@ -88,7 +88,7 @@ const CreateTaskButton = () => {
           context,
         })
           .then((res) =>
-            history.push(res.data?.createTaskWithDatasetChoosing.state.taskID)
+            history.push(res.data?.createTaskWithDatasetChoosing.taskID)
           )
           .catch((error) => {
             showError({ message: error.message });
@@ -100,7 +100,7 @@ const CreateTaskButton = () => {
           context,
         })
           .then((res) =>
-            history.push(res.data?.createTaskWithDatasetUploading.state.taskID)
+            history.push(res.data?.createTaskWithDatasetUploading.taskID)
           )
           .catch((error) => {
             showError({ message: error.message });
