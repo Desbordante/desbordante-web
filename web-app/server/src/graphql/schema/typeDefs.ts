@@ -128,7 +128,7 @@ const typeDefs = gql`
     }
     
     enum TaskProcessStatusType {
-      IN_PROCESS, COMPLETED, ADDED_TO_THE_TASK_QUEUE, ADDING_TO_DB
+        IN_PROCESS, COMPLETED, ADDED_TO_THE_TASK_QUEUE, ADDING_TO_DB
     }
     
     enum TaskErrorStatusType {
@@ -426,9 +426,18 @@ const typeDefs = gql`
         errorThreshold: Float
         maxLHS: Int
         threadsCount: Int
+        # CFD
         minSupportCFD: Int
+        # CFD
         minSupportAR: Float
         minConfidence: Float
+        
+        # Typo Miner
+        preciseAlgorithm: String
+        # Typo Miner
+        approximateAlgorithm: String
+        
+        
     }
     
     type Mutation {
