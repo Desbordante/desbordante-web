@@ -40,12 +40,12 @@ producer.connect()
         }
       });
       if (isTopicTasksCreated) {
-        console.debug(`Topic '${process.env.DB_TASKS_TABLE_NAME}' already exists`);
+        console.debug(`Topic '${process.env.KAFKA_TOPIC_NAME}' already exists`);
       } else {
-        console.debug(`Topic '${process.env.DB_TASKS_TABLE_NAME}' not found`);
-        console.debug(`Creating topic '${process.env.DB_TASKS_TABLE_NAME}'`);
+        console.debug(`Topic '${process.env.KAFKA_TOPIC_NAME}' not found`);
+        console.debug(`Creating topic '${process.env.KAFKA_TOPIC_NAME}'`);
         client.createTopic({
-          topic: `${process.env.DB_TASKS_TABLE_NAME}`,
+          topic: `${process.env.KAFKA_TOPIC_NAME}`,
           num_partitions: 1,
           replication_factor: 1,
         }, (res: LibrdKafkaError) => {
