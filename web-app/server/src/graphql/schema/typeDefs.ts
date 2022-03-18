@@ -127,16 +127,30 @@ const typeDefs = gql`
         FD, CFD, AR
     }
     
+    enum TaskStatusType {
+      IN_PROCESS, COMPLETED, INTERNAL_SERVER_ERROR, RESOURCE_LIMIT_IS_REACHED, ADDED_TO_THE_TASK_QUEUE, ADDING_TO_DB
+    }
+        
+    enum ResourceLimitErrorType {
+        MEMORY_LIMIT, TIME_LIMIT
+    }
+#    
+#    type InternalServerError {
+#        statusType: TaskStatusType!
+#        # 
+#        errorMsg: ResourceLimitErrorType
+#    }
+    
     type TaskState {
         taskID: ID!
         isPrivate: Boolean!
         attemptNumber: Int!
-        status: String!
+        status: TaskStatusType!
+        errorMsg: ResourceLimitErrorType
         phaseName: String
         currentPhase: Int
         progress: Float!
         maxPhase: Int
-        errorMsg: String
         isExecuted: Boolean!
         elapsedTime: Float
     }
