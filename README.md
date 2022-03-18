@@ -121,45 +121,6 @@ docker-compose build
 docker-compose up --force-recreate
 ```
 After the launch it will be available at http://localhost:3000/
-#### Building
-  Cd into the project directory and launch the build script with the flag to build the consumer:
-  ```
-  cd Desbordante
-  ./build.sh -c
-  ```
-  The script generates the following file structure in `/path/to/Desbordante/build/target`:
-  ```bash
-  ├───...
-  ├───Desbordante_kafka_consumer
-  ```
-* ### Launching the web application
-  Firstly, you need to run kafka server:
-  ```
-  cd web-app/kafka-server
-  sudo docker-compose up
-  ```
-  `Note`: if an error occurred while trying to start the server, then enter:
-  ```
-  sudo docker-compose down
-  ```
-  Secondly, you need to run web-server:
-  ```
-  cd web-app/server
-  yarn build
-  yarn start
-  ```
-  `Note`: By default, all tables will be recreated after each server restart. You can change this behavior in the '.env' file (server/.env).
-
-  Next, you need to run web-client:
-  ```
-  cd web-app/client
-  yarn start
-  ```
-  Then, it remains to start the consumer:
-  ```
-  cd build/target
-  ./Desbordante_kafka_consumer
-  ```
 # Developers
 
 Kirill Stupakov     &mdash; Client side of the web application
