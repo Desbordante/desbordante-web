@@ -17,6 +17,10 @@ export const allowedARAlgorithms = [
     { name: "AR algorithm", properties: { hasSupport: true, hasConfidence: true } },
 ];
 
+export const allowedTypoMinerAlgorithm = {
+    name: "Typo Miner", properties: { ApproxAlgo: "Pyro" },
+};
+
 export const fileConfig = {
     allowedFileFormats: ["text/csv", "application/vnd.ms-excel"],
     allowedDelimiters: [",", "\\t", "\\n", "|", ";"],
