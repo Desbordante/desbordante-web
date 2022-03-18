@@ -34,18 +34,25 @@ def create_consumer():
     consumer.subscribe(['tasks'])
     return consumer
 
-
-def update_errorStatus(taskID, error):
+# errorType : INTERNAL SERVER ERROR | RESOURCE LIMIT IS REACHED
+def update_error_status(taskID, errorType, error):
     with psycopg.connect(f"dbname={POSTGRES_DBNAME} \
     user={POSTGRES_USER} password={POSTGRES_PASSWORD} \
     host={POSTGRES_HOST} port={POSTGRES_PORT}") as conn:
         with conn.cursor() as cur:
             cur.execute(f"""
-            UPDATE {DB_TASKS_TABLE_NAME} \
-            SET errorStatus = '{error}' \
-            WHERE taskID = '{taskID}';
+            UPDATE "{DB_TASKS_TABLE_NAME}" \
+            SET "errorMsg" = '{error}', "status" = '{errorType}' \
+            WHERE "taskID" = '{taskID}';
             """)
             conn.commit()
+
+def update_internal_server_error(taskID, error):
+    update_error_status(taskID, "INTERNAL_SERVER_ERROR", error)
+
+# error: MEMORY LIMIT | TIME LIMIT
+def update_resource_limit_error(taskID, error):
+    update_error_status(taskID, "RESOURCE_LIMIT_IS_REACHED", error)
 
 
 def check_active_containers(active_tasks):
@@ -58,12 +65,11 @@ def check_active_containers(active_tasks):
 
         if time.time() - t >= TIMELIMIT:
             # TL
-            print(
-                f'time exceeded for {taskID}, container {container} removed')
+            print(f'time exceeded for {taskID}, container {container} removed')
             container.stop(timeout=1)
             container.remove()
             active_tasks.pop(taskID)
-            update_errorStatus(taskID, "TL")
+            update_resource_limit_error(taskID, "TIME_LIMIT")
             break
 
         container_state = docker_api_client.inspect_container(container.id)[
@@ -75,18 +81,23 @@ def check_active_containers(active_tasks):
             print(f"{taskID} ML", file=sys.stderr)
             container.remove()
             active_tasks.pop(taskID)
-            update_errorStatus(taskID, "ML")
+            update_resource_limit_error(taskID, "MEMORY_LIMIT")
             break
 
         if container.status == "exited":
-            ExitCode = container_state["ExitCode"]
-            if ExitCode != 0:
-                # Cpp error
-                print(f"{taskID} desbordante has crashed", file=sys.stderr)
-                update_errorStatus(taskID, "CRASH")
+            exitCode = container_state["ExitCode"]
+            if exitCode == 0: # TASK_SUCCESSFULLY_PROCESSED
+                print(f"[{taskID}] task done successfully", file=sys.stderr)
+            elif exitCode == 1: # TASK_CRASHED_STATUS_UPDATED
+                print(f"[{taskID}] cpp-consumer has crashed, status was updated by cpp-consumer", file=sys.stderr)
                 print(container.logs())
-            else:
-                print(f"{taskID} task done successfully", file=sys.stderr)
+            elif exitCode == 2: # TASK_CRASHED_WITHOUT_STATUS_UPDATING
+                print(f"[{taskID}] cpp-consumer has crashed without status updating", file=sys.stderr)
+                update_internal_server_error(taskID, f"Crash {container.logs()}")
+                print(container.logs())
+            elif exitCode == 3: # TASK_NOT_FOUND
+                print(f"[{taskID}] task not found", file=sys.stderr)
+
             container.remove()
             active_tasks.pop(taskID)
             break
