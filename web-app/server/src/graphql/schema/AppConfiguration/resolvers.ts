@@ -5,7 +5,9 @@ export const allowedFDAlgorithms = [
     { name: "TaneX", properties: { hasErrorThreshold: true, hasArityConstraint: true, isMultiThreaded: false } },
     { name: "FastFDs",  properties: { hasErrorThreshold: false, hasArityConstraint: false, isMultiThreaded: true } },
     { name: "FD mine", properties: { hasErrorThreshold: false, hasArityConstraint: false, isMultiThreaded: false } },
-    { name: "DFD", properties: { hasErrorThreshold: false, hasArityConstraint: false, isMultiThreaded: false } },
+    { name: "DFD", properties: { hasErrorThreshold: false, hasArityConstraint: false, isMultiThreaded: true } },
+    { name: "Dep Miner", properties: { hasErrorThreshold: false, hasArityConstraint: false, isMultiThreaded: false } },
+    { name: "FDep", properties: { hasErrorThreshold: false, hasArityConstraint: false, isMultiThreaded: false } },
 ];
 export const allowedCFDAlgorithms = [
     { name: "CTane", properties: { hasArityConstraint: true, hasSupport: true, hasConfidence: true } },
