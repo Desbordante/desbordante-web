@@ -3,7 +3,7 @@ import { INTEGER, REAL, UUID } from "sequelize";
 import {
     allowedARAlgorithms,
     allowedCFDAlgorithms,
-    allowedFDAlgorithms, maxThreadsCount,
+    allowedFDAlgorithms, allowedTypoMinerAlgorithm, maxThreadsCount,
 } from "../../../graphql/schema/AppConfiguration/resolvers";
 import { IntersectionTaskProps } from "../../../graphql/types/types";
 import { TaskInfo } from "./TaskInfo";
@@ -42,14 +42,11 @@ export class FDTaskConfig extends Model{
         let errorMessage: string | undefined;
         if (!~allowedFDAlgorithms.findIndex(({ name }) => algorithmName === name)) {
             errorMessage = `Algorithm name ${algorithmName} not found`;
-        }
-        if (typeof errorThreshold !== "number" || errorThreshold < 0 || errorThreshold > 1) {
+        } else if (typeof errorThreshold !== "number" || errorThreshold < 0 || errorThreshold > 1) {
             errorMessage = `Error threshold isn't valid ${errorThreshold}`;
-        }
-        if (typeof maxLHS !== "number" || maxLHS < -1) {
+        } else if (typeof maxLHS !== "number" || maxLHS < -1) {
             errorMessage = `maxLHS ${maxLHS} isn't valid`;
-        }
-        if (typeof threadsCount !== "number" || threadsCount < 1 || threadsCount > maxThreadsCount) {
+        } else if (typeof threadsCount !== "number" || threadsCount < 1 || threadsCount > maxThreadsCount) {
             errorMessage = `threadsCount ${threadsCount} isn't valid (min = 1, max = ${maxThreadsCount})`;
         }
         return errorMessage? { isValid: false, errorMessage } : { isValid: true };
@@ -87,14 +84,11 @@ export class CFDTaskConfig extends Model{
         let errorMessage: string | undefined;
         if (!~allowedCFDAlgorithms.findIndex(({ name }) => algorithmName === name)) {
             errorMessage = `Algorithm name ${algorithmName} not found`;
-        }
-        if (typeof minConfidence !== "number" || minConfidence < 0 || minConfidence > 1) {
+        } else if (typeof minConfidence !== "number" || minConfidence < 0 || minConfidence > 1) {
             errorMessage = `minConfidence ${minConfidence} isn't valid`;
-        }
-        if (typeof maxLHS !== "number" || maxLHS < -1) {
+        } else if (typeof maxLHS !== "number" || maxLHS < -1) {
             errorMessage = `maxLHS ${maxLHS} isn't valid`;
-        }
-        if (typeof minSupportCFD !== "number" || minSupportCFD < 1) {
+        } else if (typeof minSupportCFD !== "number" || minSupportCFD < 1) {
             errorMessage = `minSupportCFD ${minSupportCFD} isn't valid`;
         }
         return errorMessage? { isValid: false, errorMessage } : { isValid: true };
@@ -128,13 +122,61 @@ export class ARTaskConfig extends Model{
         let errorMessage: string | undefined;
         if (!~allowedARAlgorithms.findIndex(({ name }) => algorithmName === name)) {
             errorMessage = `Algorithm name ${algorithmName} not found`;
-        }
-        if (typeof minConfidence !== "number" || minConfidence < 0 || minConfidence > 1) {
+        } else if (typeof minConfidence !== "number" || minConfidence < 0 || minConfidence > 1) {
             errorMessage = `minConfidence ${minConfidence} isn't valid`;
-        }
-        if (typeof minSupportAR !== "number" || minSupportAR > 1 || minSupportAR < 0) {
+        } else if (typeof minSupportAR !== "number" || minSupportAR > 1 || minSupportAR < 0) {
             errorMessage = `minConfidence ${minSupportAR} isn't valid`;
         }
         return errorMessage? { isValid: false, errorMessage } : { isValid: true };
+    };
+}
+
+@Table({
+    tableName : "TypoTasksConfig",
+    updatedAt: false,
+    paranoid: true,
+})
+export class TypoTaskConfig extends Model{
+    @IsUUID(4)
+    @ForeignKey(() => TaskInfo)
+    @Column({ type: UUID, primaryKey: true })
+    taskID!: string;
+
+    @BelongsTo(() => TaskInfo)
+    taskState!: TaskInfo;
+
+    @AllowNull(false)
+    @Column({ type: REAL })
+    errorThreshold!: number;
+
+    @AllowNull(false)
+    @Column({ type: INTEGER })
+    maxLHS!: number;
+
+    @AllowNull(false)
+    @Column({ type: INTEGER })
+    threadsCount!: number;
+
+    static isPropsValid: IsPropsValidFunctionType = props => {
+        const { algorithmName, preciseAlgorithm, approximateAlgorithm } = props;
+        let errorMessage: string | undefined;
+        if (algorithmName !== allowedTypoMinerAlgorithm.name) {
+            errorMessage = `Received incorrect algorithm name ${algorithmName}`
+                + `, expected: ${allowedTypoMinerAlgorithm.name}`;
+        } else if (approximateAlgorithm != "TaneX") {
+            errorMessage = `Received incorrect approximate algorithm name ${approximateAlgorithm}`
+                + `, expected: ${allowedTypoMinerAlgorithm.name}`;
+        } else if (!preciseAlgorithm) {
+            errorMessage = `Received incorrect approximate algorithm name ${preciseAlgorithm}`;
+        } else {
+            props.algorithmName = preciseAlgorithm;
+
+            const isFdAlgoValid = FDTaskConfig.isPropsValid(props);
+            if (!isFdAlgoValid.isValid) {
+                return isFdAlgoValid;
+            }
+        }
+
+        return errorMessage ? { isValid: false, errorMessage } : { isValid: true };
     };
 }
