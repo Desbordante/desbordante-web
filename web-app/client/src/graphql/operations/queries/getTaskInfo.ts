@@ -2,108 +2,114 @@ import { gql } from "@apollo/client";
 
 export const GET_TASK_INFO = gql`
   query getTaskInfo($taskID: ID!) {
-    taskInfo(taskID: $taskID) {
-      taskID
-      state {
-        status
-        phaseName
-        currentPhase
-        progress
-        maxPhase
-        errorMsg
-        isExecuted
-      }
+      taskInfo(taskID: $taskID) {
+          taskID
+          state {
+              ... on TaskState {
+                  processStatus
+                  phaseName
+                  currentPhase
+                  progress
+                  maxPhase
+                  isExecuted
+              }
+              ... on BaseTaskError {
+                  errorStatus
+                  ... on ResourceLimitTaskError {
+                      resourceLimitError
+                  }
+                  ... on InternalServerTaskError {
+                      internalError
+                  }
+              }
+          }
 
-      dataset {
-        originalFileName
-        snippet {
-          header
-          rows(pagination: { offset: 0, limit: 100 })
-        }
-      }
+          dataset {
+              originalFileName
+              snippet {
+                  header
+                  rows(pagination: { offset: 0, limit: 100 })
+              }
+          }
 
-      data {
-        result {
-          __typename
-          ... on FDTaskResult {
-            FDs(pagination: { offset: 0, limit: 100 }) {
-              lhs
-              rhs
-            }
-            PKs {
+          data {
+              result {
+                  __typename
+                  ... on FDTaskResult {
+                      FDs(pagination: { offset: 0, limit: 100 }) {
+                          lhs
+                          rhs
+                      }
+                      PKs {
+                          name
+                      }
+                      pieChartData {
+                          ... PieChartDataWithoutPatterns
+                      }
+                  }
+
+                  __typename
+                  ... on CFDTaskResult {
+                      CFDs(pagination: { offset: 0, limit: 100 }) {
+                          lhs
+                          rhs
+                          lhsPatterns
+                          rhsPattern
+                      }
+                      PKs {
+                          name
+                      }
+                      pieChartData {
+                          withPatterns {
+                              ... PieChartDataWithPatterns
+                          }
+                          withoutPatterns {
+                              ... PieChartDataWithoutPatterns
+                          }
+                      }
+                  }
+
+                  __typename
+                  ... on ARTaskResult {
+                      ARs(pagination: { offset: 0, limit: 100 }) {
+                          lhs
+                          rhs
+                          support
+                      }
+                  }
+              }
+          }
+      }
+  }
+  fragment PieChartDataWithoutPatterns on PieChartWithoutPatterns {
+      lhs {
+          column {
               name
-            }
-            pieChartData {
-              lhs {
-                column {
-                  name
-                }
-                value
-              }
-              rhs {
-                column {
-                  name
-                }
-                value
-              }
-            }
           }
-
-          __typename
-          ... on CFDTaskResult {
-            CFDs(pagination: { offset: 0, limit: 100 }) {
-              lhs
-              rhs
-              lhsPatterns
-              rhsPattern
-            }
-            PKs {
-              name
-            }
-            pieChartData {
-              withPatterns {
-                lhs {
-                  column {
-                    name
-                  }
-                  pattern
-                  value
-                }
-                rhs {
-                  column {
-                    name
-                  }
-                  pattern
-                  value
-                }
-              }
-              withoutPatterns {
-                lhs {
-                  column {
-                    name
-                  }
-                  value
-                }
-                rhs {
-                  column {
-                    name
-                  }
-                  value
-                }
-              }
-            }
-          }
-
-          __typename
-          ... on ARTaskResult {
-            ARs(pagination: { offset: 0, limit: 100 }) {
-              lhs
-              rhs
-              support
-            }
-          }
-        }
+          value
       }
-    }
+      rhs {
+          column {
+              name
+          }
+          value
+      }
+  }
+  
+  fragment PieChartDataWithPatterns on PieChartWithPatterns {
+      lhs {
+          column {
+              name
+          }
+          pattern
+          value
+      }
+      rhs {
+          column {
+              name
+          }
+          pattern
+          value
+      }
   }
 `;

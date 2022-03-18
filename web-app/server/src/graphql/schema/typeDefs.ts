@@ -127,26 +127,39 @@ const typeDefs = gql`
         FD, CFD, AR
     }
     
-    enum TaskStatusType {
-      IN_PROCESS, COMPLETED, INTERNAL_SERVER_ERROR, RESOURCE_LIMIT_IS_REACHED, ADDED_TO_THE_TASK_QUEUE, ADDING_TO_DB
+    enum TaskProcessStatusType {
+      IN_PROCESS, COMPLETED, ADDED_TO_THE_TASK_QUEUE, ADDING_TO_DB
+    }
+    
+    enum TaskErrorStatusType {
+        INTERNAL_SERVER_ERROR, RESOURCE_LIMIT_IS_REACHED
     }
         
     enum ResourceLimitErrorType {
         MEMORY_LIMIT, TIME_LIMIT
     }
-#    
-#    type InternalServerError {
-#        statusType: TaskStatusType!
-#        # 
-#        errorMsg: ResourceLimitErrorType
-#    }
+    
+    interface BaseTaskError {
+        errorStatus: TaskErrorStatusType!
+    }
+    
+    type ResourceLimitTaskError implements BaseTaskError {
+        errorStatus: TaskErrorStatusType!
+        resourceLimitError: ResourceLimitErrorType!
+    }
+
+    type InternalServerTaskError implements BaseTaskError {
+        errorStatus: TaskErrorStatusType!
+        # Admins with permission 'VIEW_ADMIN_INFO' can view errorMsg value.
+        # Users without these rights will receive null
+        internalError: String
+    }
     
     type TaskState {
         taskID: ID!
         isPrivate: Boolean!
         attemptNumber: Int!
-        status: TaskStatusType!
-        errorMsg: ResourceLimitErrorType
+        processStatus: TaskProcessStatusType!
         phaseName: String
         currentPhase: Int
         progress: Float!
@@ -154,6 +167,8 @@ const typeDefs = gql`
         isExecuted: Boolean!
         elapsedTime: Float
     }
+
+    union TaskStateAnswer = TaskState | ResourceLimitTaskError | InternalServerTaskError
     
     type BaseTaskConfig {
         algorithmName: String!
@@ -265,7 +280,7 @@ const typeDefs = gql`
     
     type TaskInfo {
         taskID: String!
-        state: TaskState!
+        state: TaskStateAnswer!
         data: PrimitiveTaskData!
         dataset: DatasetInfo!
     }
@@ -311,7 +326,6 @@ const typeDefs = gql`
         delimiter: String!
         rowsCount: Int!
         countOfColumns: Int!
-        # Only for AR datasets
         fileFormat: FileFormat
         snippet: Snippet!
         supportedPrimitives: [PrimitiveType!]!

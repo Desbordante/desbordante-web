@@ -16,7 +16,7 @@ const Index = () => {
 
   useEffect(() => setTaskId(taskID), [taskID, setTaskId]);
 
-  return taskState?.isExecuted ? (
+  return taskState && "isExecuted" in taskState && taskState.isExecuted ? (
     <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">
       {taskType === PrimitiveType.FD && taskResult?.FD && (
         <FDViewer result={taskResult.FD} />

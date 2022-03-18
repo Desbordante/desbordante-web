@@ -9,12 +9,13 @@ import {
   getTaskInfo_taskInfo_data_result_FDTaskResult_pieChartData_lhs,
   getTaskInfo_taskInfo_data_result_FDTaskResult_PKs,
   getTaskInfo_taskInfo_dataset,
-  getTaskInfo_taskInfo_state,
+  getTaskInfo_taskInfo_state, getTaskInfo_taskInfo_state_TaskState,
 } from "../graphql/operations/queries/__generated__/getTaskInfo";
 
 export type Dataset = getTaskInfo_taskInfo_dataset;
 
-export type TaskState = getTaskInfo_taskInfo_state;
+export type TaskStateAnswer = getTaskInfo_taskInfo_state
+export type TaskState = getTaskInfo_taskInfo_state_TaskState;
 
 export type FDPieChartData =
   getTaskInfo_taskInfo_data_result_FDTaskResult_pieChartData;

@@ -7,10 +7,10 @@ import { FindOptions, Op } from "sequelize";
 import validator from "validator";
 
 import { Pagination, PrimitiveType, Resolvers } from "../../types/types";
-import isUUID = validator.isUUID;
-import { TaskInfo } from "../../../db/models/TaskData/TaskInfo";
+import { TaskInfo, TaskStatusType } from "../../../db/models/TaskData/TaskInfo";
 import { builtInDatasets } from "../../../db/initBuiltInDatasets";
 import { BaseTaskConfig } from "../../../db/models/TaskData/BaseTaskConfig";
+import isUUID = validator.isUUID;
 
 function getArrayOfDepsByPagination<DependencyType> (deps: DependencyType[], pagination: Pagination) {
     const { limit, offset } = pagination;
@@ -67,6 +67,32 @@ export const TaskInfoResolvers: Resolvers = {
         support: ({ rule }) => {
             return rule[0];
         },
+    },
+    TaskStateAnswer: {
+        // @ts-ignore
+        __resolveType: ({ status } : { status: TaskStatusType }) => {
+            if (status == "INTERNAL_SERVER_ERROR" || status == "RESOURCE_LIMIT_IS_REACHED") {
+                return status;
+            }
+            return "TaskState";
+        },
+    },
+    InternalServerTaskError: {
+        // @ts-ignore
+        internalError: ({ errorMsg }, _, { sessionInfo }) => {
+            if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
+                return null;
+            }
+            return errorMsg;
+        },
+    },
+    ResourceLimitTaskError: {
+        // @ts-ignore
+        resourceLimitError: ({ errorMsg }) => errorMsg,
+    },
+    TaskState: {
+        // @ts-ignore
+        processStatus: ({ status }) => status,
     },
     TaskInfo: {
         // @ts-ignore
