@@ -11,13 +11,14 @@
 class TaskConfig {
 private:
     std::string const task_id_;
-    std::string const algo_;
+    std::string const algo_name_;
     std::string const type_; // "FD", "CFD", "AR",
 
     algos::StdParamsMap params_intersection_;
 
     static std::string task_info_table;
     static std::string file_info_table;
+    static std::string file_format_table;
     static std::string task_config_table;
 
     static std::string GetSpecificResultTableName(const TaskConfig& config) {
@@ -75,49 +76,82 @@ private:
 
 public:
 
-    explicit TaskConfig() = default;
-
-    explicit TaskConfig(std::string task_id, std::string type, std::string algo_name,
-                        double error_percent, char separator,
-                        std::filesystem::path dataset_path, bool has_header,
-                        unsigned int max_lhs, ushort threads)
-        :   task_id_(task_id), algo_(algo_name), type_(type),
-            params_intersection_{{"data", dataset_path},
-                               {"separator", separator},
-                               {"has_header", has_header},
-                               {"is_null_equal_null", true},
-                               {"max_lhs", max_lhs},
-                               {"threads", threads},
-                               {"error", error_percent},
-                               {"seed", 0}} {}
+    TaskConfig(std::string task_id, std::string const& type, std::string const& algo_name,
+               algos::StdParamsMap&& params_intersection)
+        : task_id_(task_id), algo_name_(algo_name), type_(type),
+          params_intersection_(std::move(params_intersection)) {}
 
     static TaskConfig GetTaskConfig(DBManager const &manager, std::string task_id) {
+        algos::StdParamsMap params;
         std::string postfix = " WHERE \"taskID\" = '" + task_id + "'";
+
         std::string query = "SELECT \"type\" from " + task_config_table + postfix;
         auto rows = manager.DefaultQuery(query);
-        std::string type = rows[0]["\"type\""].c_str();
+        std::string primitive_type = rows[0]["\"type\""].c_str();
 
         query = "SELECT \"algorithmName\", \"fileID\" FROM " + task_config_table + postfix;
         rows = manager.DefaultQuery(query);
         std::string algo_name = rows[0]["\"algorithmName\""].c_str();
         std::string file_id = rows[0]["\"fileID\""].c_str();
+        std::string file_postfix = " WHERE \"fileID\" = '" + file_id + "'";
 
-        query = "SELECT \"hasHeader\", \"path\", \"delimiter\" FROM " + file_info_table
-                + " WHERE \"fileID\" = '" + file_id + "'";
+        query = "SELECT \"hasHeader\", \"path\", \"delimiter\" FROM "
+                + file_info_table + file_postfix;
         rows = manager.DefaultQuery(query);
         char delimiter = rows[0]["\"delimiter\""].c_str()[0];
-        std::string path = rows[0]["\"path\""].c_str();
+        std::string path = (rows[0]["\"path\""]).c_str();
+        std::filesystem::path dataset_path = path;
         bool has_header;
         rows[0]["\"hasHeader\""] >> has_header;
 
-        auto tableName = "\"" + type + "TasksConfig\"";
-        query = "SELECT \"errorThreshold\", \"maxLHS\", \"threadsCount\" FROM " + tableName + postfix;
+        params.insert({{ "has_header", has_header },{ "separator", delimiter },
+                       { "data", dataset_path }});
+
+        auto specific_config_table = "\"" + primitive_type + "TasksConfig\"";
+
+        std::map<std::string, std::vector<std::string>> config_resolution {
+            { "FD", { "\"errorThreshold\"", "\"maxLHS", "\"threadsCount\"" } },
+            { "AR", { "\"minSupportAR\"", "\"minConfidence\"" } },
+        };
+
+        query = "SELECT " + boost::join(config_resolution[primitive_type], ",")
+                + " FROM " + specific_config_table + postfix;
         rows = manager.DefaultQuery(query);
-        auto error_threshold = std::stod(rows[0]["\"errorThreshold\""].c_str());
-        auto max_lhs = (unsigned int)std::stoi(rows[0]["\"maxLHS\""].c_str());
-        auto threads_count = (ushort)std::stoi(rows[0]["\"threadsCount\""].c_str());
-        return TaskConfig(task_id, type, algo_name, error_threshold, delimiter,
-                          path, has_header, max_lhs, threads_count);
+
+        if (primitive_type == "FD") {
+            auto error_threshold = std::stod(rows[0]["\"errorThreshold\""].c_str());
+            auto max_lhs = (unsigned)std::stoi(rows[0]["\"maxLHS\""].c_str());
+            auto threads_count = (ushort)std::stoi(rows[0]["\"threadsCount\""].c_str());
+            params.insert({
+                {"max_lhs", max_lhs}, {"threads", threads_count}, {"error", error_threshold}});
+        } else if (primitive_type == "AR") {
+            auto min_sup = std::stod(rows[0]["\"minSupportAR\""].c_str());
+            auto min_conf = std::stod(rows[0]["\"minConfidence\""].c_str());
+            params.insert({{ "minsup", min_sup }, { "minconf", min_conf }});
+
+            std::vector<std::string> file_format_attrs = {
+                "\"inputFormat\"", "\"tidColumnIndex\"", "\"itemColumnIndex\"", "\"hasTid\"" };
+
+            query = "SELECT " + boost::join(file_format_attrs, ",")
+                    + " FROM " + file_format_table + file_postfix;
+            rows = manager.DefaultQuery(query);
+
+            std::string input_format = rows[0]["\"inputFormat\""].c_str();
+            std::string lower_input_format = boost::to_lower_copy(input_format);
+            params.insert({ "input_format", lower_input_format });
+            if (input_format == "SINGULAR") {
+                auto tid_column_index = (unsigned)std::stoi(rows[0]["\"tidColumnIndex\""].c_str()) - 1;
+                auto item_column_index = (unsigned)std::stoi(rows[0]["\"itemColumnIndex\""].c_str()) - 1;
+                params.insert({
+                    { "tid_column_index", tid_column_index },
+                    { "item_column_index", item_column_index }});
+            } else if (input_format == "TABULAR") {
+                bool has_tid;
+                rows[0]["\"hasTid\""] >> has_tid;
+                params.insert({ "has_tid", has_tid });
+            }
+        }
+        return { task_id, primitive_type, algo_name, std::move(params) };
     }
 
     const auto& GetParamsIntersection() const {
@@ -125,7 +159,7 @@ public:
     }
 
     const std::string& GetTaskID() const { return task_id_; }
-    const std::string& GetAlgo() const { return algo_; }
+    const std::string& GetAlgo() const { return algo_name_; }
     const std::string& GetType() const { return type_; }
 
     static bool IsTaskValid(DBManager const &manager, std::string task_id) {
@@ -167,12 +201,17 @@ public:
         UpdateTaskState(manager, {{ "isExecuted", "true" }});
     }
 
-    // Send a request to DB with a set of FDs
+    // Send a request to DB with a set of FDs/CFDs/ARs
     void UpdateDeps(DBManager const& manager, const std::string& deps) const {
-        assert(type_ == "FD" || type_ == "CFD");
+        assert(type_ == "FD" || type_ == "CFD" || type_ == "AR");
 
         auto deps_name = type_ + "s";
         UpdateTaskResult(manager, {{deps_name, deps}});
+    }
+
+    // Send a request to DB with a set of FDs/CFDs/ARs
+    void UpdateValueDictionary(DBManager const& manager, const std::string& valueDictionary) const {
+        UpdateTaskResult(manager, {{"valueDictionary", valueDictionary}});
     }
 
     // Send a request to DB with JSON array (data for pie chart for client)

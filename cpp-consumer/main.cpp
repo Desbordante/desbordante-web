@@ -22,29 +22,39 @@ INITIALIZE_EASYLOGGINGPP
 
 std::string TaskConfig::task_info_table = "\"TasksInfo\"";
 std::string TaskConfig::file_info_table = "\"FilesInfo\"";
+std::string TaskConfig::file_format_table = "\"FilesFormat\"";
 std::string TaskConfig::task_config_table = "\"TasksConfig\"";
 
 const std::map<std::string, std::string> algo_name_resolution {
     {"Pyro", "pyro"}, {"Dep Miner", "depminer"}, {"TaneX", "tane"},
     {"FastFDs", "fastfds"}, {"FD mine", "fdmine"}, {"DFD", "dfd"},
-    {"FDep", "fdep"}
+    {"FDep", "fdep"}, { "AR algorithm", "apriori" }
 };
 
 static std::string DBConnection() {
-   std::string host = std::getenv("POSTGRES_HOST");
-   std::string port = std::getenv("POSTGRES_PORT");
-   std::string user = std::getenv("POSTGRES_USER");
-   std::string password = std::getenv("POSTGRES_PASSWORD");
-   std::string dbname = std::getenv("POSTGRES_DBNAME");
+    std::string host = std::getenv("POSTGRES_HOST");
+    std::string port = std::getenv("POSTGRES_PORT");
+    std::string user = std::getenv("POSTGRES_USER");
+    std::string password = std::getenv("POSTGRES_PASSWORD");
+    std::string dbname = std::getenv("POSTGRES_DBNAME");
     return "postgresql://" + user + ":" + password + "@" + host + ":" + port + "/" + dbname;
 }
 
-std::string GetCompactFDs(std::list<FD> deps, bool with_null_lhs) {
+std::string GetCompactFDs(const std::list<FD>& deps, bool with_null_lhs) {
     std::vector<std::string> compact_deps;
-    for (auto& fd : deps) {
+    for (const auto& fd : deps) {
         if (with_null_lhs || fd.GetLhs().GetArity() != 0) {
             compact_deps.push_back(fd.ToCompactString());
         }
+    }
+    return boost::join(compact_deps, ";");
+}
+
+std::string GetCompactARs(const std::list<model::ArIDs>& deps) {
+    std::vector<std::string> compact_deps;
+    for (auto& ar : deps) {
+        std::cout << ar.ToCompactString() << std::endl;
+        compact_deps.push_back(ar.ToCompactString());
     }
     return boost::join(compact_deps, ";");
 }
@@ -96,13 +106,26 @@ void SaveFDTaskResult(TaskConfig const& task, DBManager const &manager, FDAlgori
 
     task.UpdateDeps(manager, GetCompactFDs(deps, false));
     task.UpdatePieChartData(manager, GetPieChartData(deps, 1));
-    task.UpdateStatus(manager, "COMPLETED");
+}
+
+void SaveARTaskResult(TaskConfig const& task, DBManager const &manager, algos::ARAlgorithm* algorithm) {
+    const auto& deps = algorithm->GetItemNamesVector();
+    task.UpdateValueDictionary(manager, boost::join(deps, ","));
+
+    const auto& ar_list = algorithm->GetArIDsList();
+    task.UpdateDeps(manager, GetCompactARs(ar_list));
 }
 
 void SaveResultOfTheAlgorithm(TaskConfig const& task, DBManager const &manager, algos::Primitive* algorithm) {
     auto* fd_algorithm = dynamic_cast<FDAlgorithm*>(algorithm);
     if (fd_algorithm) {
         SaveFDTaskResult(task, manager, fd_algorithm);
+        task.UpdateStatus(manager, "COMPLETED");
+    }
+    auto* ar_algorithm = dynamic_cast<algos::ARAlgorithm*>(algorithm);
+    if (ar_algorithm) {
+        SaveARTaskResult(task, manager, ar_algorithm);
+        task.UpdateStatus(manager, "COMPLETED");
     } else {
         throw new std::runtime_error("Not implemented yet");
     }
@@ -117,13 +140,17 @@ void processTask(TaskConfig const& task, DBManager const& manager) {
         algos::CreateAlgorithmInstance(primitive_type, algo, params);
     try {
         task.UpdateStatus(manager, "IN_PROCESS");
-
+        auto phase_names = algorithm_instance->GetPhaseNames();
+        bool alg_has_progress = phase_names.size() != 0;
         unsigned long long elapsedTime;
-        const auto& phase_names = algorithm_instance->GetPhaseNames();
         auto maxPhase = phase_names.size();
-        task.SetMaxPhase(manager, maxPhase);
-        task.UpdateProgress(manager, 0, phase_names[0].data(), 1);
-
+        if (alg_has_progress) {
+            task.SetMaxPhase(manager, maxPhase);
+            task.UpdateProgress(manager, 0, phase_names[0].data(), 1);
+        } else {
+            phase_names = { task.GetType() + "s mining" };
+            maxPhase = 1;
+        }
         auto executionThread = std::async(
             std::launch::async,
             [&elapsedTime, &algorithm_instance]() -> void {

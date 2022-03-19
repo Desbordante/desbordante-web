@@ -18,6 +18,24 @@ struct ArIDs {
     ArIDs& operator=(ArIDs const& other) = default;
     ArIDs(ArIDs&& other) = default;
     ArIDs& operator=(ArIDs&& other) = default;
+
+    std::string ToCompactString() const {
+        std::string result;
+        result.append(std::to_string(confidence));
+        result.append(":");
+        for (auto const& item_id : left) {
+            result.append(std::to_string(item_id));
+            result.append(",");
+        }
+        result.erase(result.size() - 1, 1);
+        result.append(":");
+        for (auto const& item_id : right) {
+            result.append(std::to_string(item_id));
+            result.append(",");
+        }
+        result.erase(result.size() - 1, 1);
+        return result;
+    }
 };
 
 struct ARStrings {
