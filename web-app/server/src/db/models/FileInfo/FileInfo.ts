@@ -1,8 +1,8 @@
-import { ApolloError, UserInputError } from "apollo-server-core";
+import { ApolloError } from "apollo-server-core";
 import fs from "fs";
 import path from "path";
 import { BOOLEAN, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
-import { BelongsTo, Column, ForeignKey, HasMany, HasOne, IsUUID, Model, Table, Unique } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, HasMany, HasOne, IsUUID, Model, Table } from "sequelize-typescript";
 import { finished } from "stream/promises";
 import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/generateHeader";
 import { FileProps } from "../../../graphql/types/types";

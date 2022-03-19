@@ -4,7 +4,7 @@ import { AccountStatusType, User } from "./models/UserInfo/User";
 import { Device, DeviceInfoInstance } from "./models/UserInfo/Device";
 import { Session, SessionStatusType } from "./models/UserInfo/Session";
 import { FileInfo } from "./models/FileInfo/FileInfo";
-import { TaskInfo } from "./models/TaskData/TaskInfo";
+import {TaskInfo, TaskStatusType} from "./models/TaskData/TaskInfo";
 
 async function createAccountWithLongLiveRefreshToken (roles: RoleType[]) {
     console.log(`Creating accounts for following roles: ${JSON.stringify(roles)}`);
@@ -80,8 +80,9 @@ async function createARTask (fileName: string, minConfidence: number, minSupport
     if (!res) {
         throw new Error("got null result");
     }
+    const status: TaskStatusType = "COMPLETED";
     await taskInfo.update({
-        isExecuted: true, status: "Test data", phaseName: "AR mining",
+        isExecuted: true, status, phaseName: "AR mining",
         currentPhase: 1, progress:100, maxPhase: 1, elapsedTime: 1,
     });
     await res.update({ ARs: cfdsCompactString, valueDictionary });
@@ -122,8 +123,9 @@ async function createCfdTask (fileName: string, cfdsStr: string,
     if (!res) {
         throw new Error("got null result");
     }
+    const status: TaskStatusType = "COMPLETED"
     await taskInfo.update({
-        isExecuted: true, status: "Test data", phaseName: "CFD mining",
+        isExecuted: true, status, phaseName: "CFD mining",
         currentPhase: 1, progress:100, maxPhase: 1, elapsedTime: 1,
     });
     await res.update({ CFDs: JSON.stringify(json), PKColumnIndices: "[]" });
