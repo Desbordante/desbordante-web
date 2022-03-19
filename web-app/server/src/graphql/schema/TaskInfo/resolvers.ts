@@ -187,6 +187,9 @@ export const TaskInfoResolvers: Resolvers = {
         // @ts-ignore
         ARs: async ({ propertyPrefix, taskInfo }, { pagination }) => {
             const ARs = await (taskInfo as TaskInfo).getSingleResultFieldAsString(propertyPrefix, "ARs");
+            if (!ARs) {
+                return [];
+            }
             const valueDictionary = await (taskInfo as TaskInfo).getSingleResultFieldAsString(propertyPrefix, "valueDictionary");
             const compactARs = ARs.split(";").map(compactAR => ({ rule: compactAR.split(":"), valueDictionary: valueDictionary.split(",") }));
             return getArrayOfDepsByPagination(compactARs, pagination);
