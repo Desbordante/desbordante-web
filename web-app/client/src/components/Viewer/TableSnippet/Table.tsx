@@ -13,11 +13,9 @@ const TableHeader = styled.thead`
     position: sticky;
     top: 0;
     z-index: 1;
-
     th {
       z-index: 1;
     }
-
     &:first-of-type {
       th:first-of-type {
         border-top-left-radius: 2rem;
@@ -102,6 +100,7 @@ const Table: React.FC<Props> = ({
     "px-4 py-3 text-white text-nowrap text-center position-relative";
   const bodyClassName = "text-center py-1 px-2";
 
+
   return (
     <StyledContainer
       fluid
@@ -117,6 +116,7 @@ const Table: React.FC<Props> = ({
           }}
         />
         <TableHeader className="bg-light position-relative">
+          {/* @ts-ignore */}
           <tr className="bg-light" ref={changeHeight}>
             {colorizedPart.map(({ col }) => (
               <th
