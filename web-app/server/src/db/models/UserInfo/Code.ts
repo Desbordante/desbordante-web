@@ -3,8 +3,9 @@ import { DATE, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
 import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
 import { Device } from "./Device";
 import { User } from "./User";
+import { UserInputError } from "apollo-server-core";
 
-const ALL_CODES = ["EMAIL_VERIFICATION"] as const;
+const ALL_CODES = ["EMAIL_VERIFICATION", "PASSWORD_RECOVERY_PENDING", "PASSWORD_RECOVERY_APPROVED"] as const;
 export type CodeType = typeof ALL_CODES[number];
 
 @Table({
@@ -40,13 +41,39 @@ export class Code extends Model {
     device!: Device;
 
     static createCode = async (props: { userID: string, expiringDate: Date, type: CodeType, deviceID: string | null }) => {
-        return await Code.create({ ...props, value: randomInt(1000,9999) });
+        return await Code.create({ ...props, value: randomInt(1000, 9999) });
     };
 
-    static createEmailVerificationCode = async (userID: string, deviceID: string) => {
+    static createVerificationCode = async (userID: string, deviceID: string, type: CodeType) => {
         const expiringDate = new Date(new Date().toUTCString());
-        expiringDate.setDate(expiringDate.getDate() + 1);
+        if (type === "EMAIL_VERIFICATION") {
+            expiringDate.setDate(expiringDate.getDate() + 1);
+        } else if (type === "PASSWORD_RECOVERY_PENDING") {
+            expiringDate.setMinutes(expiringDate.getMinutes() + 10);
+        }
+        return await Code.createCode({ userID, expiringDate, type, deviceID });
+    };
 
-        return await Code.createCode({ userID, expiringDate, type: "EMAIL_VERIFICATION", deviceID });
+    static findAndDestroyCodeIfNotValid = async (userID: string, type: CodeType,
+                                                 inputDeviceID: string, inputCodeValue: number | undefined = undefined) => {
+        const code = await Code.findOne({ where: { userID, type } });
+        if (!code) {
+            throw new UserInputError("User hasn't email verification codes");
+        }
+        if (code.deviceID !== inputDeviceID) {
+            await code.destroy();
+            throw new UserInputError("Request sent from another device, temporary code destroyed");
+        }
+
+        if (code.expiringDate < new Date(new Date().toUTCString())) {
+            console.log(code.expiringDate, new Date(new Date().toUTCString()));
+            await code.destroy();
+            throw new UserInputError("Code was expired");
+        }
+        if (type !== "PASSWORD_RECOVERY_APPROVED" && (inputCodeValue === undefined || code.value !== inputCodeValue)) {
+            await code.destroy();
+            throw new UserInputError("Received incorrect code value, temporary code was destroyed");
+        }
+        return code;
     };
 }
