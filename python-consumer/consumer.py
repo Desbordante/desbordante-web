@@ -40,11 +40,11 @@ def update_error_status(taskID, errorType, error):
     user={POSTGRES_USER} password={POSTGRES_PASSWORD} \
     host={POSTGRES_HOST} port={POSTGRES_PORT}") as conn:
         with conn.cursor() as cur:
-            cur.execute(f"""
-            UPDATE "{DB_TASKS_TABLE_NAME}" \
-            SET "errorMsg" = '{error}', "status" = '{errorType}' \
-            WHERE "taskID" = '{taskID}';
-            """)
+            sql = f""" UPDATE "{DB_TASKS_TABLE_NAME}"
+                        SET "errorMsg" = %s, "status" = %s
+                        WHERE "taskID" = %s""";
+            error = error.replace("\'", "\'\'")
+            cur.execute(sql, (error, errorType, taskID))
             conn.commit()
 
 def update_internal_server_error(taskID, error):
@@ -88,6 +88,7 @@ def check_active_containers(active_tasks):
             exitCode = container_state["ExitCode"]
             if exitCode == 0: # TASK_SUCCESSFULLY_PROCESSED
                 print(f"[{taskID}] task done successfully", file=sys.stderr)
+                print(container.logs())
             elif exitCode == 1: # TASK_CRASHED_STATUS_UPDATED
                 print(f"[{taskID}] cpp-consumer has crashed, status was updated by cpp-consumer", file=sys.stderr)
                 print(container.logs())

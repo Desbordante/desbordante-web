@@ -121,11 +121,13 @@ void SaveResultOfTheAlgorithm(TaskConfig const& task, DBManager const &manager, 
     if (fd_algorithm) {
         SaveFDTaskResult(task, manager, fd_algorithm);
         task.UpdateStatus(manager, "COMPLETED");
+        return;
     }
     auto* ar_algorithm = dynamic_cast<algos::ARAlgorithm*>(algorithm);
     if (ar_algorithm) {
         SaveARTaskResult(task, manager, ar_algorithm);
         task.UpdateStatus(manager, "COMPLETED");
+        return;
     } else {
         throw new std::runtime_error("Not implemented yet");
     }
@@ -136,8 +138,10 @@ void processTask(TaskConfig const& task, DBManager const& manager) {
     const auto& algo = algo_name_resolution.at(task.GetAlgo());
     const auto primitive_type = boost::algorithm::to_lower_copy(task.GetType());
     el::Loggers::configureFromGlobal("logging.conf");
+    std::cout << "Creating algorithm instance\n";
     std::unique_ptr<algos::Primitive> algorithm_instance =
         algos::CreateAlgorithmInstance(primitive_type, algo, params);
+    std::cout << "Algorithm was created\n";
     try {
         task.UpdateStatus(manager, "IN_PROCESS");
         auto phase_names = algorithm_instance->GetPhaseNames();
