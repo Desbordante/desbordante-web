@@ -2,13 +2,13 @@ import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core"
 import { AuthenticationError } from "apollo-server-express";
 import jwt from "jsonwebtoken";
 import { FindOptions } from "sequelize";
-import { CodeType } from "../../../db/models/UserInfo/Code";
+import { Code, CodeType } from "../../../db/models/UserInfo/Code";
 import { Permission } from "../../../db/models/UserInfo/Permission";
 import { Role } from "../../../db/models/UserInfo/Role";
 import { RefreshTokenInstance, SessionStatusType } from "../../../db/models/UserInfo/Session";
 import { AccountStatusType } from "../../../db/models/UserInfo/User";
 import { Resolvers } from "../../types/types";
-import { sendVerificationCode } from "./emailSender";
+import { createAndSendVerificationCode } from "./emailSender";
 
 export const UserResolvers : Resolvers = {
     Role: {
@@ -75,6 +75,11 @@ export const UserResolvers : Resolvers = {
                 throw new ApolloError("UserID is undefined");
             }
             return await models.User.findByPk(userID);
+        },
+    },
+    ChangePasswordAnswer: {
+        __resolveType: (parent) => {
+            return parent.__typename || "TokenPair";
         },
     },
     Query: {
@@ -174,24 +179,82 @@ export const UserResolvers : Resolvers = {
             }
             const type: CodeType = "EMAIL_VERIFICATION";
             const options = { where: { userID, type } };
+            const code = await models.Code.findOne(options);
+            if (code) {
+                await models.Code.destroy(options);
+            }
+            await createAndSendVerificationCode(
+                userID, device.deviceID, user.email, "EMAIL_VERIFICATION", logger);
+            return { message: "Verification code was sent to email" };
+        },
+        issueCodeForPasswordRecovery: async (parent, { email },
+                                             { models, sessionInfo, device, logger }) => {
+            if (sessionInfo) {
+                throw new UserInputError("User must be logged out");
+            }
+            const user = await models.User.findOne({ where: { email }, attributes: ["email", "userID"] });
+            if (!user) {
+                throw new UserInputError(`Email ${email} not found`, { email });
+            }
+            const type: CodeType = "PASSWORD_RECOVERY_PENDING";
+            let options = { where: { userID: user.userID, type } } as FindOptions<Code>;
             let code = await models.Code.findOne(options);
             if (code) {
                 await models.Code.destroy(options);
             }
-            code = await models.Code.createEmailVerificationCode(userID, device.deviceID);
-            if (process.env.USE_NODEMAILER === "true") {
-                try {
-                    await sendVerificationCode(code.value, user.email);
-                } catch (e) {
-                    logger("Problem while sending verification code", e);
-                    throw new ApolloError("Incorrect server work");
-                }
-                logger("Code was sent to email");
-            } else {
-                logger("Code wasn't sent to email [NODEMAILER DISABLED]");
-                logger(`Issue new verification code = ${code.value}`);
+            options = { where: { userID: user.userID, type: "PASSWORD_RECOVERY_APPROVED" } } as FindOptions<Code>;
+            code = await models.Code.findOne(options);
+            if (code) {
+                await models.Code.destroy(options);
             }
+
+            await createAndSendVerificationCode(user.userID, device.deviceID, user.email,
+                                          "PASSWORD_RECOVERY_PENDING", logger);
             return { message: "Verification code was sent to email" };
+        },
+        changePassword: async (parent, { currentPwdHash, newPwdHash, email }, { device, models, sessionInfo, logger }) => {
+            if (!sessionInfo) {
+                const { deviceID } = device;
+                if (!email) {
+                    throw new UserInputError("Email in undefined");
+                }
+                const user = await models.User.findOne({ where: { email }, attributes: ["email", "userID"] });
+                if (!user) {
+                    throw new UserInputError("Incorrect email was provided");
+                }
+                const code = await models.Code.findAndDestroyCodeIfNotValid(
+                    user.userID, "PASSWORD_RECOVERY_APPROVED", deviceID);
+                await code.destroy();
+                try {
+                    await user.update({ pwdHash: newPwdHash });
+                    const session = await user.createSession(device.deviceID);
+                    return await session.issueTokenPair();
+                } catch (e) {
+                    throw new ApolloError("INTERNAL SERVER ERROR");
+                }
+            } else {
+                if (currentPwdHash === null) {
+                    throw new UserInputError("User must send current password");
+                }
+                const user = await models.User.findByPk(sessionInfo.userID);
+                if (!user) {
+                    throw new ApolloError("User not found");
+                }
+                if (currentPwdHash === newPwdHash) {
+                    throw new UserInputError("New password is equal to current password");
+                }
+
+                if (user.pwdHash !== currentPwdHash) {
+                    throw new UserInputError("Incorrect current password");
+                }
+                try {
+                    await user.update({ pwdHash: newPwdHash });
+                    return { __typename: "SuccessfulMessage", message: "Password successfully changed" };
+                } catch (e) {
+                    logger("Error while changing password", e);
+                    throw new ApolloError("Error while changing password");
+                }
+            }
         },
         createUser: async (parent, { props }, { models, logger, sessionInfo, device }) => {
             if (sessionInfo) {
@@ -225,34 +288,35 @@ export const UserResolvers : Resolvers = {
                 throw new UserInputError("User has incorrect account status");
             }
             const type: CodeType = "EMAIL_VERIFICATION";
-            const code = await models.Code.findOne({ where: { userID, type } });
-            if (!code) {
-                throw new UserInputError("User hasn't email verification codes");
-            }
-            if (code.deviceID !== device.deviceID) {
-                await code.destroy();
-                throw new UserInputError("Request sent from another device, temporary code destroyed");
-            }
+            const code = await models.Code.findAndDestroyCodeIfNotValid(userID, type, device.deviceID, codeValue);
+            await code.destroy();
+            const accountStatus: AccountStatusType = "EMAIL_VERIFIED";
+            await user.update({ accountStatus });
+            await user.addRole("USER");
 
-            if (code.expiringDate < new Date(new Date().toUTCString())) {
-                await code.destroy();
-                throw new UserInputError("Code was expired");
+            const session = await models.Session.findByPk(sessionInfo.sessionID);
+            if (!session) {
+                throw new ApolloError("Session not found");
             }
-
-            if (code.value !== codeValue) {
-                await code.destroy();
-                throw new UserInputError("Received incorrect code value, temporary code was destroyed");
-            } else {
-                await code.destroy();
-                const accountStatus: AccountStatusType = "EMAIL_VERIFIED";
-                await user.update({ accountStatus });
-                await user.addRole("USER");
-
-                const session = await models.Session.findByPk(sessionInfo.sessionID);
-                if (!session) {
-                    throw new ApolloError("Session not found");
-                }
-                return session.issueTokenPair();
+            return session.issueTokenPair();
+        },
+        approveRecoveryCode: async (parent, { email, codeValue }, { models, device, sessionInfo }) => {
+            if (sessionInfo) {
+                throw new UserInputError("User must be logged out");
+            }
+            const { deviceID } = device;
+            const user = await models.User.findOne({ where: { email } });
+            if (!user) {
+                throw new UserInputError("Incorrect email was provided");
+            }
+            const code = await models.Code.findAndDestroyCodeIfNotValid(
+                user.userID, "PASSWORD_RECOVERY_PENDING", deviceID, codeValue);
+            const type: CodeType = "PASSWORD_RECOVERY_APPROVED";
+            try {
+                await code.update({ type });
+                return { message: "Password successfully changed" };
+            } catch (e) {
+                throw new ApolloError("INTERNAL SERVER ERROR");
             }
         },
         refresh: async (parent, { refreshToken }, { models, device }) => {
