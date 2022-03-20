@@ -110,7 +110,7 @@ public:
         auto specific_config_table = "\"" + primitive_type + "TasksConfig\"";
 
         std::map<std::string, std::vector<std::string>> config_resolution {
-            { "FD", { "\"errorThreshold\"", "\"maxLHS", "\"threadsCount\"" } },
+            { "FD", { "\"errorThreshold\"", "\"maxLHS\"", "\"threadsCount\"" } },
             { "AR", { "\"minSupportAR\"", "\"minConfidence\"" } },
         };
 
@@ -122,8 +122,11 @@ public:
             auto error_threshold = std::stod(rows[0]["\"errorThreshold\""].c_str());
             auto max_lhs = (unsigned)std::stoi(rows[0]["\"maxLHS\""].c_str());
             auto threads_count = (ushort)std::stoi(rows[0]["\"threadsCount\""].c_str());
+            bool is_null_equal_null = true;
+            int seed = 0;
             params.insert({
-                {"max_lhs", max_lhs}, {"threads", threads_count}, {"error", error_threshold}});
+                {"max_lhs", max_lhs}, {"threads", threads_count}, { "seed", seed},
+                {"error", error_threshold}, { "is_null_equal_null", is_null_equal_null }});
         } else if (primitive_type == "AR") {
             auto min_sup = std::stod(rows[0]["\"minSupportAR\""].c_str());
             auto min_conf = std::stod(rows[0]["\"minConfidence\""].c_str());
