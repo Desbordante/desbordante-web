@@ -420,25 +420,43 @@ const typeDefs = gql`
         accessToken: String!
     }
     
+    enum MetricType {
+        MODULUS_OF_DIFFERENCE
+        LEVENSHTEIN
+    }
+    
     input IntersectionTaskProps {
         algorithmName: String!
         type: PrimitiveType!
+        # FD
         errorThreshold: Float
+        # FD, CFD
         maxLHS: Int
+        # FD
         threadsCount: Int
         # CFD
         minSupportCFD: Int
-        # CFD
+        # AR
         minSupportAR: Float
+        # CFD, AR
         minConfidence: Float
-        
         # Typo Miner
         preciseAlgorithm: String
         # Typo Miner
         approximateAlgorithm: String
-        
-        
+        # Typo Miner
+        metric: MetricType
+        # Typo Miner (>=0)
+        radius: Float
+        # Typo Miner (0<= ratio <=1)
+        ratio: Float
     }
+    
+    type SuccessfulMessage {
+        message: String!
+    }
+    
+    union ChangePasswordAnswer = TokenPair | SuccessfulMessage
     
     type Mutation {
         """
@@ -452,13 +470,17 @@ const typeDefs = gql`
         Returns new token pair.
         """
         approveUserEmail(codeValue: Int!): TokenPair!
-        
         """
         This query issues (or reissues) new verification code.
         Previous code will be destroyed.
         """
         issueVerificationCode: IssueVerificationCodeAnswer!
-        
+        """
+        User mustn't be logged in. After the request, a confirmation code
+        will be sent to the user's mail (code expires after 1h, dies after 1st use).
+        This code user should sent in mutation approveRecoveryCode.
+        """
+        issueCodeForPasswordRecovery(email: String!): IssueVerificationCodeAnswer!
         """
         User can be logged in to multiple accounts at once.
         Client must pass password hash in params (not password!).
@@ -479,7 +501,20 @@ const typeDefs = gql`
         Otherwise you will see error with code 401.
         """
         refresh(refreshToken: String!): TokenPair!
-        
+        """
+        This mutation can be used in two cases:
+        1) User logged in and wants to change his password.
+        He must send current and new password hashes.
+        Throws error if new pwd equal to previous or current pwd incorrect
+        2) User approved verification code for password recovery.
+        He must send hash for new password and email.
+        """
+        changePassword(currentPwdHash: String newPwdHash: String! email: String): ChangePasswordAnswer!
+        """
+        User mustn't be logged in. User must send code.
+        Then user must send query changePassword without current password hash.
+        """
+        approveRecoveryCode(email: String! codeValue: Int!): SuccessfulMessage!
         """
         Creates feedback for user and saves information to the database.
         Administrators (with permission "VIEW_ADMIN_INFO") can see feedbacks
