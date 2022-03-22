@@ -3,9 +3,9 @@ import { BOOLEAN, FLOAT, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
 import { BelongsTo, Column, ForeignKey, HasOne, IsUUID, Model, Table } from "sequelize-typescript";
 import { IntersectionTaskProps } from "../../../graphql/types/types";
 import sendEvent from "../../../producer/sendEvent";
-import { BaseTaskConfig, PrimitiveType } from "./BaseTaskConfig";
-import { ARTaskConfig, CFDTaskConfig, FDTaskConfig } from "./TaskConfigurations";
-import { ARTaskResult, CFDTaskResult, FDTaskResult } from "./TaskResults";
+import { BaseTaskConfig, PrimitiveType } from "./TaskConfig";
+import { ARTaskConfig, CFDTaskConfig, FDTaskConfig, TypoTaskConfig } from "./SpecificTaskConfigs";
+import { ARTaskResult, CFDTaskResult, FDTaskResult, TypoTaskResult } from "./TaskResults";
 import { User } from "../UserInfo/User";
 
 const ALL_TASK_STATUSES = ["IN_PROCESS", "COMPLETED", "INTERNAL_SERVER_ERROR", "RESOURCE_LIMIT_IS_REACHED", "ADDED_TO_THE_TASK_QUEUE", "ADDING_TO_DB"] as const;
@@ -67,25 +67,31 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
 
     ///
 
-    @HasOne(() => FDTaskConfig)
-    FDConfig?: FDTaskConfig;
+    @HasOne(() => ARTaskConfig)
+    ARConfig?: ARTaskConfig;
 
     @HasOne(() => CFDTaskConfig)
     CFDConfig?: CFDTaskConfig;
 
-    @HasOne(() => ARTaskConfig)
-    ARConfig?: ARTaskConfig;
+    @HasOne(() => FDTaskConfig)
+    FDConfig?: FDTaskConfig;
+
+    @HasOne(() => TypoTaskConfig)
+    TypoConfig?: TypoTaskConfig;
 
     ///
 
-    @HasOne(() => FDTaskResult)
-    FDResult?: FDTaskResult;
+    @HasOne(() => ARTaskResult)
+    ARResult?: ARTaskResult;
 
     @HasOne(() => CFDTaskResult)
     CFDResult?: CFDTaskResult;
 
-    @HasOne(() => ARTaskResult)
-    ARResult?: ARTaskResult;
+    @HasOne(() => FDTaskResult)
+    FDResult?: FDTaskResult;
+
+    @HasOne(() => TypoTaskResult)
+    TypoResult?: TypoTaskResult;
 
     ///
 

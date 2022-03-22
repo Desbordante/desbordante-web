@@ -91,7 +91,7 @@ export const configureGraphQL = async (app: Application, sequelize: Sequelize) =
                 if (session.userID != userID) {
                     throw new AuthenticationError("Received incorrect userID");
                 }
-                console.log(JSON.stringify(session));
+                // console.log(JSON.stringify(session));
                 if (session.status === "INVALID") {
                     throw new AuthenticationError("Session is INVALID");
                 }

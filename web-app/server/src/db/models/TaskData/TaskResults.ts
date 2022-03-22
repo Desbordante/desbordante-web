@@ -73,3 +73,21 @@ export class ARTaskResult extends Model{
     @Column({ type: TEXT, allowNull: true })
     valueDictionary!: string | null;
 }
+
+@Table({
+    tableName: "TypoTasksResult",
+    paranoid: true,
+    updatedAt: false,
+})
+export class TypoTaskResult extends Model{
+    @IsUUID(4)
+    @ForeignKey(() => TaskInfo)
+    @Column({ type: UUID, primaryKey: true })
+    taskID!: string;
+
+    @BelongsTo(() => TaskInfo)
+    taskState!: TaskInfo;
+
+    @Column({ type: TEXT, allowNull: true })
+    approxFDs!: string | null;
+}

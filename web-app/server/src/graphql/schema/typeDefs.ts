@@ -124,7 +124,7 @@ const typeDefs = gql`
     }
     
     enum PrimitiveType {
-        FD, CFD, AR
+        FD, CFD, AR, Typo
     }
     
     enum TaskProcessStatusType {
@@ -294,7 +294,6 @@ const typeDefs = gql`
     type Snippet {
         header: [String!]
         rows(pagination: Pagination!): [[String!]!]!
-        rowsCount: Int!
         datasetInfo: DatasetInfo!
     }
     
@@ -321,11 +320,11 @@ const typeDefs = gql`
         mimeType: String
         encoding: String
         hasHeader: Boolean!
-        header: [String!]!
+        header: [String!]
         path: String!
         delimiter: String!
         rowsCount: Int!
-        countOfColumns: Int!
+        countOfColumns: Int
         fileFormat: FileFormat
         snippet: Snippet!
         supportedPrimitives: [PrimitiveType!]!
@@ -541,7 +540,7 @@ const typeDefs = gql`
         ***
         By default, the result of the algorithm is visible for all users.
         """
-        createTaskWithDatasetUploading(props: IntersectionTaskProps!, datasetProps: FileProps!, table: Upload!): TaskInfo!
+        createTaskWithDatasetUploading(props: IntersectionTaskProps!, datasetProps: FileProps!, table: Upload!): TaskState!
         
 #        """
 #        This query allows admin with permission "MANAGE_APP_CONFIG" change dataset property "isBuiltIn".

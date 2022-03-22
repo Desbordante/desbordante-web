@@ -1,4 +1,4 @@
-import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core";
+import { ForbiddenError, UserInputError } from "apollo-server-core";
 import { AuthenticationError } from "apollo-server-express";
 import { Resolvers } from "../../types/types";
 import { Permission } from "../../../db/models/UserInfo/Permission";
@@ -57,8 +57,7 @@ export const TaskCreatingResolvers: Resolvers = {
                 throw new AuthenticationError("User must be authorized and has permission USE_OWN_DATASETS");
             }
             const file = await models.FileInfo.uploadDataset(datasetProps, table,
-                sessionInfo.userID, props.type === "AR")
-                .catch(() => new ApolloError("Error while uploading dataset"));
+                sessionInfo.userID, props.type === "AR");
             return await models.TaskInfo.saveTaskToDBAndSendEvent(props, file.fileID, topicNames.DepAlgs, sessionInfo.userID);
         },
         deleteTask: async (parent, { taskID, safeDelete }, { models, logger, sessionInfo }) => {

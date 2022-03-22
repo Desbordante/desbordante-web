@@ -34,22 +34,25 @@ export class FileFormat extends Model {
 
     static createFileFormatIfPropsValid = async (file: FileInfo, props: FileProps) => {
         const { inputFormat, tidColumnIndex, itemColumnIndex, hasTid } = props;
-        if (!inputFormat) {
+        if (inputFormat === undefined) {
             throw new UserInputError("You must provide file input format");
         }
         switch(inputFormat) {
             case "SINGULAR":
-                if (!tidColumnIndex) {
+                if (tidColumnIndex == null) {
                     throw new UserInputError("tidColumnIndex wasn't provided", { tidColumnIndex });
                 }
-                if (!itemColumnIndex) {
+                if (itemColumnIndex == null) {
                     throw new UserInputError("itemColumnIndex wasn't provided", { itemColumnIndex });
                 }
-                if (tidColumnIndex < 1 || tidColumnIndex > file.countOfColumns) {
-                    throw new UserInputError("invalid tidColumnIndex (less, than 1 or greater, than count of table column)", { tidColumnIndex });
+                if (tidColumnIndex < 1) {
+                    throw new UserInputError("invalid tidColumnIndex (less, than 1)", { tidColumnIndex });
                 }
-                if (itemColumnIndex < 1 || itemColumnIndex > file.countOfColumns) {
-                    throw new UserInputError("invalid itemColumnIndex (less, than 1 or greater, than count of table column)", { tidColumnIndex });
+                if (itemColumnIndex < 1) {
+                    throw new UserInputError("invalid itemColumnIndex (less, than 1)", { tidColumnIndex });
+                }
+                if (itemColumnIndex === tidColumnIndex) {
+                    throw new UserInputError("item column index equal to transaction id", { tidColumnIndex, itemColumnIndex });
                 }
                 break;
             case "TABULAR":
