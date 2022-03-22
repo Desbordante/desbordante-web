@@ -158,7 +158,8 @@ export class TypoTaskConfig extends Model{
     threadsCount!: number;
 
     static isPropsValid: IsPropsValidFunctionType = props => {
-        const { algorithmName, preciseAlgorithm, approximateAlgorithm } = props;
+        const { algorithmName, preciseAlgorithm, approximateAlgorithm,
+            metric, radius, ratio } = props;
         let errorMessage: string | undefined;
         if (algorithmName !== allowedTypoMinerAlgorithm.name) {
             errorMessage = `Received incorrect algorithm name ${algorithmName}`
@@ -168,9 +169,14 @@ export class TypoTaskConfig extends Model{
                 + `, expected: ${allowedTypoMinerAlgorithm.name}`;
         } else if (!preciseAlgorithm) {
             errorMessage = `Received incorrect approximate algorithm name ${preciseAlgorithm}`;
+        } else if (metric === undefined) {
+            errorMessage = "Received undefined metric";
+        } else if (typeof radius !== "number" || radius < 0) {
+            errorMessage = `Received incorrect radius ${radius}`;
+        } else if (typeof ratio !== "number" || ratio < 0 || ratio > 1) {
+            errorMessage = `Received incorrect ratio ${ratio} (min = 0, max = 1)`;
         } else {
             props.algorithmName = preciseAlgorithm;
-
             const isFdAlgoValid = FDTaskConfig.isPropsValid(props);
             if (!isFdAlgoValid.isValid) {
                 return isFdAlgoValid;
