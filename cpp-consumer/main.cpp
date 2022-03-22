@@ -28,7 +28,7 @@ std::string TaskConfig::task_config_table = "\"TasksConfig\"";
 const std::map<std::string, std::string> algo_name_resolution {
     {"Pyro", "pyro"}, {"Dep Miner", "depminer"}, {"TaneX", "tane"},
     {"FastFDs", "fastfds"}, {"FD mine", "fdmine"}, {"DFD", "dfd"},
-    {"FDep", "fdep"}, { "AR algorithm", "apriori" }
+    {"FDep", "fdep"}, { "Apriori", "apriori" }
 };
 
 static std::string DBConnection() {

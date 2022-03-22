@@ -2,7 +2,7 @@ import path from "path";
 
 import { FileProps, InputFileFormat } from "../graphql/types/types";
 import { FileInfo } from "./models/FileInfo/FileInfo";
-import { PrimitiveType } from "./models/TaskData/BaseTaskConfig";
+import { PrimitiveType } from "./models/TaskData/TaskConfig";
 
 export const getPathToBuiltInDataset = (fileName: string) => {
     if (!require.main) {
