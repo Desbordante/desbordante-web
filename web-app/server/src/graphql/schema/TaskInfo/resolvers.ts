@@ -9,7 +9,7 @@ import validator from "validator";
 import { Pagination, PrimitiveType, Resolvers } from "../../types/types";
 import { TaskInfo, TaskStatusType } from "../../../db/models/TaskData/TaskInfo";
 import { builtInDatasets } from "../../../db/initBuiltInDatasets";
-import { BaseTaskConfig } from "../../../db/models/TaskData/BaseTaskConfig";
+import { BaseTaskConfig } from "../../../db/models/TaskData/TaskConfig";
 import isUUID = validator.isUUID;
 
 function getArrayOfDepsByPagination<DependencyType> (deps: DependencyType[],
@@ -147,6 +147,9 @@ export const TaskInfoResolvers: Resolvers = {
         // @ts-ignore
         FDs: async ({ propertyPrefix, taskInfo, fileID } : { propertyPrefix: PrimitiveType, taskInfo: TaskInfo }, { pagination }, { models, logger }) => {
             const FDs = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "FDs");
+            if (!FDs) {
+                return [];
+            }
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
             const compactFDs = FDs.split(";")
                 .map(unionIndices => unionIndices.split(","))
@@ -288,7 +291,11 @@ export const TaskInfoResolvers: Resolvers = {
             });
         },
         // @ts-ignore
-        header: async ({ fileID }, _, { models }) => {
+        header: async ({ fileID, hasHeader }, _, { models }) => {
+            const fileFormat = await models.FileFormat.findByPk(fileID, { attributes: ["fileID"] });
+            if (fileFormat && !hasHeader) {
+                return null;
+            }
             return await models.FileInfo.getColumnNamesForFile(fileID);
         },
         // @ts-ignore
@@ -347,7 +354,7 @@ export const TaskInfoResolvers: Resolvers = {
             if (!fileFormat) {
                 return ["FD", "CFD"];
             } else {
-                return ["AR", "FD", "CFD"];
+                return ["AR"];
             }
         },
         // @ts-ignore
@@ -355,9 +362,13 @@ export const TaskInfoResolvers: Resolvers = {
             return await models.FileFormat.findByPk(fileID);
         },
         // @ts-ignore
-        header: async ({ fileID }, obj, { models }) => {
+        header: async ({ fileID, hasHeader }, obj, { models }) => {
             if (!fileID) {
                 throw new ApolloError("Undefined fileID");
+            }
+            const fileFormat = await models.FileFormat.findByPk(fileID, { attributes: ["fileID"] });
+            if (fileFormat && !hasHeader) {
+                return null;
             }
             return await models.FileInfo.getColumnNamesForFile(fileID);
         },

@@ -14,7 +14,7 @@ export const allowedCFDAlgorithms = [
 ];
 
 export const allowedARAlgorithms = [
-    { name: "AR algorithm", properties: { hasSupport: true, hasConfidence: true } },
+    { name: "Apriori", properties: { hasSupport: true, hasConfidence: true } },
 ];
 
 export const allowedTypoMinerAlgorithm = {

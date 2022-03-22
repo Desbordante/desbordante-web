@@ -3,6 +3,7 @@ import fs from "fs";
 import readline from "readline";
 
 import { fileConfig } from "../AppConfiguration/resolvers";
+import { InputFileFormat } from "../../types/types";
 
 function csvLinetoArray (line: string, sep: string) {
     if (sep=="|") {
@@ -70,16 +71,29 @@ async function tryFindCorrectSeparator (path: fs.PathLike) {
     return null;
 }
 
-export const findRowsAndColumnsNumber = async (path: fs.PathLike, sep: string) => {
+export type TabularFileFormatProps = {
+    inputFormat: InputFileFormat.Tabular
+    hasTid: boolean
+}
+
+export type SingularFileFormatProps = {
+    inputFormat: InputFileFormat.Singular
+    tidColumnIndex: number
+    itemColumnIndex: number
+}
+
+export const findRowsAndColumnsNumber = async (path: fs.PathLike, sep: string,
+    fileFormat: TabularFileFormatProps | SingularFileFormatProps | undefined = undefined) => {
     const fileStream = fs.createReadStream(path);
 
     const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
     let rowsCount = 0;
-    let countOfColumns = -1;
+    let countOfColumns: null | number = -1;
     for await (const line of rl) {
         rowsCount++;
-        const curColsNumber = getNumberOfColumns(line, sep);
-        if (curColsNumber === 1) {
+        const cols = csvLinetoArray(line, sep);
+        const curColsNumber = cols.length;
+        if (!fileFormat && curColsNumber === 1) {
             const sep = await tryFindCorrectSeparator(path);
             let errorMessage = "Either the table has 1 column or an invalid delimiter is specified.";
             if (sep) {
@@ -87,15 +101,67 @@ export const findRowsAndColumnsNumber = async (path: fs.PathLike, sep: string) =
             }
             throw new UserInputError(errorMessage);
         }
-        if (~countOfColumns) {
-            if (countOfColumns !== curColsNumber) {
-                throw new UserInputError(
-                    `Row ${rowsCount} has ${curColsNumber} columns, `
-                    + `but row ${rowsCount - 1} has ${countOfColumns} columns.`);
+        if (!fileFormat && ~countOfColumns && countOfColumns !== curColsNumber) {
+            throw new UserInputError(
+                `Row ${rowsCount} has ${curColsNumber} columns, `
+                + `but row ${rowsCount - 1} has ${countOfColumns} columns.`);
+        } else if (fileFormat && fileFormat.inputFormat === "SINGULAR" && ~countOfColumns && countOfColumns < Math.max(fileFormat.tidColumnIndex, fileFormat.itemColumnIndex)) {
+            throw new UserInputError(`Row ${rowsCount} has ${curColsNumber} cols, but it must be less, than Tid column index and Item column index`);
+        } else if (fileFormat && fileFormat.inputFormat === "TABULAR" && ~countOfColumns && fileFormat.hasTid && (countOfColumns < 2 || Number.isNaN(Number.parseInt(cols[0])))) {
+            if (countOfColumns < 2) {
+                throw new UserInputError(`Row ${rowsCount} has ${curColsNumber} cols, but it must have more, than 1 columns (tid and items columns)`);
+            } else {
+                throw new UserInputError(`Expected, that ${cols[0]} is integer (Transaction column id is ${1})`);
             }
         } else {
             countOfColumns = curColsNumber;
         }
     }
+    countOfColumns = fileFormat ? null : countOfColumns;
     return { rowsCount, countOfColumns };
+};
+
+export const createTabularFileFromSingular = async (path: fs.PathLike, sep: string,
+                                                    tidColumnIndex: number, itemColumnIndex: number) => {
+    const fileStream = fs.createReadStream(path);
+    const newPath = path.toString().replace(".csv", "_SINGULAR.csv");
+    const writeFileStream = fs.createWriteStream(newPath);
+
+    const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
+
+    const usedTids = new Set<number>();
+    const currentItemset = new Array<string>();
+    let currentTid: number | undefined;
+    for await (const line of rl) {
+        const columns = csvLinetoArray(line, sep);
+        const tid = parseInt(columns[tidColumnIndex - 1]);
+        if (Number.isNaN(tid)) {
+            throw new UserInputError(`Incorrect line ${line}.`
+                + ` Expected, that ${columns[tidColumnIndex - 1]} is integer value`);
+        }
+        const item = columns[itemColumnIndex - 1];
+        if (currentTid === undefined) {
+            currentTid = tid;
+        }
+        if (tid === currentTid) {
+            currentItemset.push(item);
+        } else if (!usedTids.has(currentTid)) {
+            usedTids.add(currentTid);
+            writeFileStream.write(`${currentTid},${currentItemset.join(",")}\n`);
+            while (currentItemset.length) {
+                currentItemset.pop();
+            }
+            currentTid = tid;
+            currentItemset.push(item);
+        } else {
+            throw new UserInputError(`It was expected that all records for a transaction with tid '${currentTid}' would go sequentially`);
+        }
+    }
+    if (currentTid !== undefined && !usedTids.has(currentTid)) {
+        usedTids.add(currentTid);
+        writeFileStream.write(`${currentTid},${currentItemset.join(",")}\n`);
+    } else {
+        throw new UserInputError(`It was expected that all records for a transaction with tid '${currentTid}' would go sequentially`);
+    }
+    return newPath;
 };

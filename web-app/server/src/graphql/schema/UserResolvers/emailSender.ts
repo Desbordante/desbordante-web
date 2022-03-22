@@ -25,7 +25,7 @@ export const sendVerificationCode = async (code: number, userEmail: string, type
     }
 
     return await transporter.sendMail({
-        from: `Desbordante enjoyer ${process.env.NODEMAILER_EMAIL}`,
+        from: `Desbordante enjoyer <${process.env.NODEMAILER_EMAIL}>`,
         to: userEmail,
         subject: "Email verification code",
         text,

@@ -6,10 +6,13 @@ import { BelongsTo, Column, ForeignKey, HasMany, HasOne, IsUUID, Model, Table } 
 import { finished } from "stream/promises";
 import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/generateHeader";
 import { FileProps } from "../../../graphql/types/types";
-import { BaseTaskConfig } from "../TaskData/BaseTaskConfig";
+import { BaseTaskConfig } from "../TaskData/TaskConfig";
 import { User } from "../UserInfo/User";
 import { FileFormat } from "./FileFormat";
-import { findRowsAndColumnsNumber } from "../../../graphql/schema/TaskCreating/csvValidator";
+import {
+    SingularFileFormatProps,
+    TabularFileFormatProps, createTabularFileFromSingular, findRowsAndColumnsNumber,
+} from "../../../graphql/schema/TaskCreating/csvValidator";
 import { BuiltInDatasetInfoType, getPathToBuiltInDataset } from "../../initBuiltInDatasets";
 import validator from "validator";
 import isUUID = validator.isUUID;
@@ -74,7 +77,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     rowsCount!: number;
 
     @Column({ type: INTEGER, allowNull: true })
-    countOfColumns!: number;
+    countOfColumns: number;
 
     @Column({ type: STRING, unique: true })
     path!: string;
@@ -164,13 +167,38 @@ export class FileInfo extends Model implements FileInfoModelMethods {
 
         await file.update({ renamedHeader: JSON.stringify(await file.generateHeader()) });
 
-        const counters = await findRowsAndColumnsNumber(path, datasetProps.delimiter);
-        await file.update(counters);
-
         if (withFileFormat) {
-            await FileFormat.createFileFormatIfPropsValid(file, datasetProps);
-        }
+            if (!datasetProps.inputFormat) {
+                throw new ApolloError("File hasn't input format");
+            }
+            const fileFormat = await FileFormat.createFileFormatIfPropsValid(file, datasetProps);
+            let specificFileFormat = datasetProps.inputFormat! === "SINGULAR" ?
+                { inputFormat: "SINGULAR", tidColumnIndex: datasetProps.tidColumnIndex,
+                    itemColumnIndex: datasetProps.itemColumnIndex } as SingularFileFormatProps
+                : { inputFormat: "TABULAR", hasTid: datasetProps.hasTid } as TabularFileFormatProps;
 
+            // Find rows count before creating new file
+            let counters = await findRowsAndColumnsNumber(
+                path, datasetProps.delimiter, specificFileFormat
+            );
+            await file.update(counters);
+
+            if (datasetProps.inputFormat === "SINGULAR") {
+                const newPath = await createTabularFileFromSingular(path, datasetProps.delimiter,
+                    datasetProps.tidColumnIndex!, datasetProps.itemColumnIndex!);
+
+                // Find rows count after creating file
+                specificFileFormat = { inputFormat: "TABULAR", hasTid: true } as TabularFileFormatProps;
+                await fileFormat.update({ inputFormat: "TABULAR", hasTid: true });
+                counters = await findRowsAndColumnsNumber(newPath, datasetProps.delimiter, specificFileFormat);
+                await file.update({ path: newPath, ...counters, hasHeader: false });
+            }
+        } else {
+            const counters = await findRowsAndColumnsNumber(
+                path, datasetProps.delimiter
+            );
+            await file.update(counters);
+        }
         return file;
     };
 }
