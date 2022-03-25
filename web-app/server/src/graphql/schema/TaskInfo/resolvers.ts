@@ -47,12 +47,12 @@ export const TaskInfoResolvers: Resolvers = {
     FD: {
         // @ts-ignore
         lhs: ({ dep, columnNames }: { dep: [ string[], string ], columnNames: string[] }) => {
-            return dep[0].map(i => columnNames[Number(i)]);
+            return dep[0].map(i => ({ index: i, name: columnNames[Number(i)] }));
         },
         // @ts-ignore
         rhs: ({ dep, columnNames }: { dep: [ string[], string ] }) => {
             // @ts-ignore
-            return columnNames[dep[1]];
+            return { index: dep[1], name: columnNames[dep[1]] };
         },
     },
     AR: {
