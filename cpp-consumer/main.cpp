@@ -20,7 +20,7 @@ namespace po = boost::program_options;
 
 INITIALIZE_EASYLOGGINGPP
 
-std::string TaskConfig::task_info_table = "\"TasksInfo\"";
+std::string TaskConfig::task_state_table = "\"TasksState\"";
 std::string TaskConfig::file_info_table = "\"FilesInfo\"";
 std::string TaskConfig::file_format_table = "\"FilesFormat\"";
 std::string TaskConfig::task_config_table = "\"TasksConfig\"";
@@ -28,7 +28,8 @@ std::string TaskConfig::task_config_table = "\"TasksConfig\"";
 const std::map<std::string, std::string> algo_name_resolution {
     {"Pyro", "pyro"}, {"Dep Miner", "depminer"}, {"TaneX", "tane"},
     {"FastFDs", "fastfds"}, {"FD mine", "fdmine"}, {"DFD", "dfd"},
-    {"FDep", "fdep"}, { "Apriori", "apriori" }
+    {"FDep", "fdep"}, { "Apriori", "apriori" },
+    {"Typo Miner", "typo"}, {"Typo Cluster Miner", "typo"}
 };
 
 static std::string DBConnection() {
@@ -133,7 +134,7 @@ void SaveResultOfTheAlgorithm(TaskConfig const& task, DBManager const &manager, 
     }
 }
 
-void processTask(TaskConfig const& task, DBManager const& manager) {
+void ProcessTask(TaskConfig const& task, DBManager const& manager) {
     const auto& params = task.GetParamsIntersection();
     const auto& algo = algo_name_resolution.at(task.GetAlgo());
     const auto primitive_type = boost::algorithm::to_lower_copy(task.GetType());
@@ -201,7 +202,7 @@ AnswerEnumType ProcessMsg(std::string taskID, DBManager const &manager) {
     }
     TaskConfig task = TaskConfig::GetTaskConfig(manager, taskID);
     try {
-        processTask(task, manager);
+        ProcessTask(task, manager);
         std::cout << "Task with ID = '" << taskID << "' was successfully processed.\n";
         return AnswerEnumType::TASK_SUCCESSFULLY_PROCESSED;
     } catch (const std::exception& e) {
