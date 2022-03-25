@@ -128,7 +128,7 @@ const typeDefs = gql`
         fileConfig: InputFileConfig!
         maxThreadsCount: Int!
     }
-    # TODO(chizhov): Rename enum
+
     enum PrimitiveType {
         FD, CFD, AR, TypoFD, TypoCluster, SpecificTypoCluster
     }
@@ -241,8 +241,8 @@ const typeDefs = gql`
     }
     
     type FD {
-        lhs: [String!]!
-        rhs: String!
+        lhs: [Column!]!
+        rhs: Column!
     }
     
     type CFD {
