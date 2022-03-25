@@ -4,8 +4,15 @@ import { BelongsTo, Column, ForeignKey, HasOne, IsUUID, Model, Table } from "seq
 import { IntersectionTaskProps } from "../../../graphql/types/types";
 import sendEvent from "../../../producer/sendEvent";
 import { BaseTaskConfig, PrimitiveType } from "./TaskConfig";
-import { ARTaskConfig, CFDTaskConfig, FDTaskConfig, TypoTaskConfig } from "./SpecificTaskConfigs";
-import { ARTaskResult, CFDTaskResult, FDTaskResult, TypoTaskResult } from "./TaskResults";
+import {
+    ARTaskConfig,
+    CFDTaskConfig,
+    FDTaskConfig,
+    SpecificTypoClusterConfig,
+    TypoClusterConfig,
+    TypoFDTaskConfig,
+} from "./SpecificTaskConfigs";
+import { ARTaskResult, CFDTaskResult, FDTaskResult, SpecificTypoClusterResult, TypoFDTaskResult } from "./SpecificTaskResults";
 import { User } from "../UserInfo/User";
 
 const ALL_TASK_STATUSES = ["IN_PROCESS", "COMPLETED", "INTERNAL_SERVER_ERROR", "RESOURCE_LIMIT_IS_REACHED", "ADDED_TO_THE_TASK_QUEUE", "ADDING_TO_DB"] as const;
@@ -76,8 +83,14 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
     @HasOne(() => FDTaskConfig)
     FDConfig?: FDTaskConfig;
 
-    @HasOne(() => TypoTaskConfig)
-    TypoConfig?: TypoTaskConfig;
+    @HasOne(() => TypoFDTaskConfig)
+    TypoFDConfig?: TypoFDTaskConfig;
+
+    @HasOne(() => TypoClusterConfig)
+    TypoClusterConfig?: TypoClusterConfig;
+
+    @HasOne(() => SpecificTypoClusterConfig)
+    SpecificTypoClusterConfig?: SpecificTypoClusterConfig;
 
     ///
 
@@ -90,8 +103,14 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
     @HasOne(() => FDTaskResult)
     FDResult?: FDTaskResult;
 
-    @HasOne(() => TypoTaskResult)
-    TypoResult?: TypoTaskResult;
+    @HasOne(() => TypoFDTaskResult)
+    TypoFDResult?: TypoFDTaskResult;
+
+    @HasOne(() => TypoClusterConfig)
+    TypoClusterResult?: TypoClusterConfig;
+
+    @HasOne(() => SpecificTypoClusterResult)
+    SpecificTypoClusterResult?: SpecificTypoClusterResult;
 
     ///
 
@@ -139,7 +158,7 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
 
     static saveToDBIfPropsValid = async (props: IntersectionTaskProps,
                                          fileID: string, userID: string | null) => {
-        const validityAnswer = BaseTaskConfig.isPropsValid(props);
+        const validityAnswer = await BaseTaskConfig.isPropsValid(props);
         if (validityAnswer.isValid) {
             return await TaskInfo.saveToDB(props, fileID, userID);
         }
