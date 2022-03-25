@@ -44,6 +44,7 @@ export const builtInDatasets: BuiltInDatasetInfoType[] = [
         },
         supportedPrimitives: ["AR"],
     },
+    { fileName: "SimpleTypos.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["TypoFD"] },
 ];
 
 export const initBuiltInDatasets = async () =>

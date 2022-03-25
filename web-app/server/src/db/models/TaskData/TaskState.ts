@@ -12,10 +12,11 @@ import {
     TypoClusterConfig,
     TypoFDTaskConfig,
 } from "./SpecificTaskConfigs";
-import { ARTaskResult, CFDTaskResult, FDTaskResult, SpecificTypoClusterResult, TypoFDTaskResult } from "./SpecificTaskResults";
+import { ARTaskResult, CFDTaskResult, FDTaskResult, SpecificTypoClusterResult, TypoClusterResult, TypoFDTaskResult } from "./SpecificTaskResults";
 import { User } from "../UserInfo/User";
 
-const ALL_TASK_STATUSES = ["IN_PROCESS", "COMPLETED", "INTERNAL_SERVER_ERROR", "RESOURCE_LIMIT_IS_REACHED", "ADDED_TO_THE_TASK_QUEUE", "ADDING_TO_DB"] as const;
+const ALL_TASK_STATUSES = ["IN_PROCESS", "COMPLETED", "INTERNAL_SERVER_ERROR",
+    "RESOURCE_LIMIT_IS_REACHED", "ADDED_TO_THE_TASK_QUEUE", "ADDING_TO_DB"] as const;
 export type TaskStatusType = typeof ALL_TASK_STATUSES[number];
 
 interface TaskInfoModelMethods {
@@ -23,12 +24,8 @@ interface TaskInfoModelMethods {
     getSingleResultFieldAsString: (propertyPrefix: PrimitiveType, attribute: string) => Promise<string>;
 }
 
-@Table({
-    tableName: "TasksInfo",
-    updatedAt: false,
-    paranoid: true,
-})
-export class TaskInfo extends Model implements TaskInfoModelMethods {
+@Table({ tableName: "TasksState", updatedAt: false, paranoid: true })
+export class TaskState extends Model implements TaskInfoModelMethods {
     @IsUUID(4)
     @Column({ type: UUID, defaultValue: UUIDV4, primaryKey: true })
     taskID!: string;
@@ -106,8 +103,8 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
     @HasOne(() => TypoFDTaskResult)
     TypoFDResult?: TypoFDTaskResult;
 
-    @HasOne(() => TypoClusterConfig)
-    TypoClusterResult?: TypoClusterConfig;
+    @HasOne(() => TypoClusterResult)
+    TypoClusterResult?: TypoClusterResult;
 
     @HasOne(() => SpecificTypoClusterResult)
     SpecificTypoClusterResult?: SpecificTypoClusterResult;
@@ -145,11 +142,33 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
         return result.value;
     };
 
+    getMultipleResultFieldAsString = async (propertyPrefix: PrimitiveType, attributes: string[]) => {
+        const result = await this.$get(`${propertyPrefix}Result`,
+            { attributes: attributes.map((value, id) => [value, `value_${id}`]), raw: true }) as any;
+        if (!result) {
+            throw new ApolloError(`Not found result for ${this.taskID}, primitiveType = ${propertyPrefix}`);
+        }
+        const answer = new Array<string>();
+        for (const id in attributes) {
+            answer.push(result[`value_${id}`]);
+        }
+        return answer;
+    };
+
+    getSingleConfigFieldAsString = async (propertyPrefix: PrimitiveType, attribute: string) => {
+        const result = await this.$get(`${propertyPrefix}Config`,
+            { attributes: [[attribute,"value"]], raw: true }) as unknown as { value: string };
+        if (!result) {
+            throw new ApolloError(`Not found config value for ${this.taskID}, primitiveType = ${propertyPrefix}`);
+        }
+        return result.value;
+    };
+
     static saveToDB = async (props: IntersectionTaskProps,
-                             fileID: string, userID: string | null) => {
+                             userID: string | null, fileID: string | null) => {
         const { type: propertyPrefix } = props;
         const status: TaskStatusType = "ADDING_TO_DB";
-        const taskInfo = await TaskInfo.create({ status, userID });
+        const taskInfo = await TaskState.create({ status, userID });
         await taskInfo.$create("baseConfig", { ...props, fileID });
         await taskInfo.$create(`${propertyPrefix}Config`, { ...props });
         await taskInfo.$create(`${propertyPrefix}Result`, {});
@@ -157,25 +176,61 @@ export class TaskInfo extends Model implements TaskInfoModelMethods {
     };
 
     static saveToDBIfPropsValid = async (props: IntersectionTaskProps,
-                                         fileID: string, userID: string | null) => {
+                                         userID: string | null, fileID: string | null) => {
         const validityAnswer = await BaseTaskConfig.isPropsValid(props);
         if (validityAnswer.isValid) {
-            return await TaskInfo.saveToDB(props, fileID, userID);
+            return await TaskState.saveToDB(props, userID, fileID);
         }
         throw new UserInputError(validityAnswer.errorMessage);
     };
 
-    static saveTaskToDBAndSendEvent = async (props: IntersectionTaskProps, fileID: string,
-                                             topicName: string, userID: string | null) => {
-        const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, fileID, userID);
+    static saveTaskToDBAndSendEvent = async (props: IntersectionTaskProps, topicName: string,
+                                             userID: string | null, fileID: string | null = null) => {
+        const taskInfo = await TaskState.saveToDBIfPropsValid(props, userID, fileID);
         await sendEvent(topicName, taskInfo.taskID);
         const status: TaskStatusType = "ADDED_TO_THE_TASK_QUEUE";
         await taskInfo.update({ status });
         return taskInfo;
     };
 
+    static findTaskOrAddToDBAndSendEvent = async (props: IntersectionTaskProps, topicName: string,
+                                                  userID: string | null, fileID: string | null = null) => {
+        const validityAnswer = await BaseTaskConfig.isPropsValid(props);
+        if (!validityAnswer.isValid) {
+            throw new UserInputError(validityAnswer.errorMessage);
+        }
+        const { type } = props;
+
+        if (type === "TypoCluster") {
+            const { typoFD, typoTaskID } = props;
+            const config = await TypoClusterConfig.findOne({ where: { typoFD, typoTaskID } });
+            if (!config) {
+                const taskInfo = await TaskState.saveToDB(props, userID, fileID);
+                await sendEvent(topicName, taskInfo.taskID);
+                const status: TaskStatusType = "ADDED_TO_THE_TASK_QUEUE";
+                await taskInfo.update({ status });
+                return taskInfo;
+            } else {
+                return config;
+            }
+        } else if (type === "SpecificTypoCluster") {
+            const { typoClusterTaskID, clusterID } = props;
+            const config = await SpecificTypoClusterConfig.findOne({ where: { typoClusterTaskID, clusterID } });
+            if (!config) {
+                const taskInfo = await TaskState.saveToDB(props, userID, fileID);
+                await sendEvent(topicName, taskInfo.taskID);
+                const status: TaskStatusType = "ADDED_TO_THE_TASK_QUEUE";
+                await taskInfo.update({ status });
+                return taskInfo;
+            } else {
+                return config;
+            }
+        }
+        throw new UserInputError("Received incorrect type");
+    };
+
     static isTaskExecuted = async (taskID: string) => {
-        const taskInfo = await TaskInfo.findByPk(taskID, { attributes: ["isExecuted"] });
+        const taskInfo = await TaskState.findByPk(taskID, { attributes: ["isExecuted"] });
         if (!taskInfo) {
             throw new ApolloError("Task not found");
         }

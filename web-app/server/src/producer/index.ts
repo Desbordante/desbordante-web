@@ -33,32 +33,32 @@ const client = Kafka.AdminClient.create({
 
 producer.connect()
     .on("ready", (i, metadata) => {
-      let isTopicTasksCreated = false;
-      metadata.topics.forEach((topic) => {
-        if (topic.name === process.env.KAFKA_TOPIC_NAME) {
-          isTopicTasksCreated = true;
-        }
-      });
-      if (isTopicTasksCreated) {
-        console.debug(`Topic '${process.env.KAFKA_TOPIC_NAME}' already exists`);
-      } else {
-        console.debug(`Topic '${process.env.KAFKA_TOPIC_NAME}' not found`);
-        console.debug(`Creating topic '${process.env.KAFKA_TOPIC_NAME}'`);
-        client.createTopic({
-          topic: `${process.env.KAFKA_TOPIC_NAME}`,
-          num_partitions: 1,
-          replication_factor: 1,
-        }, (res: LibrdKafkaError) => {
-          if (res !== undefined) {
-            console.debug(res);
-          } else {
-            console.debug(`Topic '${process.env.DB_TASKS_TABLE_NAME}' was created`);
-            client.disconnect();
-          }
+        const tasksTopicName = process.env.KAFKA_TOPIC_NAME;
+        let isTopicTasksCreated = false;
+        metadata.topics.forEach((topic) => {
+            if (topic.name === tasksTopicName) {
+                isTopicTasksCreated = true;
+            }
         });
-      }
+        if (isTopicTasksCreated) {
+            console.debug(`Topic '${tasksTopicName}' already exists`);
+        } else {
+            console.debug(`Topic '${tasksTopicName}' not found`);
+            console.debug(`Creating topic '${tasksTopicName}'`);
+            client.createTopic({
+                topic: `${tasksTopicName}`,
+                num_partitions: 1,
+                replication_factor: 1,
+            }, (err: LibrdKafkaError) => {
+                if (err != undefined) {
+                    console.debug(err.message);
+                } else {
+                    console.debug(`Topic '${process.env.KAFKA_TOPIC_NAME}' was created`);
+                    client.disconnect();
+                }
+            });
+        }
     })
     .on("event.error", (err) => {
-      console.log("err");
-      console.log(err);
+        console.log("err", err.message);
     });
