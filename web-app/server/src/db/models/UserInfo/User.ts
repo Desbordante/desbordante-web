@@ -7,7 +7,7 @@ import { Session, SessionStatusType } from "./Session";
 import { Feedback } from "./Feedback";
 import { FileInfo } from "../FileInfo/FileInfo";
 import { Permission } from "./Permission";
-import { TaskInfo } from "../TaskData/TaskInfo";
+import { TaskState } from "../TaskData/TaskState";
 
 const ALL_ACCOUNT_STATUS = ["EMAIL_VERIFICATION", "EMAIL_VERIFIED"] as const;
 export type AccountStatusType = typeof ALL_ACCOUNT_STATUS[number];
@@ -37,8 +37,8 @@ export class User extends Model implements UserModelMethods {
     @HasMany(() => Feedback)
     feedbacks?: [Feedback];
 
-    @HasMany(() => TaskInfo)
-    tasks?: [TaskInfo];
+    @HasMany(() => TaskState)
+    tasks?: [TaskState];
 
     @HasMany(() => FileInfo)
     files?: [FileInfo];

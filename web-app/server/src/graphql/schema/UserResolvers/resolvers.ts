@@ -58,7 +58,7 @@ export const UserResolvers : Resolvers = {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            return await models.TaskInfo.findAll({ where: { userID }, paranoid: true });
+            return await models.TaskState.findAll({ where: { userID }, paranoid: true });
         },
         // @ts-ignore
         datasets: async ({ userID }, _, { models }) => {

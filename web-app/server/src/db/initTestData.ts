@@ -1,10 +1,10 @@
-import { RoleType } from "./models/UserInfo/Role";
-import { CreatingUserProps, IntersectionTaskProps, PrimitiveType } from "../graphql/types/types";
-import { AccountStatusType, User } from "./models/UserInfo/User";
-import { Device, DeviceInfoInstance } from "./models/UserInfo/Device";
-import { Session, SessionStatusType } from "./models/UserInfo/Session";
+import { CreatingUserProps, IntersectionTaskProps, MetricType, PrimitiveType } from "../graphql/types/types";
 import { FileInfo } from "./models/FileInfo/FileInfo";
-import { TaskInfo, TaskStatusType } from "./models/TaskData/TaskInfo";
+import { TaskState, TaskStatusType } from "./models/TaskData/TaskState";
+import { Device, DeviceInfoInstance } from "./models/UserInfo/Device";
+import { RoleType } from "./models/UserInfo/Role";
+import { Session, SessionStatusType } from "./models/UserInfo/Session";
+import { AccountStatusType, User } from "./models/UserInfo/User";
 
 async function createAccountWithLongLiveRefreshToken (roles: RoleType[]) {
     console.log(`Creating accounts for following roles: ${JSON.stringify(roles)}`);
@@ -90,7 +90,7 @@ async function createCfdTask (fileName: string, cfdsStr: string,
         minConfidence,
         minSupportCFD,
     };
-    const taskInfo = await TaskInfo.saveToDBIfPropsValid(props, file.fileID, null);
+    const taskInfo = await TaskState.saveToDBIfPropsValid(props, null, file.fileID);
 
     const res = await taskInfo.$get("CFDResult");
     if (!res) {
@@ -105,6 +105,98 @@ async function createCfdTask (fileName: string, cfdsStr: string,
     await res.update({ withPatterns: JSON.stringify(pieChartDataWithPatternsJson) });
     await res.update({ withoutPatterns: JSON.stringify(pieChartDataWithoutPatternsJson) });
     return `Created task CFD with id = ${taskInfo.taskID} (dataset ${fileName}).`;
+}
+
+async function createTypoFDTask (fileName: string, maxLHS: number,
+                                 errorThreshold: number, threadsCount: number, TypoFDs: string) {
+    const file = await FileInfo.findOne({ where: { fileName } });
+    if (!file) {
+        throw new Error(`File not found ${file}`);
+    }
+    const type: PrimitiveType = "TypoFD" as PrimitiveType;
+    const props: IntersectionTaskProps = {
+        algorithmName: "Typo Miner",
+        approximateAlgorithm: "Pyro",
+        preciseAlgorithm: "Pyro",
+        type,
+        maxLHS,
+        errorThreshold,
+        threadsCount,
+        metric: "LEVENSHTEIN" as MetricType,
+        radius: 1,
+        ratio: 0.5,
+    };
+    const taskInfo = await TaskState.saveToDBIfPropsValid(props, null, file.fileID);
+
+    const res = await taskInfo.$get(`${type}Result`);
+    if (!res) {
+        throw new Error("got null result");
+    }
+
+    await res.update({ TypoFDs });
+    const status: TaskStatusType = "COMPLETED";
+    await taskInfo.update({
+        isExecuted: true, status, phaseName: `${type}s mining`,
+        currentPhase: 1, progress:100, maxPhase: 1, elapsedTime: 1,
+    });
+    return { message: `Created task ${type} with id = ${taskInfo.taskID} (dataset ${fileName})`, taskID: taskInfo.taskID, fileID: file.fileID };
+}
+
+async function createTypoClusterTask (
+    fileID: string,
+    typoClusterConfig: { typoFD: string, typoTaskID: string },
+    clustersCount: number, TypoClusters: string,
+) {
+    const type: PrimitiveType = "TypoCluster" as PrimitiveType;
+    const props: IntersectionTaskProps = {
+        algorithmName: "Typo Cluster Miner",
+        type,
+        ...typoClusterConfig,
+    };
+    const taskInfo = await TaskState.saveToDBIfPropsValid(props,null, fileID);
+
+    const res = await taskInfo.$get(`${type}Result`);
+    if (!res) {
+        throw new Error("got null result");
+    }
+    await res.update({ clustersCount, TypoClusters });
+    const status: TaskStatusType = "COMPLETED";
+    await taskInfo.update({
+        isExecuted: true, status, phaseName: `${type}s mining`,
+        currentPhase: 1, progress:100, maxPhase: 1, elapsedTime: 1,
+    });
+    return { message: `Created task ${type} with id = ${taskInfo.taskID}`, taskID: taskInfo.taskID };
+}
+
+async function createSpecificTypoClusterTask (
+    fileID: string,
+    typoClusterConfig: {
+        typoClusterTaskID: string,
+        clusterID: number,
+    },
+    result: {
+        suspiciousIndices: string,
+        squashedNotSortedCluster: string, squashedSortedCluster: string,
+        notSquashedNotSortedCluster: string, notSquashedSortedCluster: string }) {
+    const type: PrimitiveType = "SpecificTypoCluster" as PrimitiveType;
+    const props: IntersectionTaskProps = {
+        algorithmName: "Specific Clusters Miner",
+        type,
+        ...typoClusterConfig,
+    };
+    const taskInfo = await TaskState.saveToDBIfPropsValid(props, null, fileID);
+
+    const res = await taskInfo.$get(`${type}Result`);
+    if (!res) {
+        throw new Error("got null result");
+    }
+    await res.update(result);
+    const status: TaskStatusType = "COMPLETED";
+    await taskInfo.update({
+        isExecuted: true, status, phaseName: `${type}s mining`,
+        currentPhase: 1, progress:100, maxPhase: 1, elapsedTime: 1,
+    });
+    return { message: `Created task ${type} with id = ${taskInfo.taskID}`, taskID: taskInfo.taskID };
 }
 
 async function createBuiltInTasks () {
@@ -268,7 +360,8 @@ async function createBuiltInTasks () {
 { "id": 15, "value":8.000000 },
 { "id": 16, "value":0.000000 },
 { "id": 17, "value":30.000000 }
-] }`,`{ "lhs":[{ "id": 0, "pattern":"_", "value":1.000000 },
+] }`,
+        `{ "lhs":[{ "id": 0, "pattern":"_", "value":1.000000 },
 { "id": 1, "pattern":"_", "value":1.000000 },
 { "id": 2, "pattern":"_", "value":1.000000 },
 { "id": 3, "pattern":"_", "value":1.000000 },
@@ -312,7 +405,26 @@ async function createBuiltInTasks () {
 { "id": 17, "pattern":"_", "value":17.000000 }
 ] }`, 2, 1, 5);
 
-    console.log(testlong, ciPublicHIghway700);
+    const { taskID: s1_taskID, fileID: s1_fileID, message: s1_message } = await createTypoFDTask("SimpleTypos.csv",
+        -1, 0.05, 1, "1,2");
+    const simple_typos_1_1 = await createTypoClusterTask(s1_fileID, { typoTaskID: s1_taskID, typoFD: "1,2" },
+        1, "7,9:7,9");
+
+    const { taskID: s2_taskID, message: s2_message } = await createTypoFDTask("SimpleTypos.csv",
+        -1, 0.1, 1, "0,1;1,2");
+
+    const simple_typos_2_1 = await createTypoClusterTask(s1_fileID, { typoTaskID: s2_taskID, typoFD: "0,1" },
+        1, "4,0,1,5,6:4");
+
+    const simple_typos_2__1 = await createSpecificTypoClusterTask(s1_fileID,
+        { typoClusterTaskID: simple_typos_2_1.taskID, clusterID: 1 },
+        { suspiciousIndices: "4", squashedNotSortedCluster: "0,4;4,1", squashedSortedCluster: "4,1;0,4",
+            notSquashedNotSortedCluster: "0,1,4,5,6", notSquashedSortedCluster: "4,0,1,5,6" });
+
+    const simple_typos_2_2 = await createTypoClusterTask(s1_fileID, { typoTaskID: s2_taskID, typoFD: "1,2" },
+        1, "7,9:7,9");
+
+    console.log(testlong, ciPublicHIghway700, s1_message, s2_message, simple_typos_1_1.message, simple_typos_2_1.message, simple_typos_2_2.message, simple_typos_2__1.message);
 }
 
 export const initTestData = async () => {

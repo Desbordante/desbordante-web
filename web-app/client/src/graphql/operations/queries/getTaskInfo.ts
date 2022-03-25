@@ -36,7 +36,13 @@ export const GET_TASK_INFO = gql`
               result {
                   __typename
                   ... on FDTaskResult {
-                      FDs(pagination: { offset: 0, limit: 100 }) {
+                      FDs(filter: { 
+                          pagination: { offset: 0, limit: 100 }
+                          sortBy: COL_ID
+                          sortSide: LHS
+                          withoutKeys: false
+                          orderBy: ASC
+                      }) {
                           lhs
                           rhs
                       }

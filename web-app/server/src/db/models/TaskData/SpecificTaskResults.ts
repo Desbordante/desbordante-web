@@ -1,24 +1,24 @@
 import { TEXT, UUID } from "sequelize";
 import { BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
-import { TaskInfo } from "./TaskInfo";
+import { TaskState } from "./TaskState";
 import { PrimitiveType } from "./TaskConfig";
 
-const getResultTableName = (primitive: PrimitiveType) => `${primitive}TasksResult` as const;
+const getSpecificResultTableName = (primitive: PrimitiveType) => `${primitive}TasksResult` as const;
+const getTableOptions = (primitive: PrimitiveType) =>
+    ({ tableName: getSpecificResultTableName(primitive), updatedAt: false, paranoid: true } as const);
 
-@Table({
-    tableName: getResultTableName("FD"),
-    paranoid: true,
-    updatedAt: false,
-})
-export class FDTaskResult extends Model{
+class BaseSpecificTaskResult extends Model {
     @IsUUID(4)
-    @ForeignKey(() => TaskInfo)
+    @ForeignKey(() => TaskState)
     @Column({ type: UUID, primaryKey: true })
     taskID!: string;
 
-    @BelongsTo(() => TaskInfo)
-    taskState!: TaskInfo;
+    @BelongsTo(() => TaskState)
+    taskState!: TaskState;
+}
 
+@Table(getTableOptions("FD"))
+export class FDTaskResult extends BaseSpecificTaskResult {
     @Column({ type: TEXT, allowNull: true })
     PKColumnIndices!: string | null;
 
@@ -29,20 +29,8 @@ export class FDTaskResult extends Model{
     pieChartData!: string | null;
 }
 
-@Table({
-    tableName: getResultTableName("CFD"),
-    paranoid: true,
-    updatedAt: false,
-})
-export class CFDTaskResult extends Model{
-    @IsUUID(4)
-    @ForeignKey(() => TaskInfo)
-    @Column({ type: UUID, primaryKey: true })
-    taskID!: string;
-
-    @BelongsTo(() => TaskInfo)
-    taskState!: TaskInfo;
-
+@Table(getTableOptions("CFD"))
+export class CFDTaskResult extends BaseSpecificTaskResult {
     @Column({ type: TEXT, allowNull: true })
     PKColumnIndices!: string | null;
 
@@ -56,20 +44,8 @@ export class CFDTaskResult extends Model{
     withoutPatterns!: string | null;
 }
 
-@Table({
-    tableName: "ARTasksResult",
-    paranoid: true,
-    updatedAt: false,
-})
-export class ARTaskResult extends Model{
-    @IsUUID(4)
-    @ForeignKey(() => TaskInfo)
-    @Column({ type: UUID, primaryKey: true })
-    taskID!: string;
-
-    @BelongsTo(() => TaskInfo)
-    taskState!: TaskInfo;
-
+@Table(getTableOptions("AR"))
+export class ARTaskResult extends BaseSpecificTaskResult {
     @Column({ type: TEXT, allowNull: true })
     ARs!: string | null;
 
@@ -77,62 +53,26 @@ export class ARTaskResult extends Model{
     valueDictionary!: string | null;
 }
 
-@Table({
-    tableName: getResultTableName("TypoFD"),
-    paranoid: true,
-    updatedAt: false,
-})
-export class TypoFDTaskResult extends Model{
-    @IsUUID(4)
-    @ForeignKey(() => TaskInfo)
-    @Column({ type: UUID, primaryKey: true })
-    taskID!: string;
-
-    @BelongsTo(() => TaskInfo)
-    taskState!: TaskInfo;
-
+@Table(getTableOptions("TypoFD"))
+export class TypoFDTaskResult extends BaseSpecificTaskResult {
     @Column({ type: TEXT, allowNull: true })
     TypoFDs!: string | null;
 }
 
-@Table({
-    tableName: getResultTableName("TypoCluster"),
-    paranoid: true,
-    updatedAt: false,
-})
-export class TypoClusterResult extends Model{
-    @IsUUID(4)
-    @ForeignKey(() => TaskInfo)
-    @Column({ type: UUID, primaryKey: true })
-    taskID!: string;
-
-    @BelongsTo(() => TaskInfo)
-    taskState!: TaskInfo;
-
+@Table(getTableOptions("TypoCluster"))
+export class TypoClusterResult extends BaseSpecificTaskResult {
     @Column({ type: TEXT, allowNull: true })
     TypoClusters!: string | null;
 
-    @Column({ type: TEXT, allowNull: true })
-    suspiciousIndices!: string | null;
+    // @Column({ type: TEXT, allowNull: true })
+    // suspiciousIndices!: string | null;
 
     @Column({ type: TEXT, allowNull: true })
     clustersCount!: number | null;
 }
 
-@Table({
-    tableName: getResultTableName("SpecificTypoCluster"),
-    paranoid: true,
-    updatedAt: false,
-})
-export class SpecificTypoClusterResult extends Model{
-    @IsUUID(4)
-    @ForeignKey(() => TaskInfo)
-    @Column({ type: UUID, primaryKey: true })
-    taskID!: string;
-
-    @BelongsTo(() => TaskInfo)
-    taskState!: TaskInfo;
-
+@Table(getTableOptions("SpecificTypoCluster"))
+export class SpecificTypoClusterResult extends BaseSpecificTaskResult {
     @Column({ type: TEXT, allowNull: true })
     suspiciousIndices!: string | null;
 
