@@ -12,11 +12,11 @@ class TaskConfig {
 private:
     std::string const task_id_;
     std::string const algo_name_;
-    std::string const type_; // "FD", "CFD", "AR",
+    std::string const type_; // "FD", "CFD", "AR", "Typo"
 
     algos::StdParamsMap params_intersection_;
 
-    static std::string task_info_table;
+    static std::string task_state_table;
     static std::string file_info_table;
     static std::string file_format_table;
     static std::string task_config_table;
@@ -61,7 +61,7 @@ private:
     }
 
     void UpdateTaskState(DBManager const &manager, std::map<std::string, std::string> values) const {
-        SendUpdateQuery(manager, task_info_table, values, "Updating task state");
+        SendUpdateQuery(manager, task_state_table, values, "Updating task state");
     }
 
     void UpdateTaskResult(DBManager const &manager, std::map<std::string, std::string> values) const {
@@ -166,7 +166,7 @@ public:
     const std::string& GetType() const { return type_; }
 
     static bool IsTaskValid(DBManager const &manager, std::string task_id) {
-        std::string query = "SELECT * FROM " + task_info_table +
+        std::string query = "SELECT \"taskID\" FROM " + task_state_table +
                             " WHERE \"deletedAt\" IS NULL"
                             " AND \"taskID\" = '" + task_id + "'";
         auto answer = manager.DefaultQuery(query);

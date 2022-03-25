@@ -39,7 +39,6 @@ services:
       DB_NAME: "${POSTGRES_DB}"
       DB_USER: "${POSTGRES_USER}"
       DB_PASSWORD: "${POSTGRES_PASSWORD}"
-      DB_TASKS_TABLE_NAME: "tasksInfo"
       DB_HOST: postgres
       DB_PORT: 5432
       NODE_ENV: 'development'
@@ -125,7 +124,7 @@ services:
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
       POSTGRES_DBNAME: "${POSTGRES_DB}"
-      DB_TASKS_TABLE_NAME: "TasksInfo"
+      DB_TASKS_TABLE_NAME: "TasksState"
     restart: always
 
 networks:
