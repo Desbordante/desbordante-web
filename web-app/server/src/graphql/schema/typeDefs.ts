@@ -12,13 +12,19 @@ const typeDefs = gql`
     type FileFormat {
         fileID: String!
         dataset: DatasetInfo!
-        # For AR algorithm
+        "For AR algorithm"
         inputFormat: InputFileFormat!
-        # For AR algorithm, when type = "SINGULAR"
+        """
+        For AR algorithm, when type = "SINGULAR" 
+        """
         tidColumnIndex: Int
-        # For AR algorithm, when type = "SINGULAR"
+        """
+        For AR algorithm, when type = "SINGULAR"
+        """
         itemColumnIndex: Int
-        # For AR algorithm, when type = "TABULAR"
+        """
+        For AR algorithm, when type = "TABULAR"
+        """
         hasTid: Boolean
     }
     
@@ -122,9 +128,9 @@ const typeDefs = gql`
         fileConfig: InputFileConfig!
         maxThreadsCount: Int!
     }
-    
+    # TODO(chizhov): Rename enum
     enum PrimitiveType {
-        FD, CFD, AR, Typo
+        FD, CFD, AR, TypoFD, TypoCluster, SpecificTypoCluster
     }
     
     enum TaskProcessStatusType {
@@ -150,8 +156,10 @@ const typeDefs = gql`
 
     type InternalServerTaskError implements BaseTaskError {
         errorStatus: TaskErrorStatusType!
-        # Admins with permission 'VIEW_ADMIN_INFO' can view errorMsg value.
-        # Users without these rights will receive null
+        """
+        Admins with permission 'VIEW_ADMIN_INFO' can view errorMsg value.
+        Users without these rights will receive null
+        """
         internalError: String
     }
     
@@ -198,6 +206,33 @@ const typeDefs = gql`
         minSupportAR: Float!
         minConfidence: Float!
         fileFormat: FileFormat!
+    }
+
+    type TypoFDTaskConfig implements PrimitiveTaskConfig {
+        taskID: String!
+        errorThreshold: Float!
+        maxLHS: Int!
+        threadsCount: Int!
+        
+        preciseAlgorithm: String!
+        approximateAlgorithm: String!
+        metric: MetricType!
+        "Typo Miner (>=0)"
+        radius: Float!
+        "Typo Miner (0<= ratio <=1)"
+        ratio: Float!
+    }
+
+    type TypoClusterTaskConfig implements PrimitiveTaskConfig {
+        taskID: String!
+        typoTaskID: String!
+        typoFD: FD!
+    }
+
+    type SpecificTypoClusterTaskConfig implements PrimitiveTaskConfig {
+        taskID: String!
+        typoClusterTaskID: String!
+        clusterID: Int!
     }
     
     type Column {
@@ -253,11 +288,31 @@ const typeDefs = gql`
         taskID: String!
     }
     
-    type FDTaskResult implements PrimitiveTaskResult {
+    type ClusterItem {
+        rowIndex: Int!
+        row(squashed: Boolean! = false): [String!]!
+        isSuspicious: Boolean!
+    }
+    
+    type SquashedClusterItem {
+        rowIndex: Int!
+        row(squashed: Boolean! = false): [String!]!
+        amount: Int!
+    }
+    
+    type Cluster {
+        id: Int!
+        items(pagination: Pagination!): [ClusterItem!]
+    }
+    
+    type SquashedCluster {
+        id: Int!
+        items(pagination: Pagination!): [SquashedClusterItem!]
+    }
+    
+    type ARTaskResult implements PrimitiveTaskResult {
         taskID: String!
-        FDs(pagination: Pagination! = { offset: 0 limit: 100 }): [FD!]!
-        PKs: [Column!]!
-        pieChartData: PieChartWithoutPatterns!
+        ARs(pagination: Pagination! = { offset: 0 limit: 100 }): [AR!]!
     }
     
     type CFDTaskResult implements PrimitiveTaskResult {
@@ -267,9 +322,44 @@ const typeDefs = gql`
         pieChartData: CFDPieCharts!
     }
     
-    type ARTaskResult implements PrimitiveTaskResult {
+    enum SortSide { LHS RHS }
+    enum SortBy { COL_ID COL_NAME }
+    enum OrderBy { ASC DESC }
+    
+    input FDsFilter {
+        filterString: String
+        sortSide: SortSide!
+        sortBy: SortBy!
+        orderBy: OrderBy!
+        mustContainRhsColIndices: [Int!]
+        mustContainLhsColIndices: [Int!]
+        withoutKeys: Boolean!
+        pagination: Pagination!
+    }
+    
+    type FDTaskResult implements PrimitiveTaskResult {
         taskID: String!
-        ARs(pagination: Pagination! = { offset: 0 limit: 100 }): [AR!]!
+        FDs(filter: FDsFilter!): [FD!]!
+        PKs: [Column!]!
+        pieChartData: PieChartWithoutPatterns!
+    }
+
+    type TypoFDTaskResult implements PrimitiveTaskResult {
+        taskID: String!
+        TypoFDs(pagination: Pagination! = { offset: 0 limit: 100 }): [FD!]!
+    }
+    
+    type TypoClusterTaskResult implements PrimitiveTaskResult {
+        taskID: String!
+        "Only for preview. You must use specific typo cluster task to get more info about clusters. (By default sorted by unique)"
+        TypoClusters(pagination: Pagination! = { offset: 0 limit: 3 }): [Cluster!]!
+        clustersCount: Int!
+    }
+
+    type SpecificTypoClusterTaskResult implements PrimitiveTaskResult {
+        taskID: String!
+        cluster(sort: Boolean! = true): Cluster!
+        squashedCluster(sort: Boolean! = true): SquashedCluster!
     }
     
     type PrimitiveTaskData {
@@ -382,13 +472,19 @@ const typeDefs = gql`
     input FileProps {
         delimiter: String!
         hasHeader: Boolean!
-        # For AR algorithm
+        "For AR algorithm"
         inputFormat: InputFileFormat
-        # For AR algorithm, when type = "SINGULAR"
+        """
+        For AR algorithm, when type = "SINGULAR"
+        """
         tidColumnIndex: Int
-        # For AR algorithm, when type = "SINGULAR"
+        """
+        For AR algorithm, when type = "SINGULAR"
+        """
         itemColumnIndex: Int
-        # For AR algorithm, when type = "TABULAR"
+        """
+        For AR algorithm, when type = "TABULAR"
+        """
         hasTid: Boolean
     }
     
@@ -425,30 +521,39 @@ const typeDefs = gql`
     }
     
     input IntersectionTaskProps {
-        algorithmName: String!
+        algorithmName: String
         type: PrimitiveType!
-        # FD
+        "FD, TypoFD"
         errorThreshold: Float
-        # FD, CFD
+        "FD, TypoFD, CFD"
         maxLHS: Int
-        # FD
+        "FD, TypoFD"
         threadsCount: Int
-        # CFD
+        "CFD"
         minSupportCFD: Int
-        # AR
+        "AR"
         minSupportAR: Float
-        # CFD, AR
+        "CFD, AR"
         minConfidence: Float
-        # Typo Miner
+        "TypoFD"
         preciseAlgorithm: String
-        # Typo Miner
+        "TypoFD"
         approximateAlgorithm: String
-        # Typo Miner
+        "TypoFD"
         metric: MetricType
-        # Typo Miner (>=0)
+        "TypoFD (>=0)"
         radius: Float
-        # Typo Miner (0<= ratio <=1)
+        "TypoFD (0..1)"
         ratio: Float
+        
+        "TypoCluster"
+        typoTaskID: String
+        "SpecificTypoCluster"
+        typoClusterTaskID: String
+        "TypoCluster"
+        typoFD: String
+        "SpecificTypoCluster"
+        clusterID: Int
     }
     
     type SuccessfulMessage {
@@ -534,7 +639,11 @@ const typeDefs = gql`
         ***
         By default, the result of the algorithm is visible for all users.
         """
-        createTaskWithDatasetChoosing(props: IntersectionTaskProps!, fileID: ID!): TaskInfo!
+        createTaskWithDatasetChoosing(props: IntersectionTaskProps!, fileID: ID!): TaskState!
+        
+        createTypoMinerTask(props: IntersectionTaskProps!): TaskState!
+        
+        
         """
         This query allows clients (with permission USE_OWN_DATASETS) upload dataset and create task.
         ***

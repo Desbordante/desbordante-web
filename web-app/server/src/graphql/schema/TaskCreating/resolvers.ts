@@ -1,10 +1,24 @@
 import { ForbiddenError, UserInputError } from "apollo-server-core";
 import { AuthenticationError } from "apollo-server-express";
+import { PrimitiveType } from "../../../db/models/TaskData/TaskConfig";
 import { Resolvers } from "../../types/types";
 import { Permission } from "../../../db/models/UserInfo/Permission";
 
 export const TaskCreatingResolvers: Resolvers = {
     Mutation: {
+        createTypoMinerTask: async (parent, { props }, { models, sessionInfo, topicNames }) => {
+            const permissions = Permission.getPermissionsBySessionInfo(sessionInfo);
+            const expectedTypes: PrimitiveType[] = ["TypoCluster", "SpecificTypoCluster"];
+            if (!expectedTypes.includes(props.type)) {
+                throw new UserInputError(`Received incorrect type ${props.type}. Expected: ${expectedTypes}`);
+            }
+            if (permissions.includes("USE_BUILTIN_DATASETS")) {
+                return await models.TaskState.findTaskOrAddToDBAndSendEvent(props,
+                    topicNames.DepAlgs, sessionInfo?.userID || null);
+            } else {
+                throw new ForbiddenError("User hasn't permission for creating task with this dataset");
+            }
+        },
         createTaskWithDatasetChoosing: async (
             parent, { props, fileID }, { models, sessionInfo, topicNames }) => {
             const file = await models.FileInfo.findByPk(fileID);
@@ -22,8 +36,8 @@ export const TaskCreatingResolvers: Resolvers = {
                 || permissions.includes("USE_OWN_DATASETS") && sessionInfo
                    && file.userID === sessionInfo.userID
                 || permissions.includes("USE_USERS_DATASETS")) {
-                return await models.TaskInfo.saveTaskToDBAndSendEvent(props, fileID,
-                    topicNames.DepAlgs, sessionInfo?.userID || null);
+                return await models.TaskState.saveTaskToDBAndSendEvent(props,
+                    topicNames.DepAlgs, sessionInfo?.userID || null, fileID);
             } else {
                 throw new ForbiddenError("User hasn't permission for creating task with this dataset");
             }
@@ -58,13 +72,13 @@ export const TaskCreatingResolvers: Resolvers = {
             }
             const file = await models.FileInfo.uploadDataset(datasetProps, table,
                 sessionInfo.userID, props.type === "AR");
-            return await models.TaskInfo.saveTaskToDBAndSendEvent(props, file.fileID, topicNames.DepAlgs, sessionInfo.userID);
+            return await models.TaskState.saveTaskToDBAndSendEvent(props, topicNames.DepAlgs, sessionInfo.userID, file.fileID);
         },
         deleteTask: async (parent, { taskID, safeDelete }, { models, logger, sessionInfo }) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
             }
-            const taskInfo = await models.TaskInfo.findByPk(taskID);
+            const taskInfo = await models.TaskState.findByPk(taskID);
             if (!taskInfo) {
                 throw new UserInputError("Task not found");
             }

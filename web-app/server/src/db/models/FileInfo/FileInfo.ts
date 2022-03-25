@@ -1,4 +1,6 @@
-import { ApolloError } from "apollo-server-core";
+import { Row } from "@fast-csv/parse";
+import { ApolloError, UserInputError } from "apollo-server-core";
+import { CsvParserStream, parse } from "fast-csv";
 import fs from "fs";
 import path from "path";
 import { BOOLEAN, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
@@ -103,7 +105,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         return await generateHeaderByPath(path, hasHeader, delimiter);
     };
 
-    getColumnNames = () => JSON.parse(this.renamedHeader);
+    getColumnNames = () => JSON.parse(this.renamedHeader) as string[];
 
     static getColumnNamesForFile = async (fileID: string) => {
         if (!isUUID(fileID, 4)) {
@@ -200,5 +202,33 @@ export class FileInfo extends Model implements FileInfoModelMethods {
             await file.update(counters);
         }
         return file;
+    };
+
+    static GetRowsByIndices = async (datasetPath: fs.PathLike, delimiter: string, indices: number[], hasHeader: boolean) => {
+        const sortedIndices = indices.sort((a, b) => a - b);
+        const rows = new Map<number, string[]>();
+        let curRowNum = sortedIndices[0];
+
+        return new Promise(resolve => {
+            const parser: CsvParserStream<Row, Row> = parse({
+                delimiter,
+                skipRows: curRowNum + Number(hasHeader),
+                maxRows: sortedIndices[sortedIndices.length - 1] - curRowNum + 1,
+            });
+
+            fs.createReadStream(datasetPath)
+                .pipe(parser)
+                .on("error", (e) => {
+                    throw new ApolloError(`ERROR WHILE READING FILE:\n\r${e.message}`);
+                })
+                .on("data", (row) => {
+                    if (sortedIndices.includes(curRowNum++)) {
+                        rows.set(curRowNum - 1, row);
+                    }
+                })
+                .on("end", () => {
+                    resolve(rows);
+                });
+        });
     };
 }

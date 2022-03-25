@@ -1,43 +1,45 @@
-import { AllowNull, BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
-import { INTEGER, REAL, UUID } from "sequelize";
+import { BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
+import { FLOAT, INTEGER, REAL, STRING, UUID } from "sequelize";
 import {
     allowedARAlgorithms,
     allowedCFDAlgorithms,
     allowedFDAlgorithms, allowedTypoMinerAlgorithm, maxThreadsCount,
 } from "../../../graphql/schema/AppConfiguration/resolvers";
 import { IntersectionTaskProps } from "../../../graphql/types/types";
-import { TaskInfo } from "./TaskInfo";
+import { TaskState } from "./TaskState";
+import { TypoClusterResult, TypoFDTaskResult } from "./SpecificTaskResults";
+import { ApolloError } from "apollo-server-core";
+import { PrimitiveType } from "./TaskConfig";
+
+const getSpecificConfigTableName = (primitive: PrimitiveType) => `${primitive}TasksConfig` as const;
+const getTableOptions = (primitive: PrimitiveType) =>
+    ({ tableName: getSpecificConfigTableName(primitive), updatedAt: false, paranoid: true } as const);
 
 export type IsPropsValidFunctionType = (props: IntersectionTaskProps) =>
-    { isValid: true } | { errorMessage: string, isValid: false };
+    Promise<{ isValid: true } | { errorMessage: string, isValid: false }>;
 
-@Table({
-    tableName: "FDTasksConfig",
-    updatedAt: false,
-    paranoid: true,
-})
-export class FDTaskConfig extends Model{
+class BaseSpecificTaskConfig extends Model {
     @IsUUID(4)
-    @ForeignKey(() => TaskInfo)
+    @ForeignKey(() => TaskState)
     @Column({ type: UUID, primaryKey: true })
     taskID!: string;
 
-    @BelongsTo(() => TaskInfo)
-    taskState!: TaskInfo;
+    @BelongsTo(() => TaskState)
+    taskState!: TaskState;
+}
 
-    @AllowNull(false)
-    @Column({ type: REAL })
+@Table(getTableOptions("FD"))
+export class FDTaskConfig extends BaseSpecificTaskConfig {
+    @Column({ type: REAL, allowNull: false })
     errorThreshold!: number;
 
-    @AllowNull(false)
-    @Column({ type: INTEGER })
+    @Column({ type: INTEGER, allowNull: false })
     maxLHS!: number;
 
-    @AllowNull(false)
-    @Column({ type: INTEGER })
+    @Column({ type: INTEGER, allowNull: false })
     threadsCount!: number;
 
-    static isPropsValid: IsPropsValidFunctionType = props => {
+    static isPropsValid: IsPropsValidFunctionType = async (props) => {
         const { algorithmName, errorThreshold, maxLHS, threadsCount } = props;
         let errorMessage: string | undefined;
         if (!~allowedFDAlgorithms.findIndex(({ name }) => algorithmName === name)) {
@@ -53,33 +55,18 @@ export class FDTaskConfig extends Model{
     };
 }
 
-@Table({
-    tableName : "CFDTasksConfig",
-    updatedAt: false,
-    paranoid: true,
-})
-export class CFDTaskConfig extends Model{
-    @IsUUID(4)
-    @ForeignKey(() => TaskInfo)
-    @Column({ type: UUID, primaryKey: true })
-    taskID!: string;
-
-    @BelongsTo(() => TaskInfo)
-    taskState!: TaskInfo;
-
-    @AllowNull(false)
-    @Column({ type: INTEGER })
+@Table(getTableOptions("CFD"))
+export class CFDTaskConfig extends BaseSpecificTaskConfig {
+    @Column({ type: INTEGER, allowNull: false })
     maxLHS!: number;
 
-    @AllowNull(false)
-    @Column({ type: INTEGER })
+    @Column({ type: INTEGER, allowNull: false })
     minSupportCFD!: number;
 
-    @AllowNull(false)
-    @Column({ type: REAL })
+    @Column({ type: REAL, allowNull: false })
     minConfidence!: number;
 
-    static isPropsValid : IsPropsValidFunctionType = props => {
+    static isPropsValid : IsPropsValidFunctionType = async (props) => {
         const { algorithmName, maxLHS, minConfidence, minSupportCFD } = props;
         let errorMessage: string | undefined;
         if (!~allowedCFDAlgorithms.findIndex(({ name }) => algorithmName === name)) {
@@ -95,29 +82,15 @@ export class CFDTaskConfig extends Model{
     };
 }
 
-@Table({
-    tableName : "ARTasksConfig",
-    updatedAt: false,
-    paranoid: true,
-})
-export class ARTaskConfig extends Model{
-    @IsUUID(4)
-    @ForeignKey(() => TaskInfo)
-    @Column({ type: UUID, primaryKey: true })
-    taskID!: string;
-
-    @BelongsTo(() => TaskInfo)
-    taskState!: TaskInfo;
-
-    @AllowNull(false)
-    @Column({ type: REAL })
+@Table(getTableOptions("AR"))
+export class ARTaskConfig extends BaseSpecificTaskConfig {
+    @Column({ type: REAL, allowNull: false })
     minSupportAR!: number;
 
-    @AllowNull(false)
-    @Column({ type: REAL })
+    @Column({ type: REAL, allowNull: false })
     minConfidence!: number;
 
-    static isPropsValid: IsPropsValidFunctionType = props => {
+    static isPropsValid: IsPropsValidFunctionType = async (props) => {
         const { algorithmName, minConfidence, minSupportAR } = props;
         let errorMessage: string | undefined;
         if (!~allowedARAlgorithms.findIndex(({ name }) => algorithmName === name)) {
@@ -131,40 +104,43 @@ export class ARTaskConfig extends Model{
     };
 }
 
-@Table({
-    tableName : "TypoTasksConfig",
-    updatedAt: false,
-    paranoid: true,
-})
-export class TypoTaskConfig extends Model{
-    @IsUUID(4)
-    @ForeignKey(() => TaskInfo)
-    @Column({ type: UUID, primaryKey: true })
-    taskID!: string;
+const ALL_METRICS = ["LEVENSHTEIN", "MODULUS_OF_DIFFERENCE"] as const;
+type MetricType = typeof ALL_METRICS[number];
 
-    @BelongsTo(() => TaskInfo)
-    taskState!: TaskInfo;
-
-    @AllowNull(false)
-    @Column({ type: REAL })
+@Table(getTableOptions("TypoFD"))
+export class TypoFDTaskConfig extends BaseSpecificTaskConfig {
+    @Column({ type: REAL, allowNull: false })
     errorThreshold!: number;
 
-    @AllowNull(false)
-    @Column({ type: INTEGER })
+    @Column({ type: INTEGER, allowNull: false })
     maxLHS!: number;
 
-    @AllowNull(false)
-    @Column({ type: INTEGER })
+    @Column({ type: INTEGER, allowNull: false })
     threadsCount!: number;
 
-    static isPropsValid: IsPropsValidFunctionType = props => {
+    @Column({ type: STRING, allowNull: false })
+    preciseAlgorithm!: string;
+
+    @Column({ type: STRING, allowNull: false })
+    approximateAlgorithm!: string;
+
+    @Column({ type: STRING, allowNull: false })
+    metric!: MetricType;
+
+    @Column({ type: FLOAT, allowNull: false })
+    radius!: number;
+
+    @Column({ type: FLOAT, allowNull: false })
+    ratio!: number;
+
+    static isPropsValid: IsPropsValidFunctionType = async (props) => {
         const { algorithmName, preciseAlgorithm, approximateAlgorithm,
             metric, radius, ratio } = props;
         let errorMessage: string | undefined;
         if (algorithmName !== allowedTypoMinerAlgorithm.name) {
             errorMessage = `Received incorrect algorithm name ${algorithmName}`
                 + `, expected: ${allowedTypoMinerAlgorithm.name}`;
-        } else if (approximateAlgorithm != "TaneX") {
+        } else if (approximateAlgorithm != "Pyro") {
             errorMessage = `Received incorrect approximate algorithm name ${approximateAlgorithm}`
                 + `, expected: ${allowedTypoMinerAlgorithm.name}`;
         } else if (!preciseAlgorithm) {
@@ -177,12 +153,93 @@ export class TypoTaskConfig extends Model{
             errorMessage = `Received incorrect ratio ${ratio} (min = 0, max = 1)`;
         } else {
             props.algorithmName = preciseAlgorithm;
-            const isFdAlgoValid = FDTaskConfig.isPropsValid(props);
-            if (!isFdAlgoValid.isValid) {
-                return isFdAlgoValid;
+            const isFdAlgoValid = await FDTaskConfig.isPropsValid(props);
+            const { isValid } = isFdAlgoValid;
+            if (!isValid) {
+                ({ errorMessage } = isFdAlgoValid);
+            }
+            props.algorithmName = algorithmName;
+        }
+        return errorMessage ? { isValid: false, errorMessage } : { isValid: true };
+    };
+}
+
+interface TypoClusterModelMethods {
+    getFD: () => { lhs: number[], rhs: number };
+}
+
+@Table(getTableOptions("TypoCluster"))
+export class TypoClusterConfig extends BaseSpecificTaskConfig implements TypoClusterModelMethods {
+    @Column({ type: STRING, allowNull: false })
+    typoFD!: string;
+
+    @ForeignKey(() => TypoFDTaskConfig)
+    @IsUUID(4)
+    @Column({ type: UUID, allowNull: false })
+    typoTaskID!: string;
+
+    getFD = () => {
+        const indices = this.typoFD.split(",").map((id) => Number(id));
+        return { lhs: indices.slice(0, indices.length - 1 ), rhs: indices[indices.length - 1] };
+    };
+
+    static isPropsValid: IsPropsValidFunctionType = async (props) => {
+        const { typoTaskID, typoFD: FD } = props;
+        let errorMessage: string | undefined;
+
+        if (typeof typoTaskID !== "string") {
+            errorMessage = `Received incorrect typoTaskId '${typoTaskID}'`;
+        } else if (!FD || FD.split(",").some(i => !Number.isInteger(Number(i)))) {
+            errorMessage = `Received incorrect FD '${FD}'`;
+        } else {
+            const mainTaskResult = await TypoFDTaskResult.findByPk(typoTaskID, { attributes: ["TypoFDs"] });
+            if (mainTaskResult == null) {
+                errorMessage = "Not found main task (TypoFDTask)";
+            } else {
+                const { TypoFDs } = mainTaskResult;
+                if (typeof TypoFDs !== "string") {
+                    throw new ApolloError("Main task wasn't processed yet");
+                }
+                if (!TypoFDs.split(";").includes(FD)) {
+                    errorMessage = `You choose FD ${FD}, which not found in TypoFDs = ${TypoFDs}`;
+                }
             }
         }
+        return errorMessage ? { isValid: false, errorMessage } : { isValid: true };
+    };
+}
 
+@Table(getTableOptions("SpecificTypoCluster"))
+export class SpecificTypoClusterConfig extends BaseSpecificTaskConfig {
+    @ForeignKey(() => TypoClusterConfig)
+    @IsUUID(4)
+    @Column({ type: UUID, allowNull: false })
+    typoClusterTaskID!: string;
+
+    @Column({ type: INTEGER, allowNull: false })
+    clusterID!: number;
+
+    static isPropsValid: IsPropsValidFunctionType = async (props) => {
+        const { typoClusterTaskID, clusterID } = props;
+
+        let errorMessage: string | undefined;
+        if (clusterID == null) {
+            errorMessage = "cluster id wasn't provided";
+        } else if (typoClusterTaskID == null) {
+            errorMessage = "typoClusterTaskID wasn't provided";
+        } else {
+            const parentTask = await TypoClusterResult.findByPk(typoClusterTaskID, { attributes: ["clustersCount"] });
+            if (!parentTask) {
+                errorMessage = "Parent task not found";
+            } else {
+                if (!parentTask.clustersCount) {
+                    throw new ApolloError("Clusters count not found");
+                }
+                if (clusterID < parentTask.clustersCount) {
+                    errorMessage = `Cluster ID ${clusterID} must be less, than count of clusters ${parentTask.clustersCount}`;
+                }
+            }
+        }
         return errorMessage ? { isValid: false, errorMessage } : { isValid: true };
     };
 }

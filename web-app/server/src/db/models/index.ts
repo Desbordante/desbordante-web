@@ -6,19 +6,23 @@ import { Permission } from "./UserInfo/Permission";
 import { Role } from "./UserInfo/Role";
 import { Session } from "./UserInfo/Session";
 import { User } from "./UserInfo/User";
-import { TaskInfo } from "./TaskData/TaskInfo";
+import { TaskState } from "./TaskData/TaskState";
 import { BaseTaskConfig } from "./TaskData/TaskConfig";
-import { ARTaskConfig, CFDTaskConfig, FDTaskConfig, TypoTaskConfig } from "./TaskData/SpecificTaskConfigs";
-import { ARTaskResult, CFDTaskResult, FDTaskResult, TypoTaskResult } from "./TaskData/TaskResults";
+import { ARTaskConfig, CFDTaskConfig, FDTaskConfig, SpecificTypoClusterConfig,
+    TypoClusterConfig,TypoFDTaskConfig } from "./TaskData/SpecificTaskConfigs";
+import { ARTaskResult, CFDTaskResult, FDTaskResult, SpecificTypoClusterResult,
+    TypoClusterResult,TypoFDTaskResult } from "./TaskData/SpecificTaskResults";
 import { FileFormat } from "./FileInfo/FileFormat";
 
 export const models = {
     User, FileInfo, FileFormat, Feedback,
     Session, Device,
     Role, Code, Permission,
-    TaskInfo, BaseTaskConfig,
-    FDTaskConfig, CFDTaskConfig, ARTaskConfig, TypoTaskConfig,
-    FDTaskResult, CFDTaskResult, ARTaskResult, TypoTaskResult,
+    TaskState, BaseTaskConfig,
+    FDTaskConfig, CFDTaskConfig, ARTaskConfig,
+    TypoFDTaskConfig, TypoClusterConfig, SpecificTypoClusterConfig,
+    FDTaskResult, CFDTaskResult, ARTaskResult,
+    TypoFDTaskResult, TypoClusterResult, SpecificTypoClusterResult,
 };
 
 export type ModelsType = typeof models;
