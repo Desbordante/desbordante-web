@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useCallback, useState } from "react";
 
 import { Dataset, TaskResult, TaskStateAnswer } from "../types/taskInfo";
 import { Pagination, PrimitiveType } from "../types/globalTypes";
@@ -38,19 +38,26 @@ export const TaskContextProvider: React.FC = ({ children }) => {
   );
   const { deleteTask, loading: deleteTaskLoading } = useDeleteTask(taskId);
 
-  const resetTask = async () => {
+  const resetTask = useCallback(async () => {
     setTaskId(undefined);
-  };
+  }, []);
 
   const outValue = {
     taskId,
     setTaskId,
     taskState,
-    dataset,
     taskType,
+    primitiveFilter,
+    setPrimitiveFilter,
+    datasetPagination,
+    setDatasetPagination,
     taskResult,
+    taskResultLoading,
+    dataset,
+    datasetLoading,
     resetTask,
     deleteTask,
+    deleteTaskLoading,
   };
 
   return (
