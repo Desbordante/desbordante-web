@@ -1,24 +1,15 @@
+import React, { createContext, useState, useEffect, useContext } from "react";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import jwtDecode from "jwt-decode";
-import React, { createContext, useState, useEffect, useContext } from "react";
 
-import {
-  getRefreshToken,
-  removeTokenPair,
-  saveTokenPair,
-} from "../functions/authTokens";
+import { removeTokenPair, saveTokenPair } from "../functions/authTokens";
 import parseUserPermissions from "../functions/parseUserPermissions";
 import setupDeviceInfo from "../functions/setupDeviceInfo";
 import { LOG_OUT } from "../graphql/operations/mutations/logOut";
-import { REFRESH } from "../graphql/operations/mutations/refresh";
 import {
   logOut,
   logOutVariables,
 } from "../graphql/operations/mutations/__generated__/logOut";
-import {
-  refresh,
-  refreshVariables,
-} from "../graphql/operations/mutations/__generated__/refresh";
 import { GET_ANONYMOUS_PERMISSIONS } from "../graphql/operations/queries/getAnonymousPermissions";
 import { GET_USER } from "../graphql/operations/queries/getUser";
 import { getAnonymousPermissions } from "../graphql/operations/queries/__generated__/getAnonymousPermissions";
@@ -61,7 +52,6 @@ export const AuthContextProvider: React.FC = ({ children }) => {
       allSessions: true,
     },
   });
-  const [refresh] = useMutation<refresh, refreshVariables>(REFRESH);
 
   const removeUser = () => {
     localStorage.removeItem("user");
@@ -92,30 +82,6 @@ export const AuthContextProvider: React.FC = ({ children }) => {
     });
   };
 
-  const handleTokenExpiration = async () => {
-    const refreshToken = getRefreshToken();
-    if (refreshToken) {
-      const response = await refresh({
-        variables: {
-          refreshToken,
-        },
-      });
-
-      if (response.errors) {
-        showError({ message: response.errors[0].message });
-        removeUser();
-      } else if (response.data?.refresh) {
-        applyTokens(response.data.refresh);
-      }
-    } else {
-      showError({
-        message: "Your authentication expired.",
-        suggestion: "Please, log in again.",
-      });
-      removeUser();
-    }
-  };
-
   useEffect(() => {
     if (user?.id) {
       (async () => {
@@ -125,7 +91,8 @@ export const AuthContextProvider: React.FC = ({ children }) => {
           },
         });
         if (response.data?.user) {
-          const {userID, fullName, email, accountStatus, permissions} = response.data.user;
+          const { userID, fullName, email, accountStatus, permissions } =
+            response.data.user;
           setUser({
             id: userID,
             name: fullName,
