@@ -30,7 +30,6 @@ export const ErrorContextProvider: React.FC = ({ children }) => {
     hideError,
     isErrorShown,
   };
-  console.log("Update!");
 
   return (
     <ErrorContext.Provider value={outValue}>{children}</ErrorContext.Provider>
