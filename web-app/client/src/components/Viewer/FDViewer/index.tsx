@@ -6,28 +6,12 @@ import FDList from "./FDList";
 import TableSnippet from "../TableSnippet/TableSnippet";
 import Navigation from "../Navigation";
 import {
-  Dependency,
   FDAttribute,
   FDTaskResult,
   FunctionalDependency,
-  SortMethod,
 } from "../../../types/taskInfo";
 
 const tabs = ["Attributes", "Dependencies", "Dataset"];
-const sortMethods: SortMethod<Dependency>[] = [
-  {
-    name: "LHS",
-    comparator: (t1, t2) => {
-      const str1 = t1.lhs.join("").concat(t1.rhs);
-      const str2 = t2.lhs.join("").concat(t2.rhs);
-      return str1.localeCompare(str2);
-    },
-  },
-  {
-    name: "RHS",
-    comparator: (t1, t2) => t1.rhs.localeCompare(t2.rhs),
-  },
-];
 
 interface Props {
   result: FDTaskResult;
