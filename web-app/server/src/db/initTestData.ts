@@ -1,3 +1,5 @@
+import { INTEGER } from "sequelize";
+import { Column } from "sequelize-typescript";
 import { CreatingUserProps, IntersectionTaskProps, MetricType, PrimitiveType } from "../graphql/types/types";
 import { FileInfo } from "./models/FileInfo/FileInfo";
 import { TaskState, TaskStatusType } from "./models/TaskData/TaskState";
@@ -67,7 +69,7 @@ async function createCfdTask (fileName: string, cfdsStr: string,
                              pieChartDataWithPatternsStr: string,
                              maxLHS = -1, minConfidence = 1, minSupportCFD = 1) {
     type cfd = { l: [string], lp:[string], r: string, rp: string }
-    const json: { cfds: [cfd] } = JSON.parse(cfdsStr);
+    const cfds: [cfd] = JSON.parse(cfdsStr);
 
     type WithoutPatternRow = { id: number, value: number };
     const pieChartDataWithoutPatternsJson:
@@ -101,14 +103,15 @@ async function createCfdTask (fileName: string, cfdsStr: string,
         isExecuted: true, status, phaseName: "CFD mining",
         currentPhase: 1, progress:100, maxPhase: 1, elapsedTime: 1,
     });
-    await res.update({ CFDs: JSON.stringify(json), PKColumnIndices: "[]" });
+    await res.update({ CFDs: JSON.stringify(cfds), PKColumnIndices: "[]" });
     await res.update({ withPatterns: JSON.stringify(pieChartDataWithPatternsJson) });
     await res.update({ withoutPatterns: JSON.stringify(pieChartDataWithoutPatternsJson) });
+    await res.update({ depsAmount: cfds.length });
     return `Created task CFD with id = ${taskInfo.taskID} (dataset ${fileName}).`;
 }
 
 async function createTypoFDTask (fileName: string, maxLHS: number,
-                                 errorThreshold: number, threadsCount: number, TypoFDs: string) {
+                                 errorThreshold: number, threadsCount: number, TypoFDs: string, depsAmount: number) {
     const file = await FileInfo.findOne({ where: { fileName } });
     if (!file) {
         throw new Error(`File not found ${file}`);
@@ -133,7 +136,7 @@ async function createTypoFDTask (fileName: string, maxLHS: number,
         throw new Error("got null result");
     }
 
-    await res.update({ TypoFDs });
+    await res.update({ TypoFDs, depsAmount });
     const status: TaskStatusType = "COMPLETED";
     await taskInfo.update({
         isExecuted: true, status, phaseName: `${type}s mining`,
@@ -177,7 +180,9 @@ async function createSpecificTypoClusterTask (
     result: {
         suspiciousIndices: string,
         squashedNotSortedCluster: string, squashedSortedCluster: string,
-        notSquashedNotSortedCluster: string, notSquashedSortedCluster: string }) {
+        notSquashedNotSortedCluster: string, notSquashedSortedCluster: string,
+        squashedItemsAmount: number, notSquashedItemsAmount: number
+    }) {
     const type: PrimitiveType = "SpecificTypoCluster" as PrimitiveType;
     const props: IntersectionTaskProps = {
         algorithmName: "Specific Clusters Miner",
@@ -406,12 +411,12 @@ async function createBuiltInTasks () {
 ] }`, 2, 1, 5);
 
     const { taskID: s1_taskID, fileID: s1_fileID, message: s1_message } = await createTypoFDTask("SimpleTypos.csv",
-        -1, 0.05, 1, "1,2");
+        -1, 0.05, 1, "1,2", 1);
     const simple_typos_1_1 = await createTypoClusterTask(s1_fileID, { typoTaskID: s1_taskID, typoFD: "1,2" },
         1, "7,9:7,9");
 
     const { taskID: s2_taskID, message: s2_message } = await createTypoFDTask("SimpleTypos.csv",
-        -1, 0.1, 1, "0,1;1,2");
+        -1, 0.1, 1, "0,1;1,2", 2);
 
     const simple_typos_2_1 = await createTypoClusterTask(s1_fileID, { typoTaskID: s2_taskID, typoFD: "0,1" },
         1, "4,0,1,5,6:4");
@@ -419,7 +424,9 @@ async function createBuiltInTasks () {
     const simple_typos_2__1 = await createSpecificTypoClusterTask(s1_fileID,
         { typoClusterTaskID: simple_typos_2_1.taskID, clusterID: 1 },
         { suspiciousIndices: "4", squashedNotSortedCluster: "0,4;4,1", squashedSortedCluster: "4,1;0,4",
-            notSquashedNotSortedCluster: "0,1,4,5,6", notSquashedSortedCluster: "4,0,1,5,6" });
+            notSquashedNotSortedCluster: "0,1,4,5,6", notSquashedSortedCluster: "4,0,1,5,6",
+            squashedItemsAmount: 2, notSquashedItemsAmount: 5,
+        });
 
     const simple_typos_2_2 = await createTypoClusterTask(s1_fileID, { typoTaskID: s2_taskID, typoFD: "1,2" },
         1, "7,9:7,9");

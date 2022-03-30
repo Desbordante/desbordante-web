@@ -303,21 +303,25 @@ const typeDefs = gql`
     type Cluster {
         id: Int!
         items(pagination: Pagination!): [ClusterItem!]
+        itemsAmount: Int!
     }
     
     type SquashedCluster {
         id: Int!
         items(pagination: Pagination!): [SquashedClusterItem!]
+        itemsAmount: Int!
     }
     
     type ARTaskResult implements PrimitiveTaskResult {
         taskID: String!
         ARs(pagination: Pagination! = { offset: 0 limit: 100 }): [AR!]!
+        depsAmount: Int!
     }
     
     type CFDTaskResult implements PrimitiveTaskResult {
         taskID: String!
         CFDs(pagination: Pagination! = { offset: 0 limit: 100 }): [CFD!]!
+        depsAmount: Int!
         PKs: [Column!]!
         pieChartData: CFDPieCharts!
     }
@@ -340,6 +344,7 @@ const typeDefs = gql`
     type FDTaskResult implements PrimitiveTaskResult {
         taskID: String!
         FDs(filter: FDsFilter!): [FD!]!
+        depsAmount: Int!
         PKs: [Column!]!
         pieChartData: PieChartWithoutPatterns!
     }
@@ -347,6 +352,7 @@ const typeDefs = gql`
     type TypoFDTaskResult implements PrimitiveTaskResult {
         taskID: String!
         TypoFDs(pagination: Pagination! = { offset: 0 limit: 100 }): [FD!]!
+        depsAmount: Int!
     }
     
     type TypoClusterTaskResult implements PrimitiveTaskResult {
