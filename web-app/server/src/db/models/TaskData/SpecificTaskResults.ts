@@ -1,4 +1,4 @@
-import { TEXT, UUID } from "sequelize";
+import { INTEGER, TEXT, UUID } from "sequelize";
 import { BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
 import { TaskState } from "./TaskState";
 import { PrimitiveType } from "./TaskConfig";
@@ -27,6 +27,9 @@ export class FDTaskResult extends BaseSpecificTaskResult {
 
     @Column({ type: TEXT, allowNull: true })
     pieChartData!: string | null;
+
+    @Column({ type: INTEGER, allowNull: true })
+    depsAmount!: number | null;
 }
 
 @Table(getTableOptions("CFD"))
@@ -42,6 +45,9 @@ export class CFDTaskResult extends BaseSpecificTaskResult {
 
     @Column({ type: TEXT, allowNull: true })
     withoutPatterns!: string | null;
+
+    @Column({ type: INTEGER, allowNull: true })
+    depsAmount!: number | null;
 }
 
 @Table(getTableOptions("AR"))
@@ -51,12 +57,18 @@ export class ARTaskResult extends BaseSpecificTaskResult {
 
     @Column({ type: TEXT, allowNull: true })
     valueDictionary!: string | null;
+
+    @Column({ type: INTEGER, allowNull: true })
+    depsAmount!: number | null;
 }
 
 @Table(getTableOptions("TypoFD"))
 export class TypoFDTaskResult extends BaseSpecificTaskResult {
     @Column({ type: TEXT, allowNull: true })
     TypoFDs!: string | null;
+
+    @Column({ type: INTEGER, allowNull: true })
+    depsAmount!: number | null;
 }
 
 @Table(getTableOptions("TypoCluster"))
@@ -81,6 +93,12 @@ export class SpecificTypoClusterResult extends BaseSpecificTaskResult {
 
     @Column({ type: TEXT, allowNull: true })
     squashedSortedCluster!: string | null;
+
+    @Column({ type: INTEGER, allowNull: true })
+    squashedItemsAmount!: number | null;
+
+    @Column({ type: INTEGER, allowNull: true })
+    notSquashedItemsAmount!: number | null;
 
     @Column({ type: TEXT, allowNull: true })
     notSquashedNotSortedCluster!: string | null;

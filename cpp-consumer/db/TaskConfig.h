@@ -4,9 +4,17 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
+#include <enum.h>
 
 #include "AlgoFactory.h"
 #include "DBManager.h"
+
+BETTER_ENUM(
+    TaskMiningType, char,
+    ar,
+    cfd,
+    fd,
+    specifictypocluster, typocluster, typofd)
 
 class TaskConfig {
 private:
@@ -21,12 +29,20 @@ private:
     static std::string file_format_table;
     static std::string task_config_table;
 
+    static std::string GetSpecificResultTableName(const std::string& prefix) {
+        return "\"" + prefix + "TasksResult\"";
+    }
+
     static std::string GetSpecificResultTableName(const TaskConfig& config) {
-        return "\"" + config.GetType() + "TasksResult\"";
+        return GetSpecificResultTableName(config.GetType());
+    }
+
+    static std::string GetSpecificConfigTableName(const std::string& prefix) {
+        return "\"" + prefix + "TasksConfig\"";
     }
 
     static std::string GetSpecificConfigTableName(const TaskConfig& config) {
-        return "\"" + config.GetType() + "TasksConfig\"";
+        return GetSpecificConfigTableName(config.GetType());
     }
 
     static void PrepareString(std::string& str) {
@@ -40,6 +56,18 @@ private:
         }
     }
 
+    static auto SendBaseQuery(DBManager const &manager,
+                       std::string query, std::string query_description) {
+        try {
+            return manager.TransactionQuery(query);
+        } catch(const std::exception& e) {
+            std::cerr << "Unexpected exception executing query [" << query_description << "], "
+                      << "Info for debug = [" << query << "] \n"
+                      << "caught: " << e.what() << std::endl;
+            throw e;
+        }
+    }
+
     void SendUpdateQuery(DBManager const &manager, std::string table_name,
                          std::map<std::string, std::string> values,
                          std::string query_description) const {
@@ -50,14 +78,43 @@ private:
         std::string expression = boost::join(set_attributes, ",");
         std::string query = "UPDATE " + table_name + " SET " + expression
                             + " WHERE \"taskID\" = '" + task_id_ + "'";
-        try {
-            manager.TransactionQuery(query);
-        } catch(const std::exception& e) {
-            std::cerr << "Unexpected exception executing query [" << query_description << "], "
-                      << "Info for debug = [" << expression << "] \n"
-                      << "caught: " << e.what() << std::endl;
-            throw e;
+        SendBaseQuery(manager, query, query_description)[0];
+    }
+
+    static auto SendSelectQuery(DBManager const &manager, std::string table_name, std::string attr_for_search,
+                                std::string id, std::vector<std::string> attributes,
+                                std::string query_description) {
+        for (auto& attr: attributes) {
+            attr = "\"" + attr + "\"";
         }
+        std::string attrs_str = boost::join(attributes, ",");
+        std::string query = "SELECT" + attrs_str + "FROM " + table_name
+                            + " WHERE \"" + attr_for_search + "\" = '" + id + "'";
+        return SendBaseQuery(manager, query, query_description)[0];
+    }
+
+    static auto SelectConfigInfo(DBManager const &manager, std::string task_id, std::vector<std::string> attrs) {
+        return SendSelectQuery(manager, task_config_table, "taskID", task_id, attrs, "Select base task config info");
+    }
+
+    static auto SelectFileInfo(DBManager const &manager, std::string file_id, std::vector<std::string> attrs) {
+        return SendSelectQuery(manager, file_info_table, "fileID", file_id, attrs, "Select file info");
+    }
+
+    static auto SelectFileFormat(DBManager const &manager, std::string file_id, std::vector<std::string> attrs) {
+        return SendSelectQuery(manager, file_format_table, "fileID", file_id, attrs, "Select file info");
+    }
+
+    static auto SelectSpecificConfigInfo(DBManager const &manager, std::vector<std::string> attrs,
+                                         std::string prefix, std::string task_id) {
+        return SendSelectQuery(manager, GetSpecificConfigTableName(prefix), "taskID", task_id, attrs,
+                               "Select specific task config info");
+    }
+
+    static auto SelectTaskStateInfo(DBManager const &manager, std::vector<std::string> attrs,
+                                    std::string task_id) {
+        return SendSelectQuery(manager, task_state_table, "taskID", task_id, attrs,
+                               "Select task state info");
     }
 
     void UpdateTaskState(DBManager const &manager, std::map<std::string, std::string> values) const {
@@ -75,6 +132,8 @@ private:
     }
 
 public:
+    TaskConfig(std::string task_id)
+        : task_id_(task_id) {}
 
     TaskConfig(std::string task_id, std::string const& type, std::string const& algo_name,
                algos::StdParamsMap&& params_intersection)
@@ -83,78 +142,69 @@ public:
 
     static TaskConfig GetTaskConfig(DBManager const &manager, std::string task_id) {
         algos::StdParamsMap params;
-        std::string postfix = " WHERE \"taskID\" = '" + task_id + "'";
 
-        std::string query = "SELECT \"type\" from " + task_config_table + postfix;
-        auto rows = manager.DefaultQuery(query);
-        std::string primitive_type = rows[0]["\"type\""].c_str();
+        auto row = SelectConfigInfo(manager, task_id, { "type", "algorithmName", "fileID" });
+        auto type = row[R"("type")"].as<std::string>();
+        auto mining_type = TaskMiningType::_from_string_nocase(type.c_str());
+        auto algo_name = row[R"("algorithmName")"].as<std::string>();
+        auto file_id = row[R"("fileID")"].as<std::string>();
 
-        query = "SELECT \"algorithmName\", \"fileID\" FROM " + task_config_table + postfix;
-        rows = manager.DefaultQuery(query);
-        std::string algo_name = rows[0]["\"algorithmName\""].c_str();
-        std::string file_id = rows[0]["\"fileID\""].c_str();
-        std::string file_postfix = " WHERE \"fileID\" = '" + file_id + "'";
+        row = SelectFileInfo(manager, file_id, { "hasHeader", "path", "delimiter" });
+        auto delimiter = row[R"("delimiter")"].as<std::string>()[0];
+        auto dataset_path = std::filesystem::path(row[R"("path")"].as<std::string>());
+        auto has_header = row[R"("hasHeader")"].as<bool>();
 
-        query = "SELECT \"hasHeader\", \"path\", \"delimiter\" FROM "
-                + file_info_table + file_postfix;
-        rows = manager.DefaultQuery(query);
-        char delimiter = rows[0]["\"delimiter\""].c_str()[0];
-        std::string path = (rows[0]["\"path\""]).c_str();
-        std::filesystem::path dataset_path = path;
-        bool has_header;
-        rows[0]["\"hasHeader\""] >> has_header;
-
-        params.insert({{ "has_header", has_header },{ "separator", delimiter },
-                       { "data", dataset_path }});
-
-        auto specific_config_table = "\"" + primitive_type + "TasksConfig\"";
+        params.insert({
+            { "has_header", has_header },
+            { "separator", delimiter },
+            { "data", dataset_path }
+        });
 
         std::map<std::string, std::vector<std::string>> config_resolution {
-            { "FD", { "\"errorThreshold\"", "\"maxLHS\"", "\"threadsCount\"" } },
-            { "AR", { "\"minSupportAR\"", "\"minConfidence\"" } },
+            { "FD", { "errorThreshold", "maxLHS", "threadsCount" } },
+            { "AR", { "minSupportAR", "minConfidence" } },
         };
 
-        query = "SELECT " + boost::join(config_resolution[primitive_type], ",")
-                + " FROM " + specific_config_table + postfix;
-        rows = manager.DefaultQuery(query);
+        row = SelectSpecificConfigInfo(manager, config_resolution[type], type, task_id);
 
-        if (primitive_type == "FD") {
-            auto error_threshold = std::stod(rows[0]["\"errorThreshold\""].c_str());
-            auto max_lhs = (unsigned)std::stoi(rows[0]["\"maxLHS\""].c_str());
-            auto threads_count = (ushort)std::stoi(rows[0]["\"threadsCount\""].c_str());
-            bool is_null_equal_null = true;
-            int seed = 0;
+        switch (mining_type) {
+        case TaskMiningType::fd: {
+            auto error_threshold = row[R"("errorThreshold")"].as<double>();
+            auto max_lhs = row[R"("maxLHS")"].as<unsigned>();
+            auto threads_count = row[R"("threadsCount")"].as<ushort>();
+            auto is_null_equal_null = true;
+            auto seed = 0;
             params.insert({
-                {"max_lhs", max_lhs}, {"threads", threads_count}, { "seed", seed},
-                {"error", error_threshold}, { "is_null_equal_null", is_null_equal_null }});
-        } else if (primitive_type == "AR") {
-            auto min_sup = std::stod(rows[0]["\"minSupportAR\""].c_str());
-            auto min_conf = std::stod(rows[0]["\"minConfidence\""].c_str());
-            params.insert({{ "minsup", min_sup }, { "minconf", min_conf }});
+                {"max_lhs", max_lhs}, {"threads", threads_count},
+                {"seed", seed}, {"error", error_threshold},
+                {"is_null_equal_null", is_null_equal_null}});
+        } break;
+        case TaskMiningType::ar: {
+            auto min_sup = row[R"("minSupportAR")"].as<double>();
+            auto min_conf = row[R"("minConfidence")"].as<double>();
+            params.insert({{"minsup", min_sup}, {"minconf", min_conf}});
 
-            std::vector<std::string> file_format_attrs = {
-                "\"inputFormat\"", "\"tidColumnIndex\"", "\"itemColumnIndex\"", "\"hasTid\"" };
+            row = SelectFileFormat(
+                manager, file_id,
+                { "inputFormat", "tidColumnIndex", "itemColumnIndex", "hasTid" });
 
-            query = "SELECT " + boost::join(file_format_attrs, ",")
-                    + " FROM " + file_format_table + file_postfix;
-            rows = manager.DefaultQuery(query);
-
-            std::string input_format = rows[0]["\"inputFormat\""].c_str();
-            std::string lower_input_format = boost::to_lower_copy(input_format);
-            params.insert({ "input_format", lower_input_format });
-            if (input_format == "SINGULAR") {
-                auto tid_column_index = (unsigned)std::stoi(rows[0]["\"tidColumnIndex\""].c_str()) - 1;
-                auto item_column_index = (unsigned)std::stoi(rows[0]["\"itemColumnIndex\""].c_str()) - 1;
-                params.insert({
-                    { "tid_column_index", tid_column_index },
-                    { "item_column_index", item_column_index }});
-            } else if (input_format == "TABULAR") {
-                bool has_tid;
-                rows[0]["\"hasTid\""] >> has_tid;
+            auto input_format = row[R"("inputFormat")"].as<std::string>();
+            boost::to_lower(input_format);
+            params.insert({"input_format", input_format });
+            if (input_format == "singular") {
+                auto tid_col_index = row[R"("tidColumnIndex")"].as<unsigned>() - 1;
+                auto item_col_index = row[R"("itemColumnIndex")"].as<unsigned>() - 1;
+                params.insert({{"tid_column_index", tid_col_index},
+                               {"item_column_index", item_col_index}});
+            } else if (input_format == "tabular") {
+                auto has_tid = row[R"("hasTid")"].as<bool>();
                 params.insert({ "has_tid", has_tid });
             }
+        } break;
+        default:
+            throw new std::runtime_error("Type not supported");
         }
-        return { task_id, primitive_type, algo_name, std::move(params) };
+        return { task_id, type, algo_name, std::move(params) };
     }
 
     const auto& GetParamsIntersection() const {
@@ -220,6 +270,10 @@ public:
     // Send a request to DB with JSON array (data for pie chart for client)
     void UpdatePieChartData(DBManager const& manager, const std::string& pie_chart_data) const {
         UpdateTaskResult(manager, {{ "pieChartData", pie_chart_data }});
+    }
+
+    void UpdateDepsAmount(DBManager const& manager, size_t amount, std::string attr_name = "depsAmount") const {
+        UpdateTaskResult(manager, {{ attr_name, std::to_string(amount) }});
     }
 
     // Send a request to DB for changing task's status to 'ERROR'

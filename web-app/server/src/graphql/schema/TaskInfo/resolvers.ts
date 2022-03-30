@@ -266,6 +266,14 @@ export const TaskInfoResolvers: Resolvers = {
 
             return { lhs: transformFromCompactData(lhs), rhs: transformFromCompactData(rhs) };
         },
+        // @ts-ignore
+        depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
+            const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
+            if (!depsAmount) {
+                return [];
+            }
+            return Number(depsAmount);
+        },
     },
     TypoFDTaskResult: {
         // @ts-ignore
@@ -279,6 +287,14 @@ export const TaskInfoResolvers: Resolvers = {
                 .map(unionIndices => unionIndices.split(","))
                 .map(depIndices => ({ dep: [ depIndices.slice(0, depIndices.length - 1), depIndices[depIndices.length - 1] ], columnNames }));
             return getArrayOfDepsByPagination(compactFDs, pagination);
+        },
+        // @ts-ignore
+        depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
+            const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
+            if (!depsAmount) {
+                return [];
+            }
+            return Number(depsAmount);
         },
     },
     TypoClusterTaskConfig: {
@@ -305,6 +321,14 @@ export const TaskInfoResolvers: Resolvers = {
             const valueDictionary = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "valueDictionary");
             const compactARs = ARs.split(";").map(compactAR => ({ rule: compactAR.split(":"), valueDictionary: valueDictionary.split(",") }));
             return getArrayOfDepsByPagination(compactARs, pagination);
+        },
+        // @ts-ignore
+        depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
+            const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
+            if (!depsAmount) {
+                return [];
+            }
+            return Number(depsAmount);
         },
     },
     Cluster: {
@@ -351,7 +375,7 @@ export const TaskInfoResolvers: Resolvers = {
                 throw new ApolloError("File not found");
             }
             const rows = await models.FileInfo.GetRowsByIndices(file.path, file.delimiter, indices, file.hasHeader);
-            return typoClusters.map((typoCluster, id) => ({ ...typoCluster, id, rows }));
+            return typoClusters.map((typoCluster, id) => ({ ...typoCluster, id, rows, itemsAmount: typoCluster.rowIndices.length }));
         },
         // @ts-ignore
         clustersCount: async ({ propertyPrefix, taskInfo }) => {
@@ -378,7 +402,7 @@ export const TaskInfoResolvers: Resolvers = {
             }
             const rows = await models.FileInfo.GetRowsByIndices(file.path, file.delimiter, Array.from(rowIndices), file.hasHeader);
             const id = Number(clusterID);
-            return { rowIndices, suspiciousIndices, id, rows };
+            return { rowIndices, suspiciousIndices, id, rows, itemsAmount: rowIndices.length };
         },
         // @ts-ignore
         squashedCluster: async ({ propertyPrefix, taskInfo, fileID }, { sort }, { models, logger }) => {
@@ -397,7 +421,7 @@ export const TaskInfoResolvers: Resolvers = {
             }
             const rows = await models.FileInfo.GetRowsByIndices(file.path, file.delimiter, rowIndicesWithAmount.map(({ rowIndex }) => rowIndex), file.hasHeader);
             const id = Number(clusterID);
-            return { rowIndicesWithAmount, id, rows };
+            return { rowIndicesWithAmount, id, rows, itemsAmount: rowIndicesWithAmount.length };
         },
     },
     CFDPieCharts: {
@@ -439,6 +463,14 @@ export const TaskInfoResolvers: Resolvers = {
             logger(PKColumnIndices);
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
             return indices.map(index => ({ index, name: columnNames[index] }));
+        },
+        // @ts-ignore
+        depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
+            const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
+            if (!depsAmount) {
+                return [];
+            }
+            return Number(depsAmount);
         },
     },
     FileFormat: {

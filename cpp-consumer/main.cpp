@@ -54,7 +54,6 @@ std::string GetCompactFDs(const std::list<FD>& deps, bool with_null_lhs) {
 std::string GetCompactARs(const std::list<model::ArIDs>& deps) {
     std::vector<std::string> compact_deps;
     for (auto& ar : deps) {
-        std::cout << ar.ToCompactString() << std::endl;
         compact_deps.push_back(ar.ToCompactString());
     }
     return boost::join(compact_deps, ";");
@@ -106,6 +105,7 @@ void SaveFDTaskResult(TaskConfig const& task, DBManager const &manager, FDAlgori
     const auto& deps = algorithm->FdList();
 
     task.UpdateDeps(manager, GetCompactFDs(deps, false));
+    task.UpdateDepsAmount(manager, deps.size());
     task.UpdatePieChartData(manager, GetPieChartData(deps, 1));
 }
 
@@ -115,6 +115,7 @@ void SaveARTaskResult(TaskConfig const& task, DBManager const &manager, algos::A
 
     const auto& ar_list = algorithm->GetArIDsList();
     task.UpdateDeps(manager, GetCompactARs(ar_list));
+    task.UpdateDepsAmount(manager, deps.size());
 }
 
 void SaveResultOfTheAlgorithm(TaskConfig const& task, DBManager const &manager, algos::Primitive* algorithm) {
