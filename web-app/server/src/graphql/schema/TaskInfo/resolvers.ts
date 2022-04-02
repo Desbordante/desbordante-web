@@ -254,7 +254,7 @@ export const TaskInfoResolvers: Resolvers = {
         },
         // @ts-ignore
         pieChartData: async ({ propertyPrefix, taskInfo, fileID }, obj, { models }) => {
-            const pieChartData = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "pieChartData");
+            const pieChartData = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "withoutPatterns");
             const [lhs, rhs] = pieChartData.split("|");
 
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);

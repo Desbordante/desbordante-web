@@ -26,7 +26,7 @@ export class FDTaskResult extends BaseSpecificTaskResult {
     FDs!: string | null;
 
     @Column({ type: TEXT, allowNull: true })
-    pieChartData!: string | null;
+    withoutPatterns!: string | null;
 
     @Column({ type: INTEGER, allowNull: true })
     depsAmount!: number | null;

@@ -57,7 +57,10 @@ BETTER_ENUM(Algo, char,
     metric,
 
     /* Statistic algorithms */
-    stats
+    stats,
+
+    /* TypoMiner algorithm */
+    typominer
 );
 
 using StdParamsMap = std::unordered_map<std::string, boost::any>;
