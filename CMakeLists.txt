@@ -53,7 +53,6 @@ include_directories(
     )
 
 if (ENABLE_CONSUMER_COMPILE)
-    include_directories("cpp-consumer/include")
     add_subdirectory("cpp-consumer")
 endif()
 

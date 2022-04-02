@@ -1,14 +1,16 @@
-set(BINARY ${CMAKE_PROJECT_NAME})
+set(BINARY ${CMAKE_PROJECT_NAME}_cpp_consumer)
 
-file(GLOB_RECURSE lib_sources "*/*.h*" "*/*.cpp*" "*/*.cc*")
+file(GLOB_RECURSE cpp_consumer_sources "*.h*" "*.cpp*")
 
-set(run_sources "main.cpp")
+add_library(${BINARY}_lib STATIC ${cpp_consumer_sources})
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 find_library(PQXX_LIB pqxx)
 
-add_executable(${BINARY}_cpp_consumer ${run_sources})
+set(run_sources "main.cpp")
 
-target_link_libraries(${BINARY}_cpp_consumer PUBLIC ${CMAKE_PROJECT_NAME}_lib ${PQXX_LIB} Boost::thread pthread)
-target_link_libraries(${BINARY}_cpp_consumer LINK_PUBLIC ${Boost_LIBRARIES} Threads::Threads easyloggingpp)
+add_executable(${BINARY} ${run_sources})
+
+target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib ${BINARY}_lib ${PQXX_LIB})
+target_link_libraries(${BINARY} LINK_PUBLIC ${Boost_LIBRARIES} Threads::Threads easyloggingpp)
