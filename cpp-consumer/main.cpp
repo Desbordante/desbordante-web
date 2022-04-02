@@ -1,36 +1,19 @@
-#include <algorithm>
-#include <cctype>
-#include <filesystem>
 #include <future>
 #include <iostream>
-#include <optional>
 #include <string>
 #include <vector>
 
 #include "db/TaskConfig.h"
-#include "db/DBManager.h"
+#include "db/SpecificDbManager.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/program_options.hpp>
 #include <easylogging++.h>
 
-#include "AlgoFactory.h"
+#include "task-processors/TaskProcessor.h"
 
-namespace po = boost::program_options;
+using namespace consumer;
 
 INITIALIZE_EASYLOGGINGPP
-
-std::string TaskConfig::task_state_table = "\"TasksState\"";
-std::string TaskConfig::file_info_table = "\"FilesInfo\"";
-std::string TaskConfig::file_format_table = "\"FilesFormat\"";
-std::string TaskConfig::task_config_table = "\"TasksConfig\"";
-
-const std::map<std::string, std::string> algo_name_resolution {
-    {"Pyro", "pyro"}, {"Dep Miner", "depminer"}, {"TaneX", "tane"},
-    {"FastFDs", "fastfds"}, {"FD mine", "fdmine"}, {"DFD", "dfd"},
-    {"FDep", "fdep"}, { "Apriori", "apriori" },
-    {"Typo Miner", "typo"}, {"Typo Cluster Miner", "typo"}
-};
 
 static std::string DBConnection() {
     std::string host = std::getenv("POSTGRES_HOST");
@@ -41,154 +24,118 @@ static std::string DBConnection() {
     return "postgresql://" + user + ":" + password + "@" + host + ":" + port + "/" + dbname;
 }
 
-std::string GetCompactFDs(const std::list<FD>& deps, bool with_null_lhs) {
-    std::vector<std::string> compact_deps;
-    for (const auto& fd : deps) {
-        if (with_null_lhs || fd.GetLhs().GetArity() != 0) {
-            compact_deps.push_back(fd.ToCompactString());
-        }
-    }
-    return boost::join(compact_deps, ";");
+static DesbordanteDbManager::BaseTables BaseTables() {
+    std::string task_state_table = "\"TasksState\"";
+    std::string file_info_table = "\"FilesInfo\"";
+    std::string file_format_table = "\"FilesFormat\"";
+    std::string task_config_table = "\"TasksConfig\"";
+    return {
+        {BaseTablesType::state,
+         {task_state_table,
+          SearchBy::taskID,
+          {
+              std::make_shared<ExtendedAttribute<unsigned int>>("attemptNumber", "attempt_number"),
+              std::make_shared<ExtendedAttribute<std::string>>("status", "status"),
+              std::make_shared<ExtendedAttribute<std::string>>("phaseName", "phase_name"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("currentPhase", "current_phase"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("progress", "progress"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("maxPhase", "max_phase"),
+              std::make_shared<ExtendedAttribute<std::string>>("errorMsg", "error_msg"),
+              std::make_shared<ExtendedAttribute<bool>>("isExecuted", "is_executed"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("elapsedTime", "elapsed_time"),
+          }}},
+        {BaseTablesType::config,
+         {task_config_table,
+          SearchBy::taskID,
+          {
+              std::make_shared<ExtendedAttribute<std::string>>("type", "type"),
+              std::make_shared<ExtendedAttribute<std::string>>("algorithmName", "algo_name"),
+              std::make_shared<ExtendedAttribute<std::string>>("fileID", "fileID"),
+          }}},
+        {BaseTablesType::fileinfo,
+         {file_info_table,
+          SearchBy::fileID,
+          {
+              std::make_shared<ExtendedAttribute<bool>>("hasHeader", "has_header"),
+              std::make_shared<ExtendedAttribute<char>>("delimiter", "separator"),
+              std::make_shared<ExtendedAttribute<std::filesystem::path>>("path", "data"),
+          }}},
+        {BaseTablesType::fileformat,
+         {file_format_table,
+          SearchBy::fileID,
+          {
+              std::make_shared<ExtendedAttribute<std::string>>(
+                  "inputFormat", "input_format", [](std::string& value) { boost::to_lower(value); }),
+              std::make_shared<ExtendedAttribute<unsigned>>(
+                  std::string("tidColumnIndex"), std::string("tid_column_index"),
+                  [](auto& i) { i--; },
+                  [](const TaskConfig& task_config) {
+                      return task_config.GetParam<std::string>("input_format") == "singular";
+                  }),
+              std::make_shared<ExtendedAttribute<unsigned>>(
+                  "itemColumnIndex", "item_column_index", [](auto& i) { i--; },
+                  [](const TaskConfig& task_config) {
+                      return task_config.GetParam<std::string>("input_format") == "singular";
+                  }),
+              std::make_shared<ExtendedAttribute<bool>>("hasTid", "has_tid",
+                                                        [](const TaskConfig& task_config) {
+                                                            return task_config.GetParam<std::string>("input_format") ==
+                                                                   "tabular";
+                                                        }),
+          }}}};
 }
 
-std::string GetCompactARs(const std::list<model::ArIDs>& deps) {
-    std::vector<std::string> compact_deps;
-    for (auto& ar : deps) {
-        compact_deps.push_back(ar.ToCompactString());
-    }
-    return boost::join(compact_deps, ";");
-}
-
-std::string GetPieChartData(std::list<FD> deps, int degree = 1) {
-    std::map<unsigned int, double> lhs_values;
-    std::map<unsigned int, double> rhs_values;
-
-    for (const auto &fd : deps) {
-        double divisor = std::pow(fd.GetLhs().GetArity(), degree);
-
-        const auto &lhs_col_indices = fd.GetLhs().GetColumnIndices();
-        for (size_t index = lhs_col_indices.find_first();
-            index != boost::dynamic_bitset<>::npos;
-            index = lhs_col_indices.find_next(index)) {
-                lhs_values[index] += 1 / divisor;
-        }
-        size_t index = fd.GetRhs().GetIndex();
-
-        rhs_values[index] = (divisor == 0)
-                ? -1
-                : rhs_values[index] + 1 / divisor;
-
-    }
-
-    auto GetCompactData = [](const std::map<unsigned int, double>& map) {
-        std::vector<std::string> results;
-        for (const auto& [key, value]: map) {
-            results.emplace_back(std::to_string(key) + ',' + std::to_string(value));
-        }
-        return boost::join(results, ";");
+static DesbordanteDbManager::SpecificTables SpecificTables() {
+    auto get_specific_config_table_name = [](const TaskMiningType& type) {
+        return "\"" + std::string((+type)._to_string()) + "TasksConfig\"";
     };
-    const auto result = GetCompactData(lhs_values) + "|" + GetCompactData(rhs_values);
 
-    return result;
-}
-
-void SaveFDTaskResult(TaskConfig const& task, DBManager const &manager, FDAlgorithm* algorithm) {
-    auto key_cols = algorithm->GetKeys();
-    std::vector<std::string> key_cols_indices;
-    for (const auto* col : key_cols) {
-        key_cols_indices.push_back(std::to_string(col->GetIndex()));
-    }
-    std::string pk_column_positions = boost::algorithm::join(key_cols_indices, ",");
-
-    task.UpdatePKColumnPositions(manager, pk_column_positions);
-
-    const auto& deps = algorithm->FdList();
-
-    task.UpdateDeps(manager, GetCompactFDs(deps, false));
-    task.UpdateDepsAmount(manager, deps.size());
-    task.UpdatePieChartData(manager, GetPieChartData(deps, 1));
-}
-
-void SaveARTaskResult(TaskConfig const& task, DBManager const &manager, algos::ARAlgorithm* algorithm) {
-    const auto& deps = algorithm->GetItemNamesVector();
-    task.UpdateValueDictionary(manager, boost::join(deps, ","));
-
-    const auto& ar_list = algorithm->GetArIDsList();
-    task.UpdateDeps(manager, GetCompactARs(ar_list));
-    task.UpdateDepsAmount(manager, deps.size());
-}
-
-void SaveResultOfTheAlgorithm(TaskConfig const& task, DBManager const &manager, algos::Primitive* algorithm) {
-    auto* fd_algorithm = dynamic_cast<FDAlgorithm*>(algorithm);
-    if (fd_algorithm) {
-        SaveFDTaskResult(task, manager, fd_algorithm);
-        task.UpdateStatus(manager, "COMPLETED");
-        return;
-    }
-    auto* ar_algorithm = dynamic_cast<algos::ARAlgorithm*>(algorithm);
-    if (ar_algorithm) {
-        SaveARTaskResult(task, manager, ar_algorithm);
-        task.UpdateStatus(manager, "COMPLETED");
-        return;
-    } else {
-        throw new std::runtime_error("Not implemented yet");
-    }
-}
-
-void ProcessTask(TaskConfig const& task, DBManager const& manager) {
-    const auto& params = task.GetParamsIntersection();
-    const auto& algo = algo_name_resolution.at(task.GetAlgo());
-    const auto primitive_type = boost::algorithm::to_lower_copy(task.GetType());
-    el::Loggers::configureFromGlobal("logging.conf");
-    std::cout << "Creating algorithm instance\n";
-    std::unique_ptr<algos::Primitive> algorithm_instance =
-        algos::CreateAlgorithmInstance(primitive_type, algo, params);
-    std::cout << "Algorithm was created\n";
-    try {
-        task.UpdateStatus(manager, "IN_PROCESS");
-        auto phase_names = algorithm_instance->GetPhaseNames();
-        bool alg_has_progress = phase_names.size() != 0;
-        unsigned long long elapsedTime;
-        auto maxPhase = phase_names.size();
-        if (alg_has_progress) {
-            task.SetMaxPhase(manager, maxPhase);
-            task.UpdateProgress(manager, 0, phase_names[0].data(), 1);
-        } else {
-            phase_names = { task.GetType() + "s mining" };
-            maxPhase = 1;
-        }
-        auto executionThread = std::async(
-            std::launch::async,
-            [&elapsedTime, &algorithm_instance]() -> void {
-                elapsedTime = algorithm_instance->Execute();
-            }
-        );
-        std::future_status status;
-        do {
-            status = executionThread.wait_for(std::chrono::seconds(0));
-            if (status == std::future_status::ready) {
-                std::cout << "Algorithm was executed" << std::endl;
-                task.UpdateProgress(manager, 100, phase_names[maxPhase-1].data(), maxPhase);
-            } else if (status == std::future_status::timeout) {
-                auto [cur_phase, phaseProgress] = algorithm_instance->GetProgress();
-                task.UpdateProgress(manager, phaseProgress,
-                                    phase_names[cur_phase].data(), cur_phase + 1);
-            } else {
-                throw std::runtime_error("Main thread: unknown future_status");
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        } while (status != std::future_status::ready);
-
-        if (TaskConfig::IsTaskValid(manager, task.GetTaskID())) {
-            task.SetElapsedTime(manager, elapsedTime);
-            SaveResultOfTheAlgorithm(task, manager, algorithm_instance.get());
-        }
-        task.SetIsExecuted(manager);
-        return;
-    } catch (std::runtime_error& e) {
-        std::cout << e.what() << std::endl;
-        throw e;
-    }
+    auto get_specific_result_table_name = [](const TaskMiningType& type) {
+        return "\"" + std::string((+type)._to_string()) + "TasksResult\"";
+    };
+    return {
+        {{SpecificTablesType::config, TaskMiningType::FD},
+         {get_specific_config_table_name(TaskMiningType::FD),
+          SearchBy::taskID,
+          {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", "max_lhs"),
+           std::make_shared<ExtendedAttribute<ushort>>("threadsCount", "threads"),
+           std::make_shared<ExtendedAttribute<double>>("errorThreshold", "error"),
+           std::make_shared<CreateAttribute<int>>("seed", 0),
+           std::make_shared<CreateAttribute<bool>>("is_null_equal_null", true)}}},
+        {{SpecificTablesType::config, TaskMiningType::AR},
+         {get_specific_config_table_name(TaskMiningType::AR),
+          SearchBy::taskID,
+          {std::make_shared<ExtendedAttribute<double>>("minSupportAR", "minsup"),
+           std::make_shared<ExtendedAttribute<double>>("minConfidence", "minconf")}}},
+        {{SpecificTablesType::result, TaskMiningType::FD},
+         {get_specific_result_table_name(TaskMiningType::FD),
+          SearchBy::taskID,
+          {
+              std::make_shared<ExtendedAttribute<string>>("PKColumnIndices", "pk"),
+              std::make_shared<ExtendedAttribute<string>>("FDs", "deps"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
+              std::make_shared<ExtendedAttribute<string>>("withoutPatterns",
+                                                          "chart_data_without_patterns"),
+          }}},
+        {{SpecificTablesType::result, TaskMiningType::CFD},
+         {get_specific_result_table_name(TaskMiningType::CFD),
+          SearchBy::taskID,
+          {
+              std::make_shared<ExtendedAttribute<string>>("PKColumnIndices", "pk"),
+              std::make_shared<ExtendedAttribute<string>>("CFDs", "deps"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
+              std::make_shared<ExtendedAttribute<string>>("withoutPatterns",
+                                                          "chart_data_without_patterns"),
+              std::make_shared<ExtendedAttribute<string>>("withPatterns", "chart_data_with_patterns"),
+          }}},
+        {{SpecificTablesType::result, TaskMiningType::AR},
+         {get_specific_result_table_name(TaskMiningType::AR),
+          SearchBy::taskID,
+          {
+              std::make_shared<ExtendedAttribute<string>>("ARs", "deps"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
+              std::make_shared<ExtendedAttribute<string>>("valueDictionary", "value_dictionary"),
+          }}}};
 }
 
 enum class AnswerEnumType {
@@ -196,31 +143,35 @@ enum class AnswerEnumType {
     TASK_NOT_FOUND = 3
 };
 
-AnswerEnumType ProcessMsg(std::string taskID, DBManager const &manager) {
-    if (!TaskConfig::IsTaskValid(manager, taskID)) {
-        std::cout << "Task with ID = '" << taskID << "' isn't valid. (Cancelled or not found)\n";
+AnswerEnumType ProcessMsg(const std::string& task_id, std::shared_ptr<DesbordanteDbManager> manager) {
+    if (!TaskConfig::IsTaskValid(manager, task_id)) {
+        std::cout << "Task with ID = '" << task_id << "' isn't valid. (Cancelled or not found)\n";
         return AnswerEnumType::TASK_NOT_FOUND;
     }
-    TaskConfig task = TaskConfig::GetTaskConfig(manager, taskID);
+    auto task = std::make_unique<TaskConfig>(manager, task_id);
     try {
-        ProcessTask(task, manager);
-        std::cout << "Task with ID = '" << taskID << "' was successfully processed.\n";
+        TaskProcessor task_processor(std::move(task));
+        task_processor.Execute();
         return AnswerEnumType::TASK_SUCCESSFULLY_PROCESSED;
     } catch (const std::exception& e) {
         std::cout << "Unexpected behaviour in 'process_task()'.\n" << e.what();
-        task.UpdateErrorStatus(manager, "INTERNAL_SERVER_ERROR", e.what());
+        task->UpdateParams(BaseTablesType::state,
+                           {{"status", "INTERNAL_SERVER_ERROR"}, {"error_msg", e.what()}});
         return AnswerEnumType::TASK_CRASHED_STATUS_UPDATED;
     }
 }
 
 int main(int argc, char *argv[]) {
-    std::string task_id_ = argv[1];
-    try {
-        DBManager manager(DBConnection());
-        return (int)ProcessMsg(task_id_, manager);
-    } catch (const std::exception& e) {
-        std::cerr << "% Unexpected exception caught: " << e.what() << std::endl;
-        return (int)AnswerEnumType::TASK_CRASHED_WITHOUT_STATUS_UPDATING;
+    if (argc != 2) {
+        std::cerr << "Expected 1 input argument [taskID]" << '\n';
     }
-    return 0;
+    try {
+        el::Loggers::configureFromGlobal("logging.conf");
+        std::string task_id = argv[1];
+        auto manager = std::make_shared<DesbordanteDbManager>(DBConnection(), BaseTables(), SpecificTables());
+        return static_cast<int>(ProcessMsg(task_id, manager));
+    } catch (const std::exception& e) {
+        std::cerr << "% Unexpected exception caught: " << e.what() << '\n';
+        return static_cast<int>(AnswerEnumType::TASK_CRASHED_WITHOUT_STATUS_UPDATING);
+    }
 }

@@ -48,9 +48,7 @@ BETTER_ENUM(Algo, char,
 
     /* Association rules mining algorithms */
     apriori,
-
-    /* Metric verifier algorithm */
-    metric
+    typominer
 );
 
 using StdParamsMap = std::unordered_map<std::string, boost::any>;

@@ -19,9 +19,11 @@ struct ArIDs {
     ArIDs(ArIDs&& other) = default;
     ArIDs& operator=(ArIDs&& other) = default;
 
-    std::string ToCompactString() const {
+    [[nodiscard]] std::string ToCompactString() const {
         std::string result;
-        result.append(std::to_string(confidence));
+        std::stringstream stream;
+        stream << std::fixed << std::setprecision(2) << confidence;
+        result.append(stream.str());
         result.append(":");
         for (auto const& item_id : left) {
             result.append(std::to_string(item_id));
