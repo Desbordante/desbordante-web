@@ -1,19 +1,17 @@
 import { gql } from "@apollo/client";
 import { COLUMN } from "../../fragments/fragments";
 
-export const GET_ASSOCIATION_RULES = gql`
+export const GET_FDS_KEYS = gql`
   ${COLUMN}
 
-  query getARs($taskID: ID!, $filter: Pagination!) {
+  query getFDsKeys($taskID: ID!) {
     taskInfo(taskID: $taskID) {
       data {
         result {
           __typename
-          ... on ARTaskResult {
-            ARs(pagination: $filter) {
-              lhs
-              rhs
-              support
+          ... on FDTaskResult {
+            PKs {
+              ...Column
             }
           }
         }

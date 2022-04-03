@@ -8,6 +8,7 @@ export const COLUMN = gql`
 `;
 
 export const PIE_CHART_DATA_WITHOUT_PATTERNS = gql`
+  ${COLUMN}
   fragment PieChartDataWithoutPatterns on PieChartWithoutPatterns {
     lhs {
       column {
@@ -25,6 +26,7 @@ export const PIE_CHART_DATA_WITHOUT_PATTERNS = gql`
 `;
 
 export const PIE_CHART_DATA_WITH_PATTERNS = gql`
+  ${COLUMN}
   fragment PieChartDataWithPatterns on PieChartWithPatterns {
     lhs {
       column {

@@ -1,30 +1,19 @@
 import { gql } from "@apollo/client";
 import {
-  COLUMN,
   PIE_CHART_DATA_WITH_PATTERNS,
   PIE_CHART_DATA_WITHOUT_PATTERNS,
 } from "../../fragments/fragments";
 
-export const GET_CONDITIONAL_DEPENDENCIES = gql`
-  ${COLUMN}
+export const GET_CFDS_PIE_CHART_DATA = gql`
   ${PIE_CHART_DATA_WITHOUT_PATTERNS}
   ${PIE_CHART_DATA_WITH_PATTERNS}
 
-  query getCFDs($taskID: ID!, $filter: Pagination!) {
+  query getCFDsPieChartData($taskID: ID!) {
     taskInfo(taskID: $taskID) {
       data {
         result {
           __typename
           ... on CFDTaskResult {
-            CFDs(pagination: $filter) {
-              lhs
-              rhs
-              lhsPatterns
-              rhsPattern
-            }
-            PKs {
-              name
-            }
             pieChartData {
               withPatterns {
                 ...PieChartDataWithPatterns

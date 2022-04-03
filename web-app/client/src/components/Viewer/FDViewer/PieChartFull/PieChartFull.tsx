@@ -5,89 +5,53 @@ import SearchBar from "../../../SearchBar/SearchBar";
 import Chart from "./Chart";
 import Button from "../../../Button/Button";
 import { FDAttribute } from "../../../../types/taskInfo";
+import { usePieChart } from "./usePieChart";
+import { Column } from "../../../../graphql/operations/fragments/__generated__/Column";
 
 /* eslint-disable no-unused-vars */
 interface Props {
   title: string;
-  attributes?: FDAttribute[];
+  attributes: FDAttribute[];
   maxItemsShown?: number;
   maxItemsSelected?: number;
-  selectedAttributes: FDAttribute[];
-  setSelectedAttributes: React.Dispatch<React.SetStateAction<FDAttribute[]>>;
+  selectedAttributeIndices: number[];
+  setSelectedAttributeIndices: (n: number[]) => void;
 }
+
 /* eslint-enable no-unused-vars */
 
 const PieChartFull: React.FC<Props> = ({
   title,
-  attributes = [],
+  attributes,
   maxItemsShown = 9,
   maxItemsSelected = 9,
-  selectedAttributes,
-  setSelectedAttributes,
+  selectedAttributeIndices,
+  setSelectedAttributeIndices,
 }) => {
-  const [searchString, setSearchString] = useState("");
-  const [foundAttributes, setFoundAttributes] = useState<FDAttribute[]>([]);
-  const [depth, setDepth] = useState(0);
-  const [displayAttributes, setDisplayAttributes] = useState<FDAttribute[]>([]);
+  const { searchString, setSearchString, displayAttributes, depth, setDepth } =
+    usePieChart(attributes, maxItemsShown, selectedAttributeIndices);
 
-  // Update found attributes if search string changes or attributes change.
-  // Keep found attributes sorted.
-  useEffect(() => {
-    const newFoundAttributes = searchString
-      ? attributes.filter((attr) => attr.column.name.includes(searchString))
-      : attributes;
-
-    setFoundAttributes(
-      newFoundAttributes
-        .filter((attr) => !selectedAttributes.includes(attr))
-        /* eslint-disable-next-line comma-dangle */
-        .sort((a, b) => b.value - a.value)
-    );
-  }, [attributes, searchString, selectedAttributes]);
-
-  // Set DisplayAttributes to top-${maxItemsShown} of found attributes.
-  // Add the "Other" value, if needed.
-  useEffect(() => {
-    const newDisplayAttributes = foundAttributes.slice(
-      maxItemsShown * depth,
-      /* eslint-disable-next-line comma-dangle */
-      maxItemsShown * (depth + 1)
-    );
-
-    const newOtherValue = foundAttributes
-      .slice(maxItemsShown * (depth + 1))
-      .reduce((sum, attr) => sum + attr.value, 0);
-
-    if (foundAttributes.length > maxItemsShown * (depth + 1)) {
-      newDisplayAttributes.push({
-        column: {
-          name: "Other",
-          __typename: "Column",
-        },
-        value: newOtherValue,
-        __typename: "FDPieChartRow",
-      });
+  const handleSelect = (_: any, item: Column[]) => {
+    if (!item.length) {
+      return;
     }
-
-    while (newDisplayAttributes.length < maxItemsShown + 1) {
-      newDisplayAttributes.push({
-        column: {
-          name: "",
-          __typename: "Column",
-        },
-        value: 0,
-        __typename: "FDPieChartRow",
-      });
+    if (item[0].index === maxItemsShown) {
+      setDepth(depth + 1);
+    } else if (selectedAttributeIndices.length < maxItemsSelected) {
+      setSelectedAttributeIndices(
+        selectedAttributeIndices.concat(
+          displayAttributes[item[0].index].column.index
+        )
+      );
     }
-
-    setDisplayAttributes(newDisplayAttributes);
-  }, [foundAttributes, depth, maxItemsShown]);
+  };
 
   return (
     <div className="pie-chart-full d-flex flex-column align-items-center">
       <h1 className="title fw-bold mb-3">{title}</h1>
       <div className="d-flex align-items-center">
         <SearchBar
+          value={searchString}
           defaultText="Filter attributes..."
           onChange={setSearchString}
           className="mx-2"
@@ -101,23 +65,13 @@ const PieChartFull: React.FC<Props> = ({
           <i className="bi bi-layer-forward" />
         </Button>
       </div>
-      {selectedAttributes && displayAttributes && (
+      {displayAttributes && (
         <Chart
-          onSelect={(_, item) => {
-            if (!item.length) {
-              return;
-            }
-            if (item[0].index === maxItemsShown) {
-              setDepth(depth + 1);
-            } else if (selectedAttributes.length < maxItemsSelected) {
-              setSelectedAttributes((prev) =>
-                prev.concat(displayAttributes[item[0].index])
-              );
-            }
-          }}
+          attributes={attributes}
+          onSelect={handleSelect}
           displayAttributes={displayAttributes}
-          selectedAttributes={selectedAttributes}
-          setSelectedAttributes={setSelectedAttributes}
+          selectedAttributeIndices={selectedAttributeIndices}
+          setSelectedAttributeIndices={setSelectedAttributeIndices}
         />
       )}
     </div>

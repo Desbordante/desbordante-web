@@ -28,7 +28,7 @@ const BuiltinDatasetSelector: React.FC<Props> = ({ disable }) => {
               builtinDataset.supportedPrimitives.includes(primitiveType)
             )
             .map((builtinDataset) => (
-              <Row className="my-3">
+              <Row className="my-3" key={builtinDataset.fileID}>
                 <Col>
                   <Toggle
                     toggleCondition={builtinDataset === dataset}

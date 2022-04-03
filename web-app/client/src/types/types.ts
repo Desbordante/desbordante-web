@@ -1,5 +1,5 @@
 import { getAlgorithmsConfig_algorithmsConfig_allowedDatasets } from "../graphql/operations/queries/__generated__/getAlgorithmsConfig";
-import { getARs_taskInfo_data_result_ARTaskResult_ARs } from "../graphql/operations/queries/primitives/__generated__/getARs";
+import { getARs_taskInfo_data_result_ARTaskResult_ARs } from "../graphql/operations/queries/AR/__generated__/getARs";
 
 export type Attribute = {
   column: { name: string; index?: number };
@@ -78,13 +78,6 @@ export type BuiltinDataset = {
 };
 
 export type AssociationRule = getARs_taskInfo_data_result_ARTaskResult_ARs;
-
-export const primitiveTypeList = [
-  "Functional Dependencies",
-  "Conditional Functional Dependencies",
-  "Association Rules",
-  "Error Detection Pipeline",
-] as const;
 
 export type SignUpFormProps = {
   fullName: string;
