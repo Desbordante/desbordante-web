@@ -1,3 +1,7 @@
-import { FDsFilter, Pagination } from "./globalTypes";
+import { FDsFilter, Pagination, PrimitiveType } from "./globalTypes";
 
-export type PrimitiveFilter = FDsFilter | Pagination;
+export type PrimitiveFilter = {
+  FD: FDsFilter;
+  CFD: Pagination;
+  AR: Pagination;
+};

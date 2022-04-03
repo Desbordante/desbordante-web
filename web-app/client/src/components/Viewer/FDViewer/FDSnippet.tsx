@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import stringToColor from "../../../functions/stringToColor";
 import colors from "../../../colors";
-import { Dependency } from "../../../types/taskInfo";
+import { FunctionalDependency } from "../../../types/taskInfo";
 
 const DependencyContainer = styled.div`
   transition: 0.3s;
@@ -27,7 +27,7 @@ const Arrow = styled.svg`
 `;
 
 interface Props {
-  dependency: Dependency;
+  dependency: FunctionalDependency;
   isActive: boolean;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   onActiveClick: React.MouseEventHandler<HTMLDivElement>;
@@ -50,7 +50,7 @@ const FDSnippet: React.FC<Props> = ({
         style={
           isActive
             ? {
-                backgroundColor: stringToColor(attr, 60, 70),
+                backgroundColor: stringToColor(attr.name, 60, 70),
               }
             : {
                 backgroundColor: "#E5E5E5",
@@ -59,9 +59,9 @@ const FDSnippet: React.FC<Props> = ({
         className={`d-flex align-items-center px-3 py-2 mx-2 rounded-pill text-${
           isActive ? "white" : "black"
         }`}
-        key={attr}
+        key={attr.index}
       >
-        {attr}
+        {attr.name}
       </Attribute>
     ))}
 
@@ -80,7 +80,7 @@ const FDSnippet: React.FC<Props> = ({
       style={
         isActive
           ? {
-              backgroundColor: stringToColor(dependency.rhs, 60, 70),
+              backgroundColor: stringToColor(dependency.rhs.name, 60, 70),
             }
           : { backgroundColor: "#E5E5E5" }
       }
@@ -88,7 +88,7 @@ const FDSnippet: React.FC<Props> = ({
         isActive ? "white" : "black"
       }`}
     >
-      {dependency.rhs}
+      {dependency.rhs.name}
     </Attribute>
   </DependencyContainer>
 );

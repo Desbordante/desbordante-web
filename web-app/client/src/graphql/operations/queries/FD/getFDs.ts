@@ -1,14 +1,8 @@
 import { gql } from "@apollo/client";
-import {
-  COLUMN,
-  PIE_CHART_DATA_WITH_PATTERNS,
-  PIE_CHART_DATA_WITHOUT_PATTERNS,
-} from "../../fragments/fragments";
+import { COLUMN } from "../../fragments/fragments";
 
-export const GET_FUNCTIONAL_DEPENDENCIES = gql`
+export const GET_FDS = gql`
   ${COLUMN}
-  ${PIE_CHART_DATA_WITHOUT_PATTERNS}
-  ${PIE_CHART_DATA_WITH_PATTERNS}
 
   query getFDs($taskID: ID!, $filter: FDsFilter!) {
     taskInfo(taskID: $taskID) {
@@ -23,12 +17,6 @@ export const GET_FUNCTIONAL_DEPENDENCIES = gql`
               rhs {
                 ...Column
               }
-            }
-            PKs {
-              ...Column
-            }
-            pieChartData {
-              ...PieChartDataWithoutPatterns
             }
           }
         }

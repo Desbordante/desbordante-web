@@ -10,18 +10,21 @@ import colors from "../../../../colors";
 
 /* eslint-disable no-unused-vars */
 interface Props {
+  attributes: FDAttribute[];
   displayAttributes: FDAttribute[];
   onSelect: (a: any, b: any) => void;
-  selectedAttributes?: FDAttribute[];
-  setSelectedAttributes: React.Dispatch<React.SetStateAction<FDAttribute[]>>;
+  selectedAttributeIndices: number[];
+  setSelectedAttributeIndices: (n: number[]) => void;
 }
+
 /* eslint-enable no-unused-vars */
 
 const Chart: React.FC<Props> = ({
+  attributes,
   displayAttributes,
   onSelect,
-  selectedAttributes,
-  setSelectedAttributes,
+  selectedAttributeIndices,
+  setSelectedAttributeIndices,
 }) => {
   // Get how much px is one rem, later used in chart dimensions
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -107,16 +110,22 @@ const Chart: React.FC<Props> = ({
         </div>
       </div>
       <div className="d-flex flex-wrap justify-content-center">
-        {selectedAttributes &&
-          selectedAttributes.map((attr, index) => (
+        {selectedAttributeIndices &&
+          selectedAttributeIndices.map((attributeIndex) => (
             <SelectedAttribute
-              onClick={() => {
-                setSelectedAttributes(
-                  selectedAttributes.filter((_, idx) => index !== idx)
-                );
-              }}
-              key={attr.column.name}
-              text={attr.column.name}
+              onClick={() =>
+                setSelectedAttributeIndices(
+                  selectedAttributeIndices.filter(
+                    (idx) => attributeIndex !== idx
+                  )
+                )
+              }
+              key={attributeIndex}
+              text={
+                attributes.find(
+                  ({ column: { index } }) => index === attributeIndex
+                )?.column.name || "None"
+              }
             />
           ))}
       </div>
