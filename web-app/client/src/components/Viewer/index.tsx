@@ -8,6 +8,7 @@ import FDViewer from "./FDViewer";
 import CFDViewer from "./CFDViewer";
 import ARViewer from "./ARViewer";
 import { PrimitiveType } from "../../types/globalTypes";
+import LoadingContainer from "../LoadingContainer/LoadingContainer";
 
 const Index = () => {
   const { setTaskId, taskState, taskType, taskResult } =
@@ -16,20 +17,26 @@ const Index = () => {
 
   useEffect(() => setTaskId(taskID), [taskID, setTaskId]);
 
-  return taskState && "isExecuted" in taskState && taskState.isExecuted ? (
-    <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">
-      {taskType === PrimitiveType.FD && taskResult?.FD && (
-        <FDViewer result={taskResult.FD} />
-      )}
-      {taskType === PrimitiveType.CFD && taskResult?.CFD && (
-        <CFDViewer result={taskResult.CFD} />
-      )}
-      {taskType === PrimitiveType.AR && taskResult?.AR && (
-        <ARViewer result={taskResult.AR} />
-      )}
-    </Container>
-  ) : (
-    <StatusDisplay text="Loading" />
+  return (
+    <LoadingContainer
+      isLoading={
+        // eslint-disable-next-line no-underscore-dangle
+        !(taskState?.__typename === "TaskState" && taskState.isExecuted)
+      }
+    >
+      <Container
+        fluid
+        className="h-100 w-100 p-4 flex-grow-1 d-flex flex-column"
+      >
+        {taskType === PrimitiveType.FD && <FDViewer />}
+        {taskType === PrimitiveType.CFD && taskResult?.CFD && (
+          <CFDViewer result={taskResult.CFD} />
+        )}
+        {taskType === PrimitiveType.AR && taskResult?.AR && (
+          <ARViewer result={taskResult.AR} />
+        )}
+      </Container>
+    </LoadingContainer>
   );
 };
 

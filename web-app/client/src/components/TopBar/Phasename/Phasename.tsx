@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import clamp from "../../../functions/clamp";
 
 import "./Phasename.scss";
 
@@ -16,8 +17,6 @@ const Phasename: React.FC<Props> = ({
   progress,
 }) => {
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-  const clamp = (number: number, min: number, max: number) =>
-    Math.min(max, Math.max(min, number));
   const message = `Phase ${currentPhase} of ${maxPhase}: ${phaseName}...`;
 
   const titleRef = useRef(null);

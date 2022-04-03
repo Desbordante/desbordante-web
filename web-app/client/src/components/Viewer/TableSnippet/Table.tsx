@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import styled from "styled-components";
 import { Container } from "react-bootstrap";
 
 import stringToColor from "../../../functions/stringToColor";
+import { TaskContext } from "../../TaskContext";
 
 const StyledContainer = styled(Container)`
   height: 70vh;
@@ -13,13 +14,16 @@ const TableHeader = styled.thead`
     position: sticky;
     top: 0;
     z-index: 1;
+
     th {
       z-index: 1;
     }
+
     &:first-of-type {
       th:first-of-type {
         border-top-left-radius: 2rem;
       }
+
       th:last-of-type {
         border-top-right-radius: 2rem;
       }
@@ -33,6 +37,7 @@ const TableBody = styled.tbody`
       td:first-of-type {
         border-bottom-left-radius: 1rem;
       }
+
       td:last-of-type {
         border-bottom-right-radius: 1rem;
       }
@@ -42,6 +47,7 @@ const TableBody = styled.tbody`
 
 const StyledTable = styled.table`
   border-collapse: separate;
+
   th,
   td {
     transition: 0.15s;
@@ -54,22 +60,26 @@ const HeaderBackground = styled.div`
 `;
 
 interface Props {
-  header: string[];
-  rows: string[][];
   colorizedColumns: string[];
   showUncolorizedColumns?: boolean;
   className?: string;
 }
 
 const Table: React.FC<Props> = ({
-  header,
-  rows,
   colorizedColumns,
   showUncolorizedColumns = true,
   className = "",
 }) => {
+  const { dataset } = useContext(TaskContext)!;
   const [headerWidth, setHeaderWidth] = useState(0);
   const [headerHeight, setHeaderHeight] = useState(0);
+
+  const { snippet } = dataset!;
+  const header =
+    snippet && snippet.header
+      ? snippet.header.map((elem) => elem || "null")
+      : [];
+  const rows = snippet && snippet.rows ? snippet.rows : [[]];
 
   const changeWidth = useCallback((node: HTMLDivElement) => {
     if (node) {
@@ -99,7 +109,6 @@ const Table: React.FC<Props> = ({
   const headerClassName =
     "px-4 py-3 text-white text-nowrap text-center position-relative";
   const bodyClassName = "text-center py-1 px-2";
-
 
   return (
     <StyledContainer

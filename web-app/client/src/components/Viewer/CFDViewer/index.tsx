@@ -58,8 +58,8 @@ const Index: React.FC<Props> = ({ result }) => {
             <PieChartFull
               title="Left-hand side"
               attributes={result.pieChartData.withoutPatterns.lhs}
-              selectedAttributes={selectedAttributesLHS}
-              setSelectedAttributes={setSelectedAttributesLHS}
+              selectedAttributeIndices={selectedAttributesLHS}
+              setSelectedAttributeIndices={setSelectedAttributesLHS}
             />
           </Col>
           <Col xl={6} className="mt-5">
@@ -67,8 +67,8 @@ const Index: React.FC<Props> = ({ result }) => {
               title="Right-hand side"
               attributes={result.pieChartData.withoutPatterns.rhs}
               maxItemsSelected={1}
-              selectedAttributes={selectedAttributesRHS}
-              setSelectedAttributes={setSelectedAttributesRHS}
+              selectedAttributeIndices={selectedAttributesRHS}
+              setSelectedAttributeIndices={setSelectedAttributesRHS}
             />
           </Col>
         </Row>

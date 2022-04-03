@@ -1,36 +1,62 @@
 import React, { createContext, useCallback, useState } from "react";
 
-import { Dataset, TaskResult, TaskStateAnswer } from "../types/taskInfo";
+import {
+  Dataset,
+  PieChartData,
+  TaskResult,
+  TaskStateAnswer,
+} from "../types/taskInfo";
 import { Pagination, PrimitiveType } from "../types/globalTypes";
 import { useTaskInfo } from "../hooks/useTaskInfo";
 import { PrimitiveFilter } from "../types/primitives";
-import { useTaskResult } from "../hooks/useTaskResult";
+import { usePrimitiveList } from "../hooks/usePrimitiveList";
 import { useDataset } from "../hooks/useDataset";
 import { useDeleteTask } from "../hooks/useDeleteTask";
+import {
+  defaultDatasetPagination,
+  defaultPrimitiveFilter,
+} from "../constants/primitives";
+import { usePieChartData } from "../hooks/usePieChartData";
 
 type TaskContextType = {
   taskId: string | undefined;
   setTaskId: React.Dispatch<React.SetStateAction<string | undefined>>;
   taskState: TaskStateAnswer | undefined;
   dataset: Dataset | undefined;
+  datasetLoading: boolean;
   taskType: PrimitiveType | undefined;
   taskResult: TaskResult | undefined;
+  taskResultLoading: boolean;
+  pieChartData: PieChartData | undefined;
+  pieChartDataLoading: boolean;
   resetTask: () => void;
   deleteTask: () => Promise<any>;
+  primitiveFilter: PrimitiveFilter;
+  setPrimitiveFilter: React.Dispatch<React.SetStateAction<PrimitiveFilter>>;
 };
 
 export const TaskContext = createContext<TaskContextType | null>(null);
 
 export const TaskContextProvider: React.FC = ({ children }) => {
   const [taskId, setTaskId] = useState<string>();
-  const [primitiveFilter, setPrimitiveFilter] = useState<PrimitiveFilter>();
-  const [datasetPagination, setDatasetPagination] = useState<Pagination>();
+  const [primitiveFilter, setPrimitiveFilter] = useState<PrimitiveFilter>(
+    defaultPrimitiveFilter
+  );
+  const [datasetPagination, setDatasetPagination] = useState<Pagination>(
+    defaultDatasetPagination
+  );
 
   const { taskState, taskType } = useTaskInfo(taskId);
-  const { taskResult, loading: taskResultLoading } = useTaskResult(
+  const { taskResult, loading: taskResultLoading } = usePrimitiveList(
     taskId,
     taskType,
-    primitiveFilter
+    primitiveFilter,
+    taskState?.isExecuted
+  );
+  const { pieChartData, loading: pieChartDataLoading } = usePieChartData(
+    taskId,
+    taskType,
+    taskState?.isExecuted
   );
   const { dataset, loading: datasetLoading } = useDataset(
     taskId,
@@ -53,6 +79,8 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     setDatasetPagination,
     taskResult,
     taskResultLoading,
+    pieChartData,
+    pieChartDataLoading,
     dataset,
     datasetLoading,
     resetTask,

@@ -5,6 +5,7 @@ import "./SearchBar.scss";
 interface Props {
   defaultText: string;
   onChange: (str: string) => void;
+  value: string;
   className?: string;
 }
 /* eslint-enable no-unused-vars */
@@ -12,6 +13,7 @@ interface Props {
 const SearchBar: React.FC<Props> = ({
   defaultText,
   onChange,
+  value,
   className = "",
 }) => (
   <div className="search-bar">
@@ -20,6 +22,7 @@ const SearchBar: React.FC<Props> = ({
       className={`search-input rounded-pill py-2 px-3 border-0 bg-dark bg-opacity-10 ${className}`}
       size={20}
       placeholder={defaultText}
+      value={value}
       onChange={(e) => onChange(e.target.value)}
     />
   </div>

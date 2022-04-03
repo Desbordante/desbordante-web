@@ -28,6 +28,7 @@ export const useDataset = (taskID?: string, pagination?: Pagination) => {
 
     try {
       const res = await getDataset({ variables: { taskID, pagination } });
+      console.log("getDataset", res);
       setDataset(res.data?.taskInfo.dataset);
     } catch (error: any) {
       showError(error);
