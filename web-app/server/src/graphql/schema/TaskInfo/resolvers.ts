@@ -198,7 +198,7 @@ export const TaskInfoResolvers: Resolvers = {
             }
 
             const fdFilter = ({ lhs, rhs }: FDType) => {
-                if (mustContainRhsColIndices != undefined && !~_.sortedIndexOf(mustContainRhsColIndices, rhs)) {
+                if (mustContainRhsColIndices != undefined && mustContainRhsColIndices.length !== 0 && !~_.sortedIndexOf(mustContainRhsColIndices, rhs)) {
                     return false;
                 }
                 if (mustContainLhsColIndices != undefined && mustContainLhsColIndices.length !== 0
