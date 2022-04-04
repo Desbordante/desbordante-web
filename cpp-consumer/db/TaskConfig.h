@@ -16,9 +16,9 @@ BETTER_ENUM(TaskMiningType, char, AR, CFD, FD, SpecificTypoCluster, TypoCluster,
 
 BETTER_ENUM(BaseTablesType, char, state, config, fileinfo, fileformat)
 BETTER_ENUM(SpecificTablesType, char, config, result)
-BETTER_ENUM(SearchBy, char, fileID, taskID)
+BETTER_ENUM(SearchByAttr, char, fileID, taskID)
 
-using DesbordanteDbManager = SpecificDbManager<std::pair<SpecificTablesType, TaskMiningType>, BaseTablesType, SearchBy>;
+using DesbordanteDbManager = SpecificDbManager<BaseTablesType, std::pair<SpecificTablesType, TaskMiningType>, SearchByAttr>;
 
 class TaskConfig {
 private:
