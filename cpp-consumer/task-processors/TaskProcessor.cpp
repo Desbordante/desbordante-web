@@ -2,14 +2,6 @@
 
 namespace consumer {
 
-std::string TaskProcessor::GetCompactFDs(const std::list<FD>& deps) {
-    return GetCompactDeps<FD>(deps, [](const FD& dep) { return dep.GetLhs().GetArity() != 0; });
-}
-
-std::string TaskProcessor::GetCompactARs(const std::list<model::ArIDs>& deps) {
-    return GetCompactDeps(deps);
-}
-
 std::string TaskProcessor::GetPieChartData(const std::list<FD>& deps, int degree) {
     std::map<unsigned int, double> lhs_values;
     std::map<unsigned int, double> rhs_values;
@@ -38,7 +30,7 @@ std::string TaskProcessor::GetPieChartData(const std::list<FD>& deps, int degree
     return get_compact_data(lhs_values) + "|" + get_compact_data(rhs_values);
 }
 
-void TaskProcessor::SaveFdTaskResult() {
+void TaskProcessor::SaveFdTaskResult() const {
     auto algo = GetAlgoAs<FDAlgorithm>();
     auto key_cols = algo->GetKeys();
     std::vector<std::string> key_cols_indices(key_cols.size());
@@ -50,23 +42,23 @@ void TaskProcessor::SaveFdTaskResult() {
     const auto& deps = algo->FdList();
     task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
                         {{"pk", pk_column_positions},
-                         {"deps", GetCompactFDs(deps)},
+                         {"deps", GetCompactDeps<FD>(deps, [](const FD& dep) { return dep.GetLhs().GetArity() != 0; })},
                          {"chart_data_without_patterns", GetPieChartData(deps, 1)},
                          {"deps_amount", std::to_string(deps.size())}});
     std::cout << "params was successfully updated\n";
 }
 
-void TaskProcessor::SaveArTaskResult() {
+void TaskProcessor::SaveArTaskResult() const {
     auto algo = GetAlgoAs<ARAlgorithm>();
     const auto& deps = algo->GetItemNamesVector();
     const auto& ar_list = algo->GetArIDsList();
     task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
                         {{"value_dictionary", boost::join(deps, ",")},
-                         {"deps", GetCompactARs(ar_list)},
+                         {"deps", GetCompactDeps(ar_list)},
                          {"deps_amount", std::to_string(deps.size())}});
 }
 
-void TaskProcessor::SaveResults() {
+void TaskProcessor::SaveResults() const {
     switch (task_->GetPreciseMiningType()) {
     case TaskMiningType::AR:
         SaveArTaskResult();
