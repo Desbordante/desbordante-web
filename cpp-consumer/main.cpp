@@ -32,7 +32,7 @@ static DesbordanteDbManager::BaseTables BaseTables() {
     return {
         {BaseTablesType::state,
          {task_state_table,
-          SearchBy::taskID,
+          SearchByAttr::taskID,
           {
               std::make_shared<ExtendedAttribute<unsigned int>>("attemptNumber", "attempt_number"),
               std::make_shared<ExtendedAttribute<std::string>>("status", "status"),
@@ -46,7 +46,7 @@ static DesbordanteDbManager::BaseTables BaseTables() {
           }}},
         {BaseTablesType::config,
          {task_config_table,
-          SearchBy::taskID,
+          SearchByAttr::taskID,
           {
               std::make_shared<ExtendedAttribute<std::string>>("type", "type"),
               std::make_shared<ExtendedAttribute<std::string>>("algorithmName", "algo_name"),
@@ -54,7 +54,7 @@ static DesbordanteDbManager::BaseTables BaseTables() {
           }}},
         {BaseTablesType::fileinfo,
          {file_info_table,
-          SearchBy::fileID,
+          SearchByAttr::fileID,
           {
               std::make_shared<ExtendedAttribute<bool>>("hasHeader", "has_header"),
               std::make_shared<ExtendedAttribute<char>>("delimiter", "separator"),
@@ -62,7 +62,7 @@ static DesbordanteDbManager::BaseTables BaseTables() {
           }}},
         {BaseTablesType::fileformat,
          {file_format_table,
-          SearchBy::fileID,
+          SearchByAttr::fileID,
           {
               std::make_shared<ExtendedAttribute<std::string>>(
                   "inputFormat", "input_format", [](std::string& value) { boost::to_lower(value); }),
@@ -96,7 +96,7 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
     return {
         {{SpecificTablesType::config, TaskMiningType::FD},
          {get_specific_config_table_name(TaskMiningType::FD),
-          SearchBy::taskID,
+          SearchByAttr::taskID,
           {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", "max_lhs"),
            std::make_shared<ExtendedAttribute<ushort>>("threadsCount", "threads"),
            std::make_shared<ExtendedAttribute<double>>("errorThreshold", "error"),
@@ -104,12 +104,12 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
            std::make_shared<CreateAttribute<bool>>("is_null_equal_null", true)}}},
         {{SpecificTablesType::config, TaskMiningType::AR},
          {get_specific_config_table_name(TaskMiningType::AR),
-          SearchBy::taskID,
+          SearchByAttr::taskID,
           {std::make_shared<ExtendedAttribute<double>>("minSupportAR", "minsup"),
            std::make_shared<ExtendedAttribute<double>>("minConfidence", "minconf")}}},
         {{SpecificTablesType::result, TaskMiningType::FD},
          {get_specific_result_table_name(TaskMiningType::FD),
-          SearchBy::taskID,
+          SearchByAttr::taskID,
           {
               std::make_shared<ExtendedAttribute<string>>("PKColumnIndices", "pk"),
               std::make_shared<ExtendedAttribute<string>>("FDs", "deps"),
@@ -119,7 +119,7 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
           }}},
         {{SpecificTablesType::result, TaskMiningType::CFD},
          {get_specific_result_table_name(TaskMiningType::CFD),
-          SearchBy::taskID,
+          SearchByAttr::taskID,
           {
               std::make_shared<ExtendedAttribute<string>>("PKColumnIndices", "pk"),
               std::make_shared<ExtendedAttribute<string>>("CFDs", "deps"),
@@ -130,7 +130,7 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
           }}},
         {{SpecificTablesType::result, TaskMiningType::AR},
          {get_specific_result_table_name(TaskMiningType::AR),
-          SearchBy::taskID,
+          SearchByAttr::taskID,
           {
               std::make_shared<ExtendedAttribute<string>>("ARs", "deps"),
               std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
