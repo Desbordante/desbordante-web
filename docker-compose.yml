@@ -13,6 +13,7 @@ services:
     restart: always
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./volumes/logs/postgres:/var/log/postgresql/
     logging:
       driver: 'json-file'
       options:
@@ -64,7 +65,7 @@ services:
       KAFKA_TOPIC_NAME: tasks
       MAX_THREADS_COUNT: 8
       SECRET_KEY: ${SECRET_KEY}
-      USE_NODEMAILER: false
+      USE_NODEMAILER: 'false'
       NODEMAILER_EMAIL: <sender_email_login>@gmail.com
       NODEMAILER_PWD: <sender_email_pwd>
 
