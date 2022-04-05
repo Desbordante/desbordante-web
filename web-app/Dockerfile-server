@@ -4,7 +4,7 @@ RUN npm install --global yarn
 RUN npm install -g n
 RUN n stable
 COPY server/package.json server/package.json
-WORKDIR server/
+WORKDIR /server/
 RUN yarn
 COPY server/ /server/
 RUN yarn build
