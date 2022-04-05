@@ -13,6 +13,10 @@ services:
     restart: always
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: 20m
 
   client:
     build:
@@ -30,6 +34,10 @@ services:
     networks:
       - network
     restart: always
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: 20m
 
   server:
     build:
@@ -59,8 +67,10 @@ services:
     networks:
       - network
     restart: always
-    # logging:
-    #   driver: none
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: 20m
 
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.0
@@ -70,14 +80,16 @@ services:
       ALLOW_ANONYMOUS_LOGIN: 'yes'
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    logging:
-      driver: none
     networks:
       - network
     restart: always
     volumes:
        - ./volumes/logs/zk/:/var/lib/zookeeper/log
        - ./volumes/data/zk/:/var/lib/zookeeper/data
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: 20m
 
   kafka:
     image: confluentinc/cp-kafka:6.2.0
@@ -89,17 +101,19 @@ services:
       ALLOW_PLAINTEXT_LISTENER: 'yes'
       KAFKA_LISTENERS: 'PLAINTEXT://:9092'
       KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092'
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
     depends_on:
       - zookeeper
-    logging:
-      driver: none
     networks:
       - network
     restart: always
     volumes:
       - ./volumes/logs/kafka/:/var/log/kafka
       - ./volumes/data/kafka/:/var/lib/kafka/data
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: 20m
 
   python-consumer:
     build:
@@ -117,7 +131,7 @@ services:
       MAX_RAM: ${CONSUMER_ML_MB}
       KAFKA_HOST: kafka
       KAFKA_PORT: 9092
-      MAX_ACTIVE_TASKS: 4
+      MAX_ACTIVE_TASKS: ${MAX_ACTIVE_TASKS}
       DOCKER_NETWORK: desbordante_network
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
@@ -126,6 +140,10 @@ services:
       POSTGRES_DBNAME: "${POSTGRES_DB}"
       DB_TASKS_TABLE_NAME: "TasksState"
     restart: always
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: 20m
 
 networks:
   network:
@@ -135,16 +153,16 @@ volumes:
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: './volumes/uploads/'
+      device: '${PWD}/volumes/uploads/'
   postgres-data:
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: './volumes/postgres-data/'
+      device: '${PWD}/volumes/postgres-data/'
   datasets:
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: './volumes/datasets/'
+      device: '${PWD}/volumes/datasets/'
