@@ -4,3 +4,4 @@
 !Dockerfile-client
 !client
 !server
+*/node_modules*
