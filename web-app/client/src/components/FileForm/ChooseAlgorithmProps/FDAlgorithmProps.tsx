@@ -54,7 +54,7 @@ const FDAlgorithmProps = () => {
   return (
     <>
       <FormItem>
-        <h5 className="text-white mb-0 mx-2">Algorithm:</h5>
+        <h5 className="text-white mb-2 mx-2">Algorithm:</h5>
         <Selector
           options={allowedValues.allowedAlgorithms?.allowedFDAlgorithms || []}
           current={
