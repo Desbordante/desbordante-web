@@ -75,11 +75,12 @@ const Table: React.FC<Props> = ({
   const [headerHeight, setHeaderHeight] = useState(0);
 
   const { snippet } = dataset!;
-  const header =
-    snippet && snippet.header
-      ? snippet.header.map((elem) => elem || "null")
-      : [];
   const rows = snippet && snippet.rows ? snippet.rows : [[]];
+  const header =
+    snippet &&
+    (snippet.header
+      ? snippet.header.map((elem) => elem || "null")
+      : rows[0].map((_, index) => `Attr ${index}`));
 
   const changeWidth = useCallback((node: HTMLDivElement) => {
     if (node) {
@@ -154,7 +155,7 @@ const Table: React.FC<Props> = ({
         </TableHeader>
 
         <TableBody>
-          {rows.slice(1).map((row, rowIndex) => (
+          {rows.map((row, rowIndex) => (
             <tr key={rowIndex} className="position-relative">
               {colorizedPart.map(({ col, index }) => (
                 <td

@@ -16,6 +16,8 @@ export const primitiveTypeList = [
 
 export const sortOptions = {
   FD: Object.keys(SortSide) as SortSide[],
+  CFD: Object.keys(SortSide) as SortSide[],
+  AR: Object.keys(SortSide) as SortSide[],
 };
 
 export const defaultPrimitiveFilter: PrimitiveFilter = {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Container, Stack } from "react-bootstrap";
 
 import SearchBar from "../../SearchBar/SearchBar";
@@ -7,113 +7,126 @@ import Selector from "../../Selector/Selector";
 import {
   ConditionalDependency,
   FDAttribute,
-  Key,
   SortMethod,
 } from "../../../types/taskInfo";
 import CFDSnippet from "./CFDSnippet";
+import { TaskContext } from "../../TaskContext";
+import { sortOptions } from "../../../constants/primitives";
+import { SortSide } from "../../../types/globalTypes";
+import LoadingContainer from "../../LoadingContainer/LoadingContainer";
+import Pagination from "../FDViewer/Pagination";
 
 interface Props {
-  selectedAttributesLHS: FDAttribute[];
-  selectedAttributesRHS: FDAttribute[];
   selectedDependency: ConditionalDependency | null;
   setSelectedDependency: React.Dispatch<
     React.SetStateAction<ConditionalDependency | null>
   >;
-  dependencies: ConditionalDependency[];
-  sortMethods: SortMethod<ConditionalDependency>[];
-  keys: Key[];
   className?: string;
 }
 
 const CFDList: React.FC<Props> = ({
-  selectedAttributesLHS,
-  selectedAttributesRHS,
   selectedDependency,
   setSelectedDependency,
-  dependencies,
-  sortMethods,
-  keys,
   className = "",
 }) => {
-  const [sortedDependencies, setSortedDependencies] = useState<
-    ConditionalDependency[]
-  >([]);
-  const [currentSortMethod, setCurrentSortMethod] = useState<
-    SortMethod<ConditionalDependency>
-  >(sortMethods[0]);
-  const [searchString, setSearchString] = useState("");
+  const { primitiveFilter, setPrimitiveFilter, taskResult, taskResultLoading } =
+    useContext(TaskContext)!;
+
+  const dependencies = taskResult?.CFD?.CFDs || [];
+
+  const setSortMethod = (selected: SortSide) =>
+    setPrimitiveFilter((prev) => {
+      const newFilter = { ...prev };
+      newFilter.FD.sortSide = selected;
+      return newFilter;
+    });
+
+  const setFilterString = (newFilterString: string) =>
+    setPrimitiveFilter((prev) => {
+      const newFilter = { ...prev };
+      newFilter.FD.filterString = newFilterString;
+      return newFilter;
+    });
+
+  const toggleWithoutKeys = () =>
+    setPrimitiveFilter((prev) => {
+      const newFilter = { ...prev };
+      newFilter.FD.withoutKeys = !newFilter.FD.withoutKeys;
+      return newFilter;
+    });
+
   const [isPatternShown, setIsPatternShown] = useState(true);
-  const [showKeys, setShowKeys] = useState(true);
 
   // update displayed dependencies on search
-  useEffect(() => {
-    const dependenciesWithoutKeys =
-      (showKeys
-        ? dependencies
-        : dependencies?.filter(
-            (dep) =>
-              !keys?.length ||
-              keys?.some(
-                (key) => dep.lhs.includes(key.name) || dep.rhs === key.name
-              )
-          )) || [];
-    const foundDependencies = (
-      searchString
-        ? dependenciesWithoutKeys.filter((dep) =>
-            dep.lhs
-              .concat(dep.rhs)
-              .join("")
-              .toLowerCase()
-              .includes(searchString.toLowerCase())
-          )
-        : dependenciesWithoutKeys
-    )
-      // filter by chosen LHS
-      .filter((dep) =>
-        selectedAttributesLHS.every((attr) =>
-          dep.lhs.includes(attr.column.name)
-        )
-      )
-      // filter by chosen RHS
-      .filter((dep) =>
-        selectedAttributesRHS.every((attr) => dep.rhs === attr.column.name)
-      );
-
-    // sort found dependencies
-    const newSortedDependencies = foundDependencies.sort(
-      currentSortMethod.comparator
-    );
-    setSortedDependencies(newSortedDependencies);
-  }, [
-    dependencies,
-    selectedAttributesLHS,
-    selectedAttributesRHS,
-    searchString,
-    currentSortMethod,
-    showKeys,
-  ]);
+  // useEffect(() => {
+  //   const dependenciesWithoutKeys =
+  //     (showKeys
+  //       ? dependencies
+  //       : dependencies?.filter(
+  //           (dep) =>
+  //             !keys?.length ||
+  //             keys?.some(
+  //               (key) => dep.lhs.includes(key.name) || dep.rhs === key.name
+  //             )
+  //         )) || [];
+  //   const foundDependencies = (
+  //     searchString
+  //       ? dependenciesWithoutKeys.filter((dep) =>
+  //           dep.lhs
+  //             .concat(dep.rhs)
+  //             .join("")
+  //             .toLowerCase()
+  //             .includes(searchString.toLowerCase())
+  //         )
+  //       : dependenciesWithoutKeys
+  //   )
+  //     // filter by chosen LHS
+  //     .filter((dep) =>
+  //       selectedAttributesLHS.every((attr) =>
+  //         dep.lhs.includes(attr.column.name)
+  //       )
+  //     )
+  //     // filter by chosen RHS
+  //     .filter((dep) =>
+  //       selectedAttributesRHS.every((attr) => dep.rhs === attr.column.name)
+  //     );
+  //
+  //   // sort found dependencies
+  //   const newSortedDependencies = foundDependencies.sort(
+  //     currentSortMethod.comparator
+  //   );
+  //   setSortedDependencies(newSortedDependencies);
+  // }, [
+  //   dependencies,
+  //   selectedAttributesLHS,
+  //   selectedAttributesRHS,
+  //   searchString,
+  //   currentSortMethod,
+  //   showKeys,
+  // ]);
 
   return (
     <Container fluid className={`flex-grow-1 d-flex flex-column ${className}`}>
       <Container fluid className="d-flex flex-wrap align-items-center p-0 my-2">
         <h3 className="mx-2 fw-bold">Sort by</h3>
         <Selector
-          options={sortMethods}
-          current={currentSortMethod}
-          onSelect={setCurrentSortMethod}
-          label={(sortMethod) => sortMethod.name}
+          options={sortOptions.FD}
+          current={primitiveFilter.FD.sortSide}
+          onSelect={setSortMethod}
+          label={(sortMethod) => sortMethod}
           variant="dark"
           className="mx-2"
         />
         <SearchBar
           defaultText="Filter dependencies"
-          onChange={setSearchString}
+          onChange={setFilterString}
+          value={primitiveFilter.FD.filterString || ""}
           className="mx-2"
         />
         <Toggle
-          toggleCondition={showKeys}
+          toggleCondition={!primitiveFilter.FD.withoutKeys}
           variant="dark"
-          onClick={() => setShowKeys((prev) => !prev)}
+          onClick={toggleWithoutKeys}
           className="mx-2"
         >
           Show Keys
@@ -127,24 +140,27 @@ const CFDList: React.FC<Props> = ({
           Show Patterns
         </Toggle>
       </Container>
-      <Stack className="my-2 w-100">
-        {sortedDependencies.map((dep, index) => (
-          <CFDSnippet
-            dependency={dep}
-            key={index}
-            isPatternShown={isPatternShown}
-            onClick={() => {
-              setSelectedDependency(dep);
-            }}
-            onActiveClick={() => {
-              setSelectedDependency(null);
-            }}
-            isActive={
-              JSON.stringify(dep) === JSON.stringify(selectedDependency)
-            }
-          />
-        ))}
-      </Stack>
+      <LoadingContainer isLoading={taskResultLoading}>
+        <Stack className="my-2">
+          {dependencies.map((dep, index) => (
+            <CFDSnippet
+              dependency={dep}
+              key={index}
+              isPatternShown={isPatternShown}
+              onClick={() => {
+                setSelectedDependency(dep);
+              }}
+              onActiveClick={() => {
+                setSelectedDependency(null);
+              }}
+              isActive={
+                JSON.stringify(dep) === JSON.stringify(selectedDependency)
+              }
+            />
+          ))}
+        </Stack>
+      </LoadingContainer>
+      <Pagination primitiveType="CFD" />
     </Container>
   );
 };

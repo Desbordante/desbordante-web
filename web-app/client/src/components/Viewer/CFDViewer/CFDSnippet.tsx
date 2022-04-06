@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
-import stringToColor from "../../../functions/stringToColor";
 import colors from "../../../colors";
 import { ConditionalDependency } from "../../../types/taskInfo";
-import Toggle from "../../Toggle/Toggle";
 import CFDAttribute from "./CFDAttribute";
 
 const DependencyContainer = styled.div`

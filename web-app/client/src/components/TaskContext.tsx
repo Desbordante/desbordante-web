@@ -88,6 +88,8 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     deleteTaskLoading,
   };
 
+  console.log(taskId, taskState);
+
   return (
     <TaskContext.Provider value={outValue}>{children}</TaskContext.Provider>
   );

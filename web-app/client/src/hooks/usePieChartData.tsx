@@ -51,7 +51,7 @@ export const usePieChartData = (
           break;
         }
         default: {
-          showError({ message: "Unexpected application behaviour" });
+          // showError({ message: "Unexpected application behaviour" });
           return;
         }
       }

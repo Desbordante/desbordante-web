@@ -97,7 +97,7 @@ const FDList: React.FC<Props> = ({
           ))}
         </Stack>
       </LoadingContainer>
-      <Pagination />
+      <Pagination primitiveType="FD" />
     </Container>
   );
 };
