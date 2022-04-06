@@ -71,8 +71,7 @@ public:
         phase_names_ =
             algo_has_progress_
                 ? algo_->GetPhaseNames()
-                : std::vector<std::string_view>{task_->GetPreciseMiningType()._to_string() +
-                                                std::string("s mining")};
+                : std::vector<std::string_view>{"Dependencies mining"};
         max_phase_ = phase_names_.size();
     }
 

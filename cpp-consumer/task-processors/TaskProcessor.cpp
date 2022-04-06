@@ -77,7 +77,7 @@ void TaskProcessor::UpdateProgress() {
     task_->UpdateParams(BaseTablesType::state,
                         {{"progress", std::to_string(phase_progress_)},
                          {"current_phase", std::to_string(cur_phase_ + 1)},
-                         {"phase_name", phase_names_[max_phase_ - 1].data()}});
+                         {"phase_name", phase_names_[cur_phase_].data() }});
 }
 
 void TaskProcessor::MineDeps() {

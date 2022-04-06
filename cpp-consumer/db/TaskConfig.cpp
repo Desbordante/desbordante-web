@@ -15,8 +15,12 @@ void TaskConfig::InsertParamsFromTable(MapSearchKey key) {
     const auto& row = db_manager_->SendSelectQuery(key, attrs,
                                                    GetParam((+search_by)._to_string()))[0];
     for (auto& attr : extended_attrs) {
-        if (!attr->IsNull(*this) && attr->HasValue()) {
-            params_intersection_.emplace(attr->GetConfigParam(row));
+        if (!attr->IsNull(*this)) {
+            if (attr->HasValue()) {
+                params_intersection_.emplace(attr->GetConfigParam());
+            } else {
+                params_intersection_.emplace(attr->GetConfigParam(row));
+            }
         }
     }
 }
@@ -24,7 +28,6 @@ void TaskConfig::InsertParamsFromTable(MapSearchKey key) {
 TaskConfig::TaskConfig(std::shared_ptr<DesbordanteDbManager> db_manager, std::string task_id)
     : params_intersection_{}, db_manager_(std::move(db_manager)) {
     params_intersection_.insert({"taskID", {task_id}});
-    InsertParamsFromTable(BaseTablesType::config);
     InsertParamsFromTable(BaseTablesType::config);
     InsertParamsFromTable(BaseTablesType::fileinfo);
     InsertParamsFromTable(GetSpecificMapKey(SpecificTablesType::config));
