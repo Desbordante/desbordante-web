@@ -37,7 +37,13 @@ public:
 
     template<typename T = std::string>
     const T& GetParam(std::string&& param) const {
-        return boost::any_cast<const T&>(params_intersection_.at(param));
+        try {
+            return boost::any_cast<const T&>(params_intersection_.at(param));
+        } catch (const std::exception& error) {
+            std::cerr << "Not found attr " << param << std::endl;
+            std::cerr << error.what() << std::endl;
+            throw error;
+        }
     }
 
     TaskMiningType GetPreciseMiningType() const;

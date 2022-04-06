@@ -36,6 +36,9 @@ template <>
 FieldWrapper<char>::FieldWrapper(const pqxx::field& field);
 
 template <>
+FieldWrapper<unsigned int>::FieldWrapper(const pqxx::field& field);
+
+template <>
 FieldWrapper<std::filesystem::path>::FieldWrapper(const pqxx::field& field);
 
 
