@@ -1,6 +1,6 @@
 /* eslint-disable no-unsafe-optional-chaining */
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSpring, animated } from "react-spring";
 import { Container } from "react-bootstrap";
 import styled from "styled-components";
@@ -12,6 +12,7 @@ const ResetButton = styled.button`
   text-underline: none;
   background: none;
   border: none;
+
   &:focus {
     outline: none;
     box-shadow: none;
@@ -43,9 +44,9 @@ const Selector = <T,>({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const selectedIndex = options.indexOf(current);
-  const width = refs.current[selectedIndex]?.offsetWidth || 0;
-  const height = refs.current[selectedIndex]?.offsetHeight || 0;
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
 
   const offset = { left: 0, top: 0 };
   for (let i = 0; i < selectedIndex; i += 1) {
@@ -69,6 +70,15 @@ const Selector = <T,>({
   } rounded-pill shadow-sm border-2 border-${
     variant === "dark" ? "dark" : "white"
   }`;
+
+  useEffect(() => {
+    const newSelectedIndex = options.indexOf(current);
+    setSelectedIndex(newSelectedIndex);
+    setWidth(refs.current[newSelectedIndex]?.offsetWidth || 0);
+    setHeight(refs.current[newSelectedIndex]?.offsetHeight || 0);
+  }, [options, current, refs]);
+
+  console.log(current);
 
   return (
     <Container

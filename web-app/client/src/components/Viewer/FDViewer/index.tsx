@@ -12,13 +12,11 @@ import Charts from "./Charts";
 const tabs = ["Attributes", "Dependencies", "Dataset"];
 
 const Index = () => {
-  const { pieChartDataLoading, pieChartData } = useContext(TaskContext)!;
+  const { pieChartData } = useContext(TaskContext)!;
 
   const [partShown, setPartShown] = useState(0);
   const [selectedDependency, setSelectedDependency] =
     useState<FunctionalDependency | null>(null);
-
-  console.log(pieChartData, pieChartDataLoading);
 
   return (
     <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">

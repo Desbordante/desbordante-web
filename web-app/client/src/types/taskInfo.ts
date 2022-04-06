@@ -16,7 +16,6 @@ import {
   getCFDs_taskInfo_data_result_CFDTaskResult_CFDs,
 } from "../graphql/operations/queries/CFD/__generated__/getCFDs";
 import { getCFDsPieChartData_taskInfo_data_result_CFDTaskResult_pieChartData } from "../graphql/operations/queries/CFD/__generated__/getCFDsPieChartData";
-import { PrimitiveType } from "./globalTypes";
 import { getARs_taskInfo_data_result_ARTaskResult } from "../graphql/operations/queries/AR/__generated__/getARs";
 
 export type Dataset = getDataset_taskInfo_dataset;
