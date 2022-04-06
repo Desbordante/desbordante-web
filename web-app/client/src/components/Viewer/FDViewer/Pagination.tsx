@@ -5,20 +5,29 @@ import { TaskContext } from "../../TaskContext";
 
 const maxOffset = 50;
 
-const Pagination = () => {
+interface Props {
+  primitiveType: "FD" | "CFD" | "AR";
+}
+
+const Pagination: React.FC<Props> = ({ primitiveType }) => {
   const { primitiveFilter, setPrimitiveFilter } = useContext(TaskContext)!;
   const { offset: paginationOffset, limit: paginationLimit } =
-    primitiveFilter.FD.pagination;
+    primitiveType === "FD"
+      ? primitiveFilter.FD.pagination
+      : primitiveFilter[primitiveType];
 
   const setOffset = (newOffset: number) =>
     setPrimitiveFilter((prev) => {
       const newFilter = { ...prev };
-      newFilter.FD.pagination.offset = clamp(newOffset, 1, maxOffset);
+      if (primitiveType === "FD") {
+        newFilter.FD.pagination.offset = clamp(newOffset, 1, maxOffset);
+      } else {
+        newFilter[primitiveType].offset = clamp(newOffset, 1, maxOffset);
+      }
       return newFilter;
     });
 
   const goToPreviousPage = () => setOffset(paginationOffset - paginationLimit);
-
   const goToNextPage = () => setOffset(paginationOffset + paginationLimit);
 
   return (
