@@ -147,7 +147,7 @@ export class TypoFDTaskConfig extends BaseSpecificTaskConfig {
             errorMessage = `Received incorrect approximate algorithm name ${preciseAlgorithm}`;
         } else if (metric === undefined) {
             errorMessage = "Received undefined metric";
-        } else if (typeof radius !== "number" || radius < 0) {
+        } else if (typeof radius !== "number" || (radius < 0 && radius !== -1)) {
             errorMessage = `Received incorrect radius ${radius}`;
         } else if (typeof ratio !== "number" || ratio < 0 || ratio > 1) {
             errorMessage = `Received incorrect ratio ${ratio} (min = 0, max = 1)`;
@@ -235,7 +235,7 @@ export class SpecificTypoClusterConfig extends BaseSpecificTaskConfig {
                 if (!parentTask.clustersCount) {
                     throw new ApolloError("Clusters count not found");
                 }
-                if (clusterID < parentTask.clustersCount) {
+                if (clusterID >= parentTask.clustersCount || clusterID < 0) {
                     errorMessage = `Cluster ID ${clusterID} must be less, than count of clusters ${parentTask.clustersCount}`;
                 }
             }

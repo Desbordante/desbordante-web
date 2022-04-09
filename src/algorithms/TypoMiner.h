@@ -76,21 +76,25 @@ public:
     unsigned long long Execute() override;
 
     std::vector<util::PLI::Cluster> FindClustersWithTypos(FD const& typos_fd,
-                                                          bool const sort_clusters = true);
+                                                          bool const sort_clusters = true) const;
     /* Returns squashed representation of a cluster with respect to given fd.
      * Check description of SquashedElement. Two tuples are considered equal if they are
      * equal in rhs attribute of given fd (they are automatically equal in lhs too if clusters
      * were retrieved from FindClustersWithTypos()).
      */
     std::vector<SquashedElement> SquashCluster(FD const& squash_on,
-                                               util::PLI::Cluster const& cluster);
+                                               util::PLI::Cluster const& cluster) const;
     /* Sorts given cluster in ascending order by uniqueness of the values in rhs of sort_on fd.
      * More strictly:
      * t1 tuple is considered less than t2 tuple iff t1[sort_on.rhs] is less frequent value
      * in rhs column than t2[sort_on.rhs].
      */
     void SortCluster(FD const& sort_on, util::PLI::Cluster& cluster) const;
-    /* Finds lines in a cluster that has typos on typos_fd.GetRhs() column values. A value is said
+
+    void RestoreLineOrder(FD const& typo_fd, util::PLI::Cluster& cluster) const;
+    void RestoreLineOrder(FD const& typo_fd, std::vector<TypoMiner::SquashedElement>& squashed_cluster) const;
+
+        /* Finds lines in a cluster that has typos on typos_fd.GetRhs() column values. A value is said
      * to contain a typo if it differs from the most frequent value in the cluster by less
      * than radius_ and the fraction of such values (values_num / cluster_size) is less than ratio_.
      * NOTE: The cluster argument is asumed to be consistent with the rhs of typos_fd, i.e.
@@ -103,7 +107,7 @@ public:
     TyposVec FindLinesWithTypos(FD const& typos_fd, util::PLI::Cluster const& cluster,
                                 double new_radius, double new_ratio);
     std::vector<ClusterTyposPair> FindClustersAndLinesWithTypos(
-        FD const& typos_fd, bool const sort_clusters = true);
+        FD const& typos_fd, bool const sort_clusters = true) const;
 
     /* Returns vector of approximate fds only (there are no precise fds) */
     std::vector<FD> const& GetApproxFDs() const noexcept {

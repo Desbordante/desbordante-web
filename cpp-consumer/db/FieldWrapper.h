@@ -41,7 +41,6 @@ FieldWrapper<unsigned int>::FieldWrapper(const pqxx::field& field);
 template <>
 FieldWrapper<std::filesystem::path>::FieldWrapper(const pqxx::field& field);
 
-
 class ExtendedAttributeBase {
 
 public:

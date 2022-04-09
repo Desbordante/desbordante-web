@@ -2,6 +2,7 @@
 
 #include "DbManager.h"
 #include "FieldWrapper.h"
+#include <easylogging++.h>
 
 namespace consumer {
 
@@ -82,6 +83,7 @@ public:
         const auto& [table_name, search_by, attrs] = GetTableInfo(search_key);
         std::string query = "UPDATE " + table_name + " SET " + expression + " WHERE " + "\"" +
                             (+search_by)._to_string() + "\" = '" + id + "'";
+        LOG(DEBUG) << query;
         SendBaseQuery(query, "Update table " + table_name + " " + expression);
     }
 
@@ -106,6 +108,7 @@ public:
         }
 
         std::string query = "SELECT" + attrs_str + "FROM " + table_name + where_condition;
+        LOG(DEBUG) << query;
         return SendBaseQuery(query, "Select from table " + table_name + " " + attrs_str +
                                         " where " + (+search_by)._to_string());
     }

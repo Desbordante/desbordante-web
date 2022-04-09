@@ -410,26 +410,26 @@ async function createBuiltInTasks () {
 
     const { taskID: s1_taskID, fileID: s1_fileID, message: s1_message } = await createTypoFDTask("SimpleTypos.csv",
         -1, 0.05, 1, "1,2", 1);
-    const simple_typos_1_1 = await createTypoClusterTask(s1_fileID, { typoTaskID: s1_taskID, typoFD: [1,2] },
-        1, "7,9:7,9");
+    // const simple_typos_1_1 = await createTypoClusterTask(s1_fileID, { typoTaskID: s1_taskID, typoFD: [1,2] },
+    //     1, "7,9:7,9");
 
     const { taskID: s2_taskID, message: s2_message } = await createTypoFDTask("SimpleTypos.csv",
         -1, 0.1, 1, "0,1;1,2", 2);
 
-    const simple_typos_2_1 = await createTypoClusterTask(s1_fileID, { typoTaskID: s2_taskID, typoFD: [0,1] },
-        1, "4,0,1,5,6:4");
+    // const simple_typos_2_1 = await createTypoClusterTask(s1_fileID, { typoTaskID: s2_taskID, typoFD: [0,1] },
+    //     1, "4,0,1,5,6:4");
 
-    const simple_typos_2__1 = await createSpecificTypoClusterTask(s1_fileID,
-        { typoClusterTaskID: simple_typos_2_1.taskID, clusterID: 1 },
-        { suspiciousIndices: "4", squashedNotSortedCluster: "0,4;4,1", squashedSortedCluster: "4,1;0,4",
-            notSquashedNotSortedCluster: "0,1,4,5,6", notSquashedSortedCluster: "4,0,1,5,6",
-            squashedItemsAmount: 2, notSquashedItemsAmount: 5,
-        });
+    // const simple_typos_2__1 = await createSpecificTypoClusterTask(s1_fileID,
+    //     { typoClusterTaskID: simple_typos_2_1.taskID, clusterID: 1 },
+    //     { suspiciousIndices: "4", squashedNotSortedCluster: "0,4;4,1", squashedSortedCluster: "4,1;0,4",
+    //         notSquashedNotSortedCluster: "0,1,4,5,6", notSquashedSortedCluster: "4,0,1,5,6",
+    //         squashedItemsAmount: 2, notSquashedItemsAmount: 5,
+    //     });
 
-    const simple_typos_2_2 = await createTypoClusterTask(s1_fileID, { typoTaskID: s2_taskID, typoFD: [1,2] },
-        1, "7,9:7,9");
+    // const simple_typos_2_2 = await createTypoClusterTask(s1_fileID, { typoTaskID: s2_taskID, typoFD: [1,2] },
+    //     1, "7,9:7,9");
 
-    console.log(testlong, ciPublicHIghway700, s1_message, s2_message, simple_typos_1_1.message, simple_typos_2_1.message, simple_typos_2_2.message, simple_typos_2__1.message);
+    console.log(testlong, ciPublicHIghway700, s1_message, s2_message);//, simple_typos_1_1.message, simple_typos_2_1.message, simple_typos_2_2.message, simple_typos_2__1.message);
 }
 
 export const initTestData = async () => {

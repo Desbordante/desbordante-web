@@ -354,22 +354,29 @@ export const TaskInfoResolvers: Resolvers = {
     TypoClusterTaskResult: {
         // @ts-ignore
         TypoClusters: async ({ propertyPrefix, taskInfo, fileID }, { pagination }, { models }) => {
-            const TypoClusters = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "TypoClusters");
+            const [TypoClusters, suspiciousIndices] = await (taskInfo as TaskState).getMultipleResultFieldAsString(propertyPrefix, ["TypoClusters", "suspiciousIndices"]);
             if (!TypoClusters) {
                 return [];
             }
             let typoClusters = TypoClusters.split(";")
-                .map(typoCluster => typoCluster.split(":"))
-                .map(i => ({
-                    rowIndices: i[0].split(",").map(Number),
-                    suspiciousIndices: new Set(
-                        i.length != 2 ? null : i[1].split(",").map(Number)),
+                .map(indices => ({
+                    rowIndices: indices.split(",").map(Number),
+                    suspiciousIndices: new Set(suspiciousIndices.split(",").map(Number)),
                 }));
             typoClusters = getArrayOfDepsByPagination(typoClusters, pagination);
             let indices: number[] = [];
             for (const typoCluster of typoClusters) {
                 indices = [...new Set([...indices, ...typoCluster.rowIndices])];
             }
+            if (fileID == undefined) {
+                const typoTaskID = await (taskInfo as TaskState).getSingleConfigFieldAsString(propertyPrefix,"typoTaskID");
+                const typoTaskConfig = await models.BaseTaskConfig.findByPk(typoTaskID, { attributes: ["fileID"] });
+                if (!typoTaskConfig) {
+                    throw new ApolloError("Parent task config not found");
+                }
+                fileID = typoTaskConfig.fileID;
+            }
+
             const file = await models.FileInfo.findByPk(fileID, { attributes: ["path", "delimiter", "hasHeader"] });
             if (!file) {
                 throw new ApolloError("File not found");
@@ -394,7 +401,20 @@ export const TaskInfoResolvers: Resolvers = {
             const suspiciousIndices = new Set(suspiciousIndicesString.split(",").map(Number));
             const rowIndices = rowIndicesStr.split(",").map(Number);
 
-            const clusterID = await (taskInfo as TaskState).getSingleConfigFieldAsString(propertyPrefix, "clusterID");
+            const [clusterID, typoClusterTaskID] = await (taskInfo as TaskState).getMultipleConfigFieldAsString(propertyPrefix, ["clusterID", "typoClusterTaskID"]);
+
+            if (fileID == undefined) {
+                const typoClusterConfig = await models.TypoClusterConfig.findByPk(typoClusterTaskID, { attributes: ["typoTaskID"] });
+                if (!typoClusterConfig) {
+                    throw new ApolloError("Parent task config not found");
+                }
+                const { typoTaskID } = typoClusterConfig;
+                const typoTaskConfig = await models.BaseTaskConfig.findByPk(typoTaskID, { attributes: ["fileID"] });
+                if (!typoTaskConfig) {
+                    throw new ApolloError("Parent task config not found");
+                }
+                fileID = typoTaskConfig.fileID;
+            }
 
             const file = await models.FileInfo.findByPk(fileID, { attributes: ["path", "delimiter", "hasHeader"] });
             if (!file) {
@@ -413,7 +433,20 @@ export const TaskInfoResolvers: Resolvers = {
                 .map(squashedItem => squashedItem.split(",").map(Number))
                 .map(([rowIndex, amount]) => ({ rowIndex, amount }));
 
-            const clusterID = await (taskInfo as TaskState).getSingleConfigFieldAsString(propertyPrefix, "clusterID");
+            const [clusterID, typoClusterTaskID] = await (taskInfo as TaskState).getMultipleConfigFieldAsString(propertyPrefix, ["clusterID", "typoClusterTaskID"]);
+
+            if (fileID == undefined) {
+                const typoClusterConfig = await models.TypoClusterConfig.findByPk(typoClusterTaskID, { attributes: ["typoTaskID"] });
+                if (!typoClusterConfig) {
+                    throw new ApolloError("Parent task config not found");
+                }
+                const { typoTaskID } = typoClusterConfig;
+                const typoTaskConfig = await models.BaseTaskConfig.findByPk(typoTaskID, { attributes: ["fileID"] });
+                if (!typoTaskConfig) {
+                    throw new ApolloError("Parent task config not found");
+                }
+                fileID = typoTaskConfig.fileID;
+            }
 
             const file = await models.FileInfo.findByPk(fileID, { attributes: ["path", "delimiter", "hasHeader"] });
             if (!file) {

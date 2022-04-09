@@ -12,6 +12,7 @@ export const TaskCreatingResolvers: Resolvers = {
             if (!expectedTypes.includes(props.type)) {
                 throw new UserInputError(`Received incorrect type ${props.type}. Expected: ${expectedTypes}`);
             }
+            props.algorithmName = "Typo Miner";
             if (permissions.includes("USE_BUILTIN_DATASETS")) {
                 return await models.TaskState.findTaskOrAddToDBAndSendEvent(props,
                     topicNames.DepAlgs, sessionInfo?.userID || null);

@@ -50,7 +50,10 @@ static DesbordanteDbManager::BaseTables BaseTables() {
           {
               std::make_shared<ExtendedAttribute<std::string>>("type", "type"),
               std::make_shared<ExtendedAttribute<std::string>>("algorithmName", "algo_name"),
-              std::make_shared<ExtendedAttribute<std::string>>("fileID", "fileID"),
+              std::make_shared<ExtendedAttribute<std::string>>("fileID", "fileID", [](const TaskConfig& config){
+                  return config.GetPreciseMiningType() != +TaskMiningType::TypoCluster
+                         && config.GetPreciseMiningType() != +TaskMiningType::SpecificTypoCluster;
+              }),
           }}},
         {BaseTablesType::fileinfo,
          {file_info_table,
@@ -59,6 +62,8 @@ static DesbordanteDbManager::BaseTables BaseTables() {
               std::make_shared<ExtendedAttribute<bool>>("hasHeader", "has_header"),
               std::make_shared<ExtendedAttribute<char>>("delimiter", "separator"),
               std::make_shared<ExtendedAttribute<std::filesystem::path>>("path", "data"),
+              std::make_shared<CreateAttribute<bool>>("is_null_equal_null", true),
+              std::make_shared<CreateAttribute<int>>("seed", 0)
           }}},
         {BaseTablesType::fileformat,
          {file_format_table,
@@ -99,43 +104,93 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
           SearchByAttr::taskID,
           {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", "max_lhs"),
            std::make_shared<ExtendedAttribute<ushort>>("threadsCount", "threads"),
-           std::make_shared<ExtendedAttribute<double>>("errorThreshold", "error"),
-           std::make_shared<CreateAttribute<int>>("seed", 0),
-           std::make_shared<CreateAttribute<bool>>("is_null_equal_null", true)}}},
+           std::make_shared<ExtendedAttribute<double>>("errorThreshold", "error")}}},
         {{SpecificTablesType::config, TaskMiningType::AR},
          {get_specific_config_table_name(TaskMiningType::AR),
           SearchByAttr::taskID,
           {std::make_shared<ExtendedAttribute<double>>("minSupportAR", "minsup"),
            std::make_shared<ExtendedAttribute<double>>("minConfidence", "minconf")}}},
+        {{SpecificTablesType::config, TaskMiningType::TypoFD},
+         {get_specific_config_table_name(TaskMiningType::TypoFD),
+          SearchByAttr::taskID,
+          {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", "max_lhs"),
+              std::make_shared<ExtendedAttribute<ushort>>("threadsCount", "threads"),
+              std::make_shared<ExtendedAttribute<double>>("errorThreshold", "error"),
+              std::make_shared<ExtendedAttribute<std::string>>("preciseAlgorithm", "precise_algo"),
+              std::make_shared<ExtendedAttribute<std::string>>("approximateAlgorithm", "approx_algo"),
+              std::make_shared<ExtendedAttribute<double>>("radius", "radius"),
+              std::make_shared<ExtendedAttribute<double>>("ratio", "ratio"),
+          }}},
+        {{SpecificTablesType::config, TaskMiningType::TypoCluster},
+         {get_specific_config_table_name(TaskMiningType::TypoCluster),
+          SearchByAttr::taskID,
+          {std::make_shared<ExtendedAttribute<std::string>>("typoFD", "typo_fd"),
+              std::make_shared<ExtendedAttribute<std::string>>("typoTaskID", "typo_task_id"),
+          }}},
+        {{SpecificTablesType::config, TaskMiningType::SpecificTypoCluster},
+         {get_specific_config_table_name(TaskMiningType::SpecificTypoCluster),
+          SearchByAttr::taskID,
+          {std::make_shared<ExtendedAttribute<std::string>>("typoClusterTaskID", "typo_cluster_task_id"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("clusterID", "cluster_id"),
+          }}},
         {{SpecificTablesType::result, TaskMiningType::FD},
          {get_specific_result_table_name(TaskMiningType::FD),
           SearchByAttr::taskID,
           {
-              std::make_shared<ExtendedAttribute<string>>("PKColumnIndices", "pk"),
-              std::make_shared<ExtendedAttribute<string>>("FDs", "deps"),
+              std::make_shared<ExtendedAttribute<std::string>>("PKColumnIndices", "pk"),
+              std::make_shared<ExtendedAttribute<std::string>>("FDs", "deps"),
               std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
-              std::make_shared<ExtendedAttribute<string>>("withoutPatterns",
-                                                          "chart_data_without_patterns"),
+              std::make_shared<ExtendedAttribute<std::string>>("withoutPatterns",
+                                                               "chart_data_without_patterns"),
           }}},
         {{SpecificTablesType::result, TaskMiningType::CFD},
          {get_specific_result_table_name(TaskMiningType::CFD),
           SearchByAttr::taskID,
           {
-              std::make_shared<ExtendedAttribute<string>>("PKColumnIndices", "pk"),
-              std::make_shared<ExtendedAttribute<string>>("CFDs", "deps"),
+              std::make_shared<ExtendedAttribute<std::string>>("PKColumnIndices", "pk"),
+              std::make_shared<ExtendedAttribute<std::string>>("CFDs", "deps"),
               std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
-              std::make_shared<ExtendedAttribute<string>>("withoutPatterns",
-                                                          "chart_data_without_patterns"),
-              std::make_shared<ExtendedAttribute<string>>("withPatterns", "chart_data_with_patterns"),
+              std::make_shared<ExtendedAttribute<std::string>>("withoutPatterns",
+                                                               "chart_data_without_patterns"),
+              std::make_shared<ExtendedAttribute<std::string>>("withPatterns",
+                                                               "chart_data_with_patterns"),
           }}},
         {{SpecificTablesType::result, TaskMiningType::AR},
          {get_specific_result_table_name(TaskMiningType::AR),
           SearchByAttr::taskID,
           {
-              std::make_shared<ExtendedAttribute<string>>("ARs", "deps"),
+              std::make_shared<ExtendedAttribute<std::string>>("ARs", "deps"),
               std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
-              std::make_shared<ExtendedAttribute<string>>("valueDictionary", "value_dictionary"),
-          }}}};
+              std::make_shared<ExtendedAttribute<std::string>>("valueDictionary", "value_dictionary"),
+          }}},
+        {{SpecificTablesType::result, TaskMiningType::TypoFD},
+         {get_specific_result_table_name(TaskMiningType::TypoFD),
+          SearchByAttr::taskID,
+          {
+              std::make_shared<ExtendedAttribute<std::string>>("TypoFDs", "deps"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
+          }}},
+        {{SpecificTablesType::result, TaskMiningType::TypoCluster},
+         {get_specific_result_table_name(TaskMiningType::TypoCluster),
+          SearchByAttr::taskID,
+          {
+              std::make_shared<ExtendedAttribute<std::string>>("TypoClusters", "typo_clusters"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("clustersCount", "clusters_count"),
+              std::make_shared<ExtendedAttribute<std::string>>("suspiciousIndices", "suspicious_indices"),
+          }}},
+        {{SpecificTablesType::result, TaskMiningType::SpecificTypoCluster},
+         {get_specific_result_table_name(TaskMiningType::SpecificTypoCluster),
+          SearchByAttr::taskID,
+          {
+              std::make_shared<ExtendedAttribute<std::string>>("suspiciousIndices", "suspicious_indices"),
+              std::make_shared<ExtendedAttribute<std::string>>("squashedNotSortedCluster", "sq_not_sorted"),
+              std::make_shared<ExtendedAttribute<std::string>>("squashedSortedCluster", "sq_sorted"),
+              std::make_shared<ExtendedAttribute<std::string>>("notSquashedNotSortedCluster", "not_sq_not_sorted"),
+              std::make_shared<ExtendedAttribute<std::string>>("notSquashedSortedCluster", "not_sq_sorted"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("notSquashedItemsAmount", "not_sq_amount"),
+              std::make_shared<ExtendedAttribute<unsigned int>>("squashedItemsAmount", "sq_amount")
+          }}}
+    };
 }
 
 enum class AnswerEnumType {
@@ -148,15 +203,18 @@ AnswerEnumType ProcessMsg(const std::string& task_id, std::shared_ptr<Desbordant
         std::cout << "Task with ID = '" << task_id << "' isn't valid. (Cancelled or not found)\n";
         return AnswerEnumType::TASK_NOT_FOUND;
     }
+    LOG(DEBUG) << "TaskConfig create";
     auto task = std::make_unique<TaskConfig>(manager, task_id);
     try {
+        LOG(DEBUG) << "TaskProcessor creating";
         TaskProcessor task_processor(std::move(task));
+        LOG(DEBUG) << "TaskProcessor created";
         task_processor.Execute();
         return AnswerEnumType::TASK_SUCCESSFULLY_PROCESSED;
     } catch (const std::exception& e) {
         std::cout << "Unexpected behaviour in 'process_task()'.\n" << e.what();
-        task->UpdateParams(BaseTablesType::state,
-                           {{"status", "INTERNAL_SERVER_ERROR"}, {"error_msg", e.what()}});
+//        task->UpdateParams(BaseTablesType::state,
+//                           {{"status", "INTERNAL_SERVER_ERROR"}, {"error_msg", e.what()}});
         return AnswerEnumType::TASK_CRASHED_STATUS_UPDATED;
     }
 }
@@ -168,7 +226,9 @@ int main(int argc, char *argv[]) {
     try {
         el::Loggers::configureFromGlobal("logging.conf");
         std::string task_id = argv[1];
+        LOG(DEBUG) << "Create manager";
         auto manager = std::make_shared<DesbordanteDbManager>(DBConnection(), BaseTables(), SpecificTables());
+        LOG(DEBUG) << "Manager created, process msg";
         return static_cast<int>(ProcessMsg(task_id, manager));
     } catch (const std::exception& e) {
         std::cerr << "% Unexpected exception caught: " << e.what() << '\n';
