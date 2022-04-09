@@ -557,7 +557,7 @@ const typeDefs = gql`
         "SpecificTypoCluster"
         typoClusterTaskID: String
         "TypoCluster"
-        typoFD: String
+        typoFD: [Int!]
         "SpecificTypoCluster"
         clusterID: Int
     }
