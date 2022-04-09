@@ -8,6 +8,7 @@ const tabs = [
   { alias: PrimitiveType.FD, name: "Functional Dependencies" },
   { alias: PrimitiveType.CFD, name: "Conditional Functional Dependencies" },
   { alias: PrimitiveType.AR, name: "Association Rules" },
+  { alias: PrimitiveType.TypoFD, name: "Error Detection Pipeline" },
 ];
 
 const ChoosePrimitive = () => {

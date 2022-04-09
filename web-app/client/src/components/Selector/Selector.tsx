@@ -78,8 +78,6 @@ const Selector = <T,>({
     setHeight(refs.current[newSelectedIndex]?.offsetHeight || 0);
   }, [options, current, refs]);
 
-  console.log(current);
-
   return (
     <Container
       ref={containerRef}

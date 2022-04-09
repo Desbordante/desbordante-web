@@ -26,7 +26,7 @@ const FormItem: React.FC<Props> = ({ enabled = true, children }) => (
       enabled={!enabled}
       className="form-item-shadow position-absolute w-100 h-100 bg-dark"
     />
-    {children}
+    <>{children}</>
   </Col>
 );
 

@@ -1,4 +1,5 @@
 import { ARAlgorithm, CFDAlgorithm, EDPAlgorithm, FDAlgorithm } from "./types";
+import { MetricType } from "./globalTypes";
 
 export type FDAlgorithmProps = {
   algorithm?: FDAlgorithm;
@@ -22,8 +23,11 @@ export type ARAlgorithmProps = {
 
 export type EDPAlgorithmProps = {
   algorithm?: EDPAlgorithm;
-  exact?: FDAlgorithmProps;
-  approximate?: FDAlgorithmProps;
+  preciseAlgorithm?: FDAlgorithm;
+  approximateAlgorithm?: FDAlgorithm;
+  metric?: MetricType;
+  radius?: string;
+  ratio?: string;
 };
 
 export type AlgorithmProps = FDAlgorithmProps &

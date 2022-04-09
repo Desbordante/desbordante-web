@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Button as Btn } from "react-bootstrap";
 
 import "./Button.scss";
@@ -29,7 +29,7 @@ const Button: React.FC<Props> = ({
     style={style}
     size={size}
   >
-    {children}
+    <>{children}</>
   </Btn>
 );
 
