@@ -21,9 +21,10 @@ type AlgorithmConfigContextType = {
       primitive: PrimitiveType,
       file?: AllowedDataset
     ) => boolean;
-    isValidSeparator: (sep?: string) => boolean;
-    isBetweenZeroAndOne: (err?: string) => boolean;
-    isInteger: (lhs?: string) => boolean;
+    isValidSeparator: (n?: string) => boolean;
+    isBetweenZeroAndOne: (n?: string) => boolean;
+    isInteger: (n?: string) => boolean;
+    isPositive: (n?: string) => boolean;
   };
 };
 
@@ -91,12 +92,13 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
     file?: AllowedDataset
   ) => Boolean(file && file.supportedPrimitives.includes(primitive));
 
-  const isValidSeparator = (sep?: string) =>
-    Boolean(allowedSeparators && sep && allowedSeparators.indexOf(sep) !== -1);
+  const isValidSeparator = (n?: string) =>
+    Boolean(allowedSeparators && n && allowedSeparators.indexOf(n) !== -1);
   const isBetweenZeroAndOne = (n?: string) =>
     Boolean(n && !Number.isNaN(+n) && +n >= 0 && +n <= 1);
   const isInteger = (n?: string) =>
     Boolean(n && !Number.isNaN(+n) && +n > 0 && +n % 1 === 0);
+  const isPositive = (n?: string) => Boolean(n && !Number.isNaN(+n) && +n > 0);
 
   const outValue = {
     allowedValues: {
@@ -112,6 +114,7 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
       isBuiltinDatasetValid,
       isBetweenZeroAndOne,
       isInteger,
+      isPositive,
     },
   };
 

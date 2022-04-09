@@ -15,7 +15,7 @@ const ChooseAlgorithmProps = () => {
       {primitiveType === PrimitiveType.FD && <FDAlgorithmProps />}
       {primitiveType === PrimitiveType.CFD && <CFDAlgorithmProps />}
       {primitiveType === PrimitiveType.AR && <ARAlgorithmProps />}
-      {primitiveType === undefined && <EDPAlgorithmProps />}
+      {primitiveType === PrimitiveType.TypoFD && <EDPAlgorithmProps />}
     </>
   );
 };
