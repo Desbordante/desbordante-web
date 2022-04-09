@@ -3,7 +3,7 @@ import { AlgorithmProps } from "../types/algorithmProps";
 import { Dataset, isBuiltinDataset } from "../types/dataset";
 import { FileProps } from "../types/fileProps";
 import { AlgorithmConfigContext } from "./AlgorithmConfigContext";
-import { PrimitiveType } from "../types/globalTypes";
+import { MetricType, PrimitiveType } from "../types/globalTypes";
 import { AllowedDataset } from "../types/types";
 
 type FileFormContextType = {
@@ -38,6 +38,9 @@ const defaultAlgorithmProps: AlgorithmProps = {
   minSupportCFD: "1",
   minSupportAR: "0.5",
   threadsCount: "2",
+  metric: MetricType.MODULUS_OF_DIFFERENCE,
+  radius: "2",
+  ratio: "0.3",
 };
 
 export const FileFormContextProvider: React.FC = ({ children }) => {
@@ -100,6 +103,8 @@ export const FileFormContextProvider: React.FC = ({ children }) => {
         hasArityConstraint,
         isMultiThreaded,
         hasSupport,
+        hasRadius,
+        hasRatio,
       } = algorithmProps.algorithm.properties;
 
       setError((prevError) => ({
@@ -115,7 +120,10 @@ export const FileFormContextProvider: React.FC = ({ children }) => {
               !validators.isInteger(algorithmProps.threadsCount)) ||
             (hasSupport &&
               !validators.isBetweenZeroAndOne(algorithmProps.minSupportAR)) ||
-            (hasSupport && !validators.isInteger(algorithmProps.minSupportCFD))
+            (hasSupport &&
+              !validators.isInteger(algorithmProps.minSupportCFD)) ||
+            (hasRadius && !validators.isPositive(algorithmProps.radius)) ||
+            (hasRatio && !validators.isBetweenZeroAndOne(algorithmProps.ratio))
         ),
       }));
     } else {

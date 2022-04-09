@@ -1,9 +1,9 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { Container } from "react-bootstrap";
 
 import stringToColor from "../../../functions/stringToColor";
-import { TaskContext } from "../../TaskContext";
+import { getDataset_taskInfo_dataset_snippet } from "../../../graphql/operations/queries/__generated__/getDataset";
 
 const StyledContainer = styled(Container)`
   height: 70vh;
@@ -63,23 +63,23 @@ interface Props {
   colorizedColumns: string[];
   showUncolorizedColumns?: boolean;
   className?: string;
+  data: getDataset_taskInfo_dataset_snippet;
 }
 
 const Table: React.FC<Props> = ({
   colorizedColumns,
   showUncolorizedColumns = true,
   className = "",
+  data,
 }) => {
-  const { dataset } = useContext(TaskContext)!;
   const [headerWidth, setHeaderWidth] = useState(0);
   const [headerHeight, setHeaderHeight] = useState(0);
 
-  const { snippet } = dataset!;
-  const rows = snippet && snippet.rows ? snippet.rows : [[]];
+  const rows = data && data.rows ? data.rows : [[]];
   const header =
-    snippet &&
-    (snippet.header
-      ? snippet.header.map((elem) => elem || "null")
+    data &&
+    (data.header
+      ? data.header.map((elem) => elem || "null")
       : rows[0].map((_, index) => `Attr ${index}`));
 
   const changeWidth = useCallback((node: HTMLDivElement) => {

@@ -42,8 +42,15 @@ export type ARAlgorithm = {
   };
 };
 export type EDPAlgorithm = {
-  name: string;
-  properties: {};
+  name: "Typo Miner";
+  properties: {
+    hasArityConstraint: boolean;
+    hasErrorThreshold: boolean;
+    isMultiThreaded: boolean;
+    hasMetric: boolean;
+    hasRadius: boolean;
+    hasRatio: boolean;
+  };
 };
 export type AllowedAlgorithms = {
   allowedFDAlgorithms: FDAlgorithm[];

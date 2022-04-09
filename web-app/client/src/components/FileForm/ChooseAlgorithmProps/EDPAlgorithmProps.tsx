@@ -1,64 +1,78 @@
 import React, { useContext, useEffect } from "react";
 
-import { FDAlgorithm } from "../../../types/types";
+import { EDPAlgorithm, FDAlgorithm } from "../../../types/types";
 import Value from "../../Value/Value";
 import Slider from "../../Slider/Slider";
-import Toggle from "../../Toggle/Toggle";
 import FormItem from "../../FormItem/FormItem";
 import { AlgorithmConfigContext } from "../../AlgorithmConfigContext";
 import { FileFormContext } from "../../FileFormContext";
 import Selector from "../../Selector/Selector";
+import { MetricType } from "../../../types/globalTypes";
 
 const EDPAlgorithmProps = () => {
   const { algorithmProps, setAlgorithmProps } = useContext(FileFormContext)!;
   const { validators, allowedValues } = useContext(AlgorithmConfigContext)!;
 
-  const changeExactAlgorithm = (newAlgorithm: FDAlgorithm) => {
+  const changeAlgorithm = (algorithm: EDPAlgorithm) =>
     // @ts-ignore
     setAlgorithmProps((prevProps) => ({
       ...prevProps,
-      exact: {
-        ...prevProps?.exact,
-        algorithm: newAlgorithm,
-      },
+      algorithm,
     }));
-  };
 
-  const changeApproximateAlgorithm = (newAlgorithm: FDAlgorithm) => {
+  const changePreciseAlgorithm = (preciseAlgorithm: FDAlgorithm) =>
     // @ts-ignore
     setAlgorithmProps((prevProps) => ({
       ...prevProps,
-      approximate: {
-        ...prevProps?.approximate,
-        algorithm: newAlgorithm,
-      },
+      preciseAlgorithm,
     }));
-  };
 
-  const changeErrorThreshold = (newThreshold: string) => {
+  const changeApproximateAlgorithm = (approximateAlgorithm: FDAlgorithm) =>
+    // @ts-ignore
     setAlgorithmProps((prevProps) => ({
       ...prevProps,
-      errorThreshold: newThreshold,
+      approximateAlgorithm,
     }));
-  };
 
-  const changearityConstraint = (newarityConstraint: string) => {
+  const changeErrorThreshold = (errorThreshold: string) =>
     setAlgorithmProps((prevProps) => ({
       ...prevProps,
-      arityConstraint: newarityConstraint,
+      errorThreshold,
     }));
-  };
 
-  const changeThreadsCount = (newThreadsCount: string) => {
+  const changeArityConstraint = (arityConstraint: string) =>
     setAlgorithmProps((prevProps) => ({
       ...prevProps,
-      threadsCount: newThreadsCount,
+      arityConstraint,
     }));
-  };
+
+  const changeThreadsCount = (threadsCount: string) =>
+    setAlgorithmProps((prevProps) => ({
+      ...prevProps,
+      threadsCount,
+    }));
+
+  const changeMetric = (metric: MetricType) =>
+    setAlgorithmProps((prevProps) => ({
+      ...prevProps,
+      metric,
+    }));
+
+  const changeRadius = (radius: string) =>
+    setAlgorithmProps((prevProps) => ({
+      ...prevProps,
+      radius,
+    }));
+
+  const changeRatio = (ratio: string) =>
+    setAlgorithmProps((prevProps) => ({
+      ...prevProps,
+      ratio,
+    }));
 
   useEffect(() => {
     if (allowedValues.allowedAlgorithms?.allowedFDAlgorithms[0]) {
-      changeExactAlgorithm(
+      changePreciseAlgorithm(
         allowedValues.allowedAlgorithms?.allowedFDAlgorithms.filter(
           (algo) => !algo.properties.hasErrorThreshold
         )[0]
@@ -71,14 +85,31 @@ const EDPAlgorithmProps = () => {
     }
   }, [allowedValues]);
 
+  useEffect(() => {
+    changeAlgorithm({
+      name: "Typo Miner",
+      properties: {
+        hasArityConstraint: true,
+        hasRadius: true,
+        hasErrorThreshold: true,
+        isMultiThreaded: true,
+        hasMetric: true,
+        hasRatio: true,
+      },
+    });
+  }, []);
+
   const errorThreshold = algorithmProps?.errorThreshold || "0.005";
   const arityConstraint = algorithmProps?.arityConstraint || "5";
   const threadsCount = algorithmProps?.threadsCount || "2";
+  const metric = algorithmProps?.metric || MetricType.MODULUS_OF_DIFFERENCE;
+  const radius = algorithmProps?.radius || "2";
+  const ratio = algorithmProps?.ratio || "0.3";
 
   return (
     <>
       <FormItem>
-        <h5 className="text-white mb-0 mx-2">Exact algorithm:</h5>
+        <h5 className="text-white mb-0 mx-2">Precise algorithm:</h5>
         <Selector
           options={
             allowedValues.allowedAlgorithms?.allowedFDAlgorithms.filter(
@@ -86,7 +117,7 @@ const EDPAlgorithmProps = () => {
             ) || []
           }
           current={
-            algorithmProps.exact?.algorithm || {
+            algorithmProps.preciseAlgorithm || {
               name: "",
               properties: {
                 hasArityConstraint: true,
@@ -95,7 +126,7 @@ const EDPAlgorithmProps = () => {
               },
             }
           }
-          onSelect={changeExactAlgorithm}
+          onSelect={changePreciseAlgorithm}
           label={(algo) => algo.name}
           className="mx-2"
         />
@@ -109,7 +140,7 @@ const EDPAlgorithmProps = () => {
             ) || []
           }
           current={
-            algorithmProps.approximate?.algorithm || {
+            algorithmProps.approximateAlgorithm || {
               name: "",
               properties: {
                 hasArityConstraint: true,
@@ -124,9 +155,7 @@ const EDPAlgorithmProps = () => {
         />
       </FormItem>
 
-      <FormItem
-        enabled={algorithmProps?.algorithm?.properties.hasErrorThreshold}
-      >
+      <FormItem>
         <h5 className="text-white mb-0 mx-2">Error threshold:</h5>
         <Value
           value={errorThreshold}
@@ -144,14 +173,14 @@ const EDPAlgorithmProps = () => {
       </FormItem>
       <FormItem
         enabled={
-          algorithmProps?.exact?.algorithm?.properties.hasArityConstraint &&
-          algorithmProps?.approximate?.algorithm?.properties.hasArityConstraint
+          algorithmProps?.preciseAlgorithm?.properties.hasArityConstraint &&
+          algorithmProps?.approximateAlgorithm?.properties.hasArityConstraint
         }
       >
         <h5 className="text-white mb-0 mx-2">Arity constraint:</h5>
         <Value
           value={arityConstraint}
-          onChange={changearityConstraint}
+          onChange={changeArityConstraint}
           size={3}
           inputValidator={validators.isInteger}
           className="mx-2"
@@ -160,12 +189,12 @@ const EDPAlgorithmProps = () => {
           value={arityConstraint}
           min={1}
           max={10}
-          onChange={changearityConstraint}
+          onChange={changeArityConstraint}
           step={1}
           className="mx-2"
         />
       </FormItem>
-      <FormItem enabled={algorithmProps?.algorithm?.properties.isMultiThreaded}>
+      <FormItem enabled={algorithmProps.algorithm?.properties.isMultiThreaded}>
         <h5 className="text-white mb-0 mx-2">Threads:</h5>
         <Value
           value={threadsCount}
@@ -180,6 +209,53 @@ const EDPAlgorithmProps = () => {
           max={16}
           onChange={changeThreadsCount}
           step={1}
+          className="mx-2"
+        />
+      </FormItem>
+
+      <FormItem enabled={algorithmProps.algorithm?.properties.hasMetric}>
+        <h5 className="text-white mb-0 mx-2">Metric:</h5>
+        <Selector
+          options={[MetricType.MODULUS_OF_DIFFERENCE, MetricType.LEVENSHTEIN]}
+          current={metric}
+          onSelect={changeMetric}
+          label={(type) => type}
+          className="mx-2"
+        />
+      </FormItem>
+      <FormItem enabled={algorithmProps.algorithm?.properties.hasRadius}>
+        <h5 className="text-white mb-0 mx-2">Radius:</h5>
+        <Value
+          value={radius}
+          onChange={changeRadius}
+          size={3}
+          inputValidator={validators.isPositive}
+          className="mx-2"
+        />
+        <Slider
+          value={radius}
+          min={1}
+          max={10}
+          onChange={changeRadius}
+          step={0.001}
+          className="mx-2"
+        />
+      </FormItem>
+      <FormItem enabled={algorithmProps.algorithm?.properties.hasRatio}>
+        <h5 className="text-white mb-0 mx-2">Ratio:</h5>
+        <Value
+          value={ratio}
+          onChange={changeRatio}
+          size={3}
+          inputValidator={validators.isBetweenZeroAndOne}
+          className="mx-2"
+        />
+        <Slider
+          value={ratio}
+          min={0}
+          max={1}
+          onChange={changeRatio}
+          step={0.001}
           className="mx-2"
         />
       </FormItem>

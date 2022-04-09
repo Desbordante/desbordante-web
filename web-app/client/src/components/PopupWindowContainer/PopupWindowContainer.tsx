@@ -36,7 +36,7 @@ const PopupWindowContainer: React.FC<Props> = ({
       style={containerProps}
     >
       <OutsideClickHandler onOutsideClick={onOutsideClick}>
-        {children}
+        <>{children}</>
       </OutsideClickHandler>
     </AnimatedContainer>
   );
