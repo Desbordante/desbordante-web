@@ -50,4 +50,5 @@ public:
     std::string GetColumnName(int index) const { return column_names_[index]; }
     std::vector<std::string> GetColumnNames() const { return column_names_; }
     std::string GetRelationName() const { return relation_name_; }
+    void Reset();
 };
