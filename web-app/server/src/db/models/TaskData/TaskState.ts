@@ -164,13 +164,22 @@ export class TaskState extends Model implements TaskInfoModelMethods {
         return result.value;
     };
 
+    static transformProps = (props: IntersectionTaskProps) : Omit<IntersectionTaskProps, "typoFD"> & { typoFD?: string } => {
+        let typoFD: string | undefined = undefined;
+        if (props.typoFD != undefined) {
+            typoFD = props.typoFD.join(",");
+        }
+        return { ...props, typoFD };
+    };
+
     static saveToDB = async (props: IntersectionTaskProps,
                              userID: string | null, fileID: string | null) => {
-        const { type: propertyPrefix } = props;
+        const preparedProps = TaskState.transformProps(props);
+        const { type: propertyPrefix } = preparedProps;
         const status: TaskStatusType = "ADDING_TO_DB";
         const taskInfo = await TaskState.create({ status, userID });
-        await taskInfo.$create("baseConfig", { ...props, fileID });
-        await taskInfo.$create(`${propertyPrefix}Config`, { ...props });
+        await taskInfo.$create("baseConfig", { ...preparedProps, fileID });
+        await taskInfo.$create(`${propertyPrefix}Config`, { ...preparedProps });
         await taskInfo.$create(`${propertyPrefix}Result`, {});
         return taskInfo;
     };
@@ -203,7 +212,10 @@ export class TaskState extends Model implements TaskInfoModelMethods {
 
         if (type === "TypoCluster") {
             const { typoFD, typoTaskID } = props;
-            const config = await TypoClusterConfig.findOne({ where: { typoFD, typoTaskID } });
+            if (typoFD == undefined || typoTaskID == undefined) {
+                throw new UserInputError("Received undefined typoFD or typoTaskID");
+            }
+            const config = await TypoClusterConfig.findOne({ where: { typoFD: typoFD.join(","), typoTaskID } });
             if (!config) {
                 const taskInfo = await TaskState.saveToDB(props, userID, fileID);
                 await sendEvent(topicName, taskInfo.taskID);

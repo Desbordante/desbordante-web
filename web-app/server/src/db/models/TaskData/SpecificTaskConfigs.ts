@@ -189,7 +189,7 @@ export class TypoClusterConfig extends BaseSpecificTaskConfig implements TypoClu
 
         if (typeof typoTaskID !== "string") {
             errorMessage = `Received incorrect typoTaskId '${typoTaskID}'`;
-        } else if (!FD || FD.split(",").some(i => !Number.isInteger(Number(i)))) {
+        } else if (FD == undefined || FD.length == 0) {
             errorMessage = `Received incorrect FD '${FD}'`;
         } else {
             const mainTaskResult = await TypoFDTaskResult.findByPk(typoTaskID, { attributes: ["TypoFDs"] });
@@ -200,7 +200,7 @@ export class TypoClusterConfig extends BaseSpecificTaskConfig implements TypoClu
                 if (typeof TypoFDs !== "string") {
                     throw new ApolloError("Main task wasn't processed yet");
                 }
-                if (!TypoFDs.split(";").includes(FD)) {
+                if (!TypoFDs.split(";").includes(FD.join(","))) {
                     errorMessage = `You choose FD ${FD}, which not found in TypoFDs = ${TypoFDs}`;
                 }
             }
