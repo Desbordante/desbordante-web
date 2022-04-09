@@ -15,8 +15,9 @@ BETTER_ENUM(AlgoMiningType, char,
     fd = 0,
     cfd,
     typos,
-    ar,
-    metric
+    typofds,
+    clusters,
+    ar
 #else
     fd = 0, /* Functional dependency mining */
     cfd,    /* Conditional functional dependency mining */

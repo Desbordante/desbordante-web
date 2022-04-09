@@ -29,13 +29,23 @@ private:
     template <typename MapSearchKey>
     void InsertParamsFromTable(MapSearchKey key);
 
+    void InsertParam(std::pair<std::string, boost::any> param) {
+        params_intersection_.emplace(std::move(param));
+    }
+
+    template <typename MapSearchKey>
+    static void InsertAllParamsFromTable(MapSearchKey key, std::shared_ptr<DesbordanteDbManager>& db_manager, TaskConfig& config);
+
 public:
+    explicit TaskConfig(std::string task_id)
+        : params_intersection_{{{"taskID", task_id}}}, db_manager_(nullptr) {}
 
     explicit TaskConfig(std::shared_ptr<DesbordanteDbManager> db_manager, std::string task_id);
 
     const ParamsMap& GetParamsIntersection() const;
+    ParamsMap& GetParamsIntersection();
 
-    template<typename T = std::string>
+    template <typename T = std::string>
     const T& GetParam(std::string&& param) const {
         try {
             return boost::any_cast<const T&>(params_intersection_.at(param));
@@ -51,13 +61,15 @@ public:
     static bool IsTaskValid(std::shared_ptr<DesbordanteDbManager>& manager, std::string task_id);
     bool IsTaskValid() const;
 
-    template<typename TableMapKey>
-    void UpdateParams(TableMapKey search_key, std::map<std::string, std::string>&& values) const{
+    template <typename TableMapKey>
+    void UpdateParams(TableMapKey search_key, std::map<std::string, std::string>&& values) const {
         const auto& search_by = std::get<1>(db_manager_->GetTableInfo(search_key));
-        db_manager_->SendUpdateQuery(search_key, std::move(values), GetParam((+search_by)._to_string()));
+        db_manager_->SendUpdateQuery(search_key, std::move(values),
+                                     GetParam((+search_by)._to_string()));
     }
 
-    std::pair<SpecificTablesType, TaskMiningType> GetSpecificMapKey(SpecificTablesType table_type) const;
+    std::pair<SpecificTablesType, TaskMiningType> GetSpecificMapKey(
+        SpecificTablesType table_type) const;
 };
 
 }

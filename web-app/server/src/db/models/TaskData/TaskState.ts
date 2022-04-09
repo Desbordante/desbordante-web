@@ -164,6 +164,19 @@ export class TaskState extends Model implements TaskInfoModelMethods {
         return result.value;
     };
 
+    getMultipleConfigFieldAsString = async (propertyPrefix: PrimitiveType, attributes: string[]) => {
+        const result = await this.$get(`${propertyPrefix}Config`,
+            { attributes: attributes.map((value, id) => [value, `value_${id}`]), raw: true }) as any;
+        if (!result) {
+            throw new ApolloError(`Not found config for ${this.taskID}, primitiveType = ${propertyPrefix}`);
+        }
+        const answer = new Array<string>();
+        for (const id in attributes) {
+            answer.push(result[`value_${id}`]);
+        }
+        return answer;
+    };
+
     static transformProps = (props: IntersectionTaskProps) : Omit<IntersectionTaskProps, "typoFD"> & { typoFD?: string } => {
         let typoFD: string | undefined = undefined;
         if (props.typoFD != undefined) {

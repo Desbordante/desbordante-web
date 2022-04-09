@@ -30,7 +30,7 @@ auto TypoMiner::MakeTuplesByIndicesComparator(std::map<int, unsigned> const& fre
 }
 
 std::vector<util::PLI::Cluster> TypoMiner::FindClustersWithTypos(FD const& typos_fd,
-                                                                 bool const sort_clusters) {
+                                                                 bool const sort_clusters) const {
     std::vector<util::PLI::Cluster> clusters;
     std::shared_ptr<util::PLI const> intersection_pli;
     std::vector<Column const*> const lhs_columns = typos_fd.GetLhs().GetColumns();
@@ -101,7 +101,7 @@ std::vector<util::PLI::Cluster> TypoMiner::FindClustersWithTypos(FD const& typos
 }
 
 std::vector<TypoMiner::SquashedElement> TypoMiner::SquashCluster(
-    FD const& squash_on, util::PLI::Cluster const& cluster) {
+    FD const& squash_on, util::PLI::Cluster const& cluster) const {
     std::vector<SquashedElement> squashed;
     std::vector<int> const& probing_table =
         relation_->GetColumnData(squash_on.GetRhs().GetIndex()).GetProbingTable();
@@ -130,6 +130,17 @@ void TypoMiner::SortCluster(FD const& sort_on, util::PLI::Cluster& cluster) cons
     std::map<int, unsigned> const frequency_map = CreateFrequencyMap(sort_on.GetRhs(), cluster);
 
     std::stable_sort(cluster.begin(), cluster.end(), MakeTuplesByIndicesComparator(frequency_map));
+}
+
+void TypoMiner::RestoreLineOrder(FD const& typo_fd, util::PLI::Cluster& cluster) const {
+    std::sort(cluster.begin(), cluster.end());
+}
+
+void TypoMiner::RestoreLineOrder(FD const& typo_fd, std::vector<TypoMiner::SquashedElement>& squashed_cluster) const {
+    std::sort(squashed_cluster.begin(), squashed_cluster.end(),
+              [](const TypoMiner::SquashedElement& lhs, const TypoMiner::SquashedElement& rhs) {
+                  return lhs.tuple_index < rhs.tuple_index;
+              });
 }
 
 std::vector<util::PLI::Cluster::value_type> TypoMiner::FindLinesWithTypos(
@@ -185,7 +196,7 @@ std::vector<util::PLI::Cluster::value_type> TypoMiner::FindLinesWithTypos(
 }
 
 std::vector<TypoMiner::ClusterTyposPair> TypoMiner::FindClustersAndLinesWithTypos(
-    const FD& typos_fd, const bool sort_clusters) {
+    const FD& typos_fd, const bool sort_clusters) const {
     std::vector<ClusterTyposPair> result;
     std::vector<util::PLI::Cluster> clusters = FindClustersWithTypos(typos_fd, sort_clusters);
 

@@ -76,8 +76,8 @@ export class TypoClusterResult extends BaseSpecificTaskResult {
     @Column({ type: TEXT, allowNull: true })
     TypoClusters!: string | null;
 
-    // @Column({ type: TEXT, allowNull: true })
-    // suspiciousIndices!: string | null;
+    @Column({ type: TEXT, allowNull: true })
+    suspiciousIndices!: string | null;
 
     @Column({ type: TEXT, allowNull: true })
     clustersCount!: number | null;

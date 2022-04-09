@@ -12,4 +12,5 @@ FieldWrapper<std::filesystem::path>::FieldWrapper(const pqxx::field& field)
 template <>
 FieldWrapper<unsigned int>::FieldWrapper(const pqxx::field& field)
     : value_((unsigned int)field.as<long long>()) {}
+
 }
