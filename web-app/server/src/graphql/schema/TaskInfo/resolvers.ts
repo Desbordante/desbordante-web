@@ -269,9 +269,6 @@ export const TaskInfoResolvers: Resolvers = {
         // @ts-ignore
         depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
             const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
-            if (!depsAmount) {
-                return [];
-            }
             return Number(depsAmount);
         },
     },
@@ -291,9 +288,6 @@ export const TaskInfoResolvers: Resolvers = {
         // @ts-ignore
         depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
             const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
-            if (!depsAmount) {
-                return [];
-            }
             return Number(depsAmount);
         },
     },
@@ -325,9 +319,6 @@ export const TaskInfoResolvers: Resolvers = {
         // @ts-ignore
         depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
             const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
-            if (!depsAmount) {
-                return [];
-            }
             return Number(depsAmount);
         },
     },
@@ -500,9 +491,6 @@ export const TaskInfoResolvers: Resolvers = {
         // @ts-ignore
         depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
             const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
-            if (!depsAmount) {
-                return [];
-            }
             return Number(depsAmount);
         },
     },
