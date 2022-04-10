@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../db/TaskConfig.h"
-#include "AlgoFactory.h"
+#include "../db/task_config.h"
+#include "algo_factory.h"
 #include <future>
 
 namespace consumer {

@@ -3,13 +3,13 @@
 #include <string>
 #include <vector>
 
-#include "db/TaskConfig.h"
-#include "db/SpecificDbManager.h"
+#include "db/task_config.h"
+#include "db/specific_db_manager.h"
 
 #include <boost/algorithm/string.hpp>
 #include <easylogging++.h>
 
-#include "task-processors/TaskProcessor.h"
+#include "task-processors/task_processor.h"
 
 using namespace consumer;
 

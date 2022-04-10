@@ -54,7 +54,7 @@ public:
     }
 
     virtual boost::any GetValue() {
-        return this->GetValue({});
+        return this->GetValue(pqxx::row{});
     }
 
     bool HasValue() {

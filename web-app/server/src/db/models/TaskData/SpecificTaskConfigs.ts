@@ -44,8 +44,8 @@ export class FDTaskConfig extends BaseSpecificTaskConfig {
         let errorMessage: string | undefined;
         if (!~allowedFDAlgorithms.findIndex(({ name }) => algorithmName === name)) {
             errorMessage = `Algorithm name ${algorithmName} not found`;
-        } else if (typeof errorThreshold !== "number" || errorThreshold < 0 || errorThreshold > 1) {
-            errorMessage = `Error threshold isn't valid ${errorThreshold}`;
+        } else if (typeof errorThreshold !== "number" || errorThreshold <= 0 || errorThreshold > 1) {
+            errorMessage = `Error threshold isn't valid ${errorThreshold} (0 < e <= 1)`;
         } else if (typeof maxLHS !== "number" || maxLHS < -1) {
             errorMessage = `maxLHS ${maxLHS} isn't valid`;
         } else if (typeof threadsCount !== "number" || threadsCount < 1 || threadsCount > maxThreadsCount) {

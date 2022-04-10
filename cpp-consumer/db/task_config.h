@@ -7,8 +7,8 @@
 #include <utility>
 #include <enum.h>
 
-#include "FieldWrapper.h"
-#include "SpecificDbManager.h"
+#include "field_wrapper.h"
+#include "specific_db_manager.h"
 
 namespace consumer {
 
