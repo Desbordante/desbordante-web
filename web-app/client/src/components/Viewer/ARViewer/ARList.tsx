@@ -79,7 +79,7 @@ const ARList: React.FC<Props> = ({
         />
         <SearchBar
           value={primitiveFilter.FD.filterString || ""}
-          defaultText="Filter dependencies"
+          defaultText="Dependencies regex"
           onChange={setFilterString}
           className="mx-2"
         />

@@ -1,52 +1,50 @@
-import React, { useContext } from "react";
-import { Container, Stack } from "react-bootstrap";
+import React, {useContext} from "react";
+import {Container, Stack} from "react-bootstrap";
 
 import FDSnippet from "./FDSnippet";
 import SearchBar from "../../SearchBar/SearchBar";
 import Toggle from "../../Toggle/Toggle";
 import Selector from "../../Selector/Selector";
-import { FunctionalDependency } from "../../../types/taskInfo";
-import { sortOptions } from "../../../constants/primitives";
-import { SortSide } from "../../../types/globalTypes";
-import { TaskContext } from "../../TaskContext";
+import {FunctionalDependency} from "../../../types/taskInfo";
+import {sortOptions} from "../../../constants/primitives";
+import {SortSide} from "../../../types/globalTypes";
+import {TaskContext} from "../../TaskContext";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
 import Pagination from "./Pagination";
 
 interface Props {
   selectedDependency: FunctionalDependency | null;
-  setSelectedDependency: React.Dispatch<
-    React.SetStateAction<FunctionalDependency | null>
-  >;
+  setSelectedDependency: React.Dispatch<React.SetStateAction<FunctionalDependency | null>>;
   className?: string;
 }
 
 const FDList: React.FC<Props> = ({
-  selectedDependency,
-  setSelectedDependency,
-  className = "",
-}) => {
-  const { primitiveFilter, setPrimitiveFilter, taskResult, taskResultLoading } =
+                                   selectedDependency,
+                                   setSelectedDependency,
+                                   className = "",
+                                 }) => {
+  const {primitiveFilter, setPrimitiveFilter, taskResult, taskResultLoading} =
     useContext(TaskContext)!;
 
   const dependencies = taskResult?.FD?.FDs || [];
 
   const setSortMethod = (selected: SortSide) =>
     setPrimitiveFilter((prev) => {
-      const newFilter = { ...prev };
+      const newFilter = {...prev};
       newFilter.FD.sortSide = selected;
       return newFilter;
     });
 
   const setFilterString = (newFilterString: string) =>
     setPrimitiveFilter((prev) => {
-      const newFilter = { ...prev };
+      const newFilter = {...prev};
       newFilter.FD.filterString = newFilterString;
       return newFilter;
     });
 
   const toggleWithoutKeys = () =>
     setPrimitiveFilter((prev) => {
-      const newFilter = { ...prev };
+      const newFilter = {...prev};
       newFilter.FD.withoutKeys = !newFilter.FD.withoutKeys;
       return newFilter;
     });
@@ -64,7 +62,7 @@ const FDList: React.FC<Props> = ({
           className="mx-2"
         />
         <SearchBar
-          defaultText="Filter dependencies"
+          defaultText="Dependencies regex"
           onChange={setFilterString}
           value={primitiveFilter.FD.filterString || ""}
           className="mx-2"
@@ -97,7 +95,7 @@ const FDList: React.FC<Props> = ({
           ))}
         </Stack>
       </LoadingContainer>
-      <Pagination primitiveType="FD" />
+      <Pagination primitiveType="FD"/>
     </Container>
   );
 };
