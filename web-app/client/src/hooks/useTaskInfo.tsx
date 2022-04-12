@@ -1,17 +1,17 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { useLazyQuery } from "@apollo/client";
+import {useCallback, useContext, useEffect, useRef, useState} from "react";
+import {useLazyQuery} from "@apollo/client";
 
 import {
   getTaskInfo,
   getTaskInfoVariables,
 } from "../graphql/operations/queries/__generated__/getTaskInfo";
-import { GET_TASK_INFO } from "../graphql/operations/queries/getTaskInfo";
-import { TaskState } from "../types/taskInfo";
-import { PrimitiveType } from "../types/globalTypes";
-import { ErrorContext } from "../components/ErrorContext";
+import {GET_TASK_INFO} from "../graphql/operations/queries/getTaskInfo";
+import {TaskState} from "../types/taskInfo";
+import {PrimitiveType} from "../types/globalTypes";
+import {ErrorContext} from "../components/ErrorContext";
 
 export const useTaskInfo = (taskID?: string) => {
-  const { showError } = useContext(ErrorContext)!;
+  const {showError} = useContext(ErrorContext)!;
 
   const [taskState, setTaskState] = useState<TaskState>();
   const [taskType, setTaskType] = useState<PrimitiveType>();
@@ -34,14 +34,14 @@ export const useTaskInfo = (taskID?: string) => {
       return;
     }
     try {
-      const { data } = await getTaskInfoQuery({
-        variables: { taskID },
+      const {data} = await getTaskInfoQuery({
+        variables: {taskID},
       });
       if (data) {
         const {
           state,
           data: {
-            baseConfig: { type },
+            baseConfig: {type},
           },
         } = data.taskInfo;
 
@@ -63,13 +63,13 @@ export const useTaskInfo = (taskID?: string) => {
             return;
           }
           case "ResourceLimitTaskError": {
-            showError({ message: state.resourceLimitError });
+            showError({message: state.resourceLimitError});
             stopPolling();
             return;
           }
           default: {
             stopPolling();
-            showError({ message: "Unexpected application behaviour" });
+            showError({message: "Unexpected application behaviour"});
           }
         }
       }
@@ -86,5 +86,12 @@ export const useTaskInfo = (taskID?: string) => {
     return stopPolling;
   }, [taskID, updateTaskInfo]);
 
-  return { taskState, taskType };
+  useEffect(() => {
+    if (!taskID) {
+      setTaskState(undefined);
+      setTaskType(undefined);
+    }
+  }, [taskID]);
+
+  return {taskState, taskType};
 };

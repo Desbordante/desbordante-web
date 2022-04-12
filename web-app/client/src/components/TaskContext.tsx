@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useState } from "react";
+import React, {createContext, useCallback, useState} from "react";
 
 import {
   Dataset,
@@ -6,17 +6,17 @@ import {
   TaskResult,
   TaskStateAnswer,
 } from "../types/taskInfo";
-import { Pagination, PrimitiveType } from "../types/globalTypes";
-import { useTaskInfo } from "../hooks/useTaskInfo";
-import { PrimitiveFilter } from "../types/primitives";
-import { usePrimitiveList } from "../hooks/usePrimitiveList";
-import { useDataset } from "../hooks/useDataset";
-import { useDeleteTask } from "../hooks/useDeleteTask";
+import {Pagination, PrimitiveType} from "../types/globalTypes";
+import {useTaskInfo} from "../hooks/useTaskInfo";
+import {PrimitiveFilter} from "../types/primitives";
+import {usePrimitiveList} from "../hooks/usePrimitiveList";
+import {useDataset} from "../hooks/useDataset";
+import {useDeleteTask} from "../hooks/useDeleteTask";
 import {
   defaultDatasetPagination,
   defaultPrimitiveFilter,
 } from "../constants/primitives";
-import { usePieChartData } from "../hooks/usePieChartData";
+import {usePieChartData} from "../hooks/usePieChartData";
 
 type TaskContextType = {
   taskId: string | undefined;
@@ -37,7 +37,7 @@ type TaskContextType = {
 
 export const TaskContext = createContext<TaskContextType | null>(null);
 
-export const TaskContextProvider: React.FC = ({ children }) => {
+export const TaskContextProvider: React.FC = ({children}) => {
   const [taskId, setTaskId] = useState<string>();
   const [primitiveFilter, setPrimitiveFilter] = useState<PrimitiveFilter>(
     defaultPrimitiveFilter
@@ -46,23 +46,23 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     defaultDatasetPagination
   );
 
-  const { taskState, taskType } = useTaskInfo(taskId);
-  const { taskResult, loading: taskResultLoading } = usePrimitiveList(
+  const {taskState, taskType} = useTaskInfo(taskId);
+  const {taskResult, loading: taskResultLoading} = usePrimitiveList(
     taskId,
     taskType,
     primitiveFilter,
     taskState?.isExecuted
   );
-  const { pieChartData, loading: pieChartDataLoading } = usePieChartData(
+  const {pieChartData, loading: pieChartDataLoading} = usePieChartData(
     taskId,
     taskType,
     taskState?.isExecuted
   );
-  const { dataset, loading: datasetLoading } = useDataset(
+  const {dataset, loading: datasetLoading} = useDataset(
     taskId,
     datasetPagination
   );
-  const { deleteTask, loading: deleteTaskLoading } = useDeleteTask(taskId);
+  const {deleteTask, loading: deleteTaskLoading} = useDeleteTask(taskId);
 
   const resetTask = useCallback(async () => {
     setTaskId(undefined);
@@ -87,8 +87,6 @@ export const TaskContextProvider: React.FC = ({ children }) => {
     deleteTask,
     deleteTaskLoading,
   };
-
-  console.log(taskId, taskState);
 
   return (
     <TaskContext.Provider value={outValue}>{children}</TaskContext.Provider>

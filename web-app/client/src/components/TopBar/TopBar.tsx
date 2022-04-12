@@ -1,18 +1,18 @@
-import React, { useContext } from "react";
-import { Container, Navbar } from "react-bootstrap";
-import { useHistory, useLocation } from "react-router-dom";
+import React, {useContext} from "react";
+import {Container, Navbar, OverlayTrigger, Tooltip} from "react-bootstrap";
+import {useHistory, useLocation} from "react-router-dom";
 
 import Button from "../Button/Button";
-import { TaskContext } from "../TaskContext";
-import { AuthContext } from "../AuthContext";
+import {TaskContext} from "../TaskContext";
+import {AuthContext} from "../AuthContext";
 import ProgressBar from "../ProgressBar/ProgressBar";
 import Phasename from "./Phasename/Phasename";
 
 const TopBar = () => {
   const history = useHistory();
   const location = useLocation();
-  const { taskState, resetTask, dataset } = useContext(TaskContext)!;
-  const { user, setIsSignUpShown, setIsLogInShown, signOut } =
+  const {taskState, resetTask, dataset} = useContext(TaskContext)!;
+  const {user, setIsSignUpShown, setIsLogInShown, signOut} =
     useContext(AuthContext)!;
 
   const isHomeScreen = location.pathname === "/";
@@ -49,6 +49,9 @@ const TopBar = () => {
                 {taskState.processStatus}
               </p>
             )}
+          <OverlayTrigger placement="bottom" overlay={<Tooltip>info</Tooltip>}>
+            <i className="bi bi-info-circle"/>
+          </OverlayTrigger>
         </Container>
         {user?.name ? (
           <>
