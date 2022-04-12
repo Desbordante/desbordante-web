@@ -34,7 +34,7 @@ export const sendVerificationCode = async (code: number, userEmail: string, type
 
 export const createAndSendVerificationCode = async (
     userID: string, deviceID: string, userEmail: string, type: CodeType,
-    logger: typeof console.log | undefined = undefined) => {
+    logger?: typeof console.log) => {
     const code = await Code.createVerificationCode(userID, deviceID, type);
     if (process.env.USE_NODEMAILER === "true") {
         try {

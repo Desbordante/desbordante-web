@@ -255,7 +255,7 @@ const typeDefs = gql`
     type AR {
         lhs: [String!]!
         rhs: [String!]!
-        support: Float!
+        confidence: Float!
     }
 
     type FDPieChartRow {
@@ -312,9 +312,20 @@ const typeDefs = gql`
         itemsAmount: Int!
     }
     
+    enum ARSortBy {
+        LHS_NAME RHS_NAME CONF DEFAULT
+    }
+
+    input ARsFilter {
+        filterString: String
+        sortBy: ARSortBy!
+        orderBy: OrderBy!
+        pagination: Pagination!
+    }
+    
     type ARTaskResult implements PrimitiveTaskResult {
         taskID: String!
-        ARs(pagination: Pagination! = { offset: 0 limit: 100 }): [AR!]!
+        ARs(filter: ARsFilter!): [AR!]!
         depsAmount: Int!
     }
     

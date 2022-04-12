@@ -12,15 +12,15 @@ interface Props {
 const Pagination: React.FC<Props> = ({ primitiveType }) => {
   const { primitiveFilter, setPrimitiveFilter } = useContext(TaskContext)!;
   const { offset: paginationOffset, limit: paginationLimit } =
-    primitiveType === "FD"
-      ? primitiveFilter.FD.pagination
+      primitiveType === "FD" || primitiveType === "AR"
+      ? primitiveFilter[primitiveType].pagination
       : primitiveFilter[primitiveType];
 
   const setOffset = (newOffset: number) =>
     setPrimitiveFilter((prev) => {
       const newFilter = { ...prev };
-      if (primitiveType === "FD") {
-        newFilter.FD.pagination.offset = clamp(newOffset, 1, maxOffset);
+      if (primitiveType === "FD" || primitiveType === "AR") {
+        newFilter[primitiveType].pagination.offset = clamp(newOffset, 1, maxOffset);
       } else {
         newFilter[primitiveType].offset = clamp(newOffset, 1, maxOffset);
       }
