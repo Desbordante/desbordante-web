@@ -74,7 +74,7 @@ const ARSnippet: React.FC<Props> = ({
           isActive ? "dark" : ""
         } border-2 rounded-pill text-${isActive ? "black" : "grey"}`}
       >
-        {Math.round(rule.support * 1000) / 10}%
+        {Math.round(rule.confidence * 1000) / 10}%
       </p>
       <svg
         className={`arrow ${isActive ? "active" : ""}`}

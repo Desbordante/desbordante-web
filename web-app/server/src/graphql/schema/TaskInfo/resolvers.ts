@@ -10,7 +10,7 @@ import { builtInDatasets } from "../../../db/initBuiltInDatasets";
 import { BaseTaskConfig } from "../../../db/models/TaskData/TaskConfig";
 import { TaskState, TaskStatusType } from "../../../db/models/TaskData/TaskState";
 
-import { Pagination, PrimitiveType, Resolvers } from "../../types/types";
+import { ArSortBy, Pagination, PrimitiveType, Resolvers } from "../../types/types";
 import isUUID = validator.isUUID;
 
 function getArrayOfDepsByPagination<DependencyType> (deps: DependencyType[],
@@ -57,19 +57,11 @@ export const TaskInfoResolvers: Resolvers = {
     },
     AR: {
         // @ts-ignore
-        lhs: ({ rule, valueDictionary }) => {
-            // @ts-ignore
-            return rule[1].split(",").map(i => valueDictionary[i]);
-        },
+        lhs: ({ rule, itemValues }) => rule.lhs.map(i => itemValues[i]),
         // @ts-ignore
-        rhs: ({ rule, valueDictionary }) => {
-            // @ts-ignore
-            return rule[2].split(",").map(i => valueDictionary[i]);
-        },
+        rhs: ({ rule, itemValues }) => rule.rhs.map(i => itemValues[i]),
         // @ts-ignore
-        support: ({ rule }) => {
-            return rule[0];
-        },
+        confidence: ({ rule }) => rule.confidence,
     },
     TaskStateAnswer: {
         // @ts-ignore
@@ -159,7 +151,6 @@ export const TaskInfoResolvers: Resolvers = {
             }
             if (orderBy === "DESC") {
                 columnIndicesOrder.reverse();
-                logger("DESC", columnIndicesOrder);
             }
 
             const isIntersects = (lhs: number[], rhs: number[]) => {
@@ -237,7 +228,7 @@ export const TaskInfoResolvers: Resolvers = {
             };
 
             const FDsUnionIndices = FDs.split(";")
-                .map(unionIndices => unionIndices.split(",").map(i => Number(i)));
+                .map(unionIndices => unionIndices.split(",").map(Number));
             const deps = FDsUnionIndices.map(unionIndices => ({ lhs: unionIndices.slice(0, unionIndices.length - 1), rhs: unionIndices[unionIndices.length - 1] } as FDType))
                 .filter(fdFilter)
                 .sort(fdComparator);
@@ -307,14 +298,98 @@ export const TaskInfoResolvers: Resolvers = {
     },
     ARTaskResult: {
         // @ts-ignore
-        ARs: async ({ propertyPrefix, taskInfo }, { pagination }) => {
-            const ARs = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "ARs");
-            if (!ARs) {
+        ARs: async ({ propertyPrefix, taskInfo }, { filter }, { models, logger }) => {
+            const { pagination, filterString, orderBy } = filter;
+            let { sortBy } = filter;
+            const [ARs, valueDictionary]: string[] = await taskInfo.getMultipleResultFieldAsString(propertyPrefix, ["ARs", "valueDictionary"]);
+            if (!ARs || !valueDictionary) {
                 return [];
             }
-            const valueDictionary = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "valueDictionary");
-            const compactARs = ARs.split(";").map(compactAR => ({ rule: compactAR.split(":"), valueDictionary: valueDictionary.split(",") }));
-            return getArrayOfDepsByPagination(compactARs, pagination);
+            if (sortBy === "DEFAULT") {
+                sortBy = "CONF" as ArSortBy;
+            }
+            const itemValues = valueDictionary.split(",");
+
+            const itemIndicesOrder = [...Array(itemValues.length).keys()];
+            if (sortBy === "LHS_NAME") {
+                itemIndicesOrder.sort((l, r) => (itemIndicesOrder[l] < itemIndicesOrder[r] ? -1 : 1));
+            }
+            if (orderBy === "DESC") {
+                itemIndicesOrder.reverse();
+            }
+
+            const isIntersects = (lhs: number[], rhs: number[]) => {
+                let ai = 0, bi = 0;
+                while(ai < lhs.length && bi < rhs.length) {
+                    if (lhs[ai] < rhs[bi] ) {
+                        ai++;
+                    } else if (lhs[ai] > rhs[bi]) {
+                        bi++;
+                    } else {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            const mustContainIndices = new Array<number>();
+            if (filterString) {
+                try {
+                    itemValues.forEach((value, id) =>
+                        value.match(new RegExp(filterString, "i")) && mustContainIndices.push(id));
+                } catch (e) {
+                    logger(`User passed incorrect filterString = ${filterString}`);
+                    return [];
+                }
+                if (mustContainIndices.length === 0) {
+                    return [];
+                }
+            }
+            type ARType = { lhs: number[], rhs: number[], confidence: number }
+
+
+            const ARFilter = ({ lhs, rhs }: ARType) => {
+                if (mustContainIndices.length !== 0
+                    && !isIntersects(mustContainIndices, lhs) && !isIntersects(mustContainIndices, rhs)) {
+                    return false;
+                }
+                return true;
+            };
+
+            const compareArrays = <T>(lhsArray :T[], rhsArray: T[],
+                                      cmp: (lhs: T, rhs: T) => boolean) => {
+                for (let i = 0; i !== Math.min(lhsArray.length, rhsArray.length); ++i) {
+                    if (cmp(lhsArray[i], rhsArray[i])) {
+                        return true;
+                    }
+                    if (lhsArray[i] !== rhsArray[i]) {
+                        return false;
+                    }
+                }
+                return lhsArray.length < rhsArray.length;
+            };
+
+
+            const ARItemComparator = (lhs: number, rhs: number) => itemIndicesOrder[lhs] < itemIndicesOrder[rhs];
+
+            const ARComparator = (lhsFD: ARType, rhsFD: ARType) => {
+                const lhs = sortBy === "LHS_NAME" ? [ ...lhsFD.lhs, ...lhsFD.rhs] : [...lhsFD.lhs, ...lhsFD.rhs];
+                const rhs = sortBy === "RHS_NAME" ? [...rhsFD.lhs, ...rhsFD.rhs] : [...rhsFD.rhs, ...rhsFD.lhs];
+                if (sortBy === "CONF") {
+                    if (lhsFD.confidence !== rhsFD.confidence) {
+                        const ans = lhsFD.confidence > rhsFD.confidence ? -1 : 1;
+                        return orderBy == "DESC" ? ans : -ans;
+                    }
+                }
+                return compareArrays(lhs, rhs, ARItemComparator) ? -1 : 1;
+            };
+
+            const ARsUnionIndices = ARs.split(";")
+                .map(unionIndices => unionIndices.split(":").map(ruleCompact => ruleCompact.split(",").map(Number)));
+            const deps = ARsUnionIndices.map(rule => ({ confidence: rule[0][0], lhs: rule[1], rhs: rule[2] } as ARType))
+                .filter(ARFilter)
+                .sort(ARComparator);
+            return getArrayOfDepsByPagination(deps, pagination).map((rule) => ({ rule, itemValues }));
         },
         // @ts-ignore
         depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {

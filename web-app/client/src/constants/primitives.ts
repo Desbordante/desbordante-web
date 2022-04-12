@@ -1,11 +1,5 @@
-import {
-  OrderBy,
-  Pagination,
-  PrimitiveType,
-  SortBy,
-  SortSide,
-} from "../types/globalTypes";
-import { PrimitiveFilter } from "../types/primitives";
+import {ARSortBy, OrderBy, Pagination, SortBy, SortSide,} from "../types/globalTypes";
+import {PrimitiveFilter} from "../types/primitives";
 
 export const primitiveTypeList = [
   "Functional Dependencies",
@@ -39,8 +33,13 @@ export const defaultPrimitiveFilter: PrimitiveFilter = {
     offset: 0,
   },
   AR: {
-    limit: 100,
-    offset: 0,
+    filterString: null,
+    orderBy: OrderBy.DESC,
+    sortBy: ARSortBy.DEFAULT,
+    pagination: {
+      limit: 10,
+      offset: 0,
+    }
   },
 };
 
