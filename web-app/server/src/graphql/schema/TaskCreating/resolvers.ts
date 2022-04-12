@@ -31,6 +31,8 @@ export const TaskCreatingResolvers: Resolvers = {
                 if (!fileFormat) {
                     throw new UserInputError("This dataset doesn't support AR algorithms");
                 }
+            } else if (props.type === "CFD") {
+                throw new UserInputError("CFD not implemented yet");
             }
             const permissions = Permission.getPermissionsBySessionInfo(sessionInfo);
             if (permissions.includes("USE_BUILTIN_DATASETS") && file.isBuiltIn
@@ -70,6 +72,9 @@ export const TaskCreatingResolvers: Resolvers = {
             { models, topicNames, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
                 throw new AuthenticationError("User must be authorized and has permission USE_OWN_DATASETS");
+            }
+            if (props.type === "CFD") {
+                throw new UserInputError("CFD not implemented yet");
             }
             const file = await models.FileInfo.uploadDataset(datasetProps, table,
                 sessionInfo.userID, props.type === "AR");
