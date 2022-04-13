@@ -102,7 +102,36 @@ const EDPClusters: React.FC<Props> = ({ selectedDependency }) => {
     <LoadingContainer isLoading={!clustersInfo?.TypoClusters}>
       <>
         {clustersInfo?.TypoClusters.map((cluster) => (
-          <Cluster selectedDependency={selectedDependency} cluster={cluster} />
+          <>
+            <Cluster
+              selectedDependency={selectedDependency}
+              cluster={cluster}
+            />
+            <Cluster
+              selectedDependency={selectedDependency}
+              cluster={cluster}
+            />
+            <Cluster
+              selectedDependency={selectedDependency}
+              cluster={cluster}
+            />
+            <Cluster
+              selectedDependency={selectedDependency}
+              cluster={cluster}
+            />
+            <Cluster
+              selectedDependency={selectedDependency}
+              cluster={cluster}
+            />
+            <Cluster
+              selectedDependency={selectedDependency}
+              cluster={cluster}
+            />
+            <Cluster
+              selectedDependency={selectedDependency}
+              cluster={cluster}
+            />
+          </>
         ))}
       </>
     </LoadingContainer>
