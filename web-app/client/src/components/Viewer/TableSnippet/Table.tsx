@@ -114,7 +114,7 @@ const Table: React.FC<Props> = ({
   return (
     <StyledContainer
       fluid
-      className="w-100 px-0 overflow-auto snippet-container flex-grow-1 my-2"
+      className="w-100 px-0 overflow-auto flex-grow-1 my-2"
       ref={changeWidth}
     >
       <StyledTable className={className}>

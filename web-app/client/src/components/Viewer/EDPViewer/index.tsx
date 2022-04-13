@@ -18,7 +18,7 @@ const Index = () => {
     useState<FunctionalDependency | null>(null);
 
   return (
-    <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">
+    <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column align-items-start">
       <Navigation
         partShown={partShown}
         setPartShown={setPartShown}
