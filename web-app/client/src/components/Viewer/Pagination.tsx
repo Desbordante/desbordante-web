@@ -1,28 +1,35 @@
 import React, { useContext } from "react";
-import Button from "../../Button/Button";
-import clamp from "../../../functions/clamp";
-import { TaskContext } from "../../TaskContext";
-
-const maxOffset = 50;
+import Button from "../Button/Button";
+import clamp from "../../functions/clamp";
+import { TaskContext } from "../TaskContext";
 
 interface Props {
-  primitiveType: "FD" | "CFD" | "AR";
+  primitiveType: "FD" | "CFD" | "AR" | "TypoFD";
 }
 
 const Pagination: React.FC<Props> = ({ primitiveType }) => {
-  const { primitiveFilter, setPrimitiveFilter } = useContext(TaskContext)!;
+  const { primitiveFilter, setPrimitiveFilter, taskResult } =
+    useContext(TaskContext)!;
+
   const { offset: paginationOffset, limit: paginationLimit } =
-      primitiveType === "FD" || primitiveType === "AR"
+    primitiveType === "FD" || primitiveType === "AR"
       ? primitiveFilter[primitiveType].pagination
       : primitiveFilter[primitiveType];
+
+  const depsAmount = taskResult?.depsAmount || 1;
+  const maxOffset = depsAmount - 1 - paginationLimit;
 
   const setOffset = (newOffset: number) =>
     setPrimitiveFilter((prev) => {
       const newFilter = { ...prev };
       if (primitiveType === "FD" || primitiveType === "AR") {
-        newFilter[primitiveType].pagination.offset = clamp(newOffset, 1, maxOffset);
+        newFilter[primitiveType].pagination.offset = clamp(
+          newOffset,
+          0,
+          maxOffset
+        );
       } else {
-        newFilter[primitiveType].offset = clamp(newOffset, 1, maxOffset);
+        newFilter[primitiveType].offset = clamp(newOffset, 0, maxOffset);
       }
       return newFilter;
     });
@@ -40,7 +47,8 @@ const Pagination: React.FC<Props> = ({ primitiveType }) => {
         <i className="bi bi-chevron-left" />
       </Button>
       <p className="mb-0 mx-2 fs-5">
-        {paginationOffset}-{paginationOffset + paginationLimit}
+        {paginationOffset + 1}-
+        {Math.min(paginationOffset + paginationLimit + 1, depsAmount)}
       </p>
       <Button
         onClick={goToNextPage}

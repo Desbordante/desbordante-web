@@ -4,4 +4,5 @@ export type PrimitiveFilter = {
   FD: FDsFilter;
   CFD: Pagination;
   AR: ARsFilter;
+  TypoFD: Pagination;
 };

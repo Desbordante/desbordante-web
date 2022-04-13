@@ -18,6 +18,10 @@ import {
 } from "../graphql/operations/queries/CFD/__generated__/getCFDs";
 import { getCFDsPieChartData_taskInfo_data_result_CFDTaskResult_pieChartData } from "../graphql/operations/queries/CFD/__generated__/getCFDsPieChartData";
 import { getARs_taskInfo_data_result_ARTaskResult } from "../graphql/operations/queries/AR/__generated__/getARs";
+import {
+  getTypoFDs_taskInfo_data_result_ARTaskResult,
+  getTypoFDs_taskInfo_data_result_TypoFDTaskResult
+} from "../graphql/operations/queries/EDP/__generated__/getTypoFDs";
 
 export type Dataset = getDataset_taskInfo_dataset;
 
@@ -46,10 +50,14 @@ export type TaskProperties = {
   specificConfig: getTaskInfo_taskInfo_data_specificConfig;
 }
 
+export type EDPTaskResult = getTypoFDs_taskInfo_data_result_TypoFDTaskResult;
+
 export type TaskResult = {
   FD?: FDTaskResult;
   CFD?: CFDTaskResult;
   AR?: ARTaskResult;
+  TypoFD?: EDPTaskResult;
+  depsAmount: number;
 };
 
 export type PieChartData = {

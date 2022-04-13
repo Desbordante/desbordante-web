@@ -18,7 +18,7 @@ const colors = {
 
   primaryGreen: "#39b46b",
   primaryPurple: "#7600d1",
-  // primary-2: "#b700ff",
+  tableHighlightPurple: "#7600d170",
 
   error: "#f03c3c",
 
