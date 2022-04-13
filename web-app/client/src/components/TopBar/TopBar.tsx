@@ -1,12 +1,14 @@
 import React, {useContext} from "react";
-import {Container, Navbar, OverlayTrigger, Tooltip} from "react-bootstrap";
+import {Container, Navbar} from "react-bootstrap";
 import {useHistory, useLocation} from "react-router-dom";
+import {sentenceCase} from "change-case";
 
 import Button from "../Button/Button";
 import {TaskContext} from "../TaskContext";
 import {AuthContext} from "../AuthContext";
 import ProgressBar from "../ProgressBar/ProgressBar";
 import Phasename from "./Phasename/Phasename";
+import TaskConfig from "./TaskConfig";
 
 const TopBar = () => {
   const history = useHistory();
@@ -42,16 +44,13 @@ const TopBar = () => {
               {dataset.originalFileName}
             </p>
           )}
-          {taskState &&
-            "progress" in taskState &&
-            taskState.processStatus === "IN_PROCESS" && (
+          {!isHomeScreen && taskState &&
+            "processStatus" in taskState && (
               <p className="mx-1 my-auto text-secondary">
-                {taskState.processStatus}
+                ({sentenceCase(taskState.processStatus)})
               </p>
             )}
-          <OverlayTrigger placement="bottom" overlay={<Tooltip>info</Tooltip>}>
-            <i className="bi bi-info-circle"/>
-          </OverlayTrigger>
+          {!isHomeScreen && <TaskConfig/>}
         </Container>
         {user?.name ? (
           <>

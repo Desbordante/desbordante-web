@@ -1,4 +1,5 @@
 import {
+  getTaskInfo_taskInfo_data_specificConfig,
   getTaskInfo_taskInfo_state,
   getTaskInfo_taskInfo_state_TaskState,
 } from "../graphql/operations/queries/__generated__/getTaskInfo";
@@ -39,6 +40,11 @@ export type FDTaskResult = getFDs_taskInfo_data_result_FDTaskResult;
 export type CFDTaskResult = getCFDs_taskInfo_data_result_CFDTaskResult;
 
 export type ARTaskResult = getARs_taskInfo_data_result_ARTaskResult;
+
+export type TaskProperties = {
+  algorithmName: string;
+  specificConfig: getTaskInfo_taskInfo_data_specificConfig;
+}
 
 export type TaskResult = {
   FD?: FDTaskResult;

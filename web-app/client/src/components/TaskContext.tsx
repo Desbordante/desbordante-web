@@ -2,7 +2,7 @@ import React, {createContext, useCallback, useState} from "react";
 
 import {
   Dataset,
-  PieChartData,
+  PieChartData, TaskProperties,
   TaskResult,
   TaskStateAnswer,
 } from "../types/taskInfo";
@@ -22,6 +22,7 @@ type TaskContextType = {
   taskId: string | undefined;
   setTaskId: React.Dispatch<React.SetStateAction<string | undefined>>;
   taskState: TaskStateAnswer | undefined;
+  taskProperties: TaskProperties | undefined;
   dataset: Dataset | undefined;
   datasetLoading: boolean;
   taskType: PrimitiveType | undefined;
@@ -46,7 +47,7 @@ export const TaskContextProvider: React.FC = ({children}) => {
     defaultDatasetPagination
   );
 
-  const {taskState, taskType} = useTaskInfo(taskId);
+  const {taskState, taskType, taskProperties} = useTaskInfo(taskId);
   const {taskResult, loading: taskResultLoading} = usePrimitiveList(
     taskId,
     taskType,
@@ -73,6 +74,7 @@ export const TaskContextProvider: React.FC = ({children}) => {
     setTaskId,
     taskState,
     taskType,
+    taskProperties,
     primitiveFilter,
     setPrimitiveFilter,
     datasetPagination,

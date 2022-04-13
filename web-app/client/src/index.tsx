@@ -18,6 +18,8 @@ import { AlgorithmConfigContextProvider } from "./components/AlgorithmConfigCont
 import { customFetch } from "./graphql/customFetch";
 import { errorLink, requestIdLink } from "./graphql/context";
 
+console.log(graphQLEndpoint);
+
 const client = new ApolloClient({
   uri: graphQLEndpoint,
   cache: new InMemoryCache(),
