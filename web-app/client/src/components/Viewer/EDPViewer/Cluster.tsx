@@ -7,10 +7,7 @@ import stringToColor from "../../../functions/stringToColor";
 import { TaskContext } from "../../TaskContext";
 import { FunctionalDependency } from "../../../types/taskInfo";
 import colors from "../../../colors";
-
-const StyledContainer = styled(Container)`
-  height: 70vh;
-`;
+import Toggle from "../../Toggle/Toggle";
 
 const TableHeader = styled.thead`
   tr {
@@ -35,17 +32,17 @@ const TableHeader = styled.thead`
 `;
 
 const TableBody = styled.tbody`
-  tr {
-    &:last-of-type {
-      td:first-of-type {
-        border-bottom-left-radius: 1rem;
-      }
-
-      td:last-of-type {
-        border-bottom-right-radius: 1rem;
-      }
-    }
-  }
+  //tr {
+  //  &:last-of-type {
+  //    td:first-of-type {
+  //      border-bottom-left-radius: 0.4rem;
+  //    }
+  //
+  //    td:last-of-type {
+  //      border-bottom-right-radius: 0.4rem;
+  //    }
+  //  }
+  //}
 `;
 
 const StyledTable = styled.table`
@@ -62,6 +59,16 @@ const HeaderBackground = styled.div`
   height: 2rem;
 `;
 
+const TableFooter = styled.button`
+  border-radius: 0 0 1rem 1rem;
+  transition: 0.3s;
+  border: 0;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+`;
+
 interface Props {
   cluster: getClustersPreview_taskInfo_data_result_TypoClusterTaskResult_TypoClusters;
   selectedDependency: FunctionalDependency;
@@ -70,6 +77,7 @@ interface Props {
 const Cluster: React.FC<Props> = ({ cluster, selectedDependency }) => {
   const { datasetLoading, dataset } = useContext(TaskContext)!;
 
+  const [isSquashed, setIsSquashed] = useState(false);
   const [headerWidth, setHeaderWidth] = useState(0);
   const [headerHeight, setHeaderHeight] = useState(0);
 
@@ -107,17 +115,15 @@ const Cluster: React.FC<Props> = ({ cluster, selectedDependency }) => {
     .filter(({ col }) => !colorizedColumns.includes(col));
 
   const isSuspicions = (row: number) => cluster.items![row].isSuspicious;
+  const toggleIsSquashed = () => setIsSquashed((prev) => !prev);
 
   const headerClassName =
     "px-4 py-3 text-white text-nowrap text-center position-relative";
   const bodyClassName = "text-center py-1 px-2";
 
   return (
-    <StyledContainer
-      fluid
-      className="w-100 px-0 overflow-auto snippet-container flex-grow-1 my-2"
-      ref={changeWidth}
-    >
+    <div className="my-2 w-auto" ref={changeWidth}>
+      <Toggle toggleCondition={isSquashed} onClick={toggleIsSquashed} variant="dark" >Squashed</Toggle>
       <StyledTable>
         <HeaderBackground
           className="position-absolute bg-light"
@@ -168,7 +174,9 @@ const Cluster: React.FC<Props> = ({ cluster, selectedDependency }) => {
               <td
                 className={bodyClassName}
                 style={{
-                  backgroundColor: isSuspicions(rowIndex) ? colors.tableHighlightPurple : stringToColor("", 0, rowIndex % 2 ? 80 : 90),
+                  backgroundColor: isSuspicions(rowIndex)
+                    ? colors.tableHighlightPurple
+                    : stringToColor("", 0, rowIndex % 2 ? 80 : 90),
                 }}
               >
                 {cluster.items![rowIndex].rowIndex}
@@ -178,11 +186,9 @@ const Cluster: React.FC<Props> = ({ cluster, selectedDependency }) => {
                   key={index}
                   className={bodyClassName}
                   style={{
-                    backgroundColor: isSuspicions(rowIndex) ? colors.tableHighlightPurple : stringToColor(
-                      col,
-                      15,
-                      rowIndex % 2 ? 80 : 90,
-                    ),
+                    backgroundColor: isSuspicions(rowIndex)
+                      ? colors.tableHighlightPurple
+                      : stringToColor(col, 15, rowIndex % 2 ? 80 : 90),
                   }}
                 >
                   {row[index]}
@@ -193,11 +199,9 @@ const Cluster: React.FC<Props> = ({ cluster, selectedDependency }) => {
                   key={index}
                   className={bodyClassName}
                   style={{
-                    backgroundColor: isSuspicions(rowIndex) ? colors.tableHighlightPurple : stringToColor(
-                      col,
-                      0,
-                      rowIndex % 2 ? 80 : 90
-                    ),
+                    backgroundColor: isSuspicions(rowIndex)
+                      ? colors.tableHighlightPurple
+                      : stringToColor(col, 0, rowIndex % 2 ? 80 : 90),
                   }}
                 >
                   {row[index]}
@@ -207,7 +211,10 @@ const Cluster: React.FC<Props> = ({ cluster, selectedDependency }) => {
           ))}
         </TableBody>
       </StyledTable>
-    </StyledContainer>
+      <TableFooter className="bg-dark text-white text-center p-2 w-100">
+        Load More...
+      </TableFooter>
+    </div>
   );
 };
 
