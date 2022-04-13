@@ -1,17 +1,18 @@
-import React, { useContext, useEffect } from "react";
+import React, {useContext, useEffect} from "react";
+import {sentenceCase} from "change-case";
 
-import { EDPAlgorithm, FDAlgorithm } from "../../../types/types";
+import {EDPAlgorithm, FDAlgorithm} from "../../../types/types";
 import Value from "../../Value/Value";
 import Slider from "../../Slider/Slider";
 import FormItem from "../../FormItem/FormItem";
-import { AlgorithmConfigContext } from "../../AlgorithmConfigContext";
-import { FileFormContext } from "../../FileFormContext";
+import {AlgorithmConfigContext} from "../../AlgorithmConfigContext";
+import {FileFormContext} from "../../FileFormContext";
 import Selector from "../../Selector/Selector";
-import { MetricType } from "../../../types/globalTypes";
+import {MetricType} from "../../../types/globalTypes";
 
 const EDPAlgorithmProps = () => {
-  const { algorithmProps, setAlgorithmProps } = useContext(FileFormContext)!;
-  const { validators, allowedValues } = useContext(AlgorithmConfigContext)!;
+  const {algorithmProps, setAlgorithmProps} = useContext(FileFormContext)!;
+  const {validators, allowedValues} = useContext(AlgorithmConfigContext)!;
 
   const changeAlgorithm = (algorithm: EDPAlgorithm) =>
     // @ts-ignore
@@ -219,7 +220,7 @@ const EDPAlgorithmProps = () => {
           options={[MetricType.MODULUS_OF_DIFFERENCE, MetricType.LEVENSHTEIN]}
           current={metric}
           onSelect={changeMetric}
-          label={(type) => type}
+          label={sentenceCase}
           className="mx-2"
         />
       </FormItem>
