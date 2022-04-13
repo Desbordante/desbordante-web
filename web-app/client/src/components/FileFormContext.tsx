@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { AlgorithmProps } from "../types/algorithmProps";
-import { Dataset, isBuiltinDataset } from "../types/dataset";
-import { FileProps } from "../types/fileProps";
-import { AlgorithmConfigContext } from "./AlgorithmConfigContext";
-import { MetricType, PrimitiveType } from "../types/globalTypes";
-import { AllowedDataset } from "../types/types";
+import React, {createContext, useContext, useEffect, useState} from "react";
+import {AlgorithmProps} from "../types/algorithmProps";
+import {Dataset, isBuiltinDataset} from "../types/dataset";
+import {FileProps} from "../types/fileProps";
+import {AlgorithmConfigContext} from "./AlgorithmConfigContext";
+import {MetricType, PrimitiveType} from "../types/globalTypes";
+import {AllowedDataset} from "../types/types";
 
 type FileFormContextType = {
   primitiveType: PrimitiveType;
@@ -43,8 +43,8 @@ const defaultAlgorithmProps: AlgorithmProps = {
   ratio: "0.3",
 };
 
-export const FileFormContextProvider: React.FC = ({ children }) => {
-  const { validators } = useContext(AlgorithmConfigContext)!;
+export const FileFormContextProvider: React.FC = ({children}) => {
+  const {validators} = useContext(AlgorithmConfigContext)!;
 
   const [primitiveType, setPrimitiveType] = useState<PrimitiveType>(
     PrimitiveType.FD
@@ -86,7 +86,7 @@ export const FileFormContextProvider: React.FC = ({ children }) => {
     setError((prevError) => ({
       ...prevError,
       fileProps:
-        !validators.isValidSeparator(fileProps.delimiter) ||
+        (isBuiltinDataset(dataset) && !validators.isValidSeparator(fileProps.delimiter)) ||
         (primitiveType === PrimitiveType.AR &&
           !(
             validators.isInteger(fileProps.itemSetColumn) &&
@@ -112,22 +112,22 @@ export const FileFormContextProvider: React.FC = ({ children }) => {
         algorithmProps: Boolean(
           (hasErrorThreshold &&
             !validators.isBetweenZeroAndOne(algorithmProps.errorThreshold)) ||
-            (hasConfidence &&
-              !validators.isBetweenZeroAndOne(algorithmProps.minConfidence)) ||
-            (hasArityConstraint &&
-              !validators.isInteger(algorithmProps.arityConstraint)) ||
-            (isMultiThreaded &&
-              !validators.isInteger(algorithmProps.threadsCount)) ||
-            (hasSupport &&
-              !validators.isBetweenZeroAndOne(algorithmProps.minSupportAR)) ||
-            (hasSupport &&
-              !validators.isInteger(algorithmProps.minSupportCFD)) ||
-            (hasRadius && !validators.isPositive(algorithmProps.radius)) ||
-            (hasRatio && !validators.isBetweenZeroAndOne(algorithmProps.ratio))
+          (hasConfidence &&
+            !validators.isBetweenZeroAndOne(algorithmProps.minConfidence)) ||
+          (hasArityConstraint &&
+            !validators.isInteger(algorithmProps.arityConstraint)) ||
+          (isMultiThreaded &&
+            !validators.isInteger(algorithmProps.threadsCount)) ||
+          (hasSupport &&
+            !validators.isBetweenZeroAndOne(algorithmProps.minSupportAR)) ||
+          (hasSupport &&
+            !validators.isInteger(algorithmProps.minSupportCFD)) ||
+          (hasRadius && !validators.isPositive(algorithmProps.radius)) ||
+          (hasRatio && !validators.isBetweenZeroAndOne(algorithmProps.ratio))
         ),
       }));
     } else {
-      setError((prevError) => ({ ...prevError, algorithmProps: true }));
+      setError((prevError) => ({...prevError, algorithmProps: true}));
     }
   }, [algorithmProps, validators]);
 

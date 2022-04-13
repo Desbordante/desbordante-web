@@ -6,7 +6,7 @@ import {
   getTaskInfoVariables,
 } from "../graphql/operations/queries/__generated__/getTaskInfo";
 import {GET_TASK_INFO} from "../graphql/operations/queries/getTaskInfo";
-import {TaskState} from "../types/taskInfo";
+import {TaskProperties, TaskState} from "../types/taskInfo";
 import {PrimitiveType} from "../types/globalTypes";
 import {ErrorContext} from "../components/ErrorContext";
 
@@ -15,6 +15,7 @@ export const useTaskInfo = (taskID?: string) => {
 
   const [taskState, setTaskState] = useState<TaskState>();
   const [taskType, setTaskType] = useState<PrimitiveType>();
+  const [taskProperties, setTaskProperties] = useState<TaskProperties>();
 
   const [getTaskInfoQuery] = useLazyQuery<getTaskInfo, getTaskInfoVariables>(
     GET_TASK_INFO
@@ -41,11 +42,13 @@ export const useTaskInfo = (taskID?: string) => {
         const {
           state,
           data: {
-            baseConfig: {type},
+            baseConfig: {type, algorithmName},
+            specificConfig,
           },
         } = data.taskInfo;
 
         setTaskType(type);
+        setTaskProperties({algorithmName, specificConfig});
         // eslint-disable-next-line no-underscore-dangle
         switch (state.__typename) {
           case "TaskState": {
@@ -93,5 +96,5 @@ export const useTaskInfo = (taskID?: string) => {
     }
   }, [taskID]);
 
-  return {taskState, taskType};
+  return {taskState, taskType, taskProperties};
 };
