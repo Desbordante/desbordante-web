@@ -29,7 +29,7 @@ export const defaultPrimitiveFilter: PrimitiveFilter = {
     withoutKeys: false,
   },
   CFD: {
-    limit: 100,
+    limit: 10,
     offset: 0,
   },
   AR: {
@@ -41,6 +41,10 @@ export const defaultPrimitiveFilter: PrimitiveFilter = {
       offset: 0,
     }
   },
+  TypoFD: {
+    limit: 10,
+    offset: 0,
+  }
 };
 
 export const defaultDatasetPagination: Pagination = {

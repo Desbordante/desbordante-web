@@ -6,11 +6,12 @@ import Navigation from "../Navigation";
 import { FunctionalDependency } from "../../../types/taskInfo";
 import { TaskContext } from "../../TaskContext";
 import TableSnippet from "../TableSnippet/TableSnippet";
+import EDPClusters from "./EDPClusters";
 
-const tabs = ["Dependencies", "Violations"];
+const tabs = ["Dependencies", "Clusters", "Dataset"];
 
 const Index = () => {
-  const { pieChartData } = useContext(TaskContext)!;
+  const { taskResult } = useContext(TaskContext)!;
 
   const [partShown, setPartShown] = useState(0);
   const [selectedDependency, setSelectedDependency] =
@@ -31,7 +32,13 @@ const Index = () => {
         />
       )}
 
-      {partShown === 1 && (
+      {partShown === 1 && selectedDependency && (
+        <EDPClusters
+          selectedDependency={selectedDependency}
+        />
+      )}
+
+      {partShown === 2 && (
         <TableSnippet
           selectedColumns={
             selectedDependency
