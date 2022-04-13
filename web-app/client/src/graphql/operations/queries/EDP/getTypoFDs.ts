@@ -1,16 +1,16 @@
 import { gql } from "@apollo/client";
 import { COLUMN } from "../../fragments/fragments";
 
-export const GET_FDS = gql`
+export const GET_TYPO_FDS = gql`
   ${COLUMN}
 
-  query getFDs($taskID: ID!, $filter: FDsFilter!) {
+  query getTypoFDs($taskID: ID!, $pagination: Pagination!) {
     taskInfo(taskID: $taskID) {
       data {
         result {
           __typename
-          ... on FDTaskResult {
-            FDs(filter: $filter) {
+          ... on TypoFDTaskResult {
+            TypoFDs(pagination: $pagination) {
               lhs {
                 ...Column
               }

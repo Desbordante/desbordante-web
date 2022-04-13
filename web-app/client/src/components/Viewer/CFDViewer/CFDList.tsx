@@ -14,7 +14,7 @@ import {TaskContext} from "../../TaskContext";
 import {sortOptions} from "../../../constants/primitives";
 import {SortSide} from "../../../types/globalTypes";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
-import Pagination from "../FDViewer/Pagination";
+import Pagination from "../Pagination";
 
 interface Props {
   selectedDependency: ConditionalDependency | null;

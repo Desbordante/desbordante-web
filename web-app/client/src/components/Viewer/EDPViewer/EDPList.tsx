@@ -10,7 +10,7 @@ import {sortOptions} from "../../../constants/primitives";
 import {SortSide} from "../../../types/globalTypes";
 import {TaskContext} from "../../TaskContext";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
-import Pagination from "../FDViewer/Pagination";
+import Pagination from "../Pagination";
 
 interface Props {
   selectedDependency: FunctionalDependency | null;
@@ -26,7 +26,7 @@ const FDList: React.FC<Props> = ({
   const {primitiveFilter, setPrimitiveFilter, taskResult, taskResultLoading} =
     useContext(TaskContext)!;
 
-  const dependencies = taskResult?.FD?.FDs || [];
+  const dependencies = taskResult?.TypoFD?.TypoFDs || [];
 
   const setSortMethod = (selected: SortSide) =>
     setPrimitiveFilter((prev) => {
@@ -95,7 +95,7 @@ const FDList: React.FC<Props> = ({
           ))}
         </Stack>
       </LoadingContainer>
-      <Pagination primitiveType="FD"/>
+      <Pagination primitiveType="TypoFD"/>
     </Container>
   );
 };

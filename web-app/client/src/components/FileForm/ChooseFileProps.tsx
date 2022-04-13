@@ -92,7 +92,7 @@ const ChooseFileProps = () => {
       </FormItem>
       {primitiveType === PrimitiveType.AR && (
         <>
-          <FormItem enabled={fileProps.fileFormat === "Singular"}>
+          <FormItem enabled={!isBuiltinDataset(dataset) && fileProps.fileFormat === "Singular"}>
             <h5 className="text-white mb-0 mx-2">ID column:</h5>
             <Value
               inputValidator={validators.isInteger}

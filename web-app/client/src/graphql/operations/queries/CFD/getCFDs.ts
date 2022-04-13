@@ -13,6 +13,7 @@ export const GET_CFDS = gql`
               lhsPatterns
               rhsPattern
             }
+            depsAmount
           }
         }
       }

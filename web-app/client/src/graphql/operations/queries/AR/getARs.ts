@@ -12,6 +12,7 @@ export const GET_ARS = gql`
               rhs
               confidence
             }
+            depsAmount
           }
         }
       }
