@@ -1,5 +1,6 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+import { useMutation } from "@apollo/client";
 import { Container } from "react-bootstrap";
 
 import { getClustersPreview_taskInfo_data_result_TypoClusterTaskResult_TypoClusters } from "../../../graphql/operations/queries/EDP/__generated__/getClustersPreview";
@@ -8,6 +9,12 @@ import { TaskContext } from "../../TaskContext";
 import { FunctionalDependency } from "../../../types/taskInfo";
 import colors from "../../../colors";
 import Toggle from "../../Toggle/Toggle";
+import { CREATE_DEDICATED_CLUSTER_TASK } from "../../../graphql/operations/mutations/createDedicatedClusterTask";
+import {
+  createDedicatedClusterTask,
+  createDedicatedClusterTaskVariables,
+} from "../../../graphql/operations/mutations/__generated__/createDedicatedClusterTask";
+import {ClustersContext} from "./ClustersContext";
 
 const TableHeader = styled.thead`
   tr {
@@ -70,12 +77,14 @@ const TableFooter = styled.button`
 `;
 
 interface Props {
-  cluster: getClustersPreview_taskInfo_data_result_TypoClusterTaskResult_TypoClusters;
-  selectedDependency: FunctionalDependency;
+  id: number;
 }
 
-const Cluster: React.FC<Props> = ({ cluster, selectedDependency }) => {
+const Cluster: React.FC<Props> = ({ id }) => {
   const { datasetLoading, dataset } = useContext(TaskContext)!;
+  const { clusters, selectedDependency: sd } = useContext(ClustersContext)!;
+  const selectedDependency = sd!;
+  const cluster = clusters!.TypoClusters[id];
 
   const [isSquashed, setIsSquashed] = useState(false);
   const [headerWidth, setHeaderWidth] = useState(0);
@@ -114,6 +123,13 @@ const Cluster: React.FC<Props> = ({ cluster, selectedDependency }) => {
     }))
     .filter(({ col }) => !colorizedColumns.includes(col));
 
+  const [createDedicatedClusterTask] = useMutation<
+    createDedicatedClusterTask,
+    createDedicatedClusterTaskVariables
+  >(CREATE_DEDICATED_CLUSTER_TASK);
+
+  useEffect(() => {}, [isSquashed]);
+
   const isSuspicions = (row: number) => cluster.items![row].isSuspicious;
   const toggleIsSquashed = () => setIsSquashed((prev) => !prev);
 
@@ -123,7 +139,13 @@ const Cluster: React.FC<Props> = ({ cluster, selectedDependency }) => {
 
   return (
     <div className="my-2 w-auto" ref={changeWidth}>
-      <Toggle toggleCondition={isSquashed} onClick={toggleIsSquashed} variant="dark" >Squashed</Toggle>
+      <Toggle
+        toggleCondition={isSquashed}
+        onClick={toggleIsSquashed}
+        variant="dark"
+      >
+        Squashed
+      </Toggle>
       <StyledTable>
         <HeaderBackground
           className="position-absolute bg-light"
