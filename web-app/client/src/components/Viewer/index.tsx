@@ -9,6 +9,7 @@ import ARViewer from "./ARViewer";
 import { PrimitiveType } from "../../types/globalTypes";
 import LoadingContainer from "../LoadingContainer/LoadingContainer";
 import EDPViewer from "./EDPViewer";
+import { ClustersContextProvider } from "./EDPViewer/ClustersContext";
 
 const Index = () => {
   const { setTaskId, taskState, taskType, taskResult } =
@@ -31,7 +32,11 @@ const Index = () => {
         {taskType === PrimitiveType.FD && <FDViewer />}
         {taskType === PrimitiveType.CFD && taskResult?.CFD && <CFDViewer />}
         {taskType === PrimitiveType.AR && taskResult?.AR && <ARViewer />}
-        {taskType === PrimitiveType.TypoFD && taskResult?.TypoFD && <EDPViewer />}
+        {taskType === PrimitiveType.TypoFD && taskResult?.TypoFD && (
+          <ClustersContextProvider>
+            <EDPViewer />
+          </ClustersContextProvider>
+        )}
       </Container>
     </LoadingContainer>
   );

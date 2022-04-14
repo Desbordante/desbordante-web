@@ -1,50 +1,46 @@
-import React, {useContext} from "react";
-import {Container, Stack} from "react-bootstrap";
+import React, { useContext } from "react";
+import { Container, Stack } from "react-bootstrap";
 
 import EDPSnippet from "./EDPSnippet";
 import SearchBar from "../../SearchBar/SearchBar";
 import Toggle from "../../Toggle/Toggle";
 import Selector from "../../Selector/Selector";
-import {FunctionalDependency} from "../../../types/taskInfo";
-import {sortOptions} from "../../../constants/primitives";
-import {SortSide} from "../../../types/globalTypes";
-import {TaskContext} from "../../TaskContext";
+import { sortOptions } from "../../../constants/primitives";
+import { SortSide } from "../../../types/globalTypes";
+import { TaskContext } from "../../TaskContext";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
 import Pagination from "../Pagination";
+import { ClustersContext } from "./ClustersContext";
 
 interface Props {
-  selectedDependency: FunctionalDependency | null;
-  setSelectedDependency: React.Dispatch<React.SetStateAction<FunctionalDependency | null>>;
   className?: string;
 }
 
-const FDList: React.FC<Props> = ({
-                                   selectedDependency,
-                                   setSelectedDependency,
-                                   className = "",
-                                 }) => {
-  const {primitiveFilter, setPrimitiveFilter, taskResult, taskResultLoading} =
+const FDList: React.FC<Props> = ({ className = "" }) => {
+  const { primitiveFilter, setPrimitiveFilter, taskResult, taskResultLoading } =
     useContext(TaskContext)!;
+  const { selectedDependency, setSelectedDependency } =
+    useContext(ClustersContext)!;
 
   const dependencies = taskResult?.TypoFD?.TypoFDs || [];
 
   const setSortMethod = (selected: SortSide) =>
     setPrimitiveFilter((prev) => {
-      const newFilter = {...prev};
+      const newFilter = { ...prev };
       newFilter.FD.sortSide = selected;
       return newFilter;
     });
 
   const setFilterString = (newFilterString: string) =>
     setPrimitiveFilter((prev) => {
-      const newFilter = {...prev};
+      const newFilter = { ...prev };
       newFilter.FD.filterString = newFilterString;
       return newFilter;
     });
 
   const toggleWithoutKeys = () =>
     setPrimitiveFilter((prev) => {
-      const newFilter = {...prev};
+      const newFilter = { ...prev };
       newFilter.FD.withoutKeys = !newFilter.FD.withoutKeys;
       return newFilter;
     });
@@ -86,7 +82,7 @@ const FDList: React.FC<Props> = ({
                 setSelectedDependency(dep);
               }}
               onActiveClick={() => {
-                setSelectedDependency(null);
+                setSelectedDependency(undefined);
               }}
               isActive={
                 JSON.stringify(dep) === JSON.stringify(selectedDependency)
@@ -95,7 +91,7 @@ const FDList: React.FC<Props> = ({
           ))}
         </Stack>
       </LoadingContainer>
-      <Pagination primitiveType="TypoFD"/>
+      <Pagination primitiveType="TypoFD" />
     </Container>
   );
 };
