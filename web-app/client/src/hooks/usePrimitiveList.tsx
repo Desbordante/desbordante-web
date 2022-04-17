@@ -37,8 +37,6 @@ export const usePrimitiveList = (
   const [taskResult, setTaskResult] = useState<TaskResult>();
   const [loading, setLoading] = useState(false);
 
-  console.log(taskResult);
-
   const [getFDs] = useLazyQuery<getFDs, getFDsVariables>(GET_FDS);
   const [getCFDs] = useLazyQuery<getCFDs, getCFDsVariables>(GET_CFDS);
   const [getARs] = useLazyQuery<getARs, getARsVariables>(GET_ARS);

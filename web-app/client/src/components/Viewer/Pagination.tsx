@@ -17,7 +17,6 @@ const Pagination: React.FC<Props> = ({ primitiveType }) => {
       : primitiveFilter[primitiveType];
 
   const depsAmount = taskResult?.depsAmount || 1;
-  const maxOffset = depsAmount - 1 - paginationLimit;
 
   const setOffset = (newOffset: number) =>
     setPrimitiveFilter((prev) => {
@@ -26,10 +25,10 @@ const Pagination: React.FC<Props> = ({ primitiveType }) => {
         newFilter[primitiveType].pagination.offset = clamp(
           newOffset,
           0,
-          maxOffset
+          depsAmount
         );
       } else {
-        newFilter[primitiveType].offset = clamp(newOffset, 0, maxOffset);
+        newFilter[primitiveType].offset = clamp(newOffset, 0, depsAmount);
       }
       return newFilter;
     });
@@ -48,12 +47,12 @@ const Pagination: React.FC<Props> = ({ primitiveType }) => {
       </Button>
       <p className="mb-0 mx-2 fs-5">
         {paginationOffset + 1}-
-        {Math.min(paginationOffset + paginationLimit + 1, depsAmount)}
+        {Math.min(paginationOffset + paginationLimit, depsAmount)}
       </p>
       <Button
         onClick={goToNextPage}
         variant="dark"
-        enabled={paginationOffset + paginationLimit < maxOffset}
+        enabled={paginationOffset + paginationLimit < depsAmount}
       >
         <i className="bi bi-chevron-right" />
       </Button>
