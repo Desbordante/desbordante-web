@@ -1,20 +1,13 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { useMutation } from "@apollo/client";
-import { Container } from "react-bootstrap";
 
-import { getClustersPreview_taskInfo_data_result_TypoClusterTaskResult_TypoClusters } from "../../../graphql/operations/queries/EDP/__generated__/getClustersPreview";
 import stringToColor from "../../../functions/stringToColor";
 import { TaskContext } from "../../TaskContext";
-import { FunctionalDependency } from "../../../types/taskInfo";
 import colors from "../../../colors";
 import Toggle from "../../Toggle/Toggle";
-import { CREATE_DEDICATED_CLUSTER_TASK } from "../../../graphql/operations/mutations/createDedicatedClusterTask";
-import {
-  createDedicatedClusterTask,
-  createDedicatedClusterTaskVariables,
-} from "../../../graphql/operations/mutations/__generated__/createDedicatedClusterTask";
-import {ClustersContext} from "./ClustersContext";
+import { ClustersContext } from "./ClustersContext";
+import { ClusterTask } from "../../../types/primitives";
+import LoadingContainer from "../../LoadingContainer/LoadingContainer";
 
 const TableHeader = styled.thead`
   tr {
@@ -39,17 +32,20 @@ const TableHeader = styled.thead`
 `;
 
 const TableBody = styled.tbody`
-  //tr {
-  //  &:last-of-type {
-  //    td:first-of-type {
-  //      border-bottom-left-radius: 0.4rem;
-  //    }
-  //
-  //    td:last-of-type {
-  //      border-bottom-right-radius: 0.4rem;
-  //    }
-  //  }
-  //}
+  ${(props: { rounded: boolean }) =>
+    props.rounded
+      ? `tr {
+    &:last-of-type {
+      td:first-of-type {
+        border-bottom-left-radius: 1rem;
+      }
+
+      td:last-of-type {
+        border-bottom-right-radius: 1rem;
+      }
+    }
+  }`
+      : ""}
 `;
 
 const StyledTable = styled.table`
@@ -77,14 +73,17 @@ const TableFooter = styled.button`
 `;
 
 interface Props {
-  id: number;
+  cluster: ClusterTask;
 }
 
-const Cluster: React.FC<Props> = ({ id }) => {
-  const { datasetLoading, dataset } = useContext(TaskContext)!;
-  const { clusters, selectedDependency: sd } = useContext(ClustersContext)!;
+const Cluster: React.FC<Props> = ({ cluster }) => {
+  const { dataset } = useContext(TaskContext)!;
+  const { selectedDependency: sd, startSpecificTask } =
+    useContext(ClustersContext)!;
   const selectedDependency = sd!;
-  const cluster = clusters!.TypoClusters[id];
+  const isExpanded = Boolean(
+    cluster.data.cluster && cluster.data.squashedCluster
+  );
 
   const [isSquashed, setIsSquashed] = useState(false);
   const [headerWidth, setHeaderWidth] = useState(0);
@@ -93,10 +92,12 @@ const Cluster: React.FC<Props> = ({ id }) => {
   const colorizedColumns = selectedDependency.lhs
     .map(({ name }) => name)
     .concat(selectedDependency.rhs.name);
-  const rows = cluster.items?.map(({ row }) => row) || [[]];
+  const rows = cluster.data[
+    isSquashed ? "squashedCluster" : "cluster"
+  ]!.items?.map(({ row }) => row) || [[]];
   const header =
     (dataset?.snippet?.header && dataset.snippet.header) ||
-    cluster.items![0].row.map((_, index) => `Attr ${index}`);
+    cluster.data.cluster!.items![0].row.map((_, index) => `Attr ${index}`);
 
   const changeWidth = useCallback((node: HTMLDivElement) => {
     if (node) {
@@ -123,15 +124,11 @@ const Cluster: React.FC<Props> = ({ id }) => {
     }))
     .filter(({ col }) => !colorizedColumns.includes(col));
 
-  const [createDedicatedClusterTask] = useMutation<
-    createDedicatedClusterTask,
-    createDedicatedClusterTaskVariables
-  >(CREATE_DEDICATED_CLUSTER_TASK);
-
-  useEffect(() => {}, [isSquashed]);
-
-  const isSuspicions = (row: number) => cluster.items![row].isSuspicious;
+  const isSuspicions = (row: number) =>
+    cluster.data.cluster!.items![row].isSuspicious;
   const toggleIsSquashed = () => setIsSquashed((prev) => !prev);
+
+  const handleLoadMore = () => startSpecificTask(cluster.data.cluster!.id);
 
   const headerClassName =
     "px-4 py-3 text-white text-nowrap text-center position-relative";
@@ -143,99 +140,116 @@ const Cluster: React.FC<Props> = ({ id }) => {
         toggleCondition={isSquashed}
         onClick={toggleIsSquashed}
         variant="dark"
+        isEnabled={isExpanded}
       >
         Squashed
       </Toggle>
-      <StyledTable>
-        <HeaderBackground
-          className="position-absolute bg-light"
-          style={{
-            width: headerWidth,
-            transform: `translateY(-${headerHeight + 6}px`,
-          }}
-        />
-        <TableHeader className="bg-light position-relative">
-          {/* @ts-ignore */}
-          <tr className="bg-light" ref={changeHeight}>
-            <th
-              className={headerClassName}
+      <LoadingContainer isLoading={cluster.loading}>
+        <>
+          <StyledTable>
+            <HeaderBackground
+              className="position-absolute bg-light"
               style={{
-                backgroundColor: "#17151a80",
+                width: headerWidth,
+                transform: `translateY(-${headerHeight + 6}px`,
               }}
-            >
-              Row Index
-            </th>
-            {colorizedPart.map(({ col }) => (
-              <th
-                key={col}
-                className={headerClassName}
-                style={{
-                  backgroundColor: stringToColor(col, 60, 70),
-                }}
-              >
-                {col}
-              </th>
-            ))}
-            {uncolorizedPart.map(({ col }) => (
-              <th
-                key={col}
-                className={headerClassName}
-                style={{
-                  backgroundColor: "#17151a",
-                }}
-              >
-                {col}
-              </th>
-            ))}
-          </tr>
-        </TableHeader>
+            />
+            <TableHeader className="bg-light position-relative">
+              {/* @ts-ignore */}
+              <tr className="bg-light" ref={changeHeight}>
+                <th
+                  className={headerClassName}
+                  style={{
+                    backgroundColor: "#17151a80",
+                  }}
+                >
+                  {isSquashed ? "Rows count" : "Row Index"}
+                </th>
+                {colorizedPart.map(({ col }) => (
+                  <th
+                    key={col}
+                    className={headerClassName}
+                    style={{
+                      backgroundColor: stringToColor(col, 60, 70),
+                    }}
+                  >
+                    {col}
+                  </th>
+                ))}
+                {uncolorizedPart.map(({ col }) => (
+                  <th
+                    key={col}
+                    className={headerClassName}
+                    style={{
+                      backgroundColor: "#17151a",
+                    }}
+                  >
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </TableHeader>
 
-        <TableBody>
-          {rows.map((row, rowIndex) => (
-            <tr key={rowIndex} className="position-relative">
-              <td
-                className={bodyClassName}
-                style={{
-                  backgroundColor: isSuspicions(rowIndex)
-                    ? colors.tableHighlightPurple
-                    : stringToColor("", 0, rowIndex % 2 ? 80 : 90),
-                }}
-              >
-                {cluster.items![rowIndex].rowIndex}
-              </td>
-              {colorizedPart.map(({ col, index }) => (
-                <td
-                  key={index}
-                  className={bodyClassName}
-                  style={{
-                    backgroundColor: isSuspicions(rowIndex)
-                      ? colors.tableHighlightPurple
-                      : stringToColor(col, 15, rowIndex % 2 ? 80 : 90),
-                  }}
-                >
-                  {row[index]}
-                </td>
+            <TableBody rounded={isExpanded}>
+              {rows.map((row, rowIndex) => (
+                <tr key={rowIndex} className="position-relative">
+                  <td
+                    className={bodyClassName}
+                    style={{
+                      backgroundColor:
+                        isSuspicions(rowIndex) && !isSquashed
+                          ? colors.tableHighlightPurple
+                          : stringToColor("", 0, rowIndex % 2 ? 80 : 90),
+                    }}
+                  >
+                    {isSquashed
+                      ? `${
+                          cluster.data.squashedCluster!.items![rowIndex].amount
+                        }x`
+                      : cluster.data.cluster!.items![rowIndex].rowIndex}
+                  </td>
+                  {colorizedPart.map(({ col, index }) => (
+                    <td
+                      key={index}
+                      className={bodyClassName}
+                      style={{
+                        backgroundColor:
+                          isSuspicions(rowIndex) && !isSquashed
+                            ? colors.tableHighlightPurple
+                            : stringToColor(col, 15, rowIndex % 2 ? 80 : 90),
+                      }}
+                    >
+                      {row[index]}
+                    </td>
+                  ))}
+                  {uncolorizedPart.map(({ col, index }) => (
+                    <td
+                      key={index}
+                      className={bodyClassName}
+                      style={{
+                        backgroundColor:
+                          isSuspicions(rowIndex) && !isSquashed
+                            ? colors.tableHighlightPurple
+                            : stringToColor(col, 0, rowIndex % 2 ? 80 : 90),
+                      }}
+                    >
+                      {row[index]}
+                    </td>
+                  ))}
+                </tr>
               ))}
-              {uncolorizedPart.map(({ col, index }) => (
-                <td
-                  key={index}
-                  className={bodyClassName}
-                  style={{
-                    backgroundColor: isSuspicions(rowIndex)
-                      ? colors.tableHighlightPurple
-                      : stringToColor(col, 0, rowIndex % 2 ? 80 : 90),
-                  }}
-                >
-                  {row[index]}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </TableBody>
-      </StyledTable>
-      <TableFooter className="bg-dark text-white text-center p-2 w-100">
-        Load More...
-      </TableFooter>
+            </TableBody>
+          </StyledTable>
+          {!isExpanded && (
+            <TableFooter
+              className="bg-dark text-white text-center p-2 w-100"
+              onClick={handleLoadMore}
+            >
+              Load More...
+            </TableFooter>
+          )}
+        </>
+      </LoadingContainer>
     </div>
   );
 };
