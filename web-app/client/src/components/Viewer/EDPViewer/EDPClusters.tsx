@@ -12,16 +12,9 @@ const EDPClusters: React.FC = () => {
     <LoadingContainer isLoading={!clusters?.TypoClusters}>
       <>
         {clusters?.TypoClusters.length ? (
-          clusters!.TypoClusters.map(({ id }) => (
-            <>
-              <Cluster id={id} key={id} />
-              <Cluster id={id} key={id} />
-              <Cluster id={id} key={id} />
-              <Cluster id={id} key={id} />
-              <Cluster id={id} key={id} />
-              <Cluster id={id} key={id} />
-            </>
-          ))
+          clusters!.TypoClusters.map(
+            (cluster) => <Cluster cluster={cluster} key={cluster.id} />
+          )
         ) : (
           <EmptyState primitive="cluster" />
         )}
