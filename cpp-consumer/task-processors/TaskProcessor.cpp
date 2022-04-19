@@ -50,12 +50,12 @@ void TaskProcessor::SaveFdTaskResult() const {
 
 void TaskProcessor::SaveArTaskResult() const {
     auto algo = GetAlgoAs<ARAlgorithm>();
-    const auto& deps = algo->GetItemNamesVector();
+    const auto& item_names = algo->GetItemNamesVector();
     const auto& ar_list = algo->GetArIDsList();
     task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
-                        {{"value_dictionary", boost::join(deps, ",")},
+                        {{"value_dictionary", boost::join(item_names, ",")},
                          {"deps", GetCompactDeps<const std::list<model::ArIDs>, model::ArIDs>(ar_list)},
-                         {"deps_amount", std::to_string(deps.size())}});
+                         {"deps_amount", std::to_string(ar_list.size())}});
 }
 
 void TaskProcessor::SaveTypoFdTaskResult() const {

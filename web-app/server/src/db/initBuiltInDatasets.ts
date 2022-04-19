@@ -31,13 +31,6 @@ export const builtInDatasets: BuiltInDatasetInfoType[] = [
     { fileName: "breast_cancer.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
     { fileName: "CIPublicHighway700.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
     {
-        fileName: "rules-kaggle.csv", datasetProps: {
-            delimiter: ",", hasHeader: false,
-            inputFormat: "SINGULAR" as InputFileFormat, tidColumnIndex: 1, itemColumnIndex: 2,
-        },
-        supportedPrimitives: ["AR"],
-    },
-    {
         fileName: "rules-kaggle-rows-2.csv", datasetProps: {
             delimiter: ",", hasHeader: false,
             inputFormat: "TABULAR" as InputFileFormat, hasTid: false,
