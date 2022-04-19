@@ -77,6 +77,7 @@ export const useTaskInfo = (taskID?: string) => {
         }
       }
     } catch (error: any) {
+      stopPolling();
       showError(error);
     }
   }, [taskID, getTaskInfoQuery, showError]);
