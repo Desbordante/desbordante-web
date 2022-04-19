@@ -63,14 +63,12 @@ export const configureGraphQL = async (app: Application, sequelize: Sequelize) =
                 Buffer.from(deviceInfoBase64, "base64").toString()
             );
 
-            let device = await Device.findByPk(deviceInfo.deviceID);
-            if (!device) {
-                device = await Device.addDevice(deviceInfo);
+            const [device, created] = await Device.findOrCreate(
+                { where: { ...deviceInfo } });
+            if (created) {
+                logger(`New device object ${device.deviceID} was created`);
             } else {
-                if (!device.isEqualTo(deviceInfo)) {
-                    //logger(`FATAL ERROR: Received device with duplicate deviceID = ${device.deviceID}`,
-                    //    JSON.stringify(device), JSON.stringify(deviceInfo));
-                }
+                // logger(`Device with ID = ${device.deviceID} already exists`);
             }
             const tokenPayload = getTokenPayloadIfValid(req, process.env.SECRET_KEY!);
             if (tokenPayload) {
