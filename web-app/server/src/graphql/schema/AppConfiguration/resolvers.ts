@@ -1,4 +1,5 @@
 import { Resolvers } from "../../types/types";
+import { builtInDatasets } from "../../../db/initBuiltInDatasets";
 
 export const allowedFDAlgorithms = [
     { name: "Pyro", properties: { hasErrorThreshold: true, hasArityConstraint: true, isMultiThreaded: true } },
@@ -33,7 +34,8 @@ export const AppConfigResolvers: Resolvers = {
     AlgorithmsConfig: {
         // @ts-ignore
         allowedDatasets: async (parent, args, { models }) => {
-            return await models.FileInfo.findAll({ where: { isBuiltIn: true } });
+            const datasets = await models.FileInfo.findAll({ where: { isBuiltIn: true } });
+            return datasets.filter(({ fileName }) => builtInDatasets.find(info => info.fileName === fileName));
         },
     },
     Query: {
