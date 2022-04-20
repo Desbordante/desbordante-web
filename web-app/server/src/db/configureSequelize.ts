@@ -5,9 +5,11 @@ export const configureSequelize = async (sequelize: Sequelize) => {
         .then(() => console.debug("Connection with DB was established"))
         .catch(err => new Error(`Error while connecting to DB: ${err.message}`));
 
-    const force = process.env.DB_FORCE_TABLES_RECREATION === "true";
+    const options = process.env.DB_FORCE_TABLES_RECREATION === "true"
+            ? { force: true }
+            : { alter: true };
 
-    await sequelize.sync({ force })
+    await sequelize.sync(options)
         .then(() => console.debug("Models was configured successfully"))
         .catch(err => new Error(`Error while configuring models ${err}`));
 };
