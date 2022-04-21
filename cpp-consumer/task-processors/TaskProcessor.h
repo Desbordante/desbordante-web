@@ -119,6 +119,10 @@ public:
         max_phase_ = phase_names_.size();
     }
 
+    const TaskConfig& GetConfig() const {
+        return *task_;
+    }
+
     void Execute();
 };
 
