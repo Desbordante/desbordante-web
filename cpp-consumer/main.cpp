@@ -205,16 +205,17 @@ AnswerEnumType ProcessMsg(const std::string& task_id, std::shared_ptr<Desbordant
     }
     LOG(DEBUG) << "TaskConfig create";
     auto task = std::make_unique<TaskConfig>(manager, task_id);
+    std::unique_ptr<TaskProcessor> task_processor;
     try {
         LOG(DEBUG) << "TaskProcessor creating";
-        TaskProcessor task_processor(std::move(task));
+        task_processor = std::make_unique<TaskProcessor>(std::move(task));
         LOG(DEBUG) << "TaskProcessor created";
-        task_processor.Execute();
+        task_processor->Execute();
         return AnswerEnumType::TASK_SUCCESSFULLY_PROCESSED;
     } catch (const std::exception& e) {
         std::cout << "Unexpected behaviour in 'process_task()'.\n" << e.what();
-//        task->UpdateParams(BaseTablesType::state,
-//                           {{"status", "INTERNAL_SERVER_ERROR"}, {"error_msg", e.what()}});
+        task_processor->GetConfig().UpdateParams(BaseTablesType::state,
+                           {{"status", "INTERNAL_SERVER_ERROR"}, {"error_msg", e.what()}});
         return AnswerEnumType::TASK_CRASHED_STATUS_UPDATED;
     }
 }

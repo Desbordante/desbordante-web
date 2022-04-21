@@ -420,14 +420,16 @@ export const TaskInfoResolvers: Resolvers = {
     TypoClusterTaskResult: {
         // @ts-ignore
         TypoClusters: async ({ propertyPrefix, taskInfo, fileID }, { pagination }, { models }) => {
-            const [TypoClusters, suspiciousIndices] = await (taskInfo as TaskState).getMultipleResultFieldAsString(propertyPrefix, ["TypoClusters", "suspiciousIndices"]);
+            const [TypoClusters, SuspiciousIndicesStr] = await (taskInfo as TaskState).getMultipleResultFieldAsString(propertyPrefix, ["TypoClusters", "suspiciousIndices"]);
             if (!TypoClusters) {
                 return [];
             }
+            const clustersSuspiciousIndices = SuspiciousIndicesStr.split(";").map(data => new Set(data.split(",").map(Number)));
+
             let typoClusters = TypoClusters.split(";")
-                .map(indices => ({
+                .map((indices, id) => ({
                     rowIndices: indices.split(",").map(Number),
-                    suspiciousIndices: new Set(suspiciousIndices.split(",").map(Number)),
+                    suspiciousIndices: clustersSuspiciousIndices[id],
                 }));
             typoClusters = getArrayOfDepsByPagination(typoClusters, pagination);
             let indices: number[] = [];
@@ -462,13 +464,12 @@ export const TaskInfoResolvers: Resolvers = {
     SpecificTypoClusterTaskResult: {
         // @ts-ignore
         cluster: async ({ propertyPrefix, taskInfo, fileID }, { sort }, { models, logger }) => {
-            const [suspiciousIndicesString, rowIndicesStr] = await (taskInfo as TaskState)
+            const [SuspiciousIndicesStr, rowIndicesStr] = await (taskInfo as TaskState)
                 .getMultipleResultFieldAsString(propertyPrefix, ["suspiciousIndices", `notSquashed${sort ? "" : "Not"}SortedCluster`]);
-            const suspiciousIndices = new Set(suspiciousIndicesString.split(",").map(Number));
             const rowIndices = rowIndicesStr.split(",").map(Number);
 
             const [clusterID, typoClusterTaskID] = await (taskInfo as TaskState).getMultipleConfigFieldAsString(propertyPrefix, ["clusterID", "typoClusterTaskID"]);
-
+            const suspiciousIndices = SuspiciousIndicesStr.split(";").map(data => new Set(data.split(",").map(Number)))[Number(clusterID)];
             if (fileID == undefined) {
                 const typoClusterConfig = await models.TypoClusterConfig.findByPk(typoClusterTaskID, { attributes: ["typoTaskID"] });
                 if (!typoClusterConfig) {
