@@ -420,16 +420,28 @@ export const TaskInfoResolvers: Resolvers = {
     TypoClusterTaskResult: {
         // @ts-ignore
         TypoClusters: async ({ propertyPrefix, taskInfo, fileID }, { pagination }, { models }) => {
+<<<<<<< HEAD
             const TypoClusters = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "TypoClusters");
+=======
+            const [TypoClusters, SuspiciousIndicesStr] = await (taskInfo as TaskState).getMultipleResultFieldAsString(propertyPrefix, ["TypoClusters", "suspiciousIndices"]);
+>>>>>>> Fix: Fixed bug with suspicous indices & cpp-consumer error update
             if (!TypoClusters) {
                 return [];
             }
+            const clustersSuspiciousIndices = SuspiciousIndicesStr.split(";").map(data => new Set(data.split(",").map(Number)));
+
             let typoClusters = TypoClusters.split(";")
+<<<<<<< HEAD
                 .map(typoCluster => typoCluster.split(":"))
                 .map(i => ({
                     rowIndices: i[0].split(",").map(Number),
                     suspiciousIndices: new Set(
                         i.length != 2 ? null : i[1].split(",").map(Number)),
+=======
+                .map((indices, id) => ({
+                    rowIndices: indices.split(",").map(Number),
+                    suspiciousIndices: clustersSuspiciousIndices[id],
+>>>>>>> Fix: Fixed bug with suspicous indices & cpp-consumer error update
                 }));
             typoClusters = getArrayOfDepsByPagination(typoClusters, pagination);
             let indices: number[] = [];
@@ -455,12 +467,28 @@ export const TaskInfoResolvers: Resolvers = {
     SpecificTypoClusterTaskResult: {
         // @ts-ignore
         cluster: async ({ propertyPrefix, taskInfo, fileID }, { sort }, { models, logger }) => {
-            const [suspiciousIndicesString, rowIndicesStr] = await (taskInfo as TaskState)
+            const [SuspiciousIndicesStr, rowIndicesStr] = await (taskInfo as TaskState)
                 .getMultipleResultFieldAsString(propertyPrefix, ["suspiciousIndices", `notSquashed${sort ? "" : "Not"}SortedCluster`]);
-            const suspiciousIndices = new Set(suspiciousIndicesString.split(",").map(Number));
             const rowIndices = rowIndicesStr.split(",").map(Number);
 
+<<<<<<< HEAD
             const clusterID = await (taskInfo as TaskState).getSingleConfigFieldAsString(propertyPrefix, "clusterID");
+=======
+            const [clusterID, typoClusterTaskID] = await (taskInfo as TaskState).getMultipleConfigFieldAsString(propertyPrefix, ["clusterID", "typoClusterTaskID"]);
+            const suspiciousIndices = SuspiciousIndicesStr.split(";").map(data => new Set(data.split(",").map(Number)))[Number(clusterID)];
+            if (fileID == undefined) {
+                const typoClusterConfig = await models.TypoClusterConfig.findByPk(typoClusterTaskID, { attributes: ["typoTaskID"] });
+                if (!typoClusterConfig) {
+                    throw new ApolloError("Parent task config not found");
+                }
+                const { typoTaskID } = typoClusterConfig;
+                const typoTaskConfig = await models.BaseTaskConfig.findByPk(typoTaskID, { attributes: ["fileID"] });
+                if (!typoTaskConfig) {
+                    throw new ApolloError("Parent task config not found");
+                }
+                fileID = typoTaskConfig.fileID;
+            }
+>>>>>>> Fix: Fixed bug with suspicous indices & cpp-consumer error update
 
             const file = await models.FileInfo.findByPk(fileID, { attributes: ["path", "delimiter", "hasHeader"] });
             if (!file) {
