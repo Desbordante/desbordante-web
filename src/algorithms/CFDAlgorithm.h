@@ -20,7 +20,7 @@ private:
     std::mutex mutable register_mutex_;
 
 protected:
-    Config config_;
+    const Config config_;
     std::list<CFD> cfd_collection_;
     std::unordered_map<int, std::string> item_names_;
     std::unique_ptr<PatternColumnLayoutRelationData> relation_;
@@ -39,6 +39,10 @@ public:
 
     virtual void RegisterCFD(CFD cfd) {
         if (cfd.GetLhsPattern().Size() > config_.max_lhs) {
+            return;
+        }
+        if ((cfd.GetLhsPattern().IsConst() && cfd.GetRhsPattern().IsVar()) ||
+            (cfd.GetLhsPattern().IsVar() && cfd.GetRhsPattern().IsConst())) {
             return;
         }
         std::scoped_lock lock(register_mutex_);

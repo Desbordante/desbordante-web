@@ -9,34 +9,40 @@
 #include "CLatticeVertex.h"
 #include "CLatticeLevel.h"
 
+namespace algos {
+
 class CTane : public CFDAlgorithm {
 private:
     unsigned long long ExecuteInternal() override;
     double min_conf_;
     unsigned int min_sup_;
-    unsigned int max_lhs_;
-public:
-    const unsigned int max_arity_ = -1;
 
-    int count_of_cfd_ = 0;
+    static std::vector<const ColumnPattern*> IntersectCandidates(
+        std::vector<const ColumnPattern*>&, std::vector<const ColumnPattern*>&);
+    static bool IsExactCfd(util::CLatticeVertex const& x_vertex,
+                    util::CLatticeVertex const& xa_vertex) ;
+    static double CalculatePartitionError(const util::PatternPositionListIndex& x_pli,
+                                   const util::PatternPositionListIndex& xa_pli) ;
+    double CalculateConfidence(const util::CLatticeVertex& x_vertex,
+                               const util::CLatticeVertex& xa_vertex) const;
+    static double CalculateConstConfidence(util::CLatticeVertex const& x_vertex,
+                                    util::CLatticeVertex const& xa_vertex) ;
+    void RegisterCfd(const TuplePattern& lhs_pattern, const ColumnPattern& rhs_pattern,
+                     unsigned supp, double conf);
+    void PruneCandidates(util::CLatticeLevel* col_pattern, util::CLatticeVertex const* x_vertex,
+                         util::CLatticeVertex const* xa_vertex,
+                         ColumnPattern const& rhs_column_pattern) const;
+    void Prune(util::CLatticeLevel* level) const;
+    void Initialize() final;
+
+public:
     long apriori_millis_ = 0;
 
-    explicit CTane(Config const& config):
-          CFDAlgorithm(config, {kDefaultPhaseName}),
-          min_conf_(config.GetSpecialParam<double>("minconf")),
-          max_lhs_(config.max_lhs) {
+    explicit CTane(Config const& config)
+        : CFDAlgorithm(config, {kDefaultPhaseName}),
+          min_conf_(config.GetSpecialParam<double>("minconf")) {
         min_sup_ = (unsigned int)config.GetSpecialParam<double>("minsup");
     }
-
-    std::vector<const ColumnPattern*> IntersectCandidates(std::vector<const ColumnPattern*>&, std::vector<const ColumnPattern*>&);
-    bool IsExactCfd(util::CLatticeVertex const& x_vertex, util::CLatticeVertex const& xa_vertex) const;
-    double CalculatePartitionError(const util::PatternPositionListIndex &x_pli, const util::PatternPositionListIndex &xa_pli) const;
-    double CalculateConfidence(const util::CLatticeVertex & x_vertex, const util::CLatticeVertex & xa_vertex) const;
-    double CalculateConstConfidence(util::CLatticeVertex const& x_vertex, util::CLatticeVertex const& xa_vertex) const;
-    void RegisterCfd(const TuplePattern& lhs_pattern, const ColumnPattern& rhs_pattern, unsigned supp, double conf);
-    void PruneCandidates(util::CLatticeLevel* col_pattern, util::CLatticeVertex const* x_vertex,
-                         util::CLatticeVertex const* xa_vertex, ColumnPattern const& rhs_column_pattern) const;
-    void Prune(util::CLatticeLevel* level);
-
-    void Initialize() final;
 };
+
+} // namespace algos
