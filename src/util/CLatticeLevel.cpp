@@ -1,13 +1,10 @@
 #include <algorithm>
 #include <chrono>
-#include <iostream>
 
 #include "ColumnCombination.h"
 #include "CLatticeLevel.h"
 
 namespace util {
-
-using std::move, std::min, std::shared_ptr, std::vector, std::cout, std::endl, std::sort, std::make_shared;
 
 void CLatticeLevel::Add(std::unique_ptr<CLatticeVertex> vertex) {
     vertices_.emplace_back(std::move(vertex));
@@ -72,7 +69,6 @@ void CLatticeLevel::GenerateFirstLevel(std::vector<std::unique_ptr<util::CLattic
 
 void CLatticeLevel::GenerateNextLevel(std::vector<std::unique_ptr<CLatticeLevel>>& levels) {
     unsigned int current_level_index = levels.size() - 1;
-    assert(current_level_index >= 0);
 
     auto* current_level = levels[current_level_index].get();
 
