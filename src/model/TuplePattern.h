@@ -55,8 +55,6 @@ public:
     }
 
     bool operator<=(const ColumnPattern& rhs) const {
-        std::cout << this->ToString() << " rhs " << rhs.ToString() << " " << (GetColumnIndex() == rhs.GetColumnIndex() &&
-                                                                              (GetPatternValue() == rhs.GetPatternValue() || !rhs.GetPatternValue())) << std::endl;
         return GetColumnIndex() == rhs.GetColumnIndex() &&
             (GetPatternValue() == rhs.GetPatternValue() || !rhs.GetPatternValue());
     }
@@ -161,7 +159,7 @@ public:
     }
 
     auto Size() const {
-        return pattern_values_.size();
+        return indices.count();
     }
 
     const auto& GetPatternValues() const {
