@@ -21,8 +21,7 @@ public:
     CLatticeVertex* GetLatticeVertex(const TuplePattern& tuple_pattern) const;
     void Add(std::unique_ptr<CLatticeVertex> vertex);
 
-    // using vectors instead of lists because of .get()
-    static void GenerateFirstLevel(std::vector<std::unique_ptr<CLatticeLevel>>& levels, const PatternColumnLayoutRelationData* relation);
+    static void GenerateFirstLevel(std::vector<std::unique_ptr<CLatticeLevel>>& levels, const ColumnLayoutPartialRelationData* relation);
     static void GenerateNextLevel(std::vector<std::unique_ptr<CLatticeLevel>>& levels);
     static void ClearLevelsBelow(std::vector<std::unique_ptr<CLatticeLevel>>& levels, unsigned int arity);
 

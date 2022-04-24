@@ -54,11 +54,11 @@ std::ostream& operator<<(std::ostream& os, const CLatticeVertex& vertex) {
     return os;
 }
 
-PatternPositionListIndex const *CLatticeVertex::GetPositionListIndex() const {
-    if (std::holds_alternative<std::unique_ptr<PatternPositionListIndex>>(position_list_index_)) {
-        return std::get<std::unique_ptr<PatternPositionListIndex>>(position_list_index_).get();
+PartialPositionListIndex const *CLatticeVertex::GetPositionListIndex() const {
+    if (std::holds_alternative<std::unique_ptr<PartialPositionListIndex>>(position_list_index_)) {
+        return std::get<std::unique_ptr<PartialPositionListIndex>>(position_list_index_).get();
     } else {
-        return std::get<PatternPositionListIndex const *>(position_list_index_);
+        return std::get<PartialPositionListIndex const *>(position_list_index_);
     }
 }
 
