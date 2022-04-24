@@ -23,6 +23,15 @@ public:
         return lhs_pattern_.ToString(item_names) + " -> " + rhs_pattern_.ToString(item_names);
     }
 
+    std::string ToCompactString(const std::vector<std::string>& item_names = {}) const {
+        auto result = lhs_pattern_.ToString(item_names);
+        if (!result.empty()) {
+            result += ',';
+        }
+        result += rhs_pattern_.ToString(item_names);
+        return result;
+    }
+
     TuplePattern const& GetLhsPattern() const {
         return lhs_pattern_;
     }

@@ -15,7 +15,9 @@ BETTER_ENUM(AlgoMiningType, char,
 #if 1
     fd = 0, 
     cfd,
-    typos, 
+    typos,
+    typofds,
+    clusters,
     ar, 
     metric, 
     stats
