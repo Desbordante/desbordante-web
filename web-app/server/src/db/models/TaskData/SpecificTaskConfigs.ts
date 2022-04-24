@@ -44,8 +44,8 @@ export class FDTaskConfig extends BaseSpecificTaskConfig {
         let errorMessage: string | undefined;
         if (!~allowedFDAlgorithms.findIndex(({ name }) => algorithmName === name)) {
             errorMessage = `Algorithm name ${algorithmName} not found`;
-        } else if (typeof errorThreshold !== "number" || errorThreshold <= 0 || errorThreshold > 1) {
-            errorMessage = `Error threshold isn't valid ${errorThreshold} (0 < e <= 1)`;
+        } else if (typeof errorThreshold !== "number" || errorThreshold < 0 || errorThreshold > 1) {
+            errorMessage = `Error threshold isn't valid ${errorThreshold} (0 <= e <= 1)`;
         } else if (typeof maxLHS !== "number" || maxLHS < -1) {
             errorMessage = `maxLHS ${maxLHS} isn't valid`;
         } else if (typeof threadsCount !== "number" || threadsCount < 1 || threadsCount > maxThreadsCount) {
@@ -135,14 +135,14 @@ export class TypoFDTaskConfig extends BaseSpecificTaskConfig {
 
     static isPropsValid: IsPropsValidFunctionType = async (props) => {
         const { algorithmName, preciseAlgorithm, approximateAlgorithm,
-            metric, radius, ratio } = props;
+            metric, radius, ratio, errorThreshold } = props;
         let errorMessage: string | undefined;
         if (algorithmName !== allowedTypoMinerAlgorithm.name) {
             errorMessage = `Received incorrect algorithm name ${algorithmName}`
                 + `, expected: ${allowedTypoMinerAlgorithm.name}`;
         } else if (approximateAlgorithm != "Pyro") {
             errorMessage = `Received incorrect approximate algorithm name ${approximateAlgorithm}`
-                + `, expected: ${allowedTypoMinerAlgorithm.name}`;
+                + ", expected: Pyro";
         } else if (!preciseAlgorithm) {
             errorMessage = `Received incorrect approximate algorithm name ${preciseAlgorithm}`;
         } else if (metric === undefined) {
@@ -151,6 +151,8 @@ export class TypoFDTaskConfig extends BaseSpecificTaskConfig {
             errorMessage = `Received incorrect radius ${radius}`;
         } else if (typeof ratio !== "number" || ratio < 0 || ratio > 1) {
             errorMessage = `Received incorrect ratio ${ratio} (min = 0, max = 1)`;
+        } else if (errorThreshold === 0) {
+            errorMessage = "TypoFDs mining with error threshold = 0 is meaningless";
         } else {
             props.algorithmName = preciseAlgorithm;
             const isFdAlgoValid = await FDTaskConfig.isPropsValid(props);
