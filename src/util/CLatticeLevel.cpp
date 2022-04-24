@@ -41,8 +41,8 @@ void CLatticeLevel::GenerateFirstLevel(std::vector<std::unique_ptr<util::CLattic
         auto indices = boost::dynamic_bitset<>(col_numbers).set(col_index);
         for (const auto& [pattern_value, column_pattern_data] : column_patterns) {
             const auto* pli = column_pattern_data.GetPli();
-            std::vector<int> pattern_values(col_numbers);
-            pattern_values[col_index] = pattern_value;
+            std::map<unsigned int, int> pattern_values;
+            pattern_values.insert({col_index, pattern_value});
             auto vertex = std::make_unique<util::CLatticeVertex>(
                 relation, TuplePattern(relation, std::move(pattern_values), indices));
             vertex->SetPositionListIndex(pli);
@@ -54,7 +54,7 @@ void CLatticeLevel::GenerateFirstLevel(std::vector<std::unique_ptr<util::CLattic
                                [&col_index, &vertex](ColumnPattern const* candidate) {
                                    return candidate->GetColumnIndex() == col_index &&
                                           candidate->GetPatternValue() !=
-                                              vertex->GetPatternValues()[col_index];
+                                              vertex->GetPatternValues().at(col_index);
                                }),
                 column_rhs_candidates.end());
             vertex->SetRhsCandidates(column_rhs_candidates);
@@ -91,24 +91,20 @@ void CLatticeLevel::GenerateNextLevel(std::vector<std::unique_ptr<CLatticeLevel>
             if (!vertex_1->ComesBeforeAndSharePrefixWith(*vertex_2)) {
                 continue;
             }
-            auto [is_intersects, rhs_candidates_intersection] =
-                CLatticeVertex::IntersectRhsCandidates(vertex_1->GetRhsCandidates(),
-                                                       vertex_2->GetRhsCandidates());
-            if (!is_intersects) {
+            auto intersection = CLatticeVertex::IntersectRhsCandidates(
+                vertex_1->GetRhsCandidates(), vertex_2->GetRhsCandidates());
+            if (intersection.empty()) {
                 continue;
             }
             std::unique_ptr<CLatticeVertex> child_vertex = std::make_unique<CLatticeVertex>(
                 vertex_1->GetColRelation(),
-                TuplePattern(vertex_1->GetColRelation(),
-                             CLatticeVertex::UnionPatternValues(
-                                 vertex_1->GetTuplePattern().GetPatternValues(),
-                                 vertex_2->GetTuplePattern().GetPatternValues()),
-                             vertex_1->GetColumnIndices() | vertex_2->GetColumnIndices()));
+                TuplePattern::UnionTuplePatterns(vertex_1->GetTuplePattern(),
+                                                 vertex_2->GetTuplePattern()));
             auto& child_rhs_candidates = child_vertex->GetRhsCandidates();
 
             dynamic_bitset<> parent_indices = vertex_1->GetTuplePattern().GetColumnIndices() |
                                               vertex_2->GetTuplePattern().GetColumnIndices();
-            child_rhs_candidates = std::move(rhs_candidates_intersection);
+            child_rhs_candidates = std::move(intersection);
             for (unsigned int i = 0, skip_index = parent_indices.find_first();
                  i < current_level_index; i++, skip_index = parent_indices.find_next(skip_index)) {
                 auto* parent_vertex = current_level->GetLatticeVertex(
@@ -117,10 +113,9 @@ void CLatticeLevel::GenerateNextLevel(std::vector<std::unique_ptr<CLatticeLevel>
                 if (parent_vertex == nullptr) {
                     goto continueMidOuter;
                 }
-                std::tie(is_intersects, child_rhs_candidates) =
-                    CLatticeVertex::IntersectRhsCandidates(child_rhs_candidates,
-                                                           parent_vertex->GetRhsCandidates());
-                if (!is_intersects) {
+                child_rhs_candidates = CLatticeVertex::IntersectRhsCandidates(
+                    child_rhs_candidates, parent_vertex->GetRhsCandidates());
+                if (child_rhs_candidates.empty()) {
                     goto continueMidOuter;
                 }
                 child_vertex->GetParents().push_back(parent_vertex);

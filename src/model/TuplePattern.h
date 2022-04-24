@@ -43,13 +43,13 @@ public:
     std::string ToString(const std::vector<std::string>& item_names = {}) const {
         std::string res;
         res += GetColumnName() + "=";
-        res += item_names.empty() ? std::to_string(GetPatternValue())
-                                  : item_names[GetPatternValue()];
+        res +=
+            item_names.empty() ? std::to_string(GetPatternValue()) : item_names[GetPatternValue()];
         res += "";
         return res;
     }
 
-    std::string ToStringIndex() const {
+    std::string ToStringOnlyIndices() const {
         std::string res;
         res += "" + std::to_string(GetColumnIndex());
         res += IsVar() ? "" : "=" + std::to_string(GetPatternValue());
@@ -88,30 +88,36 @@ public:
 class TuplePattern {
 private:
     ColumnLayoutPartialRelationData const* rel_;
-
-    std::vector<int> pattern_values_;
-
-    boost::dynamic_bitset<> unnamed_indices_;
-    boost::dynamic_bitset<> const_indices_;
-    boost::dynamic_bitset<> indices;
+    bool is_const_, is_var_;
+    std::map<unsigned int, int> pattern_values_;
+    boost::dynamic_bitset<> indices_;
 
 public:
     explicit TuplePattern(ColumnLayoutPartialRelationData const* relation,
-                          std::vector<int> const_values, boost::dynamic_bitset<> indices)
+                          std::map<unsigned int, int> pattern_values,
+                          boost::dynamic_bitset<> indices, bool is_const, bool is_var)
         : rel_(relation),
-          pattern_values_(std::move(const_values)),
-          unnamed_indices_(indices.size()),
-          const_indices_(indices.size()),
-          indices(std::move(indices)) {
-        for (auto idx = this->indices.find_first(); idx != boost::dynamic_bitset<>::npos;
-             idx = this->indices.find_next(idx)) {
-            (pattern_values_[idx] != 0 ? const_indices_ : unnamed_indices_).set(idx, true);
+          is_const_(is_const),
+          is_var_(is_var),
+          pattern_values_(std::move(pattern_values)),
+          indices_(std::move(indices)) {}
+
+    explicit TuplePattern(ColumnLayoutPartialRelationData const* relation,
+                          std::map<unsigned int, int> pattern_values,
+                          boost::dynamic_bitset<> indices)
+        : rel_(relation),
+          is_const_(true),
+          is_var_(true),
+          pattern_values_(std::move(pattern_values)),
+          indices_(std::move(indices)) {
+        for (auto idx = this->indices_.find_first(); idx != boost::dynamic_bitset<>::npos;
+             idx = this->indices_.find_next(idx)) {
+            (pattern_values_[idx] == 0 ? is_const_ : is_var_) = false;
         }
-        assert(IsValid());
     }
 
     explicit TuplePattern(ColumnLayoutPartialRelationData const* relation)
-        : TuplePattern(relation, std::vector<int>(relation->GetSchema()->GetNumColumns()),
+        : TuplePattern(relation, {},
                        boost::dynamic_bitset<>(relation->GetSchema()->GetNumColumns())) {}
 
     TuplePattern(TuplePattern const& other) = default;
@@ -121,34 +127,27 @@ public:
 
     ~TuplePattern() = default;
 
-    bool IsValid() const {
-        auto union_indices = unnamed_indices_ | const_indices_;
-        return !unnamed_indices_.intersects(const_indices_) && (union_indices == indices) &&
-               unnamed_indices_.size() == const_indices_.size();
+    static TuplePattern UnionTuplePatterns(const TuplePattern& lhs, const TuplePattern& rhs) {
+        std::vector<int> res;
+        auto union_indices = lhs.GetColumnIndices() | rhs.GetColumnIndices();
+        auto pattern_values = std::map<unsigned int, int>(lhs.GetPatternValues().begin(),
+                                                          lhs.GetPatternValues().end());
+        unsigned long a_index = (union_indices - lhs.GetColumnIndices()).find_first();
+        pattern_values.insert({a_index, rhs.GetPatternValue(a_index)});
+
+        return TuplePattern(lhs.GetRelation(), pattern_values, union_indices);
     }
 
-    const auto& GetUnnamedIndices() const {
-        return unnamed_indices_;
+    const boost::dynamic_bitset<>& GetColumnIndices() const {
+        return indices_;
     }
 
-    auto& GetUnnamedIndices() {
-        return unnamed_indices_;
+    boost::dynamic_bitset<>& GetColumnIndices() {
+        return indices_;
     }
 
-    const auto& GetConstIndices() const {
-        return const_indices_;
-    }
-
-    auto& GetConstIndices() {
-        return const_indices_;
-    }
-
-    const auto& GetColumnIndices() const {
-        return indices;
-    }
-
-    auto& GetColumnIndices() {
-        return indices;
+    const ColumnLayoutPartialRelationData* GetRelation() const {
+        return rel_;
     }
 
     std::string ToString(const std::vector<std::string>& item_names = {}) const {
@@ -156,20 +155,21 @@ public:
         for (auto idx = GetColumnIndices().find_first(); idx != boost::dynamic_bitset<>::npos;
              idx = GetColumnIndices().find_next(idx)) {
             res += rel_->GetSchema()->GetColumn(idx)->GetName() + "=";
-            res += item_names.empty() ? std::to_string(pattern_values_[idx])
-                                      : item_names[pattern_values_[idx]];
+            res += item_names.empty() ? std::to_string(GetPatternValue(idx))
+                                      : item_names[GetPatternValue(idx)];
             res += ", ";
         }
         res = res.substr(0, res.find_last_of(',')) + ")";
         return res;
     }
 
-    std::string ToStringIndex() const {
+    std::string ToStringOnlyIndices() const {
         std::string res = "(";
         for (auto idx = GetColumnIndices().find_first(); idx != boost::dynamic_bitset<>::npos;
              idx = GetColumnIndices().find_next(idx)) {
             res += "" + std::to_string(rel_->GetSchema()->GetColumn(idx)->GetIndex());
-            res += pattern_values_[idx] == 0 ? "" : "=" + std::to_string(pattern_values_[idx]);
+            res +=
+                pattern_values_.at(idx) == 0 ? "" : "=" + std::to_string(pattern_values_.at(idx));
             res += ", ";
         }
         res = res.substr(0, res.find_last_of(',')) + ")";
@@ -177,24 +177,28 @@ public:
     }
 
     auto Size() const {
-        return indices.count();
+        return indices_.count();
     }
 
-    const auto& GetPatternValues() const {
+    const std::map<unsigned int, int>& GetPatternValues() const {
         return pattern_values_;
     }
 
-    auto& GetPatternValues() {
+    std::map<unsigned int, int>& GetPatternValues() {
         return pattern_values_;
+    }
+
+    int GetPatternValue(unsigned int col_id) const {
+        return GetPatternValues().at(col_id);
     }
 
     bool operator==(TuplePattern const& rhs) const {
         if (Size() != rhs.Size() || GetColumnIndices() != rhs.GetColumnIndices()) {
             return false;
         } else {
-            for (auto idx = indices.find_first(); idx != boost::dynamic_bitset<>::npos;
-                 idx = indices.find_next(idx)) {
-                if (pattern_values_[idx] != rhs.GetPatternValues()[idx]) {
+            for (auto idx = indices_.find_first(); idx != boost::dynamic_bitset<>::npos;
+                 idx = indices_.find_next(idx)) {
+                if (GetPatternValue(idx) != rhs.GetPatternValue(idx)) {
                     return false;
                 }
             }
@@ -207,28 +211,25 @@ public:
         if (!GetColumnIndices()[rhs_idx]) {
             return false;
         } else {
-            return GetPatternValues()[rhs_idx] == rhs.GetPatternValue();
+            return GetPatternValue(rhs_idx) == rhs.GetPatternValue();
         }
     }
 
     bool IsConst() const {
-        return unnamed_indices_.count() == 0;
+        return is_const_;
     }
 
     bool IsVar() const {
-        return const_indices_.count() == 0;
+        return is_var_;
     }
 
     TuplePattern GetWithoutColumn(unsigned int column_index) const {
-        TuplePattern res(*this);
-        assert(this->GetColumnIndices()[column_index]);
-
-        res.GetConstIndices().set(column_index, false);
-        res.GetUnnamedIndices().set(column_index, false);
-        res.GetColumnIndices().set(column_index, false);
-        res.GetPatternValues()[column_index] = 0;
-
-        return res;
+        std::map<unsigned int, int> pattern_values(GetPatternValues().begin(),
+                                                   GetPatternValues().end());
+        pattern_values.erase(column_index);
+        auto indices = this->GetColumnIndices();
+        indices.set(column_index, false);
+        return TuplePattern(GetRelation(), pattern_values, indices);
     }
 
     bool operator<=(TuplePattern const& rhs) const {
@@ -237,8 +238,7 @@ public:
         }
         for (auto idx = GetColumnIndices().find_first(); idx != boost::dynamic_bitset<>::npos;
              idx = GetColumnIndices().find_next(idx)) {
-            if (GetPatternValues()[idx] != rhs.GetPatternValues()[idx] &&
-                rhs.GetPatternValues()[idx]) {
+            if (GetPatternValue(idx) != rhs.GetPatternValue(idx) && rhs.GetPatternValue(idx)) {
                 return false;
             }
         }
@@ -252,7 +252,7 @@ public:
     ColumnPattern* GetAsColumnPattern(size_t col_index) const {
         assert(GetColumnIndices()[col_index] != 0);
         return new ColumnPattern(rel_->GetSchema()->GetColumn(col_index),
-                                 GetPatternValues()[col_index]);
+                                 GetPatternValue(col_index));
     }
 
     explicit operator std::string() const {
