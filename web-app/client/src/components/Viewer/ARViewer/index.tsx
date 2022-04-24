@@ -4,7 +4,7 @@ import { Container } from "react-bootstrap";
 import ARList from "./ARList";
 import Navigation from "../Navigation";
 import { AssociationRule } from "../../../types/types";
-import TableSnippet from "../TableSnippet/TableSnippet";
+import ARTableSnippet from "./ARTableSnippet";
 
 const tabs = ["Association Rules", "Dataset"];
 
@@ -24,7 +24,11 @@ const Index = () => {
       {partShown === 0 && (
         <ARList selectedRule={selectedRule} setSelectedRule={setSelectedRule} />
       )}
-      {partShown === 1 && <TableSnippet selectedColumns={[]} />}
+      {partShown === 1 && (
+        <ARTableSnippet
+          selectedItems={selectedRule?.lhs.concat(selectedRule?.rhs)}
+        />
+      )}
     </Container>
   );
 };

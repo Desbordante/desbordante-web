@@ -34,9 +34,9 @@ const defaultFileProps: FileProps = {
 const defaultAlgorithmProps: AlgorithmProps = {
   arityConstraint: "5",
   errorThreshold: "0.005",
-  minConfidence: "0.5",
+  minConfidence: "0.15",
   minSupportCFD: "1",
-  minSupportAR: "0.5",
+  minSupportAR: "0.15",
   threadsCount: "2",
   metric: MetricType.MODULUS_OF_DIFFERENCE,
   radius: "2",

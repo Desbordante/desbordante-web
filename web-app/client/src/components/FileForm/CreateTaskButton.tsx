@@ -37,6 +37,7 @@ const CreateTaskButton = () => {
     fileProps,
     algorithmProps,
     setFileUploadProgress,
+    fileUploadProgress,
     primitiveType,
   } = useContext(FileFormContext)!;
   const { showError } = useContext(ErrorContext)!;
@@ -95,10 +96,8 @@ const CreateTaskButton = () => {
           .then((res) =>
             history.push(res.data?.createTaskWithDatasetChoosing.taskID)
           )
-          .catch((error) => {
-            showError({ message: error.message });
-            setFileUploadProgress(0);
-          });
+          .catch((error) => showError({ message: error.message }))
+          .finally(() => setFileUploadProgress(0));
       } else {
         createTask({
           variables: { props, datasetProps, table: dataset as File },
@@ -107,13 +106,13 @@ const CreateTaskButton = () => {
           .then((res) =>
             history.push(res.data?.createTaskWithDatasetUploading.taskID)
           )
-          .catch((error) => {
-            showError({ message: error.message });
-            setFileUploadProgress(0);
-          });
+          .catch((error) => showError({ message: error.message }))
+          .finally(() => setFileUploadProgress(0));
       }
     }
   };
+
+  console.log(fileUploadProgress);
 
   return (
     <SubmitButton

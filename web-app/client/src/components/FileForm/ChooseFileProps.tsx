@@ -77,19 +77,19 @@ const ChooseFileProps = () => {
         >
           {fileProps.hasHeader ? "Yes" : "No"}
         </Toggle>
-        {primitiveType === PrimitiveType.AR && (
-          <>
-            <h5 className="text-white mb-0 mx-2">File format:</h5>
-            <Selector
-              options={[...fileFormatList]}
-              current={fileProps.fileFormat}
-              onSelect={changeFileFormat}
-              label={(format) => format}
-              className="mx-2"
-            />
-          </>
-        )}
       </FormItem>
+      {primitiveType === PrimitiveType.AR && (
+        <FormItem>
+          <h5 className="text-white mb-0 mx-2">File format:</h5>
+          <Selector
+            options={[...fileFormatList]}
+            current={fileProps.fileFormat}
+            onSelect={changeFileFormat}
+            label={(format) => format}
+            className="mx-2"
+          />
+        </FormItem>
+      )}
       {primitiveType === PrimitiveType.AR && (
         <>
           <FormItem enabled={!isBuiltinDataset(dataset) && fileProps.fileFormat === "Singular"}>

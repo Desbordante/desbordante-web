@@ -27,10 +27,10 @@ const FDAlgorithmProps = () => {
     }));
   };
 
-  const changearityConstraint = (newarityConstraint: string) => {
+  const changeArityConstraint = (newArityConstraint: string) => {
     setAlgorithmProps((prevProps) => ({
       ...prevProps,
-      arityConstraint: newarityConstraint,
+      arityConstraint: newArityConstraint,
     }));
   };
 
@@ -96,7 +96,7 @@ const FDAlgorithmProps = () => {
         <h5 className="text-white mb-0 mx-2">Arity constraint:</h5>
         <Value
           value={arityConstraint}
-          onChange={changearityConstraint}
+          onChange={changeArityConstraint}
           size={3}
           inputValidator={validators.isInteger}
           className="mx-2"
@@ -105,7 +105,7 @@ const FDAlgorithmProps = () => {
           value={arityConstraint}
           min={1}
           max={10}
-          onChange={changearityConstraint}
+          onChange={changeArityConstraint}
           step={1}
           className="mx-2"
         />

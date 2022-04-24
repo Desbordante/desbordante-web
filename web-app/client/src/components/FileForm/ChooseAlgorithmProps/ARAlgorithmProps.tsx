@@ -34,8 +34,6 @@ const ARAlgorithmProps = () => {
     }));
   };
 
-  useEffect(() => changeMinSupport("0.5"), []);
-
   useEffect(() => {
     if (allowedValues.allowedAlgorithms?.allowedARAlgorithms[0]) {
       changeAlgorithm(allowedValues.allowedAlgorithms?.allowedARAlgorithms[0]);
@@ -43,7 +41,7 @@ const ARAlgorithmProps = () => {
   }, [allowedValues]);
 
   const minConfidence = algorithmProps?.minConfidence || "0.005";
-  const minSupportAR = algorithmProps?.minSupportAR || "0.5";
+  const minSupportAR = algorithmProps?.minSupportAR || "0.005";
 
   return (
     <>
