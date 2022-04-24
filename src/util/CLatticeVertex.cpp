@@ -13,7 +13,7 @@ bool CLatticeVertex::ComesBeforeAndSharePrefixWith(CLatticeVertex const& rhs) co
 
     auto arity = indices.count();
     for (unsigned long i = 0; i < arity - 1; i++){
-        if (index != rhs_index || GetPatternValues()[index] != rhs.GetPatternValues()[rhs_index]) {
+        if (index != rhs_index || GetPatternValues().at(index) != rhs.GetPatternValues().at(rhs_index)) {
             return false;
         }
         index = indices.find_next(index);
