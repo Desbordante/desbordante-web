@@ -25,7 +25,8 @@ CLatticeVertex* CLatticeLevel::GetLatticeVertex(const TuplePattern& tuple_patter
 void CLatticeLevel::GenerateFirstLevel(std::vector<std::unique_ptr<util::CLatticeLevel>>& levels,
                                        const ColumnLayoutPartialRelationData* relation) {
     auto level = std::make_unique<util::CLatticeLevel>(1);
-    auto const* empty_vertex = new util::CLatticeVertex(relation, TuplePattern(relation));
+    auto* empty_vertex = new util::CLatticeVertex(relation, TuplePattern(relation));
+    empty_vertex->AcquirePositionListIndex(PartialPositionListIndex::CreatePliForEmptyVertex(relation->GetNumRows()));
     auto col_numbers = relation->GetSchema()->GetNumColumns();
     std::vector<ColumnPattern const*> rhs_candidates;
 

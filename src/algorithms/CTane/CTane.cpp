@@ -68,17 +68,16 @@ double CTane::CalculatePartitionError(const PartialPositionListIndex& x_pli,
 }
 
 void CTane::RegisterCfd(const TuplePattern& lhs_pattern, const ColumnPattern& rhs_pattern,
-                        unsigned supp, double conf) {
-    CFD cfd(lhs_pattern, rhs_pattern);
-    LOG(INFO) << "Discovered CFD: " << cfd.ToString(ItemNames()) << " with support = " << supp
-               << " and confidence = " << conf << ".";
+                        unsigned sup, double conf) {
+    CFD cfd(lhs_pattern, rhs_pattern, conf, sup);
+    LOG(INFO) << "Discovered CFD: " << cfd.ToString(ItemNames()) << " with support = " << sup
+              << " and confidence = " << conf << ".";
     CFDAlgorithm::RegisterCFD(std::move(cfd));
 }
 
 void CTane::PruneCandidates(CLatticeLevel* level, const CLatticeVertex* x_vertex,
                             const CLatticeVertex* xa_vertex,
                             ColumnPattern const& rhs_column_pattern) const {
-    // otherIndices = { idx : idx in R\X }
     auto other_indices = ~boost::dynamic_bitset<>(relation_->GetSchema()->GetNumColumns()) -
                          x_vertex->GetColumnIndices();
 
@@ -136,10 +135,6 @@ unsigned long long CTane::ExecuteInternal() {
         }
 
         for (auto& xa : level->GetVertices()) {
-            if (arity == 0) {
-                // TODO(chizhov): Добавить проверку для CFD вида empty -> A
-                continue;
-            }
             if (!xa->GetPositionListIndex()) {
                 auto pli_1 = xa->GetParents()[0]->GetPositionListIndex();
                 auto pli_2 = xa->GetParents()[1]->GetPositionListIndex();
