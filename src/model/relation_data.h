@@ -50,4 +50,3 @@ public:
 };
 
 using RelationData = AbstractRelationData<ColumnData>;
-

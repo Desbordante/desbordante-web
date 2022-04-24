@@ -158,4 +158,3 @@ std::string PatternPositionListIndex::ToString() const {
 }
 
 } // namespace util
-
