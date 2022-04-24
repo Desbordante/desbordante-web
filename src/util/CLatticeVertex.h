@@ -4,6 +4,7 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <easylogging++.h>
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -42,15 +43,6 @@ public:
         return GetPositionListIndex()->GetSize();
     }
 
-    auto GetRhsCandidatesForColumn(unsigned col_index) {
-        std::vector<const ColumnPattern *> candidates;
-        for (const auto* candidate : rhs_candidates_) {
-            if (candidate->GetColumnIndex() == col_index) {
-                candidates.push_back(candidate);
-            }
-        }
-        return candidates;
-    }
     const auto& GetPatternValues() const {
         return GetTuplePattern().GetPatternValues();
     }
@@ -95,14 +87,23 @@ public:
         std::vector<ColumnPattern const *> intersection;
         auto comparator =
                 [](ColumnPattern const *cp1, ColumnPattern const *cp2) {
-            return cp1->IsMoreGeneralThan(*cp2);
-        };
+                if (cp1->GetColumnIndex() != cp2->GetColumnIndex()) {
+                    return cp1->GetColumnIndex() < cp2->GetColumnIndex();
+                }
+                if (cp1->IsVar()) {
+                    return !cp2->IsVar();
+                } else if (cp2->IsVar()) {
+                    return false;
+                } else {
+                    return cp1->GetPatternValue() < cp2->GetPatternValue();
+                }
+            };
         std::sort(lhs.begin(), lhs.end(), comparator);
         std::sort(rhs.begin(), rhs.end(), comparator);
+
         std::set_intersection(lhs.begin(), lhs.end(),
                               rhs.begin(), rhs.end(),
-                              std::back_inserter(intersection));
-        std::sort(intersection.begin(), intersection.end(), comparator);
+                              std::back_inserter(intersection), comparator);
         return { !intersection.empty(), std::move(intersection) };
     }
 
