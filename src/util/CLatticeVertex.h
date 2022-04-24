@@ -95,12 +95,12 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, const CLatticeVertex& lv);
 
-    static std::pair<bool, std::vector<ColumnPattern const*>> IntersectRhsCandidates(
+    static std::vector<ColumnPattern const*> IntersectRhsCandidates(
         std::vector<ColumnPattern const*>& lhs, std::vector<ColumnPattern const*>& rhs) {
         std::vector<ColumnPattern const*> intersection;
         std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
                               std::back_inserter(intersection), ColumnPattern::Comparator);
-        return {!intersection.empty(), std::move(intersection)};
+        return intersection;
     }
 
     static std::vector<int> UnionPatternValues(std::vector<int> const& lhs,
