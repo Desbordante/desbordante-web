@@ -78,7 +78,7 @@ const ARList: React.FC<Props> = ({
           className="mx-2"
         />
         <SearchBar
-          value={primitiveFilter.FD.filterString || ""}
+          value={primitiveFilter.AR.filterString || ""}
           defaultText="Dependencies regex"
           onChange={setFilterString}
           className="mx-2"

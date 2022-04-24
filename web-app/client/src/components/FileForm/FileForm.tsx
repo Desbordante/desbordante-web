@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Container, Row } from "react-bootstrap";
+import { Row } from "react-bootstrap";
 
 import LoadingScreen from "../LoadingScreen/LoadingScreen";
 import ChoosePrimitive from "./ChoosePrimitive";
@@ -15,19 +15,18 @@ const FileForm = () => {
   const { isErrorShown } = useContext(ErrorContext)!;
 
   return (
-    <Container
-      fluid="md"
-      className="file-form flex-grow-1 d-flex flex-column justify-content-start align-items-center"
+    <div
+      className="file-form flex-grow-1 d-flex flex-column align-items-center"
     >
       {fileUploadProgress > 0 && !isErrorShown && <LoadingScreen />}
       <ChoosePrimitive />
-      <Row>
+      <Row className="w-100 px-5">
         <ChooseDataset />
         <ChooseFileProps />
         <ChooseAlgorithmProps />
       </Row>
       <CreateTaskButton />
-    </Container>
+    </div>
   );
 };
 

@@ -17,8 +17,7 @@ import { graphQLEndpoint } from "./APIFunctions";
 import { AlgorithmConfigContextProvider } from "./components/AlgorithmConfigContext";
 import { customFetch } from "./graphql/customFetch";
 import { errorLink, requestIdLink } from "./graphql/context";
-
-console.log(graphQLEndpoint);
+import { FileFormContextProvider } from "./components/FileFormContext";
 
 const client = new ApolloClient({
   uri: graphQLEndpoint,
@@ -40,7 +39,9 @@ ReactDOM.render(
       <AuthContextProvider>
         <TaskContextProvider>
           <AlgorithmConfigContextProvider>
-            <App />
+            <FileFormContextProvider>
+              <App />
+            </FileFormContextProvider>
           </AlgorithmConfigContextProvider>
         </TaskContextProvider>
       </AuthContextProvider>

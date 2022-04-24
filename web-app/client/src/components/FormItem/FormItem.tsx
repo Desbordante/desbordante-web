@@ -8,6 +8,10 @@ interface ShadowProps {
 
 const Shadow = styled.div<ShadowProps>`
   z-index: 10;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   pointer-events: ${(props) => (props.enabled ? "auto" : "none")};
   opacity: ${(props) => (props.enabled ? "0.75" : "0")};
   transition: opacity 0.3s;
@@ -20,11 +24,11 @@ interface Props {
 const FormItem: React.FC<Props> = ({ enabled = true, children }) => (
   <Col
     xxl={6}
-    className="form-item my-2 position-relative d-flex align-items-center flex-wrap"
+    className="px-0 my-2 position-relative d-flex align-items-center flex-wrap"
   >
     <Shadow
       enabled={!enabled}
-      className="form-item-shadow position-absolute w-100 h-100 bg-dark"
+      className="form-item-shadow position-absolute bg-dark"
     />
     <>{children}</>
   </Col>

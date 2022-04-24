@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import { Container } from "react-bootstrap";
 import { FileFormContext } from "../FileFormContext";
 import Toggle from "../Toggle/Toggle";
 import { PrimitiveType } from "../../types/globalTypes";
@@ -15,7 +14,7 @@ const ChoosePrimitive = () => {
   const { primitiveType, setPrimitiveType } = useContext(FileFormContext)!;
 
   return (
-    <Container fluid className="text-center py-3">
+    <div className="w-100 text-center py-3">
       {tabs.map(({ alias, name }) => (
         <Toggle
           className="mx-2 my-2"
@@ -26,7 +25,7 @@ const ChoosePrimitive = () => {
           {name}
         </Toggle>
       ))}
-    </Container>
+    </div>
   );
 };
 

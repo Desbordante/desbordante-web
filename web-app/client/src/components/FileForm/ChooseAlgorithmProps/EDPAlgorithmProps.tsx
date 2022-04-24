@@ -137,7 +137,7 @@ const EDPAlgorithmProps = () => {
         <Selector
           options={
             allowedValues.allowedAlgorithms?.allowedFDAlgorithms.filter(
-              (algo) => algo.properties.hasErrorThreshold
+              (algo) => algo.name === "Pyro"
             ) || []
           }
           current={
