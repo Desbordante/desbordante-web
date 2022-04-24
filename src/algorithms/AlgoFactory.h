@@ -17,7 +17,8 @@ BETTER_ENUM(AlgoMiningType, char,
     typos,
     typofds,
     clusters,
-    ar
+    ar,
+    metric
 #else
     fd = 0, /* Functional dependency mining */
     cfd,    /* Conditional functional dependency mining */
@@ -49,7 +50,10 @@ BETTER_ENUM(Algo, char,
 
     /* Association rules mining algorithms */
     apriori,
-    typominer
+    typominer,
+
+    /* Metric verifier algorithm */
+    metric
 );
 
 using StdParamsMap = std::unordered_map<std::string, boost::any>;
