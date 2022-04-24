@@ -49,6 +49,16 @@ public:
         return res;
     }
 
+    std::string ToStringIndex(const std::unordered_map<int, std::string>& item_names = {}) const {
+        std::string res;
+        res += "" + std::to_string(GetColumnIndex());
+        res += IsVar()
+                   ? ""
+                   : "=" + std::to_string(GetPatternValue());
+        res += "";
+        return res;
+    }
+
     bool operator==(const ColumnPattern& rhs) const {
         return GetColumnIndex() == rhs.GetColumnIndex() &&
                GetPatternValue() == rhs.GetPatternValue();
@@ -158,6 +168,19 @@ public:
         return res;
     }
 
+    std::string ToStringIndex() const {
+        std::string res = "(";
+        for (auto idx = GetColumnIndices().find_first(); idx != boost::dynamic_bitset<>::npos; idx = GetColumnIndices().find_next(idx)) {
+            res += "" + std::to_string(rel_->GetSchema()->GetColumn(idx)->GetIndex());
+            res += pattern_values_[idx] == 0
+                       ? ""
+                       : "=" + std::to_string(pattern_values_[idx]);
+            res += ", ";
+        }
+        res = res.substr(0, res.find_last_of(',')) + ")";
+        return res;
+    }
+
     auto Size() const {
         return indices.count();
     }
@@ -200,16 +223,6 @@ public:
 
     bool IsVar() const {
         return const_indices_.count() == 0;
-    }
-
-    std::vector<ColumnPattern const *> GetColumnPatterns() const {
-        std::vector<ColumnPattern const *> col_patterns;
-        for (auto idx = GetColumnIndices().find_first();
-             idx != boost::dynamic_bitset<>::npos;
-             idx = GetColumnIndices().find_next(idx)) {
-            col_patterns.push_back(GetAsColumnPattern(idx));
-        }
-        return col_patterns;
     }
 
     TuplePattern GetWithoutColumn(unsigned int column_index) const {

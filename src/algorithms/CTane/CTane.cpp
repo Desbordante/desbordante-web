@@ -67,19 +67,6 @@ double CTane::CalculatePartitionError(const PatternPositionListIndex& x_pli,
     return error_sum;
 }
 
-std::vector<const ColumnPattern*> CTane::IntersectCandidates(
-    std::vector<const ColumnPattern*>& xa_rhs_candidates,
-    std::vector<const ColumnPattern*>& xa_column_patterns) {
-    std::vector<const ColumnPattern*> intersection;
-    std::set_intersection(xa_rhs_candidates.begin(), xa_rhs_candidates.end(),
-                          xa_column_patterns.begin(), xa_column_patterns.end(),
-                          std::back_inserter(intersection),
-                          [](const ColumnPattern* lhs, const ColumnPattern* rhs) {
-                              return ColumnPattern::LexicographicComparator(*lhs, *rhs);
-                          });
-    return intersection;
-}
-
 void CTane::RegisterCfd(const TuplePattern& lhs_pattern, const ColumnPattern& rhs_pattern,
                         unsigned supp, double conf) {
     CFD cfd(lhs_pattern, rhs_pattern);
@@ -100,9 +87,9 @@ void CTane::PruneCandidates(CLatticeLevel* level, const CLatticeVertex* x_vertex
 
     for (const auto& vertex : level->GetVertices()) {
         const auto& tuple_pattern = vertex->GetTuplePattern();
-        auto& candidates = vertex->GetRhsCandidates();
         if (tuple_pattern.HasColumnPattern(rhs_column_pattern) &&
             tuple_pattern.GetWithoutColumn(rhs_col_index) <= xa_vertex_without_col) {
+            auto& candidates = vertex->GetRhsCandidates();
             candidates.erase(std::remove_if(candidates.begin(), candidates.end(),
                                             [&other_indices, &rhs_column_pattern](
                                                 const ColumnPattern* col_pattern) {
@@ -126,13 +113,14 @@ void CTane::Prune(CLatticeLevel* level) const {
 }
 
 unsigned long long CTane::ExecuteInternal() {
-    unsigned int max_level = std::min(config_.max_lhs, (unsigned int)relation_->GetSchema()->GetNumColumns() - 1);
-    double progress_step = 100.0 / (max_level + 1);
+    unsigned int levels_amount =
+        std::min(config_.max_lhs, (unsigned int)relation_->GetSchema()->GetNumColumns() - 1) + 1;
+    double progress_step = 100.0 / (levels_amount);
     auto start_time = std::chrono::system_clock::now();
 
     std::vector<std::unique_ptr<CLatticeLevel>> levels;
 
-    for (unsigned int arity = 0; arity <= max_level; arity++) {
+    for (unsigned int arity = 0; arity < levels_amount; arity++) {
         if (arity == 0) {
             CLatticeLevel::GenerateFirstLevel(levels, relation_.get());
         } else {
@@ -148,8 +136,8 @@ unsigned long long CTane::ExecuteInternal() {
         }
 
         for (auto& xa : level->GetVertices()) {
-
             if (arity == 0) {
+                // TODO(chizhov): Добавить проверку для CFD вида empty -> A
                 continue;
             }
             if (!xa->GetPositionListIndex()) {
@@ -160,27 +148,22 @@ unsigned long long CTane::ExecuteInternal() {
                     continue;
                 }
             }
-
             for (const auto x : xa->GetParents()) {
                 auto a_index = (xa->GetColumnIndices() - x->GetColumnIndices()).find_first();
-                auto xa_column_patterns = xa->GetRhsCandidatesForColumn(a_index);
-
-                const auto kRhsCandidates =
-                    IntersectCandidates(xa->GetRhsCandidates(), xa_column_patterns);
-                for (const auto* rhs_column_pattern : kRhsCandidates) {
-                    double conf =
-                        min_conf_ == 1
-                            ? IsExactCfd(*x, *xa)
-                            : rhs_column_pattern->IsConst()
-                                  ? CalculateConstConfidence(*x, *xa)
-                                  : CalculateConfidence(*x, *xa);
+                auto a = xa->GetTuplePattern().GetAsColumnPattern(a_index);
+                if (std::find_if(xa->GetRhsCandidates().begin(), xa->GetRhsCandidates().end(),
+                                 [&a](const ColumnPattern* col) {
+                                     return col->ToString() == a->ToString();
+                                 }) != xa->GetRhsCandidates().end()) {
+                    double conf = min_conf_ == 1 ? IsExactCfd(*x, *xa)
+                                  : a->IsConst() ? CalculateConstConfidence(*x, *xa)
+                                                 : CalculateConfidence(*x, *xa);
 
                     if (conf >= min_conf_) {
-                        RegisterCfd(x->GetTuplePattern(), *rhs_column_pattern, xa->GetSupport(),
-                                    conf);
+                        RegisterCfd(x->GetTuplePattern(), *a, xa->GetSupport(), conf);
                     }
                     if (conf == 1) {
-                        PruneCandidates(level, x, xa.get(), *rhs_column_pattern);
+                        PruneCandidates(level, x, xa.get(), *a);
                     }
                 }
             }
@@ -198,9 +181,6 @@ unsigned long long CTane::ExecuteInternal() {
     apriori_millis_ += elapsed_milliseconds.count();
 
     LOG(INFO) << "Found " << cfd_collection_.size() << " CFDs";
-    if (config_.max_lhs != (unsigned int)-1 ) {
-        LOG(INFO) << "where lhs arity less or equal than " << config_.max_lhs;
-    }
     return apriori_millis_;
 }
 
