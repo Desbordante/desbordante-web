@@ -10,24 +10,25 @@
 #include "CLatticeVertex.h"
 
 using namespace util;
+using namespace model;
 
 namespace algos {
 
 void CTane::Initialize() {
     if (item_names_.empty() || relation_ == nullptr) {
-        std::tie(item_names_, relation_) = PatternColumnLayoutRelationData::CreateFrom(
+        std::tie(item_names_, relation_) = ColumnLayoutPartialRelationData::CreateFrom(
             input_generator_, config_.is_null_equal_null, min_sup_);
     }
-    if (relation_->GetPatternColumnData().empty()) {
+    if (relation_->GetColumnData().empty()) {
         throw std::runtime_error("Got an empty .csv file: CFD mining is meaningless.");
     }
 }
 
 bool CTane::IsExactCfd(const CLatticeVertex& x_vertex, const CLatticeVertex& xa_vertex) {
-    return x_vertex.GetPositionListIndex()->GetPartitionsNumber() ==
-               xa_vertex.GetPositionListIndex()->GetPartitionsNumber() &&
-           x_vertex.GetPositionListIndex()->GetSize() ==
-               xa_vertex.GetPositionListIndex()->GetSize();
+    const auto& x_pli = x_vertex.GetPositionListIndex();
+    const auto& xa_pli = xa_vertex.GetPositionListIndex();
+    return x_pli->GetPartitionsNumber() == xa_pli->GetPartitionsNumber() &&
+           x_pli->GetSize() == xa_pli->GetSize();
 }
 
 double CTane::CalculateConstConfidence(const CLatticeVertex& x_vertex,
@@ -35,15 +36,14 @@ double CTane::CalculateConstConfidence(const CLatticeVertex& x_vertex,
     return (double)xa_vertex.GetSupport() / x_vertex.GetSupport();
 }
 
-double CTane::CalculateConfidence(const CLatticeVertex& x_vertex,
-                                  const CLatticeVertex& xa_vertex) const {
+double CTane::CalculateConfidence(const CLatticeVertex& x_vertex, const CLatticeVertex& xa_vertex) {
     auto error_sum = CalculatePartitionError(*x_vertex.GetPositionListIndex(),
                                              *xa_vertex.GetPositionListIndex());
     return 1 - (double)error_sum / x_vertex.GetSupport();
 }
 
-double CTane::CalculatePartitionError(const PatternPositionListIndex& x_pli,
-                                      const PatternPositionListIndex& xa_pli) {
+double CTane::CalculatePartitionError(const PartialPositionListIndex& x_pli,
+                                      const PartialPositionListIndex& xa_pli) {
     int error_sum = 0;
     std::map<int, unsigned int> partitions_size;
     for (const auto& cluster : xa_pli.GetIndex()) {
@@ -70,7 +70,7 @@ double CTane::CalculatePartitionError(const PatternPositionListIndex& x_pli,
 void CTane::RegisterCfd(const TuplePattern& lhs_pattern, const ColumnPattern& rhs_pattern,
                         unsigned supp, double conf) {
     CFD cfd(lhs_pattern, rhs_pattern);
-    LOG(DEBUG) << "Discovered CFD: " << cfd.ToString(ItemNames()) << " with support = " << supp
+    LOG(INFO) << "Discovered CFD: " << cfd.ToString(ItemNames()) << " with support = " << supp
                << " and confidence = " << conf << ".";
     CFDAlgorithm::RegisterCFD(std::move(cfd));
 }
@@ -143,7 +143,7 @@ unsigned long long CTane::ExecuteInternal() {
             if (!xa->GetPositionListIndex()) {
                 auto pli_1 = xa->GetParents()[0]->GetPositionListIndex();
                 auto pli_2 = xa->GetParents()[1]->GetPositionListIndex();
-                xa->acquirePositionListIndex(pli_1->Intersect(pli_2));
+                xa->AcquirePositionListIndex(pli_1->Intersect(pli_2));
                 if (xa->GetPositionListIndex()->GetSize() < min_sup_) {
                     continue;
                 }

@@ -21,7 +21,6 @@ protected:
 
 public:
     static constexpr char const* kNullValue = "NULL";
-    static constexpr int unnamed_value_id_ = 0;
 
     explicit AbstractRelationData(std::unique_ptr<RelationalSchema> schema,
                                   std::vector<ColumnType> column_data) noexcept

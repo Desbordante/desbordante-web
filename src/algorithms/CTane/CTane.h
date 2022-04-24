@@ -19,17 +19,17 @@ private:
 
     static bool IsExactCfd(util::CLatticeVertex const& x_vertex,
                     util::CLatticeVertex const& xa_vertex) ;
-    static double CalculatePartitionError(const util::PatternPositionListIndex& x_pli,
-                                   const util::PatternPositionListIndex& xa_pli) ;
-    double CalculateConfidence(const util::CLatticeVertex& x_vertex,
-                               const util::CLatticeVertex& xa_vertex) const;
+    static double CalculatePartitionError(const util::PartialPositionListIndex& x_pli,
+                                   const util::PartialPositionListIndex& xa_pli) ;
+    static double CalculateConfidence(const util::CLatticeVertex& x_vertex,
+                               const util::CLatticeVertex& xa_vertex) ;
     static double CalculateConstConfidence(util::CLatticeVertex const& x_vertex,
                                     util::CLatticeVertex const& xa_vertex) ;
-    void RegisterCfd(const TuplePattern& lhs_pattern, const ColumnPattern& rhs_pattern,
+    void RegisterCfd(const model::TuplePattern& lhs_pattern, const model::ColumnPattern& rhs_pattern,
                      unsigned supp, double conf);
     void PruneCandidates(util::CLatticeLevel* col_pattern, util::CLatticeVertex const* x_vertex,
                          util::CLatticeVertex const* xa_vertex,
-                         ColumnPattern const& rhs_column_pattern) const;
+                         model::ColumnPattern const& rhs_column_pattern) const;
     void Prune(util::CLatticeLevel* level) const;
     void Initialize() final;
 
