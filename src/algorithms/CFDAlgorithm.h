@@ -4,8 +4,7 @@
 
 #include "CFD.h"
 #include "FDAlgorithm.h"
-#include "PatternColumnLayoutRelationData.h"
-#include <easylogging++.h>
+#include "ColumnLayoutPartialRelationData.h"
 
 namespace util {
 class AgreeSetFactory;
@@ -16,6 +15,7 @@ namespace algos {
 class CFDAlgorithm : public algos::Primitive {
 public:
     using Config = FDAlgorithm::Config;
+    using ItemUniverse = model::ColumnLayoutPartialRelationData::ItemNames;
 
 private:
     friend util::AgreeSetFactory;
@@ -24,9 +24,9 @@ private:
 
 protected:
     const Config config_;
-    std::list<CFD> cfd_collection_;
-    std::unordered_map<int, std::string> item_names_;
-    std::unique_ptr<PatternColumnLayoutRelationData> relation_;
+    std::list<model::CFD> cfd_collection_;
+    ItemUniverse item_names_;
+    std::unique_ptr<model::ColumnLayoutPartialRelationData> relation_;
     virtual unsigned long long ExecuteInternal() = 0;
 
 public:
@@ -36,11 +36,11 @@ public:
         : Primitive(config.data, config.separator, config.has_header, std::move(phase_names)),
           config_(config) {}
 
-    virtual void RegisterCFD(TuplePattern lhs, ColumnPattern rhs) {
+    virtual void RegisterCFD(model::TuplePattern lhs, model::ColumnPattern rhs) {
         RegisterCFD({std::move(lhs), rhs});
     }
 
-    virtual void RegisterCFD(CFD cfd) {
+    virtual void RegisterCFD(model::CFD cfd) {
         if (cfd.GetLhsPattern().Size() > config_.max_lhs) {
             return;
         }
@@ -48,7 +48,7 @@ public:
         cfd_collection_.emplace_back(std::move(cfd));
     }
 
-    std::list<CFD> const& CFDList() const {
+    std::list<model::CFD> const& CFDList() const {
         return cfd_collection_;
     }
 
@@ -60,15 +60,7 @@ public:
         return result;
     }
 
-    void PrintCFDs() const {
-        auto CFDs = CFDListString();
-        std::sort(CFDs.begin(), CFDs.end(), std::less<>());
-        for (const auto& cfd : CFDs) {
-            std::cout << cfd << '\n';
-        }
-    }
-
-    const auto& ItemNames() const {
+    const ItemUniverse& ItemNames() const {
         return item_names_;
     }
 

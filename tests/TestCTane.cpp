@@ -39,17 +39,10 @@ std::string CFDFromStringToString(CFDAlgorithmTest::CFDFromString const& cfd) {
         } else {
             result += "(";
         }
-        result += item;
-        if (pattern != "_") {
-            result += "=" + pattern;
-        }
+        result += item + "=" + pattern;
     }
     result += ") -> ";
-
-    result += cfd.second.first;
-    if (cfd.second.second != "_") {
-        result += "=" + cfd.second.second;
-    }
+    result += cfd.second.first + "=" + cfd.second.second;
     return result;
 }
 
