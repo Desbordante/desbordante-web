@@ -48,6 +48,8 @@ public:
         return index_.size();
     }
 
+    static std::unique_ptr<PartialPositionListIndex> CreatePliForEmptyVertex(unsigned int relation_size);
+
     std::unique_ptr<PartialPositionListIndex> Intersect(PartialPositionListIndex const* that) const;
     std::unique_ptr<PartialPositionListIndex> Probe(
         std::shared_ptr<const std::vector<int>> probing_table) const;
