@@ -15,11 +15,6 @@ namespace model {
 using PartialRelationData = AbstractRelationData<std::map<int, PartialColumnData>>;
 
 class ColumnLayoutPartialRelationData final : public PartialRelationData {
-    unsigned int GetNumRows() const override {
-        LOG(INFO) << "кто меня позвал";
-        return column_data_[0].begin()->second.GetProbingTable().size();
-    }
-
 public:
     using PartialRelationData::AbstractRelationData;
     using ItemNames = std::vector<std::string>;
@@ -28,6 +23,11 @@ public:
     static std::pair<ItemNames, std::unique_ptr<ColumnLayoutPartialRelationData>>
     CreateFrom(CSVParser& file_input, bool is_null_eq_null, unsigned int support = 1,
                int max_cols = -1, long max_rows = -1);
+
+    unsigned int GetNumRows() const override {
+        return column_data_[0].begin()->second.GetProbingTable().size();
+    }
+
 };
 
 }

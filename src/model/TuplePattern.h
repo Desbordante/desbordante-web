@@ -51,9 +51,8 @@ public:
 
     std::string ToStringOnlyIndices() const {
         std::string res;
-        res += "" + std::to_string(GetColumnIndex());
-        res += IsVar() ? "" : "=" + std::to_string(GetPatternValue());
-        res += "";
+        res.append(std::to_string(GetColumnIndex()));
+        res.append("=" + std::to_string(GetPatternValue()));
         return res;
     }
 
@@ -164,15 +163,14 @@ public:
     }
 
     std::string ToStringOnlyIndices() const {
-        std::string res = "(";
+        std::string res;
         for (auto idx = GetColumnIndices().find_first(); idx != boost::dynamic_bitset<>::npos;
              idx = GetColumnIndices().find_next(idx)) {
-            res += "" + std::to_string(rel_->GetSchema()->GetColumn(idx)->GetIndex());
-            res +=
-                pattern_values_.at(idx) == 0 ? "" : "=" + std::to_string(pattern_values_.at(idx));
-            res += ", ";
+            res.append(std::to_string(rel_->GetSchema()->GetColumn(idx)->GetIndex()));
+            res.append("=" + std::to_string(pattern_values_.at(idx)));
+            res.append(",");
         }
-        res = res.substr(0, res.find_last_of(',')) + ")";
+        res = res.substr(0, res.find_last_of(','));
         return res;
     }
 

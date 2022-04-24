@@ -137,6 +137,15 @@ std::unique_ptr<PartialPositionListIndex> PartialPositionListIndex::Probe(
                                                       relation_size_, relation_size_);
 }
 
+std::unique_ptr<PartialPositionListIndex> PartialPositionListIndex::CreatePliForEmptyVertex(
+    unsigned int relation_size) {
+    std::deque<std::vector<int>> index;
+    for (int i = 0; i != (int)relation_size; ++i) {
+        index.push_back({ i });
+    }
+    return std::make_unique<PartialPositionListIndex>(std::move(index), relation_size, relation_size, relation_size);
+}
+
 std::string PartialPositionListIndex::ToString() const {
     std::string res = "[";
     for (auto& cluster : index_) {
