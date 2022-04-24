@@ -17,8 +17,6 @@ private:
     double min_conf_;
     unsigned int min_sup_;
 
-    static std::vector<const ColumnPattern*> IntersectCandidates(
-        std::vector<const ColumnPattern*>&, std::vector<const ColumnPattern*>&);
     static bool IsExactCfd(util::CLatticeVertex const& x_vertex,
                     util::CLatticeVertex const& xa_vertex) ;
     static double CalculatePartitionError(const util::PatternPositionListIndex& x_pli,

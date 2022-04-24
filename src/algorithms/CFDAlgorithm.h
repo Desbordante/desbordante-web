@@ -5,10 +5,13 @@
 #include "CFD.h"
 #include "FDAlgorithm.h"
 #include "PatternColumnLayoutRelationData.h"
+#include <easylogging++.h>
 
 namespace util {
 class AgreeSetFactory;
 }
+
+namespace algos {
 
 class CFDAlgorithm : public algos::Primitive {
 public:
@@ -39,10 +42,6 @@ public:
 
     virtual void RegisterCFD(CFD cfd) {
         if (cfd.GetLhsPattern().Size() > config_.max_lhs) {
-            return;
-        }
-        if ((cfd.GetLhsPattern().IsConst() && cfd.GetRhsPattern().IsVar()) ||
-            (cfd.GetLhsPattern().IsVar() && cfd.GetRhsPattern().IsConst())) {
             return;
         }
         std::scoped_lock lock(register_mutex_);
@@ -79,3 +78,5 @@ public:
 
     unsigned long long Execute() final;
 };
+
+} // namespace algos
