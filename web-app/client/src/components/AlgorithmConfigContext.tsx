@@ -73,7 +73,6 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
   useEffect(() => {
     if (error) {
       showError({
-        code: 404,
         message: error.message,
         suggestion: "Please, try reloading the page.",
       });
