@@ -245,13 +245,18 @@ const typeDefs = gql`
         rhs: Column!
     }
     
-    type CFD {
-        lhs: [String!]!
-        rhs: String!
-        lhsPatterns: [String!]!
-        rhsPattern: String!
+    type Item {
+        column: Column
+        pattern: String
     }
     
+    type CFD {
+        lhs: [Item!]!
+        rhs: Item!
+        confidence: Float!
+        support: Int!
+    }
+
     type AR {
         lhs: [String!]!
         rhs: [String!]!
@@ -328,10 +333,25 @@ const typeDefs = gql`
         ARs(filter: ARsFilter!): [AR!]!
         depsAmount: Int!
     }
+
+    enum CFDSortBy {
+        LHS_COL_NAME RHS_COL_NAME CONF SUP DEFAULT
+    }
+
+    input CFDsFilter {
+        filterString: String
+        sortSide: SortSide!
+        sortBy: CFDSortBy!
+        orderBy: OrderBy!
+        mustContainRhsColIndices: [Int!]
+        mustContainLhsColIndices: [Int!]
+        withoutKeys: Boolean!
+        pagination: Pagination!
+    }
     
     type CFDTaskResult implements PrimitiveTaskResult {
         taskID: String!
-        CFDs(pagination: Pagination! = { offset: 0 limit: 100 }): [CFD!]!
+        CFDs(filter: CFDsFilter!): [CFD!]!
         depsAmount: Int!
         PKs: [Column!]!
         pieChartData: CFDPieCharts!

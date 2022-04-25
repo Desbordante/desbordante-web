@@ -1,6 +1,4 @@
-import { CreatingUserProps, IntersectionTaskProps, MetricType, PrimitiveType } from "../graphql/types/types";
-import { FileInfo } from "./models/FileInfo/FileInfo";
-import { TaskState, TaskStatusType } from "./models/TaskData/TaskState";
+import { CreatingUserProps } from "../graphql/types/types";
 import { Device, DeviceInfoInstance } from "./models/UserInfo/Device";
 import { RoleType } from "./models/UserInfo/Role";
 import { Session, SessionStatusType } from "./models/UserInfo/Session";
@@ -62,6 +60,7 @@ async function createAccountWithLongLiveRefreshToken (roles: RoleType[]) {
     return answers;
 }
 
+<<<<<<< HEAD
 async function createCfdTask (fileName: string, cfdsStr: string,
                              pieChartDataWithoutPatternsStr: string,
                              pieChartDataWithPatternsStr: string,
@@ -432,10 +431,10 @@ async function createBuiltInTasks () {
     console.log(testlong, ciPublicHIghway700, s1_message, s2_message, simple_typos_1_1.message, simple_typos_2_1.message, simple_typos_2_2.message, simple_typos_2__1.message);
 }
 
+=======
+>>>>>>> Add: Added CTane support to web-server & cpp-consumer
 export const initTestData = async () => {
     await createAccountWithLongLiveRefreshToken(["ANONYMOUS", "USER", "SUPPORT", "ADMIN", "DEVELOPER"])
         .then(results => results.map(res => console.log(res)))
         .catch(e => console.error("Problems with accounts creating", e.message));
-    await createBuiltInTasks()
-        .catch(e => console.error("Problems with task creating", e.message));
 };

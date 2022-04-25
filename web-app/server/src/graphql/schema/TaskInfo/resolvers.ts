@@ -3,14 +3,14 @@ import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core"
 import { AuthenticationError } from "apollo-server-express";
 import { CsvParserStream, parse } from "fast-csv";
 import fs from "fs";
-import { FindOptions, Op } from "sequelize";
 import _ from "lodash";
+import { FindOptions, Op } from "sequelize";
 import validator from "validator";
 import { builtInDatasets } from "../../../db/initBuiltInDatasets";
 import { BaseTaskConfig } from "../../../db/models/TaskData/TaskConfig";
 import { TaskState, TaskStatusType } from "../../../db/models/TaskData/TaskState";
 
-import { ArSortBy, Pagination, PrimitiveType, Resolvers } from "../../types/types";
+import { ArSortBy, CfdSortBy, Pagination, PrimitiveType, Resolvers } from "../../types/types";
 import isUUID = validator.isUUID;
 
 function getArrayOfDepsByPagination<DependencyType> (deps: DependencyType[],
@@ -36,13 +36,22 @@ export const TaskInfoResolvers: Resolvers = {
     },
     CFD: {
         // @ts-ignore
-        lhs: parent => parent.l,
+        lhs: ({ cfd, itemValues, columnNames }) => {
+            // @ts-ignore
+            return cfd.lhs.map(({ column_index: index, pattern }) =>
+                ({ column: { index, name: columnNames[index] }, pattern: itemValues[pattern] })
+            );
+        },
         // @ts-ignore
-        rhs: parent => parent.r,
+        rhs: ({ cfd, itemValues, columnNames }) => {
+            // @ts-ignore
+            const { column_index: index, pattern } = cfd.rhs;
+            return { column: { index, name: columnNames[index] }, pattern: itemValues[pattern] };
+        },
         // @ts-ignore
-        lhsPatterns: parent => parent.lp,
+        support: ({ cfd }) => cfd.support,
         // @ts-ignore
-        rhsPattern: parent => parent.rp,
+        confidence: ({ cfd }) => cfd.confidence,
     },
     FD: {
         // @ts-ignore
@@ -312,7 +321,7 @@ export const TaskInfoResolvers: Resolvers = {
 
             const itemIndicesOrder = [...Array(itemValues.length).keys()];
             if (sortBy === "LHS_NAME") {
-                itemIndicesOrder.sort((l, r) => (itemIndicesOrder[l] < itemIndicesOrder[r] ? -1 : 1));
+                itemIndicesOrder.sort((l, r) => (itemValues[l] < itemValues[r] ? -1 : 1));
             }
             if (orderBy === "DESC") {
                 itemIndicesOrder.reverse();
@@ -520,43 +529,154 @@ export const TaskInfoResolvers: Resolvers = {
     },
     CFDPieCharts: {
         // @ts-ignore
-        withoutPatterns: async ({ propertyPrefix, taskInfo, columnNames }) => {
-            const withoutPatterns = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "withoutPatterns");
+        withoutPatterns: async ({ propertyPrefix, taskInfo, fileID }, obj, { models }) => {
+            const pieChartData = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "withoutPatterns");
+            const [lhs, rhs] = pieChartData.split("|");
 
-            type withoutPatternsRow = { id: number, value: string };
-            const withoutPatternsObject: { lhs: [withoutPatternsRow], rhs: [withoutPatternsRow] } = JSON.parse(withoutPatterns);
-            const transform = ({ id, value }: withoutPatternsRow) => ({ column: { index: id, name: columnNames[id] }, value });
-            return { lhs: withoutPatternsObject.lhs.map(transform), rhs: withoutPatternsObject.rhs.map(transform) };
+            const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
+            const transformFromCompactData = (data: string) => {
+                return data.split(";")
+                    .map((keyValueStr: string) => keyValueStr.split(","))
+                    .map(([index, value]) => ({ column: { index, name: columnNames[Number(index)] }, value }));
+            };
+
+            return { lhs: transformFromCompactData(lhs), rhs: transformFromCompactData(rhs) };
         },
         // @ts-ignore
-        withPatterns: async ({ propertyPrefix, taskInfo, columnNames }) => {
-            const withPatterns = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "withPatterns");
-
-            type withPatternsRow = { id: number, value: string, pattern: string };
-            const withPatternsObject: { lhs: [withPatternsRow], rhs: [withPatternsRow] } = JSON.parse(withPatterns);
-            const transform = ({ id, value, pattern }: withPatternsRow) => ({ column: { index: id, name: columnNames[id] }, value, pattern });
-            return { lhs: withPatternsObject.lhs.map(transform), rhs: withPatternsObject.rhs.map(transform) };
+        withPatterns: async (parent) => {
+            throw new ForbiddenError("Pie chart data with patterns not supported yet");
         },
     },
     CFDTaskResult: {
         // @ts-ignore
-        CFDs: async ({ propertyPrefix, taskInfo }, { pagination }) => {
-            const CFDsStr = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "CFDs");
-            const CFDs = JSON.parse(CFDsStr);
-            return getArrayOfDepsByPagination(CFDs, pagination);
+        CFDs: async ({ propertyPrefix, taskInfo, fileID }, { filter }, { models, logger }) => {
+            const { pagination, filterString, orderBy, mustContainLhsColIndices, mustContainRhsColIndices } = filter;
+            let sortBy = filter.sortBy;
+            const [CFDsCompact, valueDictionary] = await (taskInfo as TaskState).getMultipleResultFieldAsString(propertyPrefix, ["CFDs", "valueDictionary"]);
+            if (!CFDsCompact || !valueDictionary) {
+                return [];
+            }
+            if (sortBy === "DEFAULT") {
+                sortBy = "CONF" as CfdSortBy;
+            }
+            const itemValues = valueDictionary.split(",");
+            logger(itemValues);
+
+            const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
+            const columnIndicesOrder = [...Array(columnNames.length).keys()];
+            if (sortBy === "LHS_COL_NAME") {
+                columnIndicesOrder.sort((l, r) => (columnNames[l] < columnNames[r] ? -1 : 1));
+            }
+            if (orderBy === "DESC") {
+                columnIndicesOrder.reverse();
+            }
+
+            const itemIndicesOrder = [...Array(itemValues.length).keys()];
+            // @ts-ignore
+            if (sortBy === "LHS_COL_NAME") {
+                itemIndicesOrder.sort((l, r) => (itemValues[l] < itemValues[r] ? -1 : 1));
+            }
+            if (orderBy === "DESC") {
+                itemIndicesOrder.reverse();
+            }
+
+            const isIntersects = (lhs: number[], rhs: number[]) => {
+                let ai = 0, bi = 0;
+                while(ai < lhs.length && bi < rhs.length) {
+                    if (lhs[ai] < rhs[bi] ) {
+                        ai++;
+                    } else if (lhs[ai] > rhs[bi]) {
+                        bi++;
+                    } else {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            const mustContainIndices = new Array<number>();
+            if (filterString) {
+                try {
+                    columnNames.forEach((name, id) =>
+                        name.match(new RegExp(filterString, "i")) && mustContainIndices.push(id));
+                } catch (e) {
+                    logger(`User passed incorrect filterString = ${filterString}`);
+                    return [];
+                }
+                if (mustContainIndices.length === 0) {
+                    return [];
+                }
+            }
+
+            type Item = {
+                column_index: number
+                pattern: string
+            }
+
+            type CFDCompactType = {
+                lhs: Item[],
+                rhs: Item,
+                support: number,
+                confidence: number,
+            }
+
+            const cfdFilter = ({ lhs, rhs }: CFDCompactType) => {
+                if (mustContainRhsColIndices != undefined && mustContainRhsColIndices.length !== 0 && !~_.sortedIndexOf(mustContainRhsColIndices, rhs.column_index)) {
+                    return false;
+                }
+                const lhsIndices = lhs.map(({ column_index }) => column_index);
+                if (mustContainLhsColIndices != undefined && mustContainLhsColIndices.length !== 0
+                    && !isIntersects(lhsIndices, mustContainLhsColIndices)) {
+                    return false;
+                }
+                if (mustContainIndices.length !== 0
+                    && !isIntersects(mustContainIndices, lhsIndices) && !~_.sortedIndexOf(mustContainIndices, rhs.column_index)) {
+                    return false;
+                }
+                return true;
+            };
+
+            const compareArrays = <T>(lhsArray :T[], rhsArray: T[],
+                                      cmp: (lhs: T, rhs: T) => boolean) => {
+                for (let i = 0; i !== Math.min(lhsArray.length, rhsArray.length); ++i) {
+                    if (cmp(lhsArray[i], rhsArray[i])) {
+                        return true;
+                    }
+                    if (lhsArray[i] !== rhsArray[i]) {
+                        return false;
+                    }
+                }
+                return lhsArray.length < rhsArray.length;
+            };
+
+
+            const itemFromLine = (line: string): Item => {
+                const items = line.split("=");
+                return { column_index: Number(items[0]), pattern: items[1] };
+            };
+            const CFDs = CFDsCompact.split(";")
+                .map(compactCFD => compactCFD.split(":"))
+                .map(([condidence, lhs, rhs, support]) => ({
+                    lhs: lhs.split(",").map(line => itemFromLine(line)),
+                    rhs: itemFromLine(rhs),
+                    support: Number(support),
+                    confidence: Number(condidence),
+                }));
+            const deps = CFDs.filter(cfdFilter);
+            return getArrayOfDepsByPagination(deps, pagination).map(cfd => ({ cfd, columnNames, itemValues }));
         },
         // @ts-ignore
-        pieChartData: async ({ propertyPrefix, taskInfo, fileID }, _, { models }) => {
-            const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
-            return { propertyPrefix, taskInfo, fileID, columnNames };
+        pieChartData: async (parent) => {
+            return parent;
         },
         // @ts-ignore
-        PKs: async ({ propertyPrefix, taskInfo, fileID }, _, { models, logger }) => {
-            const PKColumnIndices = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "PKColumnIndices");
-            const indices: number[] = JSON.parse(PKColumnIndices);
-            logger(PKColumnIndices);
+        PKs: async ({ propertyPrefix, taskInfo, fileID }, _, { models }) => {
+            const keysString = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "PKColumnIndices");
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
-            return indices.map(index => ({ index, name: columnNames[index] }));
+            if (!keysString) {
+                return [];
+            }
+            return keysString.split(",").map(i => Number(i)).map((index) => ({ index, name: columnNames[index] }));
         },
         // @ts-ignore
         depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {

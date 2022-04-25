@@ -48,6 +48,9 @@ export class CFDTaskResult extends BaseSpecificTaskResult {
 
     @Column({ type: INTEGER, allowNull: true })
     depsAmount!: number | null;
+
+    @Column({ type: TEXT, allowNull: true })
+    valueDictionary!: string | null;
 }
 
 @Table(getTableOptions("AR"))
