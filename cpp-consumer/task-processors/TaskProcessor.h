@@ -9,20 +9,20 @@ namespace consumer {
 
 using namespace algos;
 
-const static std::map<consumer::TaskMiningType, AlgoMiningType> mining_type_resolution {
-    { TaskMiningType::AR, AlgoMiningType::ar },
-    //    { TaskMiningType::CFD, AlgoMiningType::cfd },
-    { TaskMiningType::FD, AlgoMiningType::fd },
-    { TaskMiningType::SpecificTypoCluster, AlgoMiningType::typos },
-    { TaskMiningType::TypoCluster, AlgoMiningType::typos },
-    { TaskMiningType::TypoFD, AlgoMiningType::typos },
+const static std::map<consumer::TaskMiningType, AlgoMiningType> mining_type_resolution{
+    {TaskMiningType::AR, AlgoMiningType::ar},
+    {TaskMiningType::CFD, AlgoMiningType::cfd},
+    {TaskMiningType::FD, AlgoMiningType::fd},
+    {TaskMiningType::SpecificTypoCluster, AlgoMiningType::typos},
+    {TaskMiningType::TypoCluster, AlgoMiningType::typos},
+    {TaskMiningType::TypoFD, AlgoMiningType::typos},
 };
 
-const static std::map<std::string, Algo> algo_name_resolution {
-    {"Pyro", Algo::pyro}, {"Dep Miner", Algo::depminer}, {"TaneX", Algo::tane},
-    {"FastFDs", Algo::fastfds}, {"FD mine", Algo::fdmine}, {"DFD", Algo::dfd},
-    {"FDep", Algo::fdep}, { "Apriori", Algo::apriori },
-    {"Typo Miner", Algo::typominer},
+const static std::map<std::string, Algo> algo_name_resolution{
+    {"Pyro", Algo::pyro},       {"Dep Miner", Algo::depminer}, {"TaneX", Algo::tane},
+    {"FastFDs", Algo::fastfds}, {"FD mine", Algo::fdmine},     {"DFD", Algo::dfd},
+    {"FDep", Algo::fdep},       {"Apriori", Algo::apriori},    {"Typo Miner", Algo::typominer},
+    { "CTane", Algo::ctane}
 };
 
 class TaskProcessor {
@@ -85,8 +85,11 @@ class TaskProcessor {
     }
 
     static std::string GetPieChartData(const std::list<FD>& deps, int degree = 1);
+    static std::string GetPieChartData(const std::list<model::CFD>& deps, int degree = 1);
+//    static std::string GetPieChartDataWithPatterns(const std::list<model::CFD>& deps, int degree = 1);
 
     void SaveFdTaskResult() const;
+    void SaveCfdTaskResult() const;
     void SaveArTaskResult() const;
     void SaveTypoFdTaskResult() const;
 
@@ -99,23 +102,21 @@ class TaskProcessor {
 public:
     explicit TaskProcessor(std::unique_ptr<TaskConfig> task_config)
         : task_(std::move(task_config)), cur_phase_(0), phase_progress_(0) {
-        LOG(DEBUG) << "Get algo mining type";
+        LOG(INFO) << "Get algo mining type";
         const auto& algo_mining_type = mining_type_resolution.at(task_->GetPreciseMiningType());
-        LOG(DEBUG) << "Get algo name";
+        LOG(INFO) << "Get algo name";
         const auto& algo_name = algo_name_resolution.at(task_->GetParam<std::string>("algo_name"));
-        LOG(DEBUG) << "Get algo " << algo_name._to_string();
+        LOG(INFO) << "Get algo " << algo_name._to_string();
         algo_ = (algo_name == +Algo::typominer)
                     ? TypoMiner::CreateFrom<Pyro>(
                           details::CreateFDAlgorithmConfigFromMap(task_->GetParamsIntersection()))
                     : algos::CreateAlgorithmInstance(algo_mining_type, algo_name,
                                                      task_->GetParamsIntersection());
-        LOG(DEBUG) << "Set algo has progress";
+        LOG(INFO) << "Set algo has progress";
         algo_has_progress_ = !algo_->GetPhaseNames().empty();
-        LOG(DEBUG) << "Phase name init";
-        phase_names_ =
-            algo_has_progress_
-                ? algo_->GetPhaseNames()
-                : std::vector<std::string_view>{"Data mining"};
+        LOG(INFO) << "Phase name init";
+        phase_names_ = algo_has_progress_ ? algo_->GetPhaseNames()
+                                          : std::vector<std::string_view>{"Data mining"};
         max_phase_ = phase_names_.size();
     }
 
