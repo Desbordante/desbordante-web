@@ -30,6 +30,39 @@ std::string TaskProcessor::GetPieChartData(const std::list<FD>& deps, int degree
     return get_compact_data(lhs_values) + "|" + get_compact_data(rhs_values);
 }
 
+std::string TaskProcessor::GetPieChartData(const std::list<model::CFD>& deps, int degree) {
+    std::map<unsigned int, double> lhs_values;
+    std::map<unsigned int, double> rhs_values;
+
+    for (const auto& fd : deps) {
+        double divisor = std::pow(fd.GetLhsPattern().Size(), degree);
+
+        const auto& lhs_col_indices = fd.GetLhsPattern().GetColumnIndices();
+        for (size_t index = lhs_col_indices.find_first();
+             index != boost::dynamic_bitset<>::npos; index = lhs_col_indices.find_next(index)) {
+            lhs_values[index] += 1 / divisor;
+        }
+        size_t index = fd.GetRhsPattern().GetColumn()->GetIndex();
+
+        rhs_values[index] = (divisor == 0) ? -1 : rhs_values[index] + 1 / divisor;
+    }
+
+    auto get_compact_data = [](const std::map<unsigned int, double>& map) {
+        std::vector<std::string> results;
+        results.reserve(map.size());
+        for (const auto& [key, value] : map) {
+            results.emplace_back(std::to_string(key) + ',' + std::to_string(value));
+        }
+        return boost::join(results, ";");
+    };
+    return get_compact_data(lhs_values) + "|" + get_compact_data(rhs_values);
+}
+
+//std::string TaskProcessor::GetPieChartDataWithPatterns(const std::list<model::CFD>& deps, int degree) {
+//    // TODO(implement)
+//}
+
+
 void TaskProcessor::SaveFdTaskResult() const {
     auto algo = GetAlgoAs<FDAlgorithm>();
     auto key_cols = algo->GetKeys();
@@ -44,6 +77,27 @@ void TaskProcessor::SaveFdTaskResult() const {
                         {{"pk", pk_column_positions},
                          {"deps", GetCompactDeps<const std::list<FD>&, FD>(deps, [](const FD& dep) { return dep.GetLhs().GetArity() != 0; })},
                          {"chart_data_without_patterns", GetPieChartData(deps, 1)},
+                         {"deps_amount", std::to_string(deps.size())}});
+    std::cout << "params was successfully updated\n";
+}
+
+void TaskProcessor::SaveCfdTaskResult() const {
+    auto algo = GetAlgoAs<CFDAlgorithm>();
+    auto key_cols = algo->GetKeys();
+    std::vector<std::string> key_cols_indices(key_cols.size());
+    const auto& item_names = algo->ItemNames();
+    for (const auto* col : key_cols) {
+        key_cols_indices.push_back(std::to_string(col->GetIndex()));
+    }
+    std::string pk_column_positions = boost::algorithm::join(key_cols_indices, ",");
+
+    const auto& deps = algo->CFDList();
+    task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
+                        {{"pk", pk_column_positions},
+                         {"value_dictionary", boost::join(item_names, ",")},
+                         {"deps", GetCompactDeps<const std::list<model::CFD>&, model::CFD>(deps, [](const model::CFD& dep) { return dep.GetLhsPattern().Size() != 0; })},
+                         {"chart_data_without_patterns", GetPieChartData(deps, 1)},
+//                         {"chart_data_with_patterns", GetPieChartDataWithPatterns(deps, 1)},
                          {"deps_amount", std::to_string(deps.size())}});
     std::cout << "params was successfully updated\n";
 }
@@ -74,6 +128,9 @@ void TaskProcessor::SaveResults() const {
         break;
     case TaskMiningType::FD:
         SaveFdTaskResult();
+        break;
+    case TaskMiningType::CFD:
+        SaveCfdTaskResult();
         break;
     case TaskMiningType::TypoFD:
         SaveTypoFdTaskResult();

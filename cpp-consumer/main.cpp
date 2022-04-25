@@ -105,6 +105,14 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
           {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", "max_lhs"),
            std::make_shared<ExtendedAttribute<ushort>>("threadsCount", "threads"),
            std::make_shared<ExtendedAttribute<double>>("errorThreshold", "error")}}},
+        {{SpecificTablesType::config, TaskMiningType::CFD},
+         {get_specific_config_table_name(TaskMiningType::CFD),
+          SearchByAttr::taskID,
+          {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", "max_lhs"),
+           std::make_shared<CreateAttribute<ushort>>("threads", 1),
+         std::make_shared<ExtendedAttribute<double>>("minSupportCFD", "minsup"),
+         std::make_shared<ExtendedAttribute<double>>("minConfidence", "minconf")}}
+        },
         {{SpecificTablesType::config, TaskMiningType::AR},
          {get_specific_config_table_name(TaskMiningType::AR),
           SearchByAttr::taskID,
@@ -154,6 +162,7 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
                                                                "chart_data_without_patterns"),
               std::make_shared<ExtendedAttribute<std::string>>("withPatterns",
                                                                "chart_data_with_patterns"),
+              std::make_shared<ExtendedAttribute<std::string>>("valueDictionary", "value_dictionary"),
           }}},
         {{SpecificTablesType::result, TaskMiningType::AR},
          {get_specific_result_table_name(TaskMiningType::AR),
@@ -222,14 +231,14 @@ AnswerEnumType ProcessMsg(const std::string& task_id, std::shared_ptr<Desbordant
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        std::cerr << "Expected 1 input argument [taskID]" << '\n';
+        throw std::runtime_error("Expected 1 input argument [taskID]");
     }
     try {
         el::Loggers::configureFromGlobal("logging.conf");
         std::string task_id = argv[1];
-        LOG(DEBUG) << "Create manager";
+        LOG(INFO) << "Create manager";
         auto manager = std::make_shared<DesbordanteDbManager>(DBConnection(), BaseTables(), SpecificTables());
-        LOG(DEBUG) << "Manager created, process msg";
+        LOG(INFO) << "Manager created, process msg";
         return static_cast<int>(ProcessMsg(task_id, manager));
     } catch (const std::exception& e) {
         std::cerr << "% Unexpected exception caught: " << e.what() << '\n';
