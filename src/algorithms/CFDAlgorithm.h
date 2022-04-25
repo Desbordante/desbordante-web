@@ -64,6 +64,8 @@ public:
         return item_names_;
     }
 
+    virtual std::vector<Column const*> GetKeys() const = 0;
+
     ~CFDAlgorithm() override = default;
 
     virtual void Initialize() = 0;
