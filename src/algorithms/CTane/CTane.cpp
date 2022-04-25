@@ -70,7 +70,7 @@ double CTane::CalculatePartitionError(const PartialPositionListIndex& x_pli,
 void CTane::RegisterCfd(const TuplePattern& lhs_pattern, const ColumnPattern& rhs_pattern,
                         unsigned sup, double conf) {
     CFD cfd(lhs_pattern, rhs_pattern, conf, sup);
-    LOG(INFO) << "Discovered CFD: " << cfd.ToString(ItemNames()) << " with support = " << sup
+    LOG(DEBUG) << "Discovered CFD: " << cfd.ToString(ItemNames()) << " with support = " << sup
               << " and confidence = " << conf << ".";
     CFDAlgorithm::RegisterCFD(std::move(cfd));
 }
@@ -122,6 +122,12 @@ unsigned long long CTane::ExecuteInternal() {
     for (unsigned int arity = 0; arity < levels_amount; arity++) {
         if (arity == 0) {
             CLatticeLevel::GenerateFirstLevel(levels, relation_.get());
+            for (const auto& x: levels[0]->GetVertices()) {
+                if (x->GetPositionListIndex()->GetPartitionsNumber() == relation_->GetNumRows()) {
+                    auto column_id = x->GetTuplePattern().GetColumnIndices().find_first();
+                    keys_.emplace_back(relation_->GetSchema()->GetColumn((int)column_id));
+                }
+            }
         } else {
             CLatticeLevel::GenerateNextLevel(levels);
         }
@@ -176,6 +182,7 @@ unsigned long long CTane::ExecuteInternal() {
     apriori_millis_ += elapsed_milliseconds.count();
 
     LOG(INFO) << "Found " << cfd_collection_.size() << " CFDs";
+    LOG(INFO) << "Found " << GetKeys().size() << " key(s)";
     return apriori_millis_;
 }
 
