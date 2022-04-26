@@ -379,9 +379,17 @@ const typeDefs = gql`
         pieChartData: PieChartWithoutPatterns!
     }
 
+    input TypoFDsFilter {
+        filterString: String
+        sortSide: SortSide!
+        sortBy: SortBy!
+        orderBy: OrderBy!
+        pagination: Pagination!
+    }
+
     type TypoFDTaskResult implements PrimitiveTaskResult {
         taskID: String!
-        TypoFDs(pagination: Pagination! = { offset: 0 limit: 100 }): [FD!]!
+        TypoFDs(filter: TypoFDsFilter!): [FD!]!
         depsAmount: Int!
     }
     
