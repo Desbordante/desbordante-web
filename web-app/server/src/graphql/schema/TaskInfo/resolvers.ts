@@ -25,6 +25,33 @@ function getArrayOfDepsByPagination<DependencyType> (deps: DependencyType[],
     return deps.slice(from, to);
 }
 
+const compareArrays = <T> (lhsArray: T[], rhsArray: T[],
+                           cmp: (lhs: T, rhs: T) => boolean) => {
+    for (let i = 0; i !== Math.min(lhsArray.length, rhsArray.length); ++i) {
+        if (cmp(lhsArray[i], rhsArray[i])) {
+            return true;
+        }
+        if (lhsArray[i] !== rhsArray[i]) {
+            return false;
+        }
+    }
+    return lhsArray.length < rhsArray.length;
+};
+
+const isIntersects = (lhs: number[], rhs: number[]) => {
+    let ai = 0, bi = 0;
+    while (ai < lhs.length && bi < rhs.length) {
+        if (lhs[ai] < rhs[bi]) {
+            ai++;
+        } else if (lhs[ai] > rhs[bi]) {
+            bi++;
+        } else {
+            return true;
+        }
+    }
+    return false;
+};
+
 export const TaskInfoResolvers: Resolvers = {
     PrimitiveTaskResult: {
         // @ts-ignore
@@ -38,15 +65,13 @@ export const TaskInfoResolvers: Resolvers = {
         // @ts-ignore
         lhs: ({ cfd, itemValues, columnNames }) => {
             // @ts-ignore
-            return cfd.lhs.map(({ column_index: index, pattern }) =>
-                ({ column: { index, name: columnNames[index] }, pattern: itemValues[pattern] })
-            );
+            return cfd.lhs.map(({ columnIndex: index, patternIndex }) => ({ column: { index, name: columnNames[index] }, pattern: itemValues[patternIndex] }));
         },
         // @ts-ignore
         rhs: ({ cfd, itemValues, columnNames }) => {
             // @ts-ignore
-            const { column_index: index, pattern } = cfd.rhs;
-            return { column: { index, name: columnNames[index] }, pattern: itemValues[pattern] };
+            const { columnIndex: index, patternIndex } = cfd.rhs;
+            return { column: { index, name: columnNames[index] }, pattern: itemValues[patternIndex] };
         },
         // @ts-ignore
         support: ({ cfd }) => cfd.support,
@@ -55,11 +80,11 @@ export const TaskInfoResolvers: Resolvers = {
     },
     FD: {
         // @ts-ignore
-        lhs: ({ dep, columnNames }: { dep: [ string[], string ], columnNames: string[] }) => {
+        lhs: ({ dep, columnNames }: { dep: [string[], string], columnNames: string[] }) => {
             return dep[0].map(i => ({ index: i, name: columnNames[Number(i)] }));
         },
         // @ts-ignore
-        rhs: ({ dep, columnNames }: { dep: [ string[], string ] }) => {
+        rhs: ({ dep, columnNames }: { dep: [string[], string] }) => {
             // @ts-ignore
             return { index: dep[1], name: columnNames[dep[1]] };
         },
@@ -74,10 +99,10 @@ export const TaskInfoResolvers: Resolvers = {
     },
     TaskStateAnswer: {
         // @ts-ignore
-        __resolveType: ({ status } : { status: TaskStatusType }) => {
+        __resolveType: ({ status }: { status: TaskStatusType }) => {
             if (status == "INTERNAL_SERVER_ERROR") {
                 return "InternalServerTaskError";
-            } else if(status == "RESOURCE_LIMIT_IS_REACHED") {
+            } else if (status == "RESOURCE_LIMIT_IS_REACHED") {
                 return "ResourceLimitTaskError";
             }
             return "TaskState";
@@ -112,7 +137,7 @@ export const TaskInfoResolvers: Resolvers = {
             return await models.TaskState.findByPk(taskID);
         },
         // @ts-ignore
-        dataset: async ({ fileID  }, _, { models }) => {
+        dataset: async ({ fileID }, _, { models }) => {
             return models.FileInfo.findByPk(fileID);
         },
     },
@@ -130,7 +155,11 @@ export const TaskInfoResolvers: Resolvers = {
             return { taskInfo, propertyPrefix, fileID, taskID };
         },
         // @ts-ignore
-        specificConfig: async ({ propertyPrefix, taskID, fileID } : { propertyPrefix: PrimitiveType, taskID: string, fileID: string }, _, { models }) => {
+        specificConfig: async ({
+                                   propertyPrefix,
+                                   taskID,
+                                   fileID,
+                               }: { propertyPrefix: PrimitiveType, taskID: string, fileID: string }, _, { models }) => {
             const taskInfo = await models.TaskState.findByPk(taskID, { attributes: ["taskID"] });
             if (!taskInfo) {
                 throw new ApolloError("TaskInfo not found");
@@ -147,8 +176,24 @@ export const TaskInfoResolvers: Resolvers = {
     },
     FDTaskResult: {
         // @ts-ignore
-        FDs: async ({ propertyPrefix, taskInfo, fileID } : { propertyPrefix: PrimitiveType, taskInfo: TaskState, fileID: string }, { filter }, { models, logger }) => {
-            const { pagination, filterString, sortBy, sortSide, orderBy, mustContainLhsColIndices, mustContainRhsColIndices, withoutKeys } = filter;
+        FDs: async ({
+                        propertyPrefix,
+                        taskInfo,
+                        fileID,
+                    }: { propertyPrefix: PrimitiveType, taskInfo: TaskState, fileID: string }, { filter }, {
+                        models,
+                        logger,
+                    }) => {
+            const {
+                pagination,
+                filterString,
+                sortBy,
+                sortSide,
+                orderBy,
+                mustContainLhsColIndices,
+                mustContainRhsColIndices,
+                withoutKeys,
+            } = filter;
             const FDs = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "FDs");
             if (!FDs) {
                 return [];
@@ -161,20 +206,6 @@ export const TaskInfoResolvers: Resolvers = {
             if (orderBy === "DESC") {
                 columnIndicesOrder.reverse();
             }
-
-            const isIntersects = (lhs: number[], rhs: number[]) => {
-                let ai = 0, bi = 0;
-                while(ai < lhs.length && bi < rhs.length) {
-                    if (lhs[ai] < rhs[bi] ) {
-                        ai++;
-                    } else if (lhs[ai] > rhs[bi]) {
-                        bi++;
-                    } else {
-                        return true;
-                    }
-                }
-                return false;
-            };
 
             const mustContainIndices = new Array<number>();
             if (filterString) {
@@ -215,19 +246,6 @@ export const TaskInfoResolvers: Resolvers = {
                 return true;
             };
 
-            const compareArrays = <T>(lhsArray :T[], rhsArray: T[],
-                                      cmp: (lhs: T, rhs: T) => boolean) => {
-                for (let i = 0; i !== Math.min(lhsArray.length, rhsArray.length); ++i) {
-                    if (cmp(lhsArray[i], rhsArray[i])) {
-                        return true;
-                    }
-                    if (lhsArray[i] !== rhsArray[i]) {
-                        return false;
-                    }
-                }
-                return lhsArray.length < rhsArray.length;
-            };
-
             const fdItemComparator = (lhs: number, rhs: number) => columnIndicesOrder[lhs] < columnIndicesOrder[rhs];
 
             const fdComparator = (lhsFD: FDType, rhsFD: FDType) => {
@@ -238,10 +256,16 @@ export const TaskInfoResolvers: Resolvers = {
 
             const FDsUnionIndices = FDs.split(";")
                 .map(unionIndices => unionIndices.split(",").map(Number));
-            const deps = FDsUnionIndices.map(unionIndices => ({ lhs: unionIndices.slice(0, unionIndices.length - 1), rhs: unionIndices[unionIndices.length - 1] } as FDType))
+            const deps = FDsUnionIndices.map(unionIndices => ({
+                lhs: unionIndices.slice(0, unionIndices.length - 1),
+                rhs: unionIndices[unionIndices.length - 1],
+            } as FDType))
                 .filter(fdFilter)
                 .sort(fdComparator);
-            return getArrayOfDepsByPagination(deps, pagination).map(({ lhs, rhs }) => ({ dep: [[...lhs], rhs], columnNames }));
+            return getArrayOfDepsByPagination(deps, pagination).map(({ lhs, rhs }) => ({
+                dep: [[...lhs], rhs],
+                columnNames,
+            }));
         },
         // @ts-ignore
         PKs: async ({ propertyPrefix, taskInfo, fileID }, _, { models }) => {
@@ -267,14 +291,14 @@ export const TaskInfoResolvers: Resolvers = {
             return { lhs: transformFromCompactData(lhs), rhs: transformFromCompactData(rhs) };
         },
         // @ts-ignore
-        depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
+        depsAmount: async ({ propertyPrefix, taskInfo }) => {
             const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
             return Number(depsAmount);
         },
     },
     TypoFDTaskResult: {
         // @ts-ignore
-        TypoFDs: async ({ propertyPrefix, taskInfo, fileID } : { propertyPrefix: PrimitiveType, taskInfo: TaskState }, { pagination }, { models }) => {
+        TypoFDs: async ({ propertyPrefix, taskInfo, fileID }: { propertyPrefix: PrimitiveType, taskInfo: TaskState }, { pagination }, { models }) => {
             const TypoFDs = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "TypoFDs");
             if (!TypoFDs) {
                 return [];
@@ -282,21 +306,24 @@ export const TaskInfoResolvers: Resolvers = {
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
             const compactFDs = TypoFDs.split(";")
                 .map(unionIndices => unionIndices.split(","))
-                .map(depIndices => ({ dep: [ depIndices.slice(0, depIndices.length - 1), depIndices[depIndices.length - 1] ], columnNames }));
+                .map(depIndices => ({
+                    dep: [depIndices.slice(0, depIndices.length - 1), depIndices[depIndices.length - 1]],
+                    columnNames,
+                }));
             return getArrayOfDepsByPagination(compactFDs, pagination);
         },
         // @ts-ignore
-        depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
+        depsAmount: async ({ propertyPrefix, taskInfo }) => {
             const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
             return Number(depsAmount);
         },
     },
     TypoClusterTaskConfig: {
         // @ts-ignore
-        typoFD: async ({ fileID, typoFD } : { typoFD: string }, _, { models }) => {
+        typoFD: async ({ fileID, typoFD }: { typoFD: string }, _, { models }) => {
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
             const depIndices = typoFD.split(",").map(item => Number(item));
-            return { dep: [ depIndices.slice(0, depIndices.length - 1), depIndices[depIndices.length - 1] ], columnNames };
+            return { dep: [depIndices.slice(0, depIndices.length - 1), depIndices[depIndices.length - 1]], columnNames };
         },
     },
     ARTaskConfig: {
@@ -327,20 +354,6 @@ export const TaskInfoResolvers: Resolvers = {
                 itemIndicesOrder.reverse();
             }
 
-            const isIntersects = (lhs: number[], rhs: number[]) => {
-                let ai = 0, bi = 0;
-                while(ai < lhs.length && bi < rhs.length) {
-                    if (lhs[ai] < rhs[bi] ) {
-                        ai++;
-                    } else if (lhs[ai] > rhs[bi]) {
-                        bi++;
-                    } else {
-                        return true;
-                    }
-                }
-                return false;
-            };
-
             const mustContainIndices = new Array<number>();
             if (filterString) {
                 try {
@@ -364,25 +377,10 @@ export const TaskInfoResolvers: Resolvers = {
                 }
                 return true;
             };
-
-            const compareArrays = <T>(lhsArray :T[], rhsArray: T[],
-                                      cmp: (lhs: T, rhs: T) => boolean) => {
-                for (let i = 0; i !== Math.min(lhsArray.length, rhsArray.length); ++i) {
-                    if (cmp(lhsArray[i], rhsArray[i])) {
-                        return true;
-                    }
-                    if (lhsArray[i] !== rhsArray[i]) {
-                        return false;
-                    }
-                }
-                return lhsArray.length < rhsArray.length;
-            };
-
-
             const ARItemComparator = (lhs: number, rhs: number) => itemIndicesOrder[lhs] < itemIndicesOrder[rhs];
 
             const ARComparator = (lhsFD: ARType, rhsFD: ARType) => {
-                const lhs = sortBy === "LHS_NAME" ? [ ...lhsFD.lhs, ...lhsFD.rhs] : [...lhsFD.lhs, ...lhsFD.rhs];
+                const lhs = sortBy === "LHS_NAME" ? [...lhsFD.lhs, ...lhsFD.rhs] : [...lhsFD.lhs, ...lhsFD.rhs];
                 const rhs = sortBy === "RHS_NAME" ? [...rhsFD.lhs, ...rhsFD.rhs] : [...rhsFD.rhs, ...rhsFD.lhs];
                 if (sortBy === "CONF") {
                     if (lhsFD.confidence !== rhsFD.confidence) {
@@ -401,7 +399,7 @@ export const TaskInfoResolvers: Resolvers = {
             return getArrayOfDepsByPagination(deps, pagination).map((rule) => ({ rule, itemValues }));
         },
         // @ts-ignore
-        depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
+        depsAmount: async ({ propertyPrefix, taskInfo }) => {
             const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
             return Number(depsAmount);
         },
@@ -419,7 +417,10 @@ export const TaskInfoResolvers: Resolvers = {
     SquashedCluster: {
         // @ts-ignore
         items: async ({ rows, rowIndicesWithAmount }, { pagination }) => {
-            return getArrayOfDepsByPagination(rowIndicesWithAmount.map(({ rowIndex, amount } : { rowIndex: number, amount: number }) => ({
+            return getArrayOfDepsByPagination(rowIndicesWithAmount.map(({
+                                                                            rowIndex,
+                                                                            amount,
+                                                                        }: { rowIndex: number, amount: number }) => ({
                 row: rows.get(rowIndex),
                 rowIndex,
                 amount,
@@ -429,40 +430,42 @@ export const TaskInfoResolvers: Resolvers = {
     TypoClusterTaskResult: {
         // @ts-ignore
         TypoClusters: async ({ propertyPrefix, taskInfo, fileID }, { pagination }, { models }) => {
-<<<<<<< HEAD
-            const TypoClusters = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "TypoClusters");
-=======
             const [TypoClusters, SuspiciousIndicesStr] = await (taskInfo as TaskState).getMultipleResultFieldAsString(propertyPrefix, ["TypoClusters", "suspiciousIndices"]);
->>>>>>> Fix: Fixed bug with suspicous indices & cpp-consumer error update
             if (!TypoClusters) {
                 return [];
             }
             const clustersSuspiciousIndices = SuspiciousIndicesStr.split(";").map(data => new Set(data.split(",").map(Number)));
 
             let typoClusters = TypoClusters.split(";")
-<<<<<<< HEAD
-                .map(typoCluster => typoCluster.split(":"))
-                .map(i => ({
-                    rowIndices: i[0].split(",").map(Number),
-                    suspiciousIndices: new Set(
-                        i.length != 2 ? null : i[1].split(",").map(Number)),
-=======
                 .map((indices, id) => ({
                     rowIndices: indices.split(",").map(Number),
                     suspiciousIndices: clustersSuspiciousIndices[id],
->>>>>>> Fix: Fixed bug with suspicous indices & cpp-consumer error update
                 }));
             typoClusters = getArrayOfDepsByPagination(typoClusters, pagination);
             let indices: number[] = [];
             for (const typoCluster of typoClusters) {
                 indices = [...new Set([...indices, ...typoCluster.rowIndices])];
             }
+            if (fileID == undefined) {
+                const typoTaskID = await (taskInfo as TaskState).getSingleConfigFieldAsString(propertyPrefix, "typoTaskID");
+                const typoTaskConfig = await models.BaseTaskConfig.findByPk(typoTaskID, { attributes: ["fileID"] });
+                if (!typoTaskConfig) {
+                    throw new ApolloError("Parent task config not found");
+                }
+                fileID = typoTaskConfig.fileID;
+            }
+
             const file = await models.FileInfo.findByPk(fileID, { attributes: ["path", "delimiter", "hasHeader"] });
             if (!file) {
                 throw new ApolloError("File not found");
             }
             const rows = await models.FileInfo.GetRowsByIndices(file.path, file.delimiter, indices, file.hasHeader);
-            return typoClusters.map((typoCluster, id) => ({ ...typoCluster, id, rows, itemsAmount: typoCluster.rowIndices.length }));
+            return typoClusters.map((typoCluster, id) => ({
+                ...typoCluster,
+                id,
+                rows,
+                itemsAmount: typoCluster.rowIndices.length,
+            }));
         },
         // @ts-ignore
         clustersCount: async ({ propertyPrefix, taskInfo }) => {
@@ -480,9 +483,6 @@ export const TaskInfoResolvers: Resolvers = {
                 .getMultipleResultFieldAsString(propertyPrefix, ["suspiciousIndices", `notSquashed${sort ? "" : "Not"}SortedCluster`]);
             const rowIndices = rowIndicesStr.split(",").map(Number);
 
-<<<<<<< HEAD
-            const clusterID = await (taskInfo as TaskState).getSingleConfigFieldAsString(propertyPrefix, "clusterID");
-=======
             const [clusterID, typoClusterTaskID] = await (taskInfo as TaskState).getMultipleConfigFieldAsString(propertyPrefix, ["clusterID", "typoClusterTaskID"]);
             const suspiciousIndices = SuspiciousIndicesStr.split(";").map(data => new Set(data.split(",").map(Number)))[Number(clusterID)];
             if (fileID == undefined) {
@@ -497,7 +497,6 @@ export const TaskInfoResolvers: Resolvers = {
                 }
                 fileID = typoTaskConfig.fileID;
             }
->>>>>>> Fix: Fixed bug with suspicous indices & cpp-consumer error update
 
             const file = await models.FileInfo.findByPk(fileID, { attributes: ["path", "delimiter", "hasHeader"] });
             if (!file) {
@@ -552,7 +551,8 @@ export const TaskInfoResolvers: Resolvers = {
         CFDs: async ({ propertyPrefix, taskInfo, fileID }, { filter }, { models, logger }) => {
             const { pagination, filterString, orderBy, mustContainLhsColIndices, mustContainRhsColIndices } = filter;
             let sortBy = filter.sortBy;
-            const [CFDsCompact, valueDictionary] = await (taskInfo as TaskState).getMultipleResultFieldAsString(propertyPrefix, ["CFDs", "valueDictionary"]);
+            const [CFDsCompact, valueDictionary] = await (taskInfo as TaskState)
+                .getMultipleResultFieldAsString(propertyPrefix, ["CFDs", "valueDictionary"]);
             if (!CFDsCompact || !valueDictionary) {
                 return [];
             }
@@ -560,57 +560,48 @@ export const TaskInfoResolvers: Resolvers = {
                 sortBy = "CONF" as CfdSortBy;
             }
             const itemValues = valueDictionary.split(",");
-            logger(itemValues);
 
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
             const columnIndicesOrder = [...Array(columnNames.length).keys()];
-            if (sortBy === "LHS_COL_NAME") {
+            if (sortBy !== "LHS_COL_ID" && sortBy === "RHS_COL_ID") {
                 columnIndicesOrder.sort((l, r) => (columnNames[l] < columnNames[r] ? -1 : 1));
             }
-            if (orderBy === "DESC") {
-                columnIndicesOrder.reverse();
-            }
 
-            const itemIndicesOrder = [...Array(itemValues.length).keys()];
-            // @ts-ignore
-            if (sortBy === "LHS_COL_NAME") {
-                itemIndicesOrder.sort((l, r) => (itemValues[l] < itemValues[r] ? -1 : 1));
+            type Item = {
+                columnIndex: number
+                patternIndex: number
             }
-            if (orderBy === "DESC") {
-                itemIndicesOrder.reverse();
-            }
-
-            const isIntersects = (lhs: number[], rhs: number[]) => {
-                let ai = 0, bi = 0;
-                while(ai < lhs.length && bi < rhs.length) {
-                    if (lhs[ai] < rhs[bi] ) {
-                        ai++;
-                    } else if (lhs[ai] > rhs[bi]) {
-                        bi++;
-                    } else {
-                        return true;
-                    }
-                }
-                return false;
-            };
 
             const mustContainIndices = new Array<number>();
+            const mustContainItems: Item[] = [];
             if (filterString) {
                 try {
-                    columnNames.forEach((name, id) =>
-                        name.match(new RegExp(filterString, "i")) && mustContainIndices.push(id));
+                    if (filterString.includes("=")) {
+                        const columnWithPattern = filterString.split("=");
+                        if (columnWithPattern.length != 2) {
+                            logger(`User passed incorrect filterString = ${filterString}, with 2 or more equal signs`);
+                            return [];
+                        }
+                        const [colName, pattern] = columnWithPattern;
+                        columnNames.forEach((name, id) => {
+                                name.match(new RegExp(colName, "i")) && mustContainItems.push(
+                                    { columnIndex: id, patternIndex: itemValues.indexOf(pattern) });
+                            });
+                        if (!itemValues.includes(pattern)) {
+                            logger(`Input pattern value '${pattern}' not found`);
+                            return [];
+                        }
+                    } else {
+                        columnNames.forEach((name, id) =>
+                            name.match(new RegExp(filterString, "i")) && mustContainIndices.push(id));
+                    }
+                    if (mustContainItems.length === 0 && mustContainIndices.length === 0) {
+                        return [];
+                    }
                 } catch (e) {
                     logger(`User passed incorrect filterString = ${filterString}`);
                     return [];
                 }
-                if (mustContainIndices.length === 0) {
-                    return [];
-                }
-            }
-
-            type Item = {
-                column_index: number
-                pattern: string
             }
 
             type CFDCompactType = {
@@ -621,48 +612,79 @@ export const TaskInfoResolvers: Resolvers = {
             }
 
             const cfdFilter = ({ lhs, rhs }: CFDCompactType) => {
-                if (mustContainRhsColIndices != undefined && mustContainRhsColIndices.length !== 0 && !~_.sortedIndexOf(mustContainRhsColIndices, rhs.column_index)) {
+                if (mustContainRhsColIndices && mustContainRhsColIndices.length !== 0
+                    && !~_.sortedIndexOf(mustContainRhsColIndices, rhs.columnIndex)) {
                     return false;
                 }
-                const lhsIndices = lhs.map(({ column_index }) => column_index);
-                if (mustContainLhsColIndices != undefined && mustContainLhsColIndices.length !== 0
+                const lhsIndices = lhs.map(({ columnIndex }) => columnIndex);
+                if (mustContainLhsColIndices && mustContainLhsColIndices.length !== 0
                     && !isIntersects(lhsIndices, mustContainLhsColIndices)) {
                     return false;
                 }
                 if (mustContainIndices.length !== 0
-                    && !isIntersects(mustContainIndices, lhsIndices) && !~_.sortedIndexOf(mustContainIndices, rhs.column_index)) {
+                    && !isIntersects(mustContainIndices, lhsIndices)
+                    && !~_.sortedIndexOf(mustContainIndices, rhs.columnIndex)) {
+                    return false;
+                }
+                const isEqual = (lhs: Item, rhs: Item) => {
+                    return lhs.columnIndex == rhs.columnIndex && lhs.patternIndex == rhs.patternIndex;
+                };
+                if (mustContainItems.length !== 0 && (!mustContainItems.some(item => isEqual(item, rhs))
+                    && !lhs.some(lhsItem => mustContainItems.some(item => isEqual(item, lhsItem))))) {
                     return false;
                 }
                 return true;
             };
 
-            const compareArrays = <T>(lhsArray :T[], rhsArray: T[],
-                                      cmp: (lhs: T, rhs: T) => boolean) => {
-                for (let i = 0; i !== Math.min(lhsArray.length, rhsArray.length); ++i) {
-                    if (cmp(lhsArray[i], rhsArray[i])) {
-                        return true;
-                    }
-                    if (lhsArray[i] !== rhsArray[i]) {
-                        return false;
-                    }
-                }
-                return lhsArray.length < rhsArray.length;
+            const itemFromLine = (line: string): Item => {
+                const [columnIndex, patternIndex] = line.split("=").map(Number);
+                return { columnIndex, patternIndex };
             };
 
+            type sortFunctionType = (lhs: CFDCompactType, rhs: CFDCompactType) => boolean;
+            const cfdItemNameComparator = (lhs: Item, rhs: Item) =>
+                columnIndicesOrder[lhs.columnIndex] < columnIndicesOrder[rhs.columnIndex]
+                || columnIndicesOrder[lhs.columnIndex] === columnIndicesOrder[rhs.columnIndex] && lhs.patternIndex < rhs.patternIndex;
+            const cfdItemIdComparator = (lhs: Item, rhs: Item) =>
+                lhs.columnIndex < rhs.columnIndex ||
+                lhs.columnIndex === rhs.columnIndex && lhs.patternIndex < rhs.patternIndex;
 
-            const itemFromLine = (line: string): Item => {
-                const items = line.split("=");
-                return { column_index: Number(items[0]), pattern: items[1] };
+            // @ts-ignore
+            const sortFunctions: { sortBy: string, f: sortFunctionType }[] = [
+                { sortBy: "CONF", f: (lhs, rhs) => lhs.confidence < rhs.confidence },
+                { sortBy: "SUP", f: (lhs, rhs) => lhs.support < rhs.support },
+                { sortBy: "LHS_COL_NAME", f: (lhs, rhs) => compareArrays(lhs.lhs, rhs.lhs, cfdItemNameComparator) },
+                { sortBy: "RHS_COL_NAME", f: (lhs, rhs) => cfdItemNameComparator(lhs.rhs, rhs.rhs) },
+                { sortBy: "LHS_COL_ID", f: (lhs, rhs) => compareArrays(lhs.lhs, rhs.lhs, cfdItemIdComparator) },
+                { sortBy: "RHS_COL_ID", f: (lhs, rhs) => cfdItemIdComparator(lhs.rhs, rhs.rhs) },
+            ];
+            const temp = sortFunctions[0];
+            const mainSortFunctionIndex = sortFunctions.findIndex((sort) => sort.sortBy === sortBy);
+            sortFunctions[0] = sortFunctions[mainSortFunctionIndex];
+            sortFunctions[mainSortFunctionIndex] = temp;
+
+            const comparator = (lhs: CFDCompactType, rhs: CFDCompactType): -1 | 1 => {
+                for (const { f } of sortFunctions) {
+                    if (f(lhs, rhs)) {
+                        return -1;
+                    } else if (f(rhs, lhs)) {
+                        return 1;
+                    }
+                }
+                throw new ApolloError(`Unreachable code ${lhs.toString()} == ${rhs.toString()}`);
             };
             const CFDs = CFDsCompact.split(";")
                 .map(compactCFD => compactCFD.split(":"))
-                .map(([condidence, lhs, rhs, support]) => ({
+                .map(([confidence, lhs, rhs, support]) => ({
                     lhs: lhs.split(",").map(line => itemFromLine(line)),
                     rhs: itemFromLine(rhs),
                     support: Number(support),
-                    confidence: Number(condidence),
+                    confidence: Number(confidence),
                 }));
-            const deps = CFDs.filter(cfdFilter);
+            const deps = CFDs.filter(cfdFilter).sort(comparator);
+            if (orderBy === "DESC") {
+                deps.reverse();
+            }
             return getArrayOfDepsByPagination(deps, pagination).map(cfd => ({ cfd, columnNames, itemValues }));
         },
         // @ts-ignore
@@ -679,7 +701,7 @@ export const TaskInfoResolvers: Resolvers = {
             return keysString.split(",").map(i => Number(i)).map((index) => ({ index, name: columnNames[index] }));
         },
         // @ts-ignore
-        depsAmount: async ({ propertyPrefix, taskInfo }, obj, { models }) => {
+        depsAmount: async ({ propertyPrefix, taskInfo }) => {
             const depsAmount = await (taskInfo as TaskState).getSingleResultFieldAsString(propertyPrefix, "depsAmount");
             return Number(depsAmount);
         },
@@ -709,7 +731,7 @@ export const TaskInfoResolvers: Resolvers = {
             if (rowsCount === undefined) {
                 throw new ApolloError("RowsCount is undefined");
             }
-            if (offset > rowsCount || offset < 0 ) {
+            if (offset > rowsCount || offset < 0) {
                 throw new UserInputError(`Offset must be more than 0 and less, then rowsCount = ${rowsCount}`);
             }
 
@@ -750,7 +772,7 @@ export const TaskInfoResolvers: Resolvers = {
     },
     DatasetInfo: {
         // @ts-ignore
-        snippet: async ({ fileID } ,_, { models }) => {
+        snippet: async ({ fileID }, _, { models }) => {
             if (!fileID) {
                 throw new ApolloError("received null fileID");
             }
@@ -763,10 +785,12 @@ export const TaskInfoResolvers: Resolvers = {
         },
         // @ts-ignore
         tasks: async ({ fileID }, { filter }, { models }) => {
-            const { includeExecutedTasks, includeCurrentTasks,
-                includeTasksWithError, includeTasksWithoutError, includeDeletedTasks } = filter;
+            const {
+                includeExecutedTasks, includeCurrentTasks,
+                includeTasksWithError, includeTasksWithoutError, includeDeletedTasks,
+            } = filter;
             let where: any = { fileID };
-            if (!includeExecutedTasks && ! includeCurrentTasks
+            if (!includeExecutedTasks && !includeCurrentTasks
                 || !includeTasksWithoutError && !includeTasksWithError) {
                 throw new UserInputError("INVALID INPUT");
             }
@@ -779,7 +803,11 @@ export const TaskInfoResolvers: Resolvers = {
                     errorMsg: { [includeTasksWithError ? Op.not : Op.is]: null },
                 };
             }
-            const options: FindOptions<BaseTaskConfig> = { attributes: ["taskID", "fileID", ["type", "propertyPrefix"]], raw: true, where };
+            const options: FindOptions<BaseTaskConfig> = {
+                attributes: ["taskID", "fileID", ["type", "propertyPrefix"]],
+                raw: true,
+                where,
+            };
             if (includeDeletedTasks) {
                 options.paranoid = false;
             }
