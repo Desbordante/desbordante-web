@@ -246,8 +246,8 @@ const typeDefs = gql`
     }
     
     type Item {
-        column: Column
-        pattern: String
+        column: Column!
+        pattern: String!
     }
     
     type CFD {
@@ -335,12 +335,11 @@ const typeDefs = gql`
     }
 
     enum CFDSortBy {
-        LHS_COL_NAME RHS_COL_NAME CONF SUP DEFAULT
+        LHS_COL_NAME RHS_COL_NAME LHS_COL_ID RHS_COL_ID CONF SUP DEFAULT
     }
 
     input CFDsFilter {
         filterString: String
-        sortSide: SortSide!
         sortBy: CFDSortBy!
         orderBy: OrderBy!
         mustContainRhsColIndices: [Int!]

@@ -83,7 +83,7 @@ public:
         const auto& [table_name, search_by, attrs] = GetTableInfo(search_key);
         std::string query = "UPDATE " + table_name + " SET " + expression + " WHERE " + "\"" +
                             (+search_by)._to_string() + "\" = '" + id + "'";
-        LOG(INFO) << query;
+        LOG(DEBUG) << query;
         SendBaseQuery(query, "Update table " + table_name + " " + expression);
     }
 
