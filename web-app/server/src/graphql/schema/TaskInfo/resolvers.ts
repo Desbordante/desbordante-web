@@ -298,19 +298,65 @@ export const TaskInfoResolvers: Resolvers = {
     },
     TypoFDTaskResult: {
         // @ts-ignore
-        TypoFDs: async ({ propertyPrefix, taskInfo, fileID }: { propertyPrefix: PrimitiveType, taskInfo: TaskState }, { pagination }, { models }) => {
-            const TypoFDs = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "TypoFDs");
-            if (!TypoFDs) {
+        TypoFDs: async ({ propertyPrefix, taskInfo, fileID }: { propertyPrefix: PrimitiveType, taskInfo: TaskState }, { filter }, { models, logger }) => {
+            const typoFDs = await taskInfo.getSingleResultFieldAsString(propertyPrefix, "TypoFDs");
+            const { pagination, filterString, sortBy, sortSide, orderBy } = filter;
+            if (!typoFDs) {
                 return [];
             }
+
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
-            const compactFDs = TypoFDs.split(";")
-                .map(unionIndices => unionIndices.split(","))
-                .map(depIndices => ({
-                    dep: [depIndices.slice(0, depIndices.length - 1), depIndices[depIndices.length - 1]],
-                    columnNames,
-                }));
-            return getArrayOfDepsByPagination(compactFDs, pagination);
+            const columnIndicesOrder = [...Array(columnNames.length).keys()];
+            if (sortBy === "COL_NAME") {
+                columnIndicesOrder.sort((l, r) => (columnNames[l] < columnNames[r] ? -1 : 1));
+            }
+            if (orderBy === "DESC") {
+                columnIndicesOrder.reverse();
+            }
+
+            const mustContainIndices = new Array<number>();
+            if (filterString) {
+                try {
+                    columnNames.forEach((name, id) =>
+                        name.match(new RegExp(filterString, "i")) && mustContainIndices.push(id));
+                } catch (e) {
+                    logger(`User passed incorrect filterString = ${filterString}`);
+                    return [];
+                }
+                if (mustContainIndices.length === 0) {
+                    return [];
+                }
+            }
+            type FDType = { lhs: number[], rhs: number }
+
+            const fdFilter = ({ lhs, rhs }: FDType) => {
+                if (mustContainIndices.length !== 0
+                    && !isIntersects(mustContainIndices, lhs) && !~_.sortedIndexOf(mustContainIndices, rhs)) {
+                    return false;
+                }
+                return true;
+            };
+
+            const fdItemComparator = (lhs: number, rhs: number) => columnIndicesOrder[lhs] < columnIndicesOrder[rhs];
+
+            const fdComparator = (lhsFD: FDType, rhsFD: FDType) => {
+                const lhs = sortSide === "LHS" ? [...lhsFD.lhs, lhsFD.rhs] : [...lhsFD.lhs, lhsFD.rhs];
+                const rhs = sortSide === "LHS" ? [...rhsFD.lhs, rhsFD.rhs] : [rhsFD.rhs, ...rhsFD.lhs];
+                return compareArrays(lhs, rhs, fdItemComparator) ? -1 : 1;
+            };
+
+            const FDsUnionIndices = typoFDs.split(";")
+                .map(unionIndices => unionIndices.split(",").map(Number));
+            const deps = FDsUnionIndices.map(unionIndices => ({
+                lhs: unionIndices.slice(0, unionIndices.length - 1),
+                rhs: unionIndices[unionIndices.length - 1],
+            } as FDType))
+                .filter(fdFilter)
+                .sort(fdComparator);
+            return getArrayOfDepsByPagination(deps, pagination).map(({ lhs, rhs }) => ({
+                dep: [[...lhs], rhs],
+                columnNames,
+            }));
         },
         // @ts-ignore
         depsAmount: async ({ propertyPrefix, taskInfo }) => {
