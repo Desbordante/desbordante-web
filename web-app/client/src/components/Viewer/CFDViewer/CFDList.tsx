@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useContext} from "react";
-import {Container, Stack} from "react-bootstrap";
+import React, { useState, useEffect, useContext } from "react";
+import { Container, Stack } from "react-bootstrap";
 
 import SearchBar from "../../SearchBar/SearchBar";
 import Toggle from "../../Toggle/Toggle";
@@ -10,98 +10,52 @@ import {
   SortMethod,
 } from "../../../types/taskInfo";
 import CFDSnippet from "./CFDSnippet";
-import {TaskContext} from "../../TaskContext";
-import {sortOptions} from "../../../constants/primitives";
-import {SortSide} from "../../../types/globalTypes";
+import { TaskContext } from "../../TaskContext";
+import { sortOptions } from "../../../constants/primitives";
+import { SortSide } from "../../../types/globalTypes";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
 import Pagination from "../Pagination";
 
 interface Props {
   selectedDependency: ConditionalDependency | null;
-  setSelectedDependency: React.Dispatch<React.SetStateAction<ConditionalDependency | null>>;
+  setSelectedDependency: React.Dispatch<
+    React.SetStateAction<ConditionalDependency | null>
+  >;
   className?: string;
 }
 
 const CFDList: React.FC<Props> = ({
-                                    selectedDependency,
-                                    setSelectedDependency,
-                                    className = "",
-                                  }) => {
-  const {primitiveFilter, setPrimitiveFilter, taskResult, taskResultLoading} =
+  selectedDependency,
+  setSelectedDependency,
+  className = "",
+}) => {
+  const { primitiveFilter, setPrimitiveFilter, taskResult, taskResultLoading } =
     useContext(TaskContext)!;
 
   const dependencies = taskResult?.CFD?.CFDs || [];
 
   const setSortMethod = (selected: SortSide) =>
     setPrimitiveFilter((prev) => {
-      const newFilter = {...prev};
+      const newFilter = { ...prev };
       newFilter.FD.sortSide = selected;
       return newFilter;
     });
 
   const setFilterString = (newFilterString: string) =>
     setPrimitiveFilter((prev) => {
-      const newFilter = {...prev};
+      const newFilter = { ...prev };
       newFilter.FD.filterString = newFilterString;
       return newFilter;
     });
 
   const toggleWithoutKeys = () =>
     setPrimitiveFilter((prev) => {
-      const newFilter = {...prev};
+      const newFilter = { ...prev };
       newFilter.FD.withoutKeys = !newFilter.FD.withoutKeys;
       return newFilter;
     });
 
   const [isPatternShown, setIsPatternShown] = useState(true);
-
-  // update displayed dependencies on search
-  // useEffect(() => {
-  //   const dependenciesWithoutKeys =
-  //     (showKeys
-  //       ? dependencies
-  //       : dependencies?.filter(
-  //           (dep) =>
-  //             !keys?.length ||
-  //             keys?.some(
-  //               (key) => dep.lhs.includes(key.name) || dep.rhs === key.name
-  //             )
-  //         )) || [];
-  //   const foundDependencies = (
-  //     searchString
-  //       ? dependenciesWithoutKeys.filter((dep) =>
-  //           dep.lhs
-  //             .concat(dep.rhs)
-  //             .join("")
-  //             .toLowerCase()
-  //             .includes(searchString.toLowerCase())
-  //         )
-  //       : dependenciesWithoutKeys
-  //   )
-  //     // filter by chosen LHS
-  //     .filter((dep) =>
-  //       selectedAttributesLHS.every((attr) =>
-  //         dep.lhs.includes(attr.column.name)
-  //       )
-  //     )
-  //     // filter by chosen RHS
-  //     .filter((dep) =>
-  //       selectedAttributesRHS.every((attr) => dep.rhs === attr.column.name)
-  //     );
-  //
-  //   // sort found dependencies
-  //   const newSortedDependencies = foundDependencies.sort(
-  //     currentSortMethod.comparator
-  //   );
-  //   setSortedDependencies(newSortedDependencies);
-  // }, [
-  //   dependencies,
-  //   selectedAttributesLHS,
-  //   selectedAttributesRHS,
-  //   searchString,
-  //   currentSortMethod,
-  //   showKeys,
-  // ]);
 
   return (
     <Container fluid className={`flex-grow-1 d-flex flex-column ${className}`}>
@@ -158,7 +112,7 @@ const CFDList: React.FC<Props> = ({
           ))}
         </Stack>
       </LoadingContainer>
-      <Pagination primitiveType="CFD"/>
+      <Pagination primitiveType="CFD" />
     </Container>
   );
 };

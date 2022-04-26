@@ -1,17 +1,29 @@
 import { gql } from "@apollo/client";
 
 export const GET_CFDS = gql`
-  query getCFDs($taskID: ID!, $filter: Pagination!) {
+  fragment Item on Item {
+    column {
+      name
+      index
+    }
+    pattern
+  }
+
+  query getCFDs($taskID: ID!, $filter: CFDsFilter!) {
     taskInfo(taskID: $taskID) {
       data {
         result {
           __typename
           ... on CFDTaskResult {
-            CFDs(pagination: $filter) {
-              lhs
-              rhs
-              lhsPatterns
-              rhsPattern
+            CFDs(filter: $filter) {
+              lhs {
+                ...Item
+              }
+              rhs {
+                ...Item
+              }
+              confidence
+              support
             }
             depsAmount
           }
