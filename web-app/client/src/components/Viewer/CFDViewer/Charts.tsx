@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext } from "react";
 import { Col, Row } from "react-bootstrap";
 import PieChartFull from "./PieChartFull/PieChartFull";
 import { TaskContext } from "../../TaskContext";
@@ -7,35 +7,28 @@ const Charts = () => {
   const { pieChartData, primitiveFilter, setPrimitiveFilter } =
     useContext(TaskContext)!;
 
-  // const { mustContainLhsColIndices, mustContainRhsColIndices } =
-  //   primitiveFilter.CFD;
+  const { mustContainLhsColIndices, mustContainRhsColIndices } =
+    primitiveFilter.CFD;
 
-  // const setSelectedAttributesLHS = useCallback(
-  //   (n: number[]) =>
-  //     setPrimitiveFilter((prev) => {
-  //       const newFilter = { ...prev };
-  //       newFilter.CFD.mustContainLhsColIndices = n;
-  //       return newFilter;
-  //     }),
-  //   []
-  // );
-  //
-  // const setSelectedAttributesRHS = useCallback(
-  //   (n: number[]) =>
-  //     setPrimitiveFilter((prev) => {
-  //       const newFilter = { ...prev };
-  //       newFilter.CFD.mustContainRhsColIndices = n;
-  //       return newFilter;
-  //     }),
-  //   []
-  // );
+  const setSelectedAttributesLHS = useCallback(
+    (n: number[]) =>
+      setPrimitiveFilter((prev) => {
+        const newFilter = { ...prev };
+        newFilter.CFD.mustContainLhsColIndices = n;
+        return newFilter;
+      }),
+    [setPrimitiveFilter]
+  );
 
-  const [mustContainLhsColIndices, setSelectedAttributesLHS] = useState<
-    number[]
-  >([]);
-  const [mustContainRhsColIndices, setSelectedAttributesRHS] = useState<
-    number[]
-  >([]);
+  const setSelectedAttributesRHS = useCallback(
+    (n: number[]) =>
+      setPrimitiveFilter((prev) => {
+        const newFilter = { ...prev };
+        newFilter.CFD.mustContainRhsColIndices = n;
+        return newFilter;
+      }),
+    [setPrimitiveFilter]
+  );
 
   return (
     <Row className="w-100 flex-grow-1 justify-content-evenly">

@@ -7,7 +7,7 @@ import Navigation from "../Navigation";
 import { ConditionalDependency } from "../../../types/taskInfo";
 import { TaskContext } from "../../TaskContext";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
-import Charts from "../FDViewer/Charts";
+import Charts from "./Charts";
 
 const tabs = ["Attributes", "Dependencies", "Dataset"];
 
