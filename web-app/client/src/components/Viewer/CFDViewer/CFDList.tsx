@@ -12,7 +12,7 @@ import {
 import CFDSnippet from "./CFDSnippet";
 import { TaskContext } from "../../TaskContext";
 import { sortOptions } from "../../../constants/primitives";
-import { SortSide } from "../../../types/globalTypes";
+import {CFDSortBy, SortSide} from "../../../types/globalTypes";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
 import Pagination from "../Pagination";
 
@@ -34,24 +34,24 @@ const CFDList: React.FC<Props> = ({
 
   const dependencies = taskResult?.CFD?.CFDs || [];
 
-  const setSortMethod = (selected: SortSide) =>
+  const setSortMethod = (selected: CFDSortBy) =>
     setPrimitiveFilter((prev) => {
       const newFilter = { ...prev };
-      newFilter.FD.sortSide = selected;
+      newFilter.CFD.sortBy = selected;
       return newFilter;
     });
 
   const setFilterString = (newFilterString: string) =>
     setPrimitiveFilter((prev) => {
       const newFilter = { ...prev };
-      newFilter.FD.filterString = newFilterString;
+      newFilter.CFD.filterString = newFilterString;
       return newFilter;
     });
 
   const toggleWithoutKeys = () =>
     setPrimitiveFilter((prev) => {
       const newFilter = { ...prev };
-      newFilter.FD.withoutKeys = !newFilter.FD.withoutKeys;
+      newFilter.CFD.withoutKeys = !newFilter.CFD.withoutKeys;
       return newFilter;
     });
 
@@ -62,8 +62,8 @@ const CFDList: React.FC<Props> = ({
       <Container fluid className="d-flex flex-wrap align-items-center p-0 my-2">
         <h3 className="mx-2 fw-bold">Sort by</h3>
         <Selector
-          options={sortOptions.FD}
-          current={primitiveFilter.FD.sortSide}
+          options={sortOptions.CFD}
+          current={primitiveFilter.CFD.sortBy}
           onSelect={setSortMethod}
           label={(sortMethod) => sortMethod}
           variant="dark"
@@ -72,11 +72,11 @@ const CFDList: React.FC<Props> = ({
         <SearchBar
           defaultText="Dependencies regex"
           onChange={setFilterString}
-          value={primitiveFilter.FD.filterString || ""}
+          value={primitiveFilter.CFD.filterString || ""}
           className="mx-2"
         />
         <Toggle
-          toggleCondition={!primitiveFilter.FD.withoutKeys}
+          toggleCondition={!primitiveFilter.CFD.withoutKeys}
           variant="dark"
           onClick={toggleWithoutKeys}
           className="mx-2"
