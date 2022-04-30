@@ -43,11 +43,11 @@ const CFDSnippet: React.FC<Props> = ({
     tabIndex={0}
     onClick={isActive ? onActiveClick : onClick}
   >
-    {dependency.lhs.map((attr, index) => (
+    {dependency.lhs.map((attr) => (
       <CFDAttribute
-        key={attr}
-        attribute={attr}
-        pattern={dependency.lhsPatterns[index]}
+        key={attr.column.index}
+        attribute={attr.column.name}
+        pattern={attr.pattern}
         isSelected={isActive}
         isPatternShown={isPatternShown}
       />
@@ -65,8 +65,8 @@ const CFDSnippet: React.FC<Props> = ({
     </div>
 
     <CFDAttribute
-      attribute={dependency.rhs}
-      pattern={dependency.rhsPattern}
+      attribute={dependency.rhs.column.name}
+      pattern={dependency.rhs.pattern}
       isSelected={isActive}
       isPatternShown={isPatternShown}
     />
