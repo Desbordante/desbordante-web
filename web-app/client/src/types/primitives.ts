@@ -1,10 +1,10 @@
-import { ARsFilter, FDsFilter, Pagination } from "./globalTypes";
+import {ARsFilter, CFDsFilter, FDsFilter, Pagination} from "./globalTypes";
 import { getClustersPreview_taskInfo_data_result_TypoClusterTaskResult_TypoClusters } from "../graphql/operations/queries/EDP/__generated__/getClustersPreview";
 import { getSpecificCluster_taskInfo_data_result_SpecificTypoClusterTaskResult_squashedCluster } from "../graphql/operations/queries/EDP/__generated__/getSpecificCluster";
 
 export type PrimitiveFilter = {
   FD: FDsFilter;
-  CFD: Pagination;
+  CFD: CFDsFilter;
   AR: ARsFilter;
   TypoFD: Pagination;
 };

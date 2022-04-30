@@ -46,7 +46,11 @@ const Index = () => {
             selectedDependency
               ? selectedDependency.lhs
                   .concat(selectedDependency.rhs)
-                  .map((name) => ({ name, index: 0, __typename: "Column" }))
+                  .map(({ column: { name } }) => ({
+                    name,
+                    index: 0,
+                    __typename: "Column",
+                  }))
               : []
           }
         />
