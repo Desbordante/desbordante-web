@@ -1,18 +1,14 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { Container, Stack } from "react-bootstrap";
 
 import SearchBar from "../../SearchBar/SearchBar";
 import Toggle from "../../Toggle/Toggle";
 import Selector from "../../Selector/Selector";
-import {
-  ConditionalDependency,
-  FDAttribute,
-  SortMethod,
-} from "../../../types/taskInfo";
+import { ConditionalDependency } from "../../../types/taskInfo";
 import CFDSnippet from "./CFDSnippet";
 import { TaskContext } from "../../TaskContext";
 import { sortOptions } from "../../../constants/primitives";
-import {CFDSortBy, SortSide} from "../../../types/globalTypes";
+import { CFDSortBy } from "../../../types/globalTypes";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
 import Pagination from "../Pagination";
 
