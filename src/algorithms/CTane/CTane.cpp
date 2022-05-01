@@ -70,7 +70,7 @@ double CTane::CalculatePartitionError(const PartialPositionListIndex& x_pli,
 void CTane::RegisterCfd(const TuplePattern& lhs_pattern, const ColumnPattern& rhs_pattern,
                         unsigned sup, double conf) {
     CFD cfd(lhs_pattern, rhs_pattern, conf, sup);
-    LOG(DEBUG) << "Discovered CFD: " << cfd.ToString(ItemNames()) << " with support = " << sup
+    LOG(INFO) << "Discovered CFD: " << cfd.ToString(ItemNames()) << " with support = " << sup
               << " and confidence = " << conf << ".";
     CFDAlgorithm::RegisterCFD(std::move(cfd));
 }
