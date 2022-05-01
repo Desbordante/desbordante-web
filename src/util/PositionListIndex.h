@@ -105,6 +105,15 @@ public:
         return GetMaximumNip() - GetNepAsLong();
     }
 
+    static std::unique_ptr<PositionListIndex> CreatePliForEmptyVertex(
+        unsigned int relation_size) {
+        std::deque<std::vector<int>> index{{}};
+        for (int i = 0; i != (int)relation_size; ++i) {
+            index[0].emplace_back(i);
+        }
+        return std::make_unique<PositionListIndex>(std::move(index), Cluster{}, relation_size, 0, 0, relation_size, relation_size);
+    }
+
     void IncFreq() { freq_++; }
 
     std::unique_ptr<PositionListIndex> Intersect(PositionListIndex const* that) const;

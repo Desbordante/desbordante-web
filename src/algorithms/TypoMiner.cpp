@@ -37,7 +37,9 @@ std::vector<util::PLI::Cluster> TypoMiner::FindClustersWithTypos(FD const& typos
     std::vector<int> const& probing_table =
         relation_->GetColumnData(typos_fd.GetRhs().GetIndex()).GetProbingTable();
 
-    assert(!lhs_columns.empty());
+    if (lhs_columns.empty()) {
+        intersection_pli = util::PositionListIndex::CreatePliForEmptyVertex(relation_->GetNumRows());
+    }
 
     for (Column const* col : lhs_columns) {
         ColumnData const& col_data = relation_->GetColumnData(col->GetIndex());

@@ -366,9 +366,13 @@ export const TaskInfoResolvers: Resolvers = {
     },
     TypoClusterTaskConfig: {
         // @ts-ignore
-        typoFD: async ({ fileID, typoFD }: { typoFD: string }, _, { models }) => {
-            const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
-            const depIndices = typoFD.split(",").map(item => Number(item));
+        typoFD: async ({ typoFD, typoTaskID }: { typoFD: string, typoTaskID: string}, _, { models }) => {
+            const parentConfig = await models.BaseTaskConfig.findByPk(typoTaskID);
+            if (!parentConfig) {
+                throw new ApolloError("Parent task not found");
+            }
+            const columnNames = await models.FileInfo.getColumnNamesForFile(parentConfig.fileID);
+            const depIndices = typoFD.split(",").map(Number);
             return { dep: [depIndices.slice(0, depIndices.length - 1), depIndices[depIndices.length - 1]], columnNames };
         },
     },
