@@ -31,7 +31,7 @@ const compareArrays = <T> (lhsArray: T[], rhsArray: T[],
         if (cmp(lhsArray[i], rhsArray[i])) {
             return true;
         }
-        if (lhsArray[i] !== rhsArray[i]) {
+        if (!_.isEqual(lhsArray[i], rhsArray[i])) {
             return false;
         }
     }
@@ -580,7 +580,7 @@ export const TaskInfoResolvers: Resolvers = {
 
             const columnNames = await models.FileInfo.getColumnNamesForFile(fileID);
             const transformFromCompactData = (data: string) => {
-                return data.split(";")
+                return data.split(";").filter(line => line.length !== 0)
                     .map((keyValueStr: string) => keyValueStr.split(","))
                     .map(([index, value]) => ({ column: { index, name: columnNames[Number(index)] }, value }));
             };
@@ -722,7 +722,7 @@ export const TaskInfoResolvers: Resolvers = {
             const CFDs = CFDsCompact.split(";")
                 .map(compactCFD => compactCFD.split(":"))
                 .map(([confidence, lhs, rhs, support]) => ({
-                    lhs: lhs.split(",").map(line => itemFromLine(line)),
+                    lhs: lhs.split(",").filter(line => line.length !== 0).map(line => itemFromLine(line)),
                     rhs: itemFromLine(rhs),
                     support: Number(support),
                     confidence: Number(confidence),
