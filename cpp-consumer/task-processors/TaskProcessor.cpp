@@ -66,7 +66,7 @@ std::string TaskProcessor::GetPieChartData(const std::list<model::CFD>& deps, in
 void TaskProcessor::SaveFdTaskResult() const {
     auto algo = GetAlgoAs<FDAlgorithm>();
     auto key_cols = algo->GetKeys();
-    std::vector<std::string> key_cols_indices(key_cols.size());
+    std::vector<std::string> key_cols_indices;
     for (const auto* col : key_cols) {
         key_cols_indices.push_back(std::to_string(col->GetIndex()));
     }
@@ -75,7 +75,7 @@ void TaskProcessor::SaveFdTaskResult() const {
     const auto& deps = algo->FdList();
     task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
                         {{"pk", pk_column_positions},
-                         {"deps", GetCompactDeps<const std::list<FD>&, FD>(deps, [](const FD& dep) { return dep.GetLhs().GetArity() != 0; })},
+                         {"deps", GetCompactDeps<const std::list<FD>&, FD>(deps)},
                          {"chart_data_without_patterns", GetPieChartData(deps, 1)},
                          {"deps_amount", std::to_string(deps.size())}});
     std::cout << "params was successfully updated\n";
@@ -84,7 +84,7 @@ void TaskProcessor::SaveFdTaskResult() const {
 void TaskProcessor::SaveCfdTaskResult() const {
     auto algo = GetAlgoAs<CFDAlgorithm>();
     auto key_cols = algo->GetKeys();
-    std::vector<std::string> key_cols_indices(key_cols.size());
+    std::vector<std::string> key_cols_indices;
     const auto& item_names = algo->ItemNames();
     for (const auto* col : key_cols) {
         key_cols_indices.push_back(std::to_string(col->GetIndex()));
@@ -95,7 +95,7 @@ void TaskProcessor::SaveCfdTaskResult() const {
     task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
                         {{"pk", pk_column_positions},
                          {"value_dictionary", boost::join(item_names, ",")},
-                         {"deps", GetCompactDeps<const std::list<model::CFD>&, model::CFD>(deps, [](const model::CFD& dep) { return dep.GetLhsPattern().Size() != 0; })},
+                         {"deps", GetCompactDeps<const std::list<model::CFD>&, model::CFD>(deps)},
                          {"chart_data_without_patterns", GetPieChartData(deps, 1)},
 //                         {"chart_data_with_patterns", GetPieChartDataWithPatterns(deps, 1)},
                          {"deps_amount", std::to_string(deps.size())}});
