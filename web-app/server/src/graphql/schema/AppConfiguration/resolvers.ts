@@ -9,6 +9,7 @@ export const allowedFDAlgorithms = [
     { name: "DFD", properties: { hasErrorThreshold: false, hasArityConstraint: false, isMultiThreaded: true } },
     { name: "Dep Miner", properties: { hasErrorThreshold: false, hasArityConstraint: false, isMultiThreaded: false } },
     { name: "FDep", properties: { hasErrorThreshold: false, hasArityConstraint: false, isMultiThreaded: false } },
+    { name: "FUN", properties: { hasErrorThreshold: false, hasArityConstraint: false, isMultiThreaded: false } },
 ];
 export const allowedCFDAlgorithms = [
     { name: "CTane", properties: { hasArityConstraint: true, hasSupport: true, hasConfidence: true } },
