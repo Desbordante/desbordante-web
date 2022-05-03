@@ -5,6 +5,8 @@ import { useHistory } from "react-router-dom";
 import Toggle from "../Toggle/Toggle";
 import Button from "../Button/Button";
 import { TaskContext } from "../TaskContext";
+import { ErrorContext } from "../ErrorContext";
+import { AuthContext } from "../AuthContext";
 
 interface Props {
   partShown: number;
@@ -14,7 +16,19 @@ interface Props {
 
 const Navigation: React.FC<Props> = ({ partShown, setPartShown, options }) => {
   const { resetTask, deleteTask } = useContext(TaskContext)!;
+  const { showError } = useContext(ErrorContext)!;
+  const { user } = useContext(AuthContext)!;
   const history = useHistory();
+
+  const handleDeleteTask = async () => {
+    try {
+      await deleteTask();
+      resetTask();
+      history.push("/");
+    } catch (error: any) {
+      showError(error);
+    }
+  };
 
   return (
     <Container
@@ -33,17 +47,15 @@ const Navigation: React.FC<Props> = ({ partShown, setPartShown, options }) => {
           {option}
         </Toggle>
       ))}
-      <Button
-        variant="outline-danger"
-        className="ms-auto justify-self-end"
-        onClick={async () => {
-          await deleteTask();
-          resetTask();
-          history.push("/");
-        }}
-      >
-        Delete Task
-      </Button>
+      {user?.permissions.canUploadFiles && (
+        <Button
+          variant="outline-danger"
+          className="ms-auto justify-self-end"
+          onClick={handleDeleteTask}
+        >
+          Delete Task
+        </Button>
+      )}
     </Container>
   );
 };

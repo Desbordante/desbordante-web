@@ -83,6 +83,7 @@ const Password: React.FC<Props> = ({ onSuccess, email }) => {
               <Form.Control
                 placeholder="1234"
                 name="password"
+                type="password"
                 value={values.password}
                 onChange={handleChange}
                 onBlur={handleBlur}

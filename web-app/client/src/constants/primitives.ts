@@ -19,6 +19,7 @@ export const sortOptions = {
   FD: Object.keys(SortSide) as SortSide[],
   CFD: Object.keys(CFDSortBy) as CFDSortBy[],
   AR: Object.keys(ARSortBy) as ARSortBy[],
+  TypoFD: Object.keys(SortSide) as SortSide[],
 };
 
 export const defaultPrimitiveFilter: PrimitiveFilter = {
@@ -45,7 +46,7 @@ export const defaultPrimitiveFilter: PrimitiveFilter = {
     pagination: {
       limit: 10,
       offset: 0,
-    }
+    },
   },
   AR: {
     filterString: null,
@@ -54,12 +55,18 @@ export const defaultPrimitiveFilter: PrimitiveFilter = {
     pagination: {
       limit: 10,
       offset: 0,
-    }
+    },
   },
   TypoFD: {
-    limit: 10,
-    offset: 0,
-  }
+    filterString: null,
+    orderBy: OrderBy.DESC,
+    sortBy: SortBy.COL_NAME,
+    sortSide: SortSide.LHS,
+    pagination: {
+      limit: 10,
+      offset: 0,
+    },
+  },
 };
 
 export const defaultDatasetPagination: Pagination = {

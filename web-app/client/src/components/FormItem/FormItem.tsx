@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Col } from "react-bootstrap";
 
 interface ShadowProps {
   enabled: boolean;
@@ -22,16 +21,15 @@ interface Props {
 }
 
 const FormItem: React.FC<Props> = ({ enabled = true, children }) => (
-  <Col
-    xxl={6}
-    className="px-0 my-2 position-relative d-flex align-items-center flex-wrap"
+  <div
+    className="px-0 my-3 position-relative d-flex align-items-center flex-wrap"
   >
     <Shadow
       enabled={!enabled}
       className="form-item-shadow position-absolute bg-dark"
     />
     <>{children}</>
-  </Col>
+  </div>
 );
 
 export default FormItem;
