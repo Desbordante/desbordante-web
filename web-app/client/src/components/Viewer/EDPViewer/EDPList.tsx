@@ -27,21 +27,14 @@ const FDList: React.FC<Props> = ({ className = "" }) => {
   const setSortMethod = (selected: SortSide) =>
     setPrimitiveFilter((prev) => {
       const newFilter = { ...prev };
-      newFilter.FD.sortSide = selected;
+      newFilter.TypoFD.sortSide = selected;
       return newFilter;
     });
 
   const setFilterString = (newFilterString: string) =>
     setPrimitiveFilter((prev) => {
       const newFilter = { ...prev };
-      newFilter.FD.filterString = newFilterString;
-      return newFilter;
-    });
-
-  const toggleWithoutKeys = () =>
-    setPrimitiveFilter((prev) => {
-      const newFilter = { ...prev };
-      newFilter.FD.withoutKeys = !newFilter.FD.withoutKeys;
+      newFilter.TypoFD.filterString = newFilterString;
       return newFilter;
     });
 
@@ -50,8 +43,8 @@ const FDList: React.FC<Props> = ({ className = "" }) => {
       <Container fluid className="d-flex flex-wrap align-items-center p-0 my-2">
         <h3 className="mx-2 fw-bold">Sort by</h3>
         <Selector
-          options={sortOptions.FD}
-          current={primitiveFilter.FD.sortSide}
+          options={sortOptions.TypoFD}
+          current={primitiveFilter.TypoFD.sortSide}
           onSelect={setSortMethod}
           label={(sortMethod) => sortMethod}
           variant="dark"
@@ -60,17 +53,9 @@ const FDList: React.FC<Props> = ({ className = "" }) => {
         <SearchBar
           defaultText="Dependencies regex"
           onChange={setFilterString}
-          value={primitiveFilter.FD.filterString || ""}
+          value={primitiveFilter.TypoFD.filterString || ""}
           className="mx-2"
         />
-        <Toggle
-          toggleCondition={!primitiveFilter.FD.withoutKeys}
-          variant="dark"
-          onClick={toggleWithoutKeys}
-          className="mx-2"
-        >
-          Show Keys
-        </Toggle>
       </Container>
       <LoadingContainer isLoading={taskResultLoading}>
         <Stack className="my-2">

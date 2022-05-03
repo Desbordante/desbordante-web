@@ -1,10 +1,14 @@
-import React, {createContext, useContext, useEffect, useState} from "react";
-import {AlgorithmProps} from "../types/algorithmProps";
-import {Dataset, isBuiltinDataset} from "../types/dataset";
-import {FileProps} from "../types/fileProps";
-import {AlgorithmConfigContext} from "./AlgorithmConfigContext";
-import {MetricType, PrimitiveType} from "../types/globalTypes";
-import {AllowedDataset} from "../types/types";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { AlgorithmProps } from "../types/algorithmProps";
+import { Dataset, isBuiltinDataset } from "../types/dataset";
+import { FileProps } from "../types/fileProps";
+import { AlgorithmConfigContext } from "./AlgorithmConfigContext";
+import {
+  InputFileFormat,
+  MetricType,
+  PrimitiveType,
+} from "../types/globalTypes";
+import { AllowedDataset } from "../types/types";
 
 type FileFormContextType = {
   primitiveType: PrimitiveType;
@@ -26,7 +30,7 @@ const defaultFileProps: FileProps = {
   delimiter: ",",
   hasHeader: true,
   hasTransactionId: true,
-  fileFormat: "Singular",
+  fileFormat: InputFileFormat.SINGULAR,
   itemSetColumn: "2",
   transactionIdColumn: "1",
 };

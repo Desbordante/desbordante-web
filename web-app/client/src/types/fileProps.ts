@@ -1,3 +1,5 @@
+import { InputFileFormat } from "./globalTypes";
+
 export type FDFileProps = {
   delimiter: string;
   hasHeader: boolean;
@@ -8,12 +10,11 @@ export type CFDFileProps = {
   hasHeader: boolean;
 };
 
-export const fileFormatList = ["Singular", "Tabular"] as const;
-export type FileFormat = typeof fileFormatList[number];
+export const fileFormatList: InputFileFormat[] = [InputFileFormat.SINGULAR, InputFileFormat.TABULAR];
 
 export type ARFileProps = {
   delimiter: string;
-  fileFormat: "Singular" | "Tabular";
+  fileFormat: InputFileFormat;
   transactionIdColumn: string;
   itemSetColumn: string;
   hasTransactionId: boolean;
