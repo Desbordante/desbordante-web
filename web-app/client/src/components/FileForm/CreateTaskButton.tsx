@@ -37,7 +37,6 @@ const CreateTaskButton = () => {
     fileProps,
     algorithmProps,
     setFileUploadProgress,
-    fileUploadProgress,
     primitiveType,
   } = useContext(FileFormContext)!;
   const { showError } = useContext(ErrorContext)!;
@@ -78,6 +77,10 @@ const CreateTaskButton = () => {
       const datasetProps: FileProps = {
         delimiter: fileProps.delimiter,
         hasHeader: fileProps.hasHeader,
+        inputFormat: fileProps.fileFormat,
+        hasTid: fileProps.hasTransactionId,
+        tidColumnIndex: +fileProps.transactionIdColumn,
+        itemColumnIndex: +fileProps.itemSetColumn,
       };
       const context: DefaultContext = {
         fetchOptions: {
@@ -112,12 +115,10 @@ const CreateTaskButton = () => {
     }
   };
 
-  console.log(fileUploadProgress);
-
   return (
     <SubmitButton
       onClick={isValid ? submit : () => {}}
-      className={`rounded-pill mt-auto mb-5 px-4 py-2 fs-4 text-${
+      className={`rounded-pill my-5 px-4 py-2 fs-4 text-${
         isValid ? "primary" : "grey"
       } border border-2 border-${isValid ? "primary" : "lighter-dark"}`}
       style={{ pointerEvents: isValid ? "auto" : "none" }}

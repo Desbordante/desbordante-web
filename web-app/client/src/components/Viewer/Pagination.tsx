@@ -12,24 +12,18 @@ const Pagination: React.FC<Props> = ({ primitiveType }) => {
     useContext(TaskContext)!;
 
   const { offset: paginationOffset, limit: paginationLimit } =
-    primitiveType === "FD" || primitiveType === "AR" || primitiveType === "CFD"
-      ? primitiveFilter[primitiveType].pagination
-      : primitiveFilter[primitiveType];
+    primitiveFilter[primitiveType].pagination;
 
   const depsAmount = taskResult?.depsAmount || 1;
 
   const setOffset = (newOffset: number) =>
     setPrimitiveFilter((prev) => {
       const newFilter = { ...prev };
-      if (primitiveType === "FD" || primitiveType === "AR" || primitiveType === "CFD") {
-        newFilter[primitiveType].pagination.offset = clamp(
-          newOffset,
-          0,
-          depsAmount
-        );
-      } else {
-        newFilter[primitiveType].offset = clamp(newOffset, 0, depsAmount);
-      }
+      newFilter[primitiveType].pagination.offset = clamp(
+        newOffset,
+        0,
+        depsAmount
+      );
       return newFilter;
     });
 

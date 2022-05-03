@@ -74,7 +74,7 @@ export const usePrimitiveList = (
         }
         case PrimitiveType.TypoFD: {
           res = await getTypoFDs({
-            variables: { taskID, pagination: filter.TypoFD },
+            variables: { taskID, filter: filter.TypoFD },
           });
           break;
         }

@@ -4,13 +4,13 @@ import { COLUMN } from "../../fragments/fragments";
 export const GET_TYPO_FDS = gql`
   ${COLUMN}
 
-  query getTypoFDs($taskID: ID!, $pagination: Pagination!) {
+  query getTypoFDs($taskID: ID!, $filter: TypoFDsFilter!) {
     taskInfo(taskID: $taskID) {
       data {
         result {
           __typename
           ... on TypoFDTaskResult {
-            TypoFDs(pagination: $pagination) {
+            TypoFDs(filter: $filter) {
               lhs {
                 ...Column
               }

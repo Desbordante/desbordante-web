@@ -1,6 +1,8 @@
 import React, { useContext } from "react";
+import { sentenceCase } from "change-case";
+
 import { isBuiltinDataset } from "../../types/dataset";
-import { FileFormat, fileFormatList } from "../../types/fileProps";
+import { fileFormatList } from "../../types/fileProps";
 
 import { AlgorithmConfigContext } from "../AlgorithmConfigContext";
 import { FileFormContext } from "../FileFormContext";
@@ -8,7 +10,7 @@ import FormItem from "../FormItem/FormItem";
 import Toggle from "../Toggle/Toggle";
 import Value from "../Value/Value";
 import Selector from "../Selector/Selector";
-import { PrimitiveType } from "../../types/globalTypes";
+import { InputFileFormat, PrimitiveType } from "../../types/globalTypes";
 
 const ChooseFileProps = () => {
   const { fileProps, setFileProps, primitiveType, dataset } =
@@ -30,7 +32,7 @@ const ChooseFileProps = () => {
     }));
   };
 
-  const changeFileFormat = (newFormat: FileFormat) => {
+  const changeFileFormat = (newFormat: InputFileFormat) => {
     setFileProps((prevProps) => ({
       ...prevProps,
       fileFormat: newFormat,
@@ -85,14 +87,19 @@ const ChooseFileProps = () => {
             options={[...fileFormatList]}
             current={fileProps.fileFormat}
             onSelect={changeFileFormat}
-            label={(format) => format}
+            label={sentenceCase}
             className="mx-2"
           />
         </FormItem>
       )}
       {primitiveType === PrimitiveType.AR && (
         <>
-          <FormItem enabled={!isBuiltinDataset(dataset) && fileProps.fileFormat === "Singular"}>
+          <FormItem
+            enabled={
+              !isBuiltinDataset(dataset) &&
+              fileProps.fileFormat === InputFileFormat.SINGULAR
+            }
+          >
             <h5 className="text-white mb-0 mx-2">ID column:</h5>
             <Value
               inputValidator={validators.isInteger}
@@ -108,7 +115,7 @@ const ChooseFileProps = () => {
               className="mx-2"
             />
           </FormItem>
-          <FormItem enabled={fileProps.fileFormat === "Tabular"}>
+          <FormItem enabled={fileProps.fileFormat === InputFileFormat.TABULAR}>
             <h5 className="text-white mb-0 mx-2">Has transaction ID:</h5>
             <Toggle
               onClick={toggleTransactionId}
