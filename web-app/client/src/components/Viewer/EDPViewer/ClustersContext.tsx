@@ -10,6 +10,7 @@ type ClustersContextType = {
   >;
   clusters: ClustersInfo | undefined;
   startSpecificTask: (clusterId: number) => void;
+  setClusterSorted: (clusterId: number, isSorted: boolean) => void;
 };
 
 export const ClustersContext = createContext<ClustersContextType | null>(null);
@@ -17,13 +18,14 @@ export const ClustersContext = createContext<ClustersContextType | null>(null);
 export const ClustersContextProvider: React.FC = ({ children }) => {
   const [selectedDependency, setSelectedDependency] =
     useState<FunctionalDependency>();
-  const { clusters, startSpecificTask } = useClusters(selectedDependency);
+  const { clusters, startSpecificTask, setClusterSorted } = useClusters(selectedDependency);
 
   const outValue = {
     selectedDependency,
     setSelectedDependency,
     clusters,
     startSpecificTask,
+    setClusterSorted,
   };
 
   return (

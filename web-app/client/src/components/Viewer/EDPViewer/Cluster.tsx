@@ -78,7 +78,7 @@ interface Props {
 
 const Cluster: React.FC<Props> = ({ cluster }) => {
   const { dataset } = useContext(TaskContext)!;
-  const { selectedDependency: sd, startSpecificTask } =
+  const { selectedDependency: sd, startSpecificTask, setClusterSorted } =
     useContext(ClustersContext)!;
   const selectedDependency = sd!;
   const isExpanded = Boolean(
@@ -140,9 +140,18 @@ const Cluster: React.FC<Props> = ({ cluster }) => {
         toggleCondition={isSquashed}
         onClick={toggleIsSquashed}
         variant="dark"
+        className="me-2"
         isEnabled={isExpanded}
       >
         Squashed
+      </Toggle>
+      <Toggle
+        toggleCondition={cluster.isSorted}
+        onClick={() => setClusterSorted(cluster.id || 0, !cluster.isSorted)}
+        variant="dark"
+        isEnabled={isExpanded}
+      >
+        Sorted
       </Toggle>
       <LoadingContainer isLoading={cluster.loading}>
         <>
