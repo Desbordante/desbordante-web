@@ -1,8 +1,10 @@
 import { ForbiddenError, UserInputError } from "apollo-server-core";
 import { AuthenticationError } from "apollo-server-express";
+import { Permission } from "../../../db/models/UserInfo/Permission";
 import { PrimitiveType } from "../../../db/models/TaskData/TaskConfig";
 import { Resolvers } from "../../types/types";
-import { Permission } from "../../../db/models/UserInfo/Permission";
+import { builtInDatasets } from "../../../db/initBuiltInDatasets";
+import { ApolloError } from "apollo-server-errors";
 
 export const TaskCreatingResolvers: Resolvers = {
     Mutation: {
@@ -21,7 +23,7 @@ export const TaskCreatingResolvers: Resolvers = {
             }
         },
         createTaskWithDatasetChoosing: async (
-            parent, { props, fileID }, { models, sessionInfo, topicNames }) => {
+            parent, { props, fileID }, { models, sessionInfo, topicNames, logger }) => {
             const file = await models.FileInfo.findByPk(fileID);
             if (!file) {
                 throw new UserInputError("File not found", { fileID });
@@ -37,8 +39,18 @@ export const TaskCreatingResolvers: Resolvers = {
                 || permissions.includes("USE_OWN_DATASETS") && sessionInfo
                    && file.userID === sessionInfo.userID
                 || permissions.includes("USE_USERS_DATASETS")) {
+                if (file.isBuiltIn) {
+                    const datasetInfo = builtInDatasets.find(({ fileName }) => file.fileName == fileName);
+                    if (!datasetInfo) {
+                        throw new ApolloError(`Built in dataset ${file.fileName} not found`);
+                    }
+                    logger(datasetInfo.supportedPrimitives, props.type);
+                    if (!datasetInfo.supportedPrimitives.includes(props.type)) {
+                        throw new UserInputError(`Dataset doesn't support '${props.type}' primitive type`);
+                    }
+                }
                 return await models.TaskState.saveTaskToDBAndSendEvent(props,
-                    topicNames.DepAlgs, sessionInfo?.userID || null, fileID);
+                    topicNames.DepAlgs, sessionInfo?.userID || null, file);
             } else {
                 throw new ForbiddenError("User hasn't permission for creating task with this dataset");
             }
@@ -73,7 +85,7 @@ export const TaskCreatingResolvers: Resolvers = {
             }
             const file = await models.FileInfo.uploadDataset(datasetProps, table,
                 sessionInfo.userID, props.type === "AR");
-            return await models.TaskState.saveTaskToDBAndSendEvent(props, topicNames.DepAlgs, sessionInfo.userID, file.fileID);
+            return await models.TaskState.saveTaskToDBAndSendEvent(props, topicNames.DepAlgs, sessionInfo.userID, file);
         },
         deleteTask: async (parent, { taskID, safeDelete }, { models, logger, sessionInfo }) => {
             if (!sessionInfo) {

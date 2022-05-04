@@ -24,12 +24,14 @@ export type BuiltInDatasetInfoType = {
     fileName: string, datasetProps: FileProps, supportedPrimitives: PrimitiveType[] };
 
 export const builtInDatasets: BuiltInDatasetInfoType[] = [
-    { fileName: "EpicMeds.csv", datasetProps: { delimiter: "|", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
+    { fileName: "EpicMeds.csv", datasetProps: { delimiter: "|", hasHeader: true }, supportedPrimitives: ["FD"] },
+    { fileName: "EmployeeSmall.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["CFD"] },
+    { fileName: "CustSmall.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["CFD"] },
+    { fileName: "Cust.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["CFD"] },
     { fileName: "WDC_age.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
-    { fileName: "TestLong.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
-    { fileName: "Workshop.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
+    { fileName: "Workshop.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD", "TypoFD"] },
     { fileName: "breast_cancer.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
-    { fileName: "CIPublicHighway700.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD", "CFD"] },
+    { fileName: "CIPublicHighway700.csv", datasetProps: { delimiter: ",", hasHeader: true }, supportedPrimitives: ["FD"] },
     {
         fileName: "rules-kaggle-rows-2.csv", datasetProps: {
             delimiter: ",", hasHeader: false,
