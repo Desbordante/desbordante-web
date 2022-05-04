@@ -100,12 +100,7 @@ const EDPAlgorithmProps = () => {
     });
   }, []);
 
-  const errorThreshold = algorithmProps?.errorThreshold || "0.005";
-  const arityConstraint = algorithmProps?.arityConstraint || "5";
-  const threadsCount = algorithmProps?.threadsCount || "2";
-  const metric = algorithmProps?.metric || MetricType.MODULUS_OF_DIFFERENCE;
-  const radius = algorithmProps?.radius || "2";
-  const ratio = algorithmProps?.ratio || "0.3";
+  const {errorThreshold, arityConstraint, threadsCount, metric, radius, ratio} = algorithmProps;
 
   return (
     <>

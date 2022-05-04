@@ -40,8 +40,7 @@ const ARAlgorithmProps = () => {
     }
   }, [allowedValues]);
 
-  const minConfidence = algorithmProps?.minConfidence || "0.005";
-  const minSupportAR = algorithmProps?.minSupportAR || "0.005";
+  const { minConfidence, minSupportAR } = algorithmProps;
 
   return (
     <>

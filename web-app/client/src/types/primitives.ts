@@ -19,6 +19,7 @@ export type ClusterTask = {
   id?: number;
   error: boolean;
   loading: boolean;
+  isSorted: boolean;
   data: { cluster?: Cluster; squashedCluster?: SquashedCluster };
 };
 

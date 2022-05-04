@@ -47,9 +47,7 @@ const FDAlgorithmProps = () => {
     }
   }, [allowedValues]);
 
-  const errorThreshold = algorithmProps?.errorThreshold || "0.005";
-  const arityConstraint = algorithmProps?.arityConstraint || "5";
-  const threadsCount = algorithmProps?.threadsCount || "2";
+  const { errorThreshold, arityConstraint, threadsCount } = algorithmProps;
 
   return (
     <>
