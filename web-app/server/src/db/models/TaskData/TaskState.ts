@@ -14,6 +14,8 @@ import {
 } from "./SpecificTaskConfigs";
 import { ARTaskResult, CFDTaskResult, FDTaskResult, SpecificTypoClusterResult, TypoClusterResult, TypoFDTaskResult } from "./SpecificTaskResults";
 import { User } from "../UserInfo/User";
+import { FileInfo } from "../FileInfo/FileInfo";
+import _ from "lodash";
 
 const ALL_TASK_STATUSES = ["IN_PROCESS", "COMPLETED", "INTERNAL_SERVER_ERROR",
     "RESOURCE_LIMIT_IS_REACHED", "ADDED_TO_THE_TASK_QUEUE", "ADDING_TO_DB"] as const;
@@ -198,17 +200,22 @@ export class TaskState extends Model implements TaskInfoModelMethods {
     };
 
     static saveToDBIfPropsValid = async (props: IntersectionTaskProps,
-                                         userID: string | null, fileID: string | null) => {
+                                         userID: string | null, file: FileInfo) => {
         const validityAnswer = await BaseTaskConfig.isPropsValid(props);
+
         if (validityAnswer.isValid) {
-            return await TaskState.saveToDB(props, userID, fileID);
+            const rowsCount = file.rowsCount - Number(file.hasHeader);
+            if (props.type == "CFD" && (!_.isNumber(props.minSupportCFD) ||  props.minSupportCFD > rowsCount)) {
+                throw new UserInputError(`Min support must be less than or equal to the number of table rows ${rowsCount}`);
+            }
+            return await TaskState.saveToDB(props, userID, file.fileID);
         }
         throw new UserInputError(validityAnswer.errorMessage);
     };
 
     static saveTaskToDBAndSendEvent = async (props: IntersectionTaskProps, topicName: string,
-                                             userID: string | null, fileID: string | null = null) => {
-        const taskInfo = await TaskState.saveToDBIfPropsValid(props, userID, fileID);
+                                             userID: string | null, file: FileInfo) => {
+        const taskInfo = await TaskState.saveToDBIfPropsValid(props, userID, file);
         await sendEvent(topicName, taskInfo.taskID);
         const status: TaskStatusType = "ADDED_TO_THE_TASK_QUEUE";
         await taskInfo.update({ status });
