@@ -25,10 +25,8 @@ producer
 
 const client = Kafka.AdminClient.create({
   "client.id": `${process.env.KAFKA_ADMIN_CLIENT_ID}`,
-  "bootstrap.servers":
-      `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}`,
-  "metadata.broker.list":
-      `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}`,
+  "bootstrap.servers": `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}`,
+  "metadata.broker.list": `${process.env.KAFKA_HOST}:${process.env.KAFKA_SERVER_PORT}`,
 });
 
 producer.connect()
