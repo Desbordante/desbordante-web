@@ -18,7 +18,10 @@ export const useTaskInfo = (taskID?: string) => {
   const [taskProperties, setTaskProperties] = useState<TaskProperties>();
 
   const [getTaskInfoQuery] = useLazyQuery<getTaskInfo, getTaskInfoVariables>(
-    GET_TASK_INFO
+    GET_TASK_INFO,
+      {
+        fetchPolicy: "network-only"
+      }
   );
 
   const queryRef = useRef<NodeJS.Timer | null>(null);
