@@ -47,9 +47,7 @@ const CFDAlgorithmProps = () => {
     }
   }, [allowedValues]);
 
-  const minConfidence = algorithmProps?.minConfidence || "0.005";
-  const arityConstraint = algorithmProps?.arityConstraint || "5";
-  const minSupportCFD = algorithmProps?.minSupportCFD || "2";
+  const { minConfidence, arityConstraint, minSupportCFD } = algorithmProps;
 
   return (
     <>

@@ -1,7 +1,7 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useLazyQuery, useMutation } from "@apollo/client";
 
-import { Cluster, ClustersInfo, ClusterTask } from "../types/primitives";
+import { ClustersInfo, ClusterTask } from "../types/primitives";
 import {
   getClustersPreview_taskInfo_data_result_TypoClusterTaskResult,
   getClustersPreviewVariables,
@@ -127,6 +127,7 @@ export const useClusters = (selectedDependency?: FunctionalDependency) => {
                 data: { cluster },
                 loading: false,
                 error: false,
+                isSorted: true,
                 id: cluster.id,
               })),
             });
@@ -151,33 +152,52 @@ export const useClusters = (selectedDependency?: FunctionalDependency) => {
     }
   };
 
-  const pollSpecificTask = (specificTaskId: string) => async () => {
-    try {
-      const res = await getSpecificCluster({
-        variables: {
-          taskId: specificTaskId,
-          pagination: { offset: 0, limit: 100 },
-        },
-      });
-      const dataResult = res.data?.taskInfo.data
-        .result as getSpecificCluster_taskInfo_data_result_SpecificTypoClusterTaskResult;
-      if (dataResult) {
-        setClusterTask(dataResult.cluster.id, (prev) => ({
-          ...prev,
-          loading: false,
-          data: dataResult,
-        }));
+  const pollSpecificTask =
+    (specificTaskId: string, sort: boolean) => async () => {
+      try {
+        const res = await getSpecificCluster({
+          variables: {
+            taskId: specificTaskId,
+            pagination: { offset: 0, limit: 100 },
+            sort,
+          },
+        });
+        const dataResult = res.data?.taskInfo.data
+          .result as getSpecificCluster_taskInfo_data_result_SpecificTypoClusterTaskResult;
+        if (dataResult) {
+          setClusterTask(dataResult.cluster.id, (prev) => ({
+            ...prev,
+            loading: false,
+            data: dataResult,
+          }));
+          stopPollingSpecificTask(specificTaskId);
+        }
+      } catch (error: any) {
+        showError(error);
         stopPollingSpecificTask(specificTaskId);
       }
-    } catch (error: any) {
-      showError(error);
-      stopPollingSpecificTask(specificTaskId);
+    };
+
+  const setClusterSorted = (clusterId: number, isSorted: boolean) => {
+    setClusters((prev) => {
+      if (prev && prev.TypoClusters) {
+        const newClusters = {...prev};
+        newClusters.TypoClusters.find(({id}) => id === clusterId)!.isSorted =
+          isSorted;
+        return newClusters;
+      }
+      return undefined;
+    });
+    const { current: pull } = specificTasksPull;
+    const found = pull.find(({ clusterId: id }) => id === clusterId);
+    if (found) {
+      clearInterval(found.timer);
+      found.timer = setInterval(pollSpecificTask(found.specificTaskId, isSorted), 1000);
     }
-  };
+  }
 
   const startSpecificTask = async (clusterId: number) => {
     const { current: pull } = specificTasksPull;
-    console.log(clusterId);
     const found = pull.find(({ clusterId: id }) => id === clusterId);
 
     if (!found) {
@@ -191,7 +211,7 @@ export const useClusters = (selectedDependency?: FunctionalDependency) => {
             pull.push({
               specificTaskId,
               clusterId,
-              timer: setInterval(pollSpecificTask(specificTaskId), 1000),
+              timer: setInterval(pollSpecificTask(specificTaskId, true), 1000),
             });
           }
           setClusterTask(clusterId, (prev) => ({
@@ -205,6 +225,5 @@ export const useClusters = (selectedDependency?: FunctionalDependency) => {
     }
   };
 
-  console.log(specificTasksPull.current);
-  return { clusters, startSpecificTask };
+  return { clusters, startSpecificTask, setClusterSorted };
 };

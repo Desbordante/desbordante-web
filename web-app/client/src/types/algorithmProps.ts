@@ -3,31 +3,31 @@ import { MetricType } from "./globalTypes";
 
 export type FDAlgorithmProps = {
   algorithm?: FDAlgorithm;
-  errorThreshold?: string;
-  arityConstraint?: string;
-  threadsCount?: string;
+  errorThreshold: string;
+  arityConstraint: string;
+  threadsCount: string;
 };
 
 export type CFDAlgorithmProps = {
   algorithm?: CFDAlgorithm;
-  arityConstraint?: string;
-  minSupportCFD?: string;
-  minConfidence?: string;
+  arityConstraint: string;
+  minSupportCFD: string;
+  minConfidence: string;
 };
 
 export type ARAlgorithmProps = {
   algorithm?: ARAlgorithm;
-  minSupportAR?: string;
-  minConfidence?: string;
+  minSupportAR: string;
+  minConfidence: string;
 };
 
 export type EDPAlgorithmProps = {
   algorithm?: EDPAlgorithm;
   preciseAlgorithm?: FDAlgorithm;
   approximateAlgorithm?: FDAlgorithm;
-  metric?: MetricType;
-  radius?: string;
-  ratio?: string;
+  metric: MetricType;
+  radius: string;
+  ratio: string;
 };
 
 export type AlgorithmProps = FDAlgorithmProps &
