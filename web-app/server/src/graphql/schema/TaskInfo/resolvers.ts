@@ -128,6 +128,13 @@ export const TaskInfoResolvers: Resolvers = {
     TaskState: {
         // @ts-ignore
         processStatus: ({ status }) => status,
+        // @ts-ignore
+        user: async ({ userID }: { userID: string | undefined }, _, { models }) => {
+            if (userID == undefined || !isUUID(userID, "4")) {
+                return null;
+            }
+            return await models.User.findByPk(userID);
+        },
     },
     TaskInfo: {
         // @ts-ignore
@@ -924,8 +931,8 @@ export const TaskInfoResolvers: Resolvers = {
             if (!taskConfig || !taskInfo) {
                 throw new UserInputError("Invalid taskID was provided", { taskID });
             }
-            if (!taskInfo.userID || sessionInfo && sessionInfo.userID === taskInfo.userID
-                || sessionInfo && !taskInfo.isPrivate
+            if (taskInfo.userID == undefined || sessionInfo && sessionInfo.userID === taskInfo.userID
+                || !taskInfo.isPrivate
                 || sessionInfo && sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
                 return taskConfig;
             }

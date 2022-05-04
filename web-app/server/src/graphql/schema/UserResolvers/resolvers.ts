@@ -47,25 +47,25 @@ export const UserResolvers : Resolvers = {
             return models.Role.findAll({ where: { userID } });
         },
         // @ts-ignore
-        feedbacks: async ({ userID }, _, { models }) => {
+        feedbacks: async ({ userID }, { pagination }, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            return await models.Feedback.findAll({ where: { userID } });
+            return await models.Feedback.findAll({ where: { userID }, ...pagination });
         },
         // @ts-ignore
-        tasks: async ({ userID }, _, { models }) => {
+        tasks: async ({ userID }, { withDeleted, pagination }, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            return await models.TaskState.findAll({ where: { userID }, paranoid: true });
+            return await models.TaskState.findAll({ where: { userID }, paranoid: !withDeleted, ...pagination },);
         },
         // @ts-ignore
-        datasets: async ({ userID }, _, { models }) => {
+        datasets: async ({ userID }, { pagination }, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            return await models.FileInfo.findAll({ where: { userID } });
+            return await models.FileInfo.findAll({ where: { userID }, ...pagination });
         },
     },
     Feedback: {
