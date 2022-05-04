@@ -165,6 +165,7 @@ const typeDefs = gql`
     
     type TaskState {
         taskID: ID!
+        user: User
         isPrivate: Boolean!
         attemptNumber: Int!
         processStatus: TaskProcessStatusType!

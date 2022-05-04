@@ -8,6 +8,7 @@ import { ApolloError } from "apollo-server-errors";
 
 export const TaskCreatingResolvers: Resolvers = {
     Mutation: {
+        // @ts-ignore
         createTypoMinerTask: async (parent, { props }, { models, sessionInfo, topicNames }) => {
             const permissions = Permission.getPermissionsBySessionInfo(sessionInfo);
             const expectedTypes: PrimitiveType[] = ["TypoCluster", "SpecificTypoCluster"];
@@ -22,6 +23,7 @@ export const TaskCreatingResolvers: Resolvers = {
                 throw new ForbiddenError("User hasn't permission for creating task with this dataset");
             }
         },
+        // @ts-ignore
         createTaskWithDatasetChoosing: async (
             parent, { props, fileID }, { models, sessionInfo, topicNames, logger }) => {
             const file = await models.FileInfo.findByPk(fileID);
@@ -78,6 +80,7 @@ export const TaskCreatingResolvers: Resolvers = {
         //     }
         //     return file;
         // },
+        // @ts-ignore
         createTaskWithDatasetUploading: async (parent, { props, datasetProps, table },
             { models, topicNames, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
