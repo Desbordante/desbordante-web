@@ -95,7 +95,7 @@ const ARTable: React.FC<Props> = ({
   }, []);
 
   const colorizedPart = rows.filter((row) => row.some((item) => colorizedItems.includes(item)));
-  const uncolorizedPart = rows.filter((row) => row.some((item) => !colorizedItems.includes(item)));
+  const uncolorizedPart = rows.filter((row) => row.every((item) => !colorizedItems.includes(item)));
 
   const headerClassName =
     "px-4 py-3 text-white text-nowrap text-center position-relative";
