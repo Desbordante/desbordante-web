@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import { Container, Stack } from "react-bootstrap";
 
 import SearchBar from "../../SearchBar/SearchBar";
@@ -7,16 +7,9 @@ import ARSnippet from "./ARSnippet";
 import { AssociationRule } from "../../../types/types";
 import { TaskContext } from "../../TaskContext";
 import { ARSortBy } from "../../../types/globalTypes";
-import { sortOptions } from "../../../constants/primitives";
+import {ARSortByLabels, sortOptions} from "../../../constants/primitives";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
 import Pagination from "../Pagination";
-
-const sortByLabels = {
-  [ARSortBy.CONF]: "Confidence",
-  [ARSortBy.DEFAULT]: "Default",
-  [ARSortBy.LHS_NAME]: "LHS",
-  [ARSortBy.RHS_NAME]: "RHS",
-};
 
 interface Props {
   selectedRule: AssociationRule | null;
@@ -48,23 +41,6 @@ const ARList: React.FC<Props> = ({
       return newFilter;
     });
 
-  // update displayed rules on search
-  // useEffect(() => {
-  //   const foundRules = searchString
-  //     ? rules.filter((rule) =>
-  //         rule.lhs
-  //           .concat(rule.rhs)
-  //           .join("")
-  //           .toLowerCase()
-  //           .includes(searchString.toLowerCase())
-  //       )
-  //     : [...rules];
-  //
-  //   // sort found dependencies
-  //   const newSortedRules = foundRules.sort(currentSortMethod.comparator);
-  //   setSortedRules(newSortedRules);
-  // }, [rules, searchString, currentSortMethod]);
-
   return (
     <Container fluid className={`flex-grow-1 d-flex flex-column ${className}`}>
       <Container fluid className="d-flex flex-wrap align-items-center p-0 my-2">
@@ -73,7 +49,7 @@ const ARList: React.FC<Props> = ({
           options={sortOptions.AR}
           current={primitiveFilter.AR.sortBy}
           onSelect={setSortMethod}
-          label={(sortMethod) => sortByLabels[sortMethod]}
+          label={(sortMethod) => ARSortByLabels[sortMethod]}
           variant="dark"
           className="mx-2"
         />

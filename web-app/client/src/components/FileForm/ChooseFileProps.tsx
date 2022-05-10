@@ -81,7 +81,7 @@ const ChooseFileProps = () => {
         </Toggle>
       </FormItem>
       {primitiveType === PrimitiveType.AR && (
-        <FormItem>
+        <FormItem enabled={!isBuiltinDataset(dataset)}>
           <h5 className="text-white mb-0 mx-2">File format:</h5>
           <Selector
             options={[...fileFormatList]}
@@ -115,7 +115,7 @@ const ChooseFileProps = () => {
               className="mx-2"
             />
           </FormItem>
-          <FormItem enabled={fileProps.fileFormat === InputFileFormat.TABULAR}>
+          <FormItem enabled={fileProps.fileFormat === InputFileFormat.TABULAR && !isBuiltinDataset(dataset)}>
             <h5 className="text-white mb-0 mx-2">Has transaction ID:</h5>
             <Toggle
               onClick={toggleTransactionId}
