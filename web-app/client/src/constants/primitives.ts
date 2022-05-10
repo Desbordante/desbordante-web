@@ -39,7 +39,7 @@ export const defaultPrimitiveFilter: PrimitiveFilter = {
   CFD: {
     filterString: null,
     orderBy: OrderBy.DESC,
-    sortBy: CFDSortBy.DEFAULT,
+    sortBy: CFDSortBy.CONF,
     mustContainRhsColIndices: null,
     mustContainLhsColIndices: null,
     withoutKeys: false,
@@ -73,3 +73,17 @@ export const defaultDatasetPagination: Pagination = {
   limit: 100,
   offset: 0,
 };
+
+export const ARSortByLabels = {
+  [ARSortBy.CONF]: "Confidence",
+  [ARSortBy.DEFAULT]: "Default",
+  [ARSortBy.LHS_NAME]: "LHS",
+  [ARSortBy.RHS_NAME]: "RHS",
+};
+
+export const CFDSortByLabels = {
+  [CFDSortBy.SUP]: "Support",
+  [CFDSortBy.CONF]: "Confidence",
+  [CFDSortBy.LHS_COL_NAME]: "LHS",
+  [CFDSortBy.RHS_COL_NAME]: "RHS",
+}

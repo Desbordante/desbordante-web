@@ -7,7 +7,7 @@ import Selector from "../../Selector/Selector";
 import { ConditionalDependency } from "../../../types/taskInfo";
 import CFDSnippet from "./CFDSnippet";
 import { TaskContext } from "../../TaskContext";
-import { sortOptions } from "../../../constants/primitives";
+import {CFDSortByLabels, sortOptions} from "../../../constants/primitives";
 import { CFDSortBy } from "../../../types/globalTypes";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
 import Pagination from "../Pagination";
@@ -27,6 +27,7 @@ const CFDList: React.FC<Props> = ({
 }) => {
   const { primitiveFilter, setPrimitiveFilter, taskResult, taskResultLoading } =
     useContext(TaskContext)!;
+  const [isPatternShown, setIsPatternShown] = useState(true);
 
   const dependencies = taskResult?.CFD?.CFDs || [];
 
@@ -51,17 +52,16 @@ const CFDList: React.FC<Props> = ({
       return newFilter;
     });
 
-  const [isPatternShown, setIsPatternShown] = useState(true);
-
   return (
     <Container fluid className={`flex-grow-1 d-flex flex-column ${className}`}>
       <Container fluid className="d-flex flex-wrap align-items-center p-0 my-2">
         <h3 className="mx-2 fw-bold">Sort by</h3>
         <Selector
-          options={sortOptions.CFD}
+          options={sortOptions.CFD.filter((option) => option in CFDSortByLabels)}
           current={primitiveFilter.CFD.sortBy}
           onSelect={setSortMethod}
-          label={(sortMethod) => sortMethod}
+          // @ts-ignore
+          label={(sortMethod) => CFDSortByLabels[sortMethod]}
           variant="dark"
           className="mx-2"
         />
