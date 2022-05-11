@@ -167,12 +167,7 @@ const EDPAlgorithmProps = () => {
           className="mx-2"
         />
       </FormItem>
-      <FormItem
-        enabled={
-          algorithmProps?.preciseAlgorithm?.properties.hasArityConstraint &&
-          algorithmProps?.approximateAlgorithm?.properties.hasArityConstraint
-        }
-      >
+      <FormItem>
         <h5 className="text-white mb-0 mx-2">Arity constraint:</h5>
         <Value
           value={arityConstraint}
