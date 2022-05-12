@@ -23,10 +23,9 @@ services:
       context: ./web-app/
       dockerfile: Dockerfile-client
     ports:
-      - "3000:3000"
+      - "3000:80"
     environment:
-      HOST: "0.0.0.0"
-      REACT_APP_SERVER_HOST: ${HOST_SERVER_IP}
+      REACT_APP_HOST_SERVER_IP: ${REACT_APP_HOST_SERVER_IP}
       REACT_APP_SERVER_PORT: 5000
       REACT_APP_PASSWORD_SALT_PREFIX: ${REACT_APP_PASSWORD_SALT_PREFIX}
       REACT_APP_PASSWORD_SALT_POSTFIX: ${REACT_APP_PASSWORD_SALT_POSTFIX}
