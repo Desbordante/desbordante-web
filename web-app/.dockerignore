@@ -1,5 +1,7 @@
 *
 
+!replace_env.sh
+!setup.sh
 !Dockerfile-server
 !Dockerfile-client
 !client
