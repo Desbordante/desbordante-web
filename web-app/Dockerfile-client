@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:bullseye-slim as stage1
 RUN apt-get update && apt-get -y install python3 make g++ npm curl
 RUN npm install --global yarn
 RUN npm install -g n
@@ -8,4 +8,12 @@ WORKDIR /client/
 RUN yarn
 COPY --from=desbordante_server:latest /server/graphql.schema.json /server/graphql.schema.json
 COPY client/ /client/
-ENTRYPOINT ["yarn", "start"]
+RUN mv clients-envs .env.production
+RUN cp .env.production .env
+RUN yarn build 
+
+FROM nginx:1.20.2 as stage2
+COPY ./setup.sh /setup.sh
+COPY ./replace_env.sh /replace_env.sh
+COPY --from=stage1 /client/build/ /usr/share/nginx/html/
+ENTRYPOINT ["/setup.sh"]
