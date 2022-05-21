@@ -84,7 +84,7 @@ const Table: React.FC<Props> = ({
 
   const changeWidth = useCallback((node: HTMLDivElement) => {
     if (node) {
-      setHeaderWidth(node.clientWidth);
+      setHeaderWidth(node.clientWidth - 3);
     }
   }, []);
 
