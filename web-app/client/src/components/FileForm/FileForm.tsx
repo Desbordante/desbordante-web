@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import styled from "styled-components";
 
 import LoadingScreen from "../LoadingScreen/LoadingScreen";
@@ -9,12 +9,13 @@ import ChooseAlgorithmProps from "./ChooseAlgorithmProps";
 import CreateTaskButton from "./CreateTaskButton";
 import { FileFormContext } from "../FileFormContext";
 import { ErrorContext } from "../ErrorContext";
+import { TaskContext } from "../TaskContext";
 
 const StyledFileFormContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-column-gap: 1rem;
-  
+
   @media (max-width: 1650px) {
     display: block;
   }
@@ -22,12 +23,15 @@ const StyledFileFormContainer = styled.div`
 
 const FileForm = () => {
   const { fileUploadProgress } = useContext(FileFormContext)!;
+  const { resetTask } = useContext(TaskContext)!;
   const { isErrorShown } = useContext(ErrorContext)!;
 
+  useEffect(() => {
+    resetTask();
+  }, [resetTask]);
+
   return (
-    <div
-      className="file-form flex-grow-1 d-flex flex-column align-items-center"
-    >
+    <div className="file-form flex-grow-1 d-flex flex-column align-items-center">
       {fileUploadProgress > 0 && !isErrorShown && <LoadingScreen />}
       <ChoosePrimitive />
       <StyledFileFormContainer className="px-5">
@@ -39,5 +43,4 @@ const FileForm = () => {
     </div>
   );
 };
-
 export default FileForm;
