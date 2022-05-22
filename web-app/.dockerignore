@@ -4,6 +4,8 @@
 !setup.sh
 !Dockerfile-server
 !Dockerfile-client
+!Dockerfile-postfix
 !client
 !server
+!postfix
 */node_modules*
