@@ -67,19 +67,36 @@ services:
       KAFKA_TOPIC_NAME: tasks
       MAX_THREADS_COUNT: 8
       SECRET_KEY: ${SECRET_KEY}
-      USE_NODEMAILER: ${USE_NODEMAILER}
-      NODEMAILER_EMAIL: ${NODEMAILER_EMAIL}
-      NODEMAILER_PWD: ${NODEMAILER_PWD}
-
+      POSTFIX_ENABLED: ${POSTFIX_ENABLED}
+      POSTFIX_HOST: postfix
+      POSTFIX_EMAIL: ${POSTFIX_EMAIL}
     ports:
       - "5000:5000"
     depends_on:
       - postgres
       - kafka
       - python-consumer
+      - postfix
     volumes:
       - uploads:/server/uploads/
-      - datasets:/server/build/target/input_data/
+      - datasets:/server/build/target/inputData/
+    networks:
+      - network
+    restart: always
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: 20m
+
+  postfix:
+    build:
+      context: ./web-app/
+      dockerfile: Dockerfile-postfix
+    environment:
+      POSTFIX_RELAY: ${POSTFIX_RELAY}
+      POSTFIX_EMAIL: ${POSTFIX_EMAIL}
+      POSTFIX_PASS: ${POSTFIX_PASS}
+      POSTFIX_ADMINEMAIL: ${POSTFIX_ADMINEMAIL}
     networks:
       - network
     restart: always
@@ -194,7 +211,6 @@ services:
       - '/:/host:ro,rslave'
     command:
       - '--path.rootfs=/host'
-
     pid: host
 
   cadvisor:

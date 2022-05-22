@@ -3,14 +3,9 @@ import { ApolloError } from "apollo-server-core";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    requireTLS: true,
-    auth: {
-        user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PWD,
-    },
+    host: process.env.POSTFIX_HOST,
+    port: 25,
+    ignoreTLS: true,
 });
 
 export const sendVerificationCode = async (
@@ -23,13 +18,13 @@ export const sendVerificationCode = async (
     if (type === "EMAIL_VERIFICATION") {
         text = `Your email verification code is: ${code}`;
     } else if (type === "PASSWORD_RECOVERY_PENDING") {
-        text = `Your code for password recovery if : ${code}`;
+        text = `Your code for password recovery is : ${code}`;
     } else {
         throw new ApolloError("INTERNAL SERVER ERROR");
     }
 
     return await transporter.sendMail({
-        from: `Desbordante enjoyer <${process.env.NODEMAILER_EMAIL}>`,
+        from: `Desbordante Enjoyer <${process.env.POSTFIX_EMAIL}>`,
         to: userEmail,
         subject: "Email verification code",
         text,
@@ -44,7 +39,7 @@ export const createAndSendVerificationCode = async (
     logger?: typeof console.log
 ) => {
     const code = await Code.createVerificationCode(userID, deviceID, type);
-    if (process.env.USE_NODEMAILER === "true") {
+    if (process.env.POSTFIX_ENABLED === "true") {
         try {
             await sendVerificationCode(code.value, userEmail, type);
         } catch (e) {
@@ -53,7 +48,7 @@ export const createAndSendVerificationCode = async (
         }
         logger && logger("Code was sent to email");
     } else {
-        logger && logger("Code wasn't sent to email [NODEMAILER DISABLED]");
+        logger && logger("Code wasn't sent to email [POSTFIX DISABLED]");
         logger && logger(`Issue new verification code = ${code.value}`);
     }
 };
