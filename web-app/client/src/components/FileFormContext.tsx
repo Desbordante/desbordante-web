@@ -37,14 +37,14 @@ const defaultFileProps: FileProps = {
 
 const defaultAlgorithmProps: AlgorithmProps = {
   arityConstraint: "5",
-  errorThreshold: "0.005",
+  errorThreshold: "0.1",
   minConfidence: "0.15",
   minSupportCFD: "1",
   minSupportAR: "0.15",
   threadsCount: "2",
   metric: MetricType.MODULUS_OF_DIFFERENCE,
-  radius: "2",
-  ratio: "0.3",
+  radius: "3",
+  ratio: "1",
 };
 
 export const FileFormContextProvider: React.FC = ({children}) => {
