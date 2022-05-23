@@ -69,7 +69,9 @@ export const useTaskInfo = (taskID?: string) => {
             return;
           }
           case "ResourceLimitTaskError": {
-            showError({message: state.resourceLimitError});
+            showError({
+              message: state.resourceLimitError || "Resource limit reached",
+            });
             stopPolling();
             return;
           }
