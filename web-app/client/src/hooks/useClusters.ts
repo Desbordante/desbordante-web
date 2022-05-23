@@ -44,7 +44,7 @@ export const useClusters = (selectedDependency?: FunctionalDependency) => {
   const [getClustersPreview] = useLazyQuery<
     getClustersPreview,
     getClustersPreviewVariables
-  >(GET_CLUSTERS_PREVIEW);
+  >(GET_CLUSTERS_PREVIEW, {fetchPolicy: "network-only"});
   const [createPreviewTask] = useMutation<
     createClustersPreview,
     createClustersPreviewVariables
@@ -56,7 +56,7 @@ export const useClusters = (selectedDependency?: FunctionalDependency) => {
   const [getSpecificCluster] = useLazyQuery<
     getSpecificCluster,
     getSpecificClusterVariables
-  >(GET_SPECIFIC_CLUSTER);
+  >(GET_SPECIFIC_CLUSTER, {fetchPolicy: "network-only"});
 
   const setClusterTask = (
     id: number,

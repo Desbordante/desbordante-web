@@ -37,11 +37,11 @@ export const usePrimitiveList = (
   const [taskResult, setTaskResult] = useState<TaskResult>();
   const [loading, setLoading] = useState(false);
 
-  const [getFDs] = useLazyQuery<getFDs, getFDsVariables>(GET_FDS);
-  const [getCFDs] = useLazyQuery<getCFDs, getCFDsVariables>(GET_CFDS);
-  const [getARs] = useLazyQuery<getARs, getARsVariables>(GET_ARS);
+  const [getFDs] = useLazyQuery<getFDs, getFDsVariables>(GET_FDS, {fetchPolicy: "network-only"});
+  const [getCFDs] = useLazyQuery<getCFDs, getCFDsVariables>(GET_CFDS, {fetchPolicy: "network-only"});
+  const [getARs] = useLazyQuery<getARs, getARsVariables>(GET_ARS, {fetchPolicy: "network-only"});
   const [getTypoFDs] = useLazyQuery<getTypoFDs, getTypoFDsVariables>(
-    GET_TYPO_FDS
+    GET_TYPO_FDS, {fetchPolicy: "network-only"}
   );
 
   const getTaskResult = useCallback(async () => {
