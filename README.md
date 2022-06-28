@@ -90,17 +90,10 @@ Requires docker, docker-compose
 git clone https://github.com/vs9h/Desbordante.git
 cd Desbordante/
 git checkout origin/web-app
-docker build -t cpp-consumer -f=Dockerfile-cpp-consumer .
-mkdir -m777 volumes
-cd volumes/
-mkdir -m777 -p data/kafka data/zk data/grafana logs/kafka logs/zk uploads postgres-data datasets
-cd ..
-unzip datasets/datasets.zip -d volumes/datasets/
-cp tests/inputData/* volumes/datasets/
-docker-compose build
+./install_web.sh
 ```
 ## Configuring
-1) Create .env file in Desbordante/
+1) Modify .env file in Desbordante/
 2) Set those variables:
   * POSTGRES_PASSWORD
   * POSTGRES_USER
@@ -109,13 +102,10 @@ docker-compose build
   * CONSUMER_TL_SEC
   * CONSUMER_ML_MB
   * HOST_SERVER_IP
-
-.env file format example (you can use `.env.example`):
-  ```
-  VARIABLE_1=VALUE1
-  VARIABLE_2=VALUE2
-  ```
-
+3) Create your grafana user
+```
+sudo htpasswd -c grafana-users user1
+```
 ## Running
 ```
 docker-compose up --force-recreate
