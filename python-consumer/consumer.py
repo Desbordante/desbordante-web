@@ -1,8 +1,6 @@
-import socket
 import time
 import sys
 import json
-import pathlib
 import os
 import signal
 import confluent_kafka
@@ -34,6 +32,7 @@ def create_consumer():
     consumer.subscribe(['tasks'])
     return consumer
 
+
 # errorType : INTERNAL SERVER ERROR | RESOURCE LIMIT IS REACHED
 def update_error_status(taskID, errorType, error):
     with psycopg.connect(f"dbname={POSTGRES_DBNAME} \
@@ -42,13 +41,15 @@ def update_error_status(taskID, errorType, error):
         with conn.cursor() as cur:
             sql = f""" UPDATE "{DB_TASKS_TABLE_NAME}"
                         SET "errorMsg" = %s, "status" = %s
-                        WHERE "taskID" = %s""";
+                        WHERE "taskID" = %s"""
             error = error.replace("\'", "\'\'")
             cur.execute(sql, (error, errorType, taskID))
             conn.commit()
 
+
 def update_internal_server_error(taskID, error):
     update_error_status(taskID, "INTERNAL_SERVER_ERROR", error)
+
 
 # error: MEMORY LIMIT | TIME LIMIT
 def update_resource_limit_error(taskID, error):
@@ -86,18 +87,33 @@ def check_active_containers(active_tasks):
 
         if container.status == "exited":
             exitCode = container_state["ExitCode"]
-            if exitCode == 0: # TASK_SUCCESSFULLY_PROCESSED
-                print(f"[{taskID}] task done successfully", file=sys.stderr)
+            if exitCode == 0:  # TASK_SUCCESSFULLY_PROCESSED
+                print(
+                    f"[{taskID}] task done successfully",
+                    file=sys.stderr
+                )
                 print(container.logs())
-            elif exitCode == 1: # TASK_CRASHED_STATUS_UPDATED
-                print(f"[{taskID}] cpp-consumer has crashed, status was updated by cpp-consumer", file=sys.stderr)
+            elif exitCode == 1:  # TASK_CRASHED_STATUS_UPDATED
+                print(
+                    f"[{taskID}] cpp-consumer has crashed, \
+                        status was updated by cpp-consumer",
+                    file=sys.stderr
+                )
                 print(container.logs())
-            elif exitCode == 2: # TASK_CRASHED_WITHOUT_STATUS_UPDATING
-                print(f"[{taskID}] cpp-consumer has crashed without status updating", file=sys.stderr)
-                update_internal_server_error(taskID, f"Crash {container.logs()}")
+            elif exitCode == 2:  # TASK_CRASHED_WITHOUT_STATUS_UPDATING
+                print(
+                    f"[{taskID}] cpp-consumer has crashed \
+                        without status updating",
+                    file=sys.stderr
+                )
+                update_internal_server_error(taskID,
+                                             f"Crash {container.logs()}")
                 print(container.logs())
-            elif exitCode == 3: # TASK_NOT_FOUND
-                print(f"[{taskID}] task not found", file=sys.stderr)
+            elif exitCode == 3:  # TASK_NOT_FOUND
+                print(
+                    f"[{taskID}] task not found",
+                    file=sys.stderr
+                )
 
             container.remove()
             active_tasks.pop(taskID)
@@ -113,16 +129,21 @@ def create_container(taskID):
         "POSTGRES_PASSWORD": POSTGRES_PASSWORD,
         "POSTGRES_DBNAME": POSTGRES_DBNAME
     }
-    return docker_client.containers.run("cpp-consumer:latest",
-                                        network=DOCKER_NETWORK,
-                                        command=taskID,
-                                        volumes=[
-                                            'desbordante_uploads:/server/uploads/',
-                                            'desbordante_datasets:/build/target/input_data/'],
-                                        detach=True,
-                                        mem_limit=f'{MAX_RAM}m',
-                                        environment=env_variables,
-                                        labels={"type": "cpp-consumer"})
+
+    container_properties = {
+        'image': "cpp-consumer:latest",
+        'network': DOCKER_NETWORK,
+        'command': taskID,
+        'volumes': [
+            'desbordante_uploads:/server/uploads/',
+            'desbordante_datasets:/build/target/inputData/'],
+        'detach': True,
+        'mem_limit': f'{MAX_RAM}m',
+        'environment': env_variables,
+        'labels': {"type": "cpp-consumer"}
+    }
+
+    return docker_client.containers.run(**container_properties)
 
 
 def main(containers):
@@ -174,5 +195,5 @@ signal.signal(signal.SIGTERM, exit_gracefully)
 try:
     remove_dangling_containers()
     main(containers)
-except:
+except Exception:
     exit_gracefully()
