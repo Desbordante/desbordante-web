@@ -41,7 +41,7 @@ def update_error_status(taskID, errorType, error):
         with conn.cursor() as cur:
             sql = f""" UPDATE "{DB_TASKS_TABLE_NAME}"
                         SET "errorMsg" = %s, "status" = %s
-                        WHERE "taskID" = %s"""
+                        WHERE "taskID" = %s;"""
             error = error.replace("\'", "\'\'")
             cur.execute(sql, (error, errorType, taskID))
             conn.commit()
