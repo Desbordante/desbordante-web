@@ -2,4 +2,4 @@
 
 !Dockerfile
 !requirements.txt
-!consumer.py
+!*.py
