@@ -1,5 +1,4 @@
-import React, { useContext, useEffect } from "react";
-import { sentenceCase } from "change-case";
+import { useContext, useEffect } from "react";
 
 import { EDPAlgorithm, FDAlgorithm } from "../../../types/types";
 import Value from "../../Value/Value";
@@ -8,7 +7,6 @@ import FormItem from "../../FormItem/FormItem";
 import { AlgorithmConfigContext } from "../../AlgorithmConfigContext";
 import { FileFormContext } from "../../FileFormContext";
 import Selector from "../../Selector/Selector";
-import { MetricType } from "../../../types/globalTypes";
 
 const EDPAlgorithmProps = () => {
   const { algorithmProps, setAlgorithmProps } = useContext(FileFormContext)!;
@@ -51,12 +49,6 @@ const EDPAlgorithmProps = () => {
     setAlgorithmProps((prevProps) => ({
       ...prevProps,
       threadsCount,
-    }));
-
-  const changeMetric = (metric: MetricType) =>
-    setAlgorithmProps((prevProps) => ({
-      ...prevProps,
-      metric,
     }));
 
   const changeRadius = (radius: string) =>
@@ -211,16 +203,6 @@ const EDPAlgorithmProps = () => {
         />
       </FormItem>
 
-      {/* <FormItem enabled={algorithmProps.algorithm?.properties.hasMetric}>
-        <h5 className="text-white mb-0 mx-2">Metric:</h5>
-        <Selector
-          options={[MetricType.MODULUS_OF_DIFFERENCE, MetricType.LEVENSHTEIN]}
-          current={metric}
-          onSelect={changeMetric}
-          label={sentenceCase}
-          className="mx-2"
-        />
-      </FormItem> */}
       <FormItem enabled={algorithmProps.algorithm?.properties.hasRadius}>
         <h5 className="text-white mb-0 mx-2">Radius:</h5>
         <Value
