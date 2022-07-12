@@ -10,7 +10,19 @@
   }
 
   .name-main {
+    margin: 0;
     font-family: $font-display;
     letter-spacing: 0.3rem;
+  }
+
+  .description {
+    font-size: 1.5rem;
+  }
+
+  .links {
+    img {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
   }
 }
