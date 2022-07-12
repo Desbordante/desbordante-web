@@ -15,17 +15,29 @@ const Header: React.FC = () => (
     <Container className="name-and-logo position-relative d-flex justify-content-center align-items-center">
       <h1 className="name-main fs-0">Desbordante</h1>
     </Container>
-    <h2 className="description position-relative text-center">
+    <p className="description position-relative text-center">
+      Open-source data profiling tool
+    </p>
+    <div className="links position-relative d-flex justify-content-center flex-grow-1 mb-2">
       <a
         href="https://github.com/Mstrutov/Desbordante"
         rel="noreferrer"
         target="_blank"
+        className="text-white me-4"
+      >
+        <img src="/icons/github-logo.png" alt="github-icon" className="me-2" />
+        GitHub
+      </a>
+      <a
+        href="https://mstrutov.github.io/Desbordante"
+        rel="noreferrer"
+        target="_blank"
         className="text-white"
       >
-        Open-source
-      </a>{" "}
-      data profiling tool
-    </h2>
+        <img src="/icons/info-icon.png" alt="info-icon" className="me-2" />
+        Docs
+      </a>
+    </div>
   </Container>
 );
 
