@@ -6,12 +6,9 @@
   border-radius: 8px;
   font-family: 'Roboto';
   font-style: normal;
-
   margin: 0;
   text-decoration: none;
   display: inline-block;
-
-
 }
 
 .sm {
@@ -46,6 +43,8 @@
   line-height: 130%;
 }
 .light {
+  color: rgba(118, 0, 209, 1);
+  text-decoration: underline;  
 }
 .dark {
     background: linear-gradient(53.13deg, #8200D1 9.04%, #534AC2 89.96%);
