@@ -22,7 +22,7 @@ const TopBar = () => {
   const isHomeScreen = location.pathname === "/";
 
   return (
-    <Navbar variant="light" bg="transparent" sticky="top" className="d-block pb-0">
+    <Navbar variant="light" bg="transparent" fixed="top" className="d-block pb-0">
       <Container fluid className="mb-2">
         <Navbar.Brand
           className={styles.brand}
@@ -78,7 +78,7 @@ const TopBar = () => {
             >
               Log In
             </Button>
-            <Button size="sm" onClick={() => setIsSignUpShown(true)} variant="dark" className="mx-2">
+            <Button size="sm" onClick={() => setIsSignUpShown(true)} variant="dark"  style={{marginRight: 64}}> 
               Sign Up
             </Button>
           </>
