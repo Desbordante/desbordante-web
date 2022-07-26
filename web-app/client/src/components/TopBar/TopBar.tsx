@@ -10,6 +10,8 @@ import ProgressBar from "../ProgressBar/ProgressBar";
 import Phasename from "./Phasename/Phasename";
 import TaskConfig from "./TaskConfig";
 
+import styles from "./TopBar.module.scss"
+
 const TopBar = () => {
   const history = useHistory();
   const location = useLocation();
@@ -23,8 +25,7 @@ const TopBar = () => {
     <Navbar variant="light" bg="transparent" sticky="top" className="d-block pb-0">
       <Container fluid className="mb-2">
         <Navbar.Brand
-          style={{marginLeft: 64}}
-          className="cursor-pointer"
+          className={styles.brand}
           onClick={() => {
             resetTask();
             history.push("/");
