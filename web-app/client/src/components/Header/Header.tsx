@@ -7,7 +7,9 @@ import styles from "./Header.module.scss";
 
 const Header: React.FC = () => (<div className={styles.header}>
 
-    <img src="/images/plexus.png" className={styles.bg} />
+    <div className={styles.background} >
+          <img src="/images/plexus.png" className={styles.background_image} />
+    </div>
 
     <div className={styles.header_text}>
       <h1 className={styles.name_main}>Desbordante</h1>

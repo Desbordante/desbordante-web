@@ -6,7 +6,7 @@ import FileForm from "../FileForm/FileForm";
 const HomeScreen = () => (
   <div className="bg-dark flex-grow-1 d-flex flex-column">
     <Header />
-    {/* <FileForm /> */}
+    <FileForm />
   </div>
 );
 
