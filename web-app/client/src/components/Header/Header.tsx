@@ -17,7 +17,7 @@ const Header: React.FC = () => (<div className={styles.header}>
         Open-source data profiling tool
       </p>
       <div className={styles.links}>
-        <Button onClick={() => 0} variant="dark">Get Started</Button>
+        <Button onClick={() => window.scroll(0, 700)} variant="dark">Get Started</Button>
 
         <a href="https://github.com/Mstrutov/Desbordante" className={styles.external_link}>Github</a>
         <a href="https://mstrutov.github.io/Desbordante" className={styles.external_link}>User Guide</a>
