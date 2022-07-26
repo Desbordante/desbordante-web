@@ -4,7 +4,7 @@
 
 .bg {
   z-index: 0;
-  width: 1920px;
+  min-width: 100vw;
   background-color: white;
   filter: saturate(0.85);
   top: 0;
@@ -20,7 +20,7 @@
   padding: 0;
 }
 .header {
-  min-height: 1080px;
+  min-height: calc(100vh - 64px);
   background-color: white;
 }
 .name_main {
