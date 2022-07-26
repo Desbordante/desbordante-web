@@ -10,3 +10,18 @@
     align-items: center;
     font-weight: 400;
 }
+
+.nav_buttons {
+    margin-right: 64px;
+    display: flex;
+}
+
+@media(max-width: 800px){
+
+    .brand {
+        margin-left: 32px;
+    }
+    .nav_buttons {
+        margin-right: 0px;
+    }
+}

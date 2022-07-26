@@ -69,7 +69,7 @@ const TopBar = () => {
             </Button>
           </>
         ) : (
-          <>
+          <div className={styles.nav_buttons}>
             <Button
               variant="light"
               onClick={() => setIsLogInShown(true)}
@@ -78,10 +78,10 @@ const TopBar = () => {
             >
               Log In
             </Button>
-            <Button size="sm" onClick={() => setIsSignUpShown(true)} variant="dark"  style={{marginRight: 64}}> 
+            <Button size="sm" onClick={() => setIsSignUpShown(true)} variant="dark"> 
               Sign Up
             </Button>
-          </>
+          </div>
         )}
       </Container>
       {!isHomeScreen &&
