@@ -43,12 +43,24 @@
 }
 
 .header {
-  height: calc(100vh - 64px);
+  height: calc(100vh - 73px);
   background-color: white;
 }
+
+
+@media(max-width: 800px){
+  .header {
+    max-height: 50vh;
+  }
+  .background {
+    max-height: 55vh; 
+  }
+}
+
+
 .name_main {
   letter-spacing: 0.3rem;
-  font-size: 112px;
+  font-size: 5.6rem;
   line-height: 110%;
   letter-spacing: -0.01em;
   margin: 0;
@@ -57,10 +69,10 @@
 }
 
 .description {
-  font-size:27px;
-  line-height: 32px;
+  font-size: 1.35rem;
+  line-height: 1.6rem;
   margin: 0;
-  margin-top: 24px;
+  margin-top: 1.2rem;
   color: #251E29;
 }
 
@@ -70,7 +82,7 @@
 }
 
 .links {
-  margin-top: 58px;
+  margin-top: 2.9rem;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -78,7 +90,7 @@
 }
 
 .link_text {
-  font-size: 20px;
+  font-size: 1rem;
   color: black;
 }
 
