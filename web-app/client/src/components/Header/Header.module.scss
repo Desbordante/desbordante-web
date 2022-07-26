@@ -2,25 +2,26 @@
 
 
 
-.video {
+.bg {
   z-index: 0;
-  width: 100vw;
+  width: 1920px;
   background-color: white;
   filter: saturate(0.85);
-  bottom: 0;
-  left: 0;
+  top: 0;
+  right: 0;
   position: absolute;
 }
 
 .header_text {
   position: relative;
   margin-left: 13.3vw;
-  margin-top: 28.3vh;
+  margin-top: 23vh;
   font-family: $font-display;
   padding: 0;
 }
 .header {
   min-height: 1080px;
+  background-color: white;
 }
 .name_main {
   letter-spacing: 0.3rem;
@@ -45,14 +46,6 @@
 .links_img {
     width: 1.2rem;
     height: 1.2rem;
-}
-
-.video_header {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  position: relative;
-  flex-shrink: 0;
 }
 
 .links {
