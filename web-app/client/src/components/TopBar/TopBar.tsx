@@ -22,7 +22,7 @@ const TopBar = () => {
   const isHomeScreen = location.pathname === "/";
 
   return (
-    <Navbar variant="light" bg="transparent" fixed="top" className="d-block pb-0">
+    <Navbar variant="light" bg="transparent" style={{zIndex: 1}} className="d-block pb-0">
       <Container fluid className="mb-2">
         <Navbar.Brand
           className={styles.brand}

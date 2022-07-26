@@ -4,7 +4,8 @@
 
 .background_image {
   min-width: 100vw;
-  
+  margin-top: -1550px;
+  margin-right: -2900px;
 }
 .background {
   z-index: 0;
@@ -20,12 +21,29 @@
 .header_text {
   position: relative;
   margin-left: 13.3vw;
-  margin-top: 28vh;
+  margin-top: 22vh;
   font-family: $font-display;
   padding: 0;
 }
+
+@media(max-width: 1370px){
+  .background_image {
+    margin-top: -1300px;
+    margin-right: -3070px;
+  }
+  .header_text {
+    margin-top: 14.3vh;
+  }
+}
+
+@media(min-height: 1430px){
+  .background_image {
+    height: 300vh;
+  }
+}
+
 .header {
-  height: 100vh;
+  height: calc(100vh - 64px);
   background-color: white;
 }
 .name_main {
@@ -35,9 +53,7 @@
   letter-spacing: -0.01em;
   margin: 0;
   color: #251E29;
-
   font-weight: 700;
-
 }
 
 .description {
