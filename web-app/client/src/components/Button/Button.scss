@@ -1,0 +1,15 @@
+@import "../../variables.scss";
+
+button.button {
+  transition: 0.3s;
+
+  &:hover {
+    transform: scale(102%);
+  }
+
+  &.disabled {
+    cursor: default;
+    filter: opacity(0.3);
+    transition: 0.3s;
+  }
+}
