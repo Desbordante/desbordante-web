@@ -1,44 +1,29 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 
 import React from "react";
-import "./Header.scss";
 import { Container } from "react-bootstrap";
+import Button from "../Button/Button";
 
-const Header: React.FC = () => (
-  <Container
-    fluid
-    className="position-relative w-100 py-3 py-xl-5 flex-column flex-shrink-0 justify-content-center align-items-center overflow-hidden video-header text-white"
-  >
-    <video autoPlay loop muted playsInline className="position-absolute">
-      <source src="/videos/background-min-cropped.webm" type="video/webm" />
-    </video>
-    <Container className="name-and-logo position-relative d-flex justify-content-center align-items-center">
-      <h1 className="name-main fs-0">Desbordante</h1>
+import styles from "./Header.module.scss";
+
+const Header: React.FC = () => (<div className={styles.header}>
+
+    <img src="/images/plexus.png" className={styles.video} />
+    <Container className={styles.header_text}>
+      <h1 className={styles.name_main}>Desbordante</h1>
+      <p className={styles.description}>
+        Open-source data profiling tool
+      </p>
+      <div className={styles.links}>
+        <Button onClick={() => 0} variant="dark">Get Started</Button>
+
+        <a href="/" className={styles.external_link}>Github</a>
+        <a href="/" className={styles.external_link}>User Guide</a>
+
+      </div>
     </Container>
-    <p className="description position-relative text-center">
-      Open-source data profiling tool
-    </p>
-    <div className="links position-relative d-flex justify-content-center flex-grow-1 mb-2">
-      <a
-        href="https://github.com/Mstrutov/Desbordante"
-        rel="noreferrer"
-        target="_blank"
-        className="text-white me-4"
-      >
-        <img src="/icons/github-logo.png" alt="github-icon" className="me-2" />
-        GitHub
-      </a>
-      <a
-        href="https://mstrutov.github.io/Desbordante"
-        rel="noreferrer"
-        target="_blank"
-        className="text-white"
-      >
-        <img src="/icons/info-icon.png" alt="info-icon" className="me-2" />
-        Docs
-      </a>
-    </div>
-  </Container>
+    
+  </div>
 );
 
 export default Header;
