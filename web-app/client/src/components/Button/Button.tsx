@@ -1,5 +1,4 @@
-import React, { ReactNode } from "react";
-import { Button as Btn } from "react-bootstrap";
+import React from "react";
 
 import styles from "./Button.module.scss";
 
@@ -19,13 +18,15 @@ const Button: React.FC<Props> = ({
   className = "",
   children,
   style,
-  size,
+  size = "md",
 }) => {
   const defaultClassName = styles[variant]
+  const defaultSizeClassName = styles[size]
   return (
     <span tabIndex={0}
-      className={`${defaultClassName} ${className}`}
+      className={`${styles.button} ${defaultSizeClassName} ${defaultClassName} ${className}`}
       onClick={enabled ? onClick : () => {}}
+      style={style}
     >
       <>{children}</>
     </span>
