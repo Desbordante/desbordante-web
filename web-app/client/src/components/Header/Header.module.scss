@@ -2,14 +2,19 @@
 
 
 
-.bg {
+.background_image {
+  min-width: 100vw;
+  
+}
+.background {
   z-index: 0;
   min-width: 100vw;
   background-color: white;
-  filter: saturate(0.85);
   top: 0;
   right: 0;
   position: absolute;
+  max-height: 100vh;
+  overflow: hidden;
 }
 
 .header_text {
@@ -20,7 +25,7 @@
   padding: 0;
 }
 .header {
-  min-height: calc(100vh - 64px);
+  height: calc(100vh - 64px);
   background-color: white;
 }
 .name_main {
