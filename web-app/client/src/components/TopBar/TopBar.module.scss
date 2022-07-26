@@ -1,0 +1,12 @@
+
+@import "../../variables.scss";
+
+.brand {
+    cursor: pointer;
+    font-family: $font-display;
+    font-size: 27px;
+    margin-left: 64px;
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+}
