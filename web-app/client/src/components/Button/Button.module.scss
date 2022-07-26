@@ -1,0 +1,40 @@
+@import "../../variables.scss";
+
+.button {
+  cursor: pointer;
+  padding: 16px 32px;
+  text-align: center;
+  width: 173px;
+  height: 58px;
+  border-radius: 8px;
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 130%;
+  margin: 0;
+  text-decoration: none;
+
+
+}
+
+.dark {
+    @extend .button;
+    background: linear-gradient(53.13deg, #8200D1 9.04%, #534AC2 89.96%);
+    box-shadow: 0px 75px 92px rgba(0, 0, 0, 0.12), 0px 31.3332px 38.4354px rgba(0, 0, 0, 0.0862625), 0px 16.7522px 20.5494px rgba(0, 0, 0, 0.0715329), 0px 9.39116px 11.5198px rgba(0, 0, 0, 0.06), 0px 4.98758px 6.11809px rgba(0, 0, 0, 0.0484671), 0px 2.07544px 2.54588px rgba(0, 0, 0, 0.0337375);
+    color: #FFFFFF;
+
+    &:hover {
+      background: linear-gradient(53.13deg, #6A00AB 9.04%, #433B9C 89.96%);
+      box-shadow: 0px 75px 92px rgba(0, 0, 0, 0.12), 0px 31.3332px 38.4354px rgba(0, 0, 0, 0.0862625), 0px 16.7522px 20.5494px rgba(0, 0, 0, 0.0715329), 0px 9.39116px 11.5198px rgba(0, 0, 0, 0.06), 0px 4.98758px 6.11809px rgba(0, 0, 0, 0.0484671), 0px 2.07544px 2.54588px rgba(0, 0, 0, 0.0337375);
+    }
+
+    &:active {
+      background: linear-gradient(53.13deg, #912AD1 9.04%, #6E67C2 89.96%);
+      box-shadow: 0px 75px 92px rgba(0, 0, 0, 0.12), 0px 31.3332px 38.4354px rgba(0, 0, 0, 0.0862625), 0px 16.7522px 20.5494px rgba(0, 0, 0, 0.0715329), 0px 9.39116px 11.5198px rgba(0, 0, 0, 0.06), 0px 4.98758px 6.11809px rgba(0, 0, 0, 0.0484671), 0px 2.07544px 2.54588px rgba(0, 0, 0, 0.0337375);
+    }
+    &:focus {
+      background: linear-gradient(53.13deg, #8200D1 9.04%, #534AC2 89.96%);
+      box-shadow: 0px 0px 8px #48BDFF, 0px 75px 92px rgba(0, 0, 0, 0.12), 0px 31.3332px 38.4354px rgba(0, 0, 0, 0.0862625), 0px 16.7522px 20.5494px rgba(0, 0, 0, 0.0715329), 0px 9.39116px 11.5198px rgba(0, 0, 0, 0.06), 0px 4.98758px 6.11809px rgba(0, 0, 0, 0.0484671), 0px 2.07544px 2.54588px rgba(0, 0, 0, 0.0337375);
+    }
+}
