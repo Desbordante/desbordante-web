@@ -63,7 +63,7 @@ const ChooseDataset = () => {
           <Button
             onClick={() => inputFile?.current?.click()}
             enabled={!!user?.permissions.canUploadFiles}
-            variant="light"
+            variant="tetriaty"
             className="mx-2"
             style={{
               pointerEvents: user?.permissions.canUploadFiles ? "auto" : "none",
@@ -86,7 +86,7 @@ const ChooseDataset = () => {
         <span className="d-inline-block">
           <Button
             onClick={() => setIsWindowShown(true)}
-            variant="light"
+            variant="tetriaty"
             className="mx-2"
             style={{
               pointerEvents: user?.permissions.canUseBuiltinDatasets

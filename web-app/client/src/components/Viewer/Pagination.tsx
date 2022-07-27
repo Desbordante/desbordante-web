@@ -28,7 +28,7 @@ const Pagination: React.FC = () => {
     <div className="w-100 d-flex justify-content-center align-items-center">
       <Button
         onClick={goToPreviousPage}
-        variant="dark"
+        variant="primary"
         enabled={paginationOffset > 1}
       >
         <i className="bi bi-chevron-left" />
@@ -39,7 +39,7 @@ const Pagination: React.FC = () => {
       </p>
       <Button
         onClick={goToNextPage}
-        variant="dark"
+        variant="primary"
         enabled={paginationOffset + paginationLimit < depsAmount}
       >
         <i className="bi bi-chevron-right" />

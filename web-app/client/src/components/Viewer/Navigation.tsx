@@ -49,7 +49,7 @@ const Navigation: React.FC<Props> = ({ partShown, setPartShown, options }) => {
       ))}
       {user?.permissions.canUploadFiles && (
         <Button
-          variant="outline-danger"
+          variant="secondary"
           className="ms-auto justify-self-end"
           onClick={handleDeleteTask}
         >
