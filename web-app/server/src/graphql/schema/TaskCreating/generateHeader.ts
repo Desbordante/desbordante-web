@@ -1,18 +1,18 @@
 import { CsvParserStream, parse } from "fast-csv";
+import { ApolloError } from "apollo-server-core";
 import { Row } from "@fast-csv/parse";
 import fs from "fs";
-import { ApolloError } from "apollo-server-core";
 
-const getFirstRow = (path: any, delimiter: any) => {
+const getFirstRow = (path: string, delimiter: string): Promise<string[]> => {
     return new Promise(resolve => {
         const parser: CsvParserStream<Row, Row> = parse({ delimiter, maxRows: 1 }) ;
-        let firstRow: Row;
+        let firstRow: string[];
         fs.createReadStream(path)
             .pipe(parser)
             .on("Error", (e) => {
                 throw e;
             })
-            .on("data", (row) => {
+            .on("data", (row: string[]) => {
                 firstRow = row;
             })
             .on("end", () => {
@@ -21,7 +21,7 @@ const getFirstRow = (path: any, delimiter: any) => {
     });
 };
 
-const findIndexInRange = (arr: any[], obj: any, from: number, to: number) => {
+const findIndexInRange = <T>(arr: T[], obj: T, from: number, to: number) => {
     for (let i = from; i < to; ++i) {
         if (arr[i] === obj) {
             return i;
@@ -32,7 +32,7 @@ const findIndexInRange = (arr: any[], obj: any, from: number, to: number) => {
 
 export const generateHeaderByPath = async (path: string, hasHeader: boolean, delimiter: string) => {
     try {
-        const row: any = await getFirstRow(path, delimiter);
+        const row = await getFirstRow(path, delimiter);
         let header: string[] = [];
 
         if (!hasHeader) {
