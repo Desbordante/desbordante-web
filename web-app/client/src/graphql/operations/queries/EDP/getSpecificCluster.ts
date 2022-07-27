@@ -1,29 +1,44 @@
 import { gql } from "@apollo/client";
 
 export const GET_SPECIFIC_CLUSTER = gql`
-  query getSpecificCluster($taskId: ID!, $pagination: Pagination!, $sort: Boolean!) {
+  query getSpecificCluster($taskId: ID! $props: SpecificClusterTaskProps! $pagination: Pagination!) {
     taskInfo(taskID: $taskId) {
       data {
-        result {
-          __typename
-          ... on SpecificTypoClusterTaskResult {
-            cluster(sort: $sort) {
-              id
-              items(pagination: $pagination) {
-                rowIndex
-                row
-                isSuspicious
+        ...on SpecificTaskData {
+          result {
+            __typename
+            ...on TypoClusterTaskResult {
+              specificCluster(props: $props) {
+                __typename
+                ...on ClusterBase {
+                  clusterID
+                  itemsAmount
+                }
+                ...on Cluster {
+                    items(pagination: $pagination) {
+                      rowIndex
+                      row
+                      isSuspicious
+                    }
+                }
+                ...on SquashedCluster {
+                  items(pagination: $pagination) {
+                    rowIndex
+                    row
+                    amount
+                  }
+                }
+                ...on TaskState {
+                  progress
+                  isExecuted
+                }
+                ...on BaseTaskError {
+                  errorStatus
+                }
+                ...on InternalServerTaskError {
+                  internalError
+                }
               }
-              itemsAmount
-            }
-            squashedCluster(sort: $sort) {
-              id
-              items(pagination: $pagination) {
-                rowIndex
-                row
-                amount
-              }
-              itemsAmount
             }
           }
         }
