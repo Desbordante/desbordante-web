@@ -19,7 +19,7 @@ const Header: React.FC = () => (<div className={styles.header}>
       <div className={styles.links}>
         <Button onClick={() => window.scroll(0, 700)} variant="gradient">Get Started</Button>
 
-        <a href="https://github.com/Mstrutov/Desbordante" className={styles.external_link}>Github</a>
+        <a href="https://github.com/Mstrutov/Desbordante" className={styles.external_link}>GitHub</a>
         <a href="https://mstrutov.github.io/Desbordante" className={styles.external_link}>User Guide</a>
 
       </div>
