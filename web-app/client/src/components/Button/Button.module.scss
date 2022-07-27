@@ -4,8 +4,6 @@
   cursor: pointer;
   text-align: center;
   border-radius: 8px;
-  font-family: 'Roboto';
-  font-style: normal;
   margin: 0;
   text-decoration: none;
   display: inline-block;
@@ -16,35 +14,26 @@
 }
 
 .sm {
+  @include paragraph;
+
   min-width: 5.05rem;
   height: 2.1rem;
   padding: 0.4rem 0.8rem;
-
-  font-weight: 400;
-  font-size: 1rem;
-  line-height: 130%;
-
 }
 .md {
+  @include paragraph;
+
   min-width: 8.65rem;
   height: 2.9rem;
   padding: 0.8rem 1.6rem;
-
-  
-  font-weight: 400;
-  font-size: 1rem;
-  line-height: 130%;
 }
 
 .lg {
+  @include heading-6;
+
   width: 10.05rem;
   height: 3.1rem;
   padding: 0.8rem 1.6rem;
-
-  
-  font-weight: 400;
-  font-size: 1rem;
-  line-height: 130%;
 }
 .light {
   color: rgba(118, 0, 209, 1);
