@@ -3,14 +3,13 @@ import React, { HTMLProps } from "react";
 import styles from "./Button.module.scss";
 
 interface Props extends HTMLProps<HTMLButtonElement>{
-  enabled?: boolean;
   variant?: "gradient" | "primary" | "secondary" | "tetriaty";
   sizeStyle?: "sm" | "lg" | "md";
 }
 
 const Button: React.FC<Props> = ({
   onClick,
-  enabled = true,
+  disabled = false,
   variant = "tetriaty",
   className = "",
   children,
@@ -23,7 +22,7 @@ const Button: React.FC<Props> = ({
   return (
     <button
       className={`${styles.button} ${defaultSizeClassName} ${defaultClassName} ${className}`}
-      onClick={enabled ? onClick : () => {}}
+      onClick={!disabled ? onClick : () => {}}
       style={style}
       title={title}
     >
