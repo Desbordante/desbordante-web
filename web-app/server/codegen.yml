@@ -8,8 +8,48 @@ generates:
       - "typescript-resolvers"
     config:
       contextType: ./context#Context
-      # allowParentTypeOverride: true
-      defaultMapper: Partial<{T}>
+      allowParentTypeOverride: true
+      enumsAsTypes: true
+      mappers:
+        TaskInfo: ./models#TaskInfoModel
+        SpecificTaskInfo: ./models#SpecificTaskInfoModel
+        PrimitiveTaskData: ./models#TaskInfoModel
+        TaskStateAnswer: ./models#TaskStateAnswerModel
+        TaskState: ./models#TaskStateModel
+        InternalServerTaskError: ./models#InternalServerTaskErrorModel
+        ResourceLimitTaskError: ./models#ResourceLimitTaskErrorModel
+        AlgorithmsConfig: ./models#AlgorithmsConfigModel
+        User: ./models#UserModel
+        Session: ./models#SessionModel
+        Role: ./models#RoleModel
+        DatasetInfo: ./models#DatasetInfoModel
+        FDPieChartData: ./models#FDPieChartDataModel
+        CFDPieChartData: ./models#CFDPieChartDataModel
+        PieChartDataBase: ./models#CFDPieChartDataModel
+        TaskWithDepsResult: ./models#PrimitiveTaskResultModel
+        TaskWithDepsData: ./models#TaskInfoModel
+        SpecificTaskResult: ./models#SpecificTaskResultModel
+        SpecificClusterOrState: ./models#SpecificClusterOrStateModel
+        ClusterBase: ./models#ClusterBaseModel
+        Cluster: ./models#ClusterModel
+        SquashedCluster: ./models#SquashedClusterModel
+        BaseTaskConfig: ./models#BaseTaskConfigModel
+        PrimitiveTaskConfig: ./models#PrimitiveTaskConfigModel
+        FileFormat: ./models#InputFileFormatModel
+        ARTaskResult: ./models#ARTaskResultModel
+        FDTaskResult: ./models#FDTaskResultModel
+        CFDTaskResult: ./models#CFDTaskResultModel
+        TypoFDTaskResult: ./models#TypoFDTaskResultModel
+        Snippet: ./models#SnippetModel
+        TypoClusterTaskConfig: ./models#TypoClusterTaskConfigModel
+        TypoClusterTaskResult: ./models#TypoClusterTaskResultModel
+        SpecificTypoClusterTaskResult: ./models#SpecificTypoClusterTaskResultModel
+        ARTaskConfig: ./models#ARTaskConfigModel
+        FilteredDepsBase: ./models#FilteredDepsBaseModel
+        AbstractTaskData: ./models#AbstractTaskInfoModel
+        SpecificTaskData: ./models#AbstractTaskInfoModel
+        AbstractTaskInfo: ./models#AbstractTaskInfoModel
+#        PrimitiveType: ./models#PrimitiveTypeModel
   ./graphql.schema.json:
     plugins:
       - "introspection"
