@@ -1,35 +1,40 @@
 import { ApolloError } from "apollo-server-core";
 import jwt from "jsonwebtoken";
-import { BelongsTo, Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
+import {
+    BelongsTo,
+    Column,
+    ForeignKey,
+    IsUUID,
+    Model,
+    Table,
+} from "sequelize-typescript";
 import { INTEGER, STRING, UUID, UUIDV4 } from "sequelize";
+import config from "../../../config";
 import { TokenPair } from "../../../graphql/types/types";
 import { Device } from "./Device";
 import { PermissionType } from "./Permission";
 import { AccountStatusType, User } from "./User";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 export interface RefreshTokenInstance extends jwt.JwtPayload {
-    userID: string
-    sessionID: string
-    deviceID: string
+    userID: string;
+    sessionID: string;
+    deviceID: string;
 }
 
 export interface AccessTokenInstance {
-    permissions: PermissionType[]
-    userID: string
-    accountStatus: AccountStatusType
-    email: string
-    fullName: string
-    sessionID: string
-    deviceID: string
+    permissions: PermissionType[];
+    userID: string;
+    accountStatus: AccountStatusType;
+    email: string;
+    fullName: string;
+    sessionID: string;
+    deviceID: string;
 }
 
 interface SessionModelMethods {
-    issueTokenPair: () => Promise<TokenPair>
-    issueRefreshToken: () => Promise<string>
-    issueAccessToken: () => Promise<string>
+    issueTokenPair: () => Promise<TokenPair>;
+    issueRefreshToken: () => Promise<string>;
+    issueAccessToken: () => Promise<string>;
 }
 
 const ALL_SESSION_STATUSES = ["INVALID", "VALID"] as const;
@@ -82,10 +87,6 @@ export class Session extends Model implements SessionModelMethods {
     });
 
     issueAccessToken = async (expiresIn = "15m") => {
-        if (!process.env.SECRET_KEY) {
-            throw new ApolloError("Secret key wasn't provided");
-        }
-
         const user: User | null = await this.$get("user");
         if (!user) {
             throw new ApolloError("User not found");
@@ -104,11 +105,10 @@ export class Session extends Model implements SessionModelMethods {
             sessionID: this.sessionID,
             deviceID: device.deviceID,
         };
-        const accessToken = jwt.sign(
-            payload,
-            process.env.SECRET_KEY,
-            { algorithm: "HS256", expiresIn }
-        );
+        const accessToken = jwt.sign(payload, config.keys.secretKey, {
+            algorithm: "HS256",
+            expiresIn,
+        });
         const accessTokenIat = Session.getIatByJWTToken(accessToken);
         await this.update({ accessTokenIat });
 
@@ -125,21 +125,16 @@ export class Session extends Model implements SessionModelMethods {
             throw new ApolloError("Device not found");
         }
 
-        if (!process.env.SECRET_KEY) {
-            throw new ApolloError("SECRET KEY wasn't provided");
-        }
-
         const payload: RefreshTokenInstance = {
             userID: this.userID,
             sessionID: this.sessionID,
             deviceID: device.deviceID,
         };
 
-        const refreshToken = jwt.sign(
-            payload,
-            process.env.SECRET_KEY,
-            { algorithm: "HS256", expiresIn: "15d" }
-        );
+        const refreshToken = jwt.sign(payload, config.keys.secretKey, {
+            algorithm: "HS256",
+            expiresIn: "15d",
+        });
         const refreshTokenIat = Session.getIatByJWTToken(refreshToken);
         await this.update({ refreshTokenIat });
 
