@@ -1,5 +1,5 @@
 import React, { ButtonHTMLAttributes } from "react";
-
+import classNames from "classnames"
 import styles from "./Button.module.scss";
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement>{
@@ -21,7 +21,7 @@ const Button: React.FC<Props> = ({
   return (
     <button
       {...rest}
-      className={`${styles.button} ${defaultSizeClassName} ${defaultClassName} ${className}`}
+      className={classNames(styles.button, defaultSizeClassName, defaultClassName, className)}
       onClick={!disabled ? onClick : () => {}}
     >
       <>{children}</>
