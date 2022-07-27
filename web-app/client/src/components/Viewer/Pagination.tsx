@@ -34,8 +34,8 @@ const Pagination: React.FC<Props> = ({ primitiveType }) => {
     <div className="w-100 d-flex justify-content-center align-items-center">
       <Button
         onClick={goToPreviousPage}
-        variant="dark"
-        enabled={paginationOffset > 1}
+        variant="primary"
+        disabled={paginationOffset <= 1}
       >
         <i className="bi bi-chevron-left" />
       </Button>
@@ -45,8 +45,8 @@ const Pagination: React.FC<Props> = ({ primitiveType }) => {
       </p>
       <Button
         onClick={goToNextPage}
-        variant="dark"
-        enabled={paginationOffset + paginationLimit < depsAmount}
+        variant="primary"
+        disabled={paginationOffset + paginationLimit >= depsAmount}
       >
         <i className="bi bi-chevron-right" />
       </Button>

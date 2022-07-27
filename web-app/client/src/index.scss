@@ -18,6 +18,19 @@ $theme-colors: (
   "success": $success,
 );
 
+html {
+  font-size: 20px;
+}
+
+
+@media(max-width: 800px){
+  html {
+    font-size: 10px;
+  }
+  
+}
+
+
 .cursor-pointer {
   cursor: pointer;
 }

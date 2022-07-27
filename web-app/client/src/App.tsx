@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Switch, BrowserRouter as Router, Route } from "react-router-dom";
 
-import HomeScreen from "./components/HomeScreen/HomeScreen";
+import HomeScreen from "./pages/HomeScreen/HomeScreen";
 import ErrorScreen from "./components/ErrorScreen/ErrorScreen";
 import Viewer from "./components/Viewer";
 import TopBar from "./components/TopBar/TopBar";

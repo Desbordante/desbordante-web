@@ -1,0 +1,101 @@
+@import "../../../variables";
+
+
+
+.background_image {
+  margin-top: -1550px;
+  margin-right: -2900px;
+  min-width: 100vw;
+}
+.background {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  overflow: hidden;
+  min-width: 100vw;
+  max-height: 100vh;
+  background: $background-light;
+}
+
+.header_text {
+  position: relative;
+  margin-left: 13.3vw;
+  margin-top: 22vh;
+  padding: 0;
+}
+
+@media(max-width: 1370px){
+  .background_image {
+    margin-top: -1300px;
+    margin-right: -3070px;
+  }
+  .header_text {
+    margin-top: 14.3vh;
+  }
+}
+
+@media(min-height: 1430px){
+  .background_image {
+    height: 300vh;
+  }
+}
+
+.header {
+  height: calc(100vh - 73px);
+  background: $background-light;
+}
+
+
+@media(max-width: 800px){
+  .header {
+    max-height: 50vh;
+  }
+  .background {
+    max-height: 60vh; 
+  }
+}
+
+
+.name_main {
+  @include heading-1;
+  margin: 0;
+  color: $text-black;
+}
+
+.description {
+  @include heading-6;
+  margin: 0;
+  margin-top: 1.2rem;
+  color: $text-black;
+}
+
+.links_img {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.links {
+  flex-direction: row;
+  align-items: center;
+  gap: 48px;
+  display: flex;
+  margin-top: 2.9rem;
+}
+
+.external_link {  
+  @include paragraph;
+  padding-right: 20px;
+  
+  background: transparent url('/../public/icons/external-link.svg') center right no-repeat;
+  background-size: 16px;
+
+  text-decoration: none;
+  color: $text-black;
+
+  &:hover {
+    border-bottom: 1px solid $text-black;
+    margin-top: 1px;
+    color: $text-black;
+  }
+}

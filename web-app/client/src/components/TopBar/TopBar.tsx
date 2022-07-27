@@ -10,6 +10,8 @@ import ProgressBar from "../ProgressBar/ProgressBar";
 import Phasename from "./Phasename/Phasename";
 import TaskConfig from "./TaskConfig";
 
+import styles from "./TopBar.module.scss"
+
 const TopBar = () => {
   const history = useHistory();
   const location = useLocation();
@@ -20,10 +22,10 @@ const TopBar = () => {
   const isHomeScreen = location.pathname === "/";
 
   return (
-    <Navbar variant="dark" bg="dark" sticky="top" className="d-block pb-0">
+    <Navbar variant="light" bg="transparent" style={{zIndex: 1}} className="d-block pb-0">
       <Container fluid className="mb-2">
         <Navbar.Brand
-          className="cursor-pointer"
+          className={styles.brand}
           onClick={() => {
             resetTask();
             history.push("/");
@@ -62,23 +64,24 @@ const TopBar = () => {
                 Verify Email
               </Button>
             )}
-            <Button variant="outline-danger" onClick={signOut} className="mx-2">
+            <Button variant="secondary" onClick={signOut} className="mx-2">
               Sign Out
             </Button>
           </>
         ) : (
-          <>
+          <div className={styles.nav_buttons}>
             <Button
-              variant="outline-light"
+              variant="tetriaty"
               onClick={() => setIsLogInShown(true)}
               className="mx-2"
+              sizeStyle="sm"
             >
               Log In
             </Button>
-            <Button onClick={() => setIsSignUpShown(true)} className="mx-2">
+            <Button sizeStyle="sm" onClick={() => setIsSignUpShown(true)} variant="gradient"> 
               Sign Up
             </Button>
-          </>
+          </div>
         )}
       </Container>
       {!isHomeScreen &&

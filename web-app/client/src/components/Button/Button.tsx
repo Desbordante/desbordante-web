@@ -1,36 +1,33 @@
-import React, { ReactNode } from "react";
-import { Button as Btn } from "react-bootstrap";
+import React, { ButtonHTMLAttributes } from "react";
+import classNames from "classnames"
+import styles from "./Button.module.scss";
 
-import "./Button.scss";
-
-interface Props {
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
-  enabled?: boolean;
-  variant?: string;
-  className?: string;
-  style?: React.CSSProperties;
-  size?: "sm" | "lg";
+interface Props extends ButtonHTMLAttributes<HTMLButtonElement>{
+  variant?: "gradient" | "primary" | "secondary" | "tetriaty";
+  sizeStyle?: "sm" | "lg" | "md";
 }
 
 const Button: React.FC<Props> = ({
   onClick,
-  enabled = true,
-  variant = "light",
+  disabled = false,
+  variant = "tetriaty",
   className = "",
   children,
-  style,
-  size,
-}) => (
-  <Btn
-    disabled={!enabled}
-    variant={variant}
-    className={`text-nowrap px-3 py-2 rounded-pill cursor-pointer ${className}`}
-    onClick={enabled ? onClick : () => {}}
-    style={style}
-    size={size}
-  >
-    <>{children}</>
-  </Btn>
-);
+  sizeStyle = "md",
+  ...rest
+}) => {
+  const defaultClassName = styles[variant]
+  const defaultSizeClassName = styles[sizeStyle]
+  return (
+    <button
+      {...rest}
+      className={classNames(styles.button, defaultSizeClassName, defaultClassName, className)}
+      onClick={!disabled ? onClick : () => {}}
+    >
+      <>{children}</>
+    </button>
+  );
+}
+
 
 export default Button;
