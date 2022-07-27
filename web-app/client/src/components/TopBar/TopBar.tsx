@@ -74,11 +74,11 @@ const TopBar = () => {
               variant="light"
               onClick={() => setIsLogInShown(true)}
               className="mx-2"
-              size="sm"
+              sizeStyle="sm"
             >
               Log In
             </Button>
-            <Button size="sm" onClick={() => setIsSignUpShown(true)} variant="dark"> 
+            <Button sizeStyle="sm" onClick={() => setIsSignUpShown(true)} variant="dark"> 
               Sign Up
             </Button>
           </div>
