@@ -59,18 +59,13 @@
 
 
 .name_main {
-  letter-spacing: 0.3rem;
-  font-size: 5.6rem;
-  line-height: 110%;
-  letter-spacing: -0.01em;
+  @include heading-1;
   margin: 0;
   color: #251E29;
-  font-weight: 700;
 }
 
 .description {
-  font-size: 1.35rem;
-  line-height: 1.6rem;
+  @include heading-6;
   margin: 0;
   margin-top: 1.2rem;
   color: #251E29;
