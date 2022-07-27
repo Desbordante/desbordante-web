@@ -62,7 +62,7 @@ const ChooseDataset = () => {
         <span className="d-inline-block">
           <Button
             onClick={() => inputFile?.current?.click()}
-            enabled={!!user?.permissions.canUploadFiles}
+            disabled={!user?.permissions.canUploadFiles}
             variant="tetriaty"
             className="mx-2"
             style={{
