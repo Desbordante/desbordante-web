@@ -32,27 +32,39 @@ export class FileFormat extends Model {
     @Column({ type: BOOLEAN, allowNull: true })
     hasTid!: boolean | null;
 
+    // TODO (vs9h): refactor
     static createFileFormatIfPropsValid = async (file: FileInfo, props: FileProps) => {
         const { inputFormat, tidColumnIndex, itemColumnIndex, hasTid } = props;
         if (inputFormat === undefined) {
             throw new UserInputError("You must provide file input format");
         }
-        switch(inputFormat) {
+        switch (inputFormat) {
             case "SINGULAR":
                 if (tidColumnIndex == null) {
-                    throw new UserInputError("tidColumnIndex wasn't provided", { tidColumnIndex });
+                    throw new UserInputError("tidColumnIndex wasn't provided", {
+                        tidColumnIndex,
+                    });
                 }
                 if (itemColumnIndex == null) {
-                    throw new UserInputError("itemColumnIndex wasn't provided", { itemColumnIndex });
+                    throw new UserInputError("itemColumnIndex wasn't provided", {
+                        itemColumnIndex,
+                    });
                 }
                 if (tidColumnIndex < 1) {
-                    throw new UserInputError("invalid tidColumnIndex (less, than 1)", { tidColumnIndex });
+                    throw new UserInputError("invalid tidColumnIndex (less, than 1)", {
+                        tidColumnIndex,
+                    });
                 }
                 if (itemColumnIndex < 1) {
-                    throw new UserInputError("invalid itemColumnIndex (less, than 1)", { tidColumnIndex });
+                    throw new UserInputError("invalid itemColumnIndex (less, than 1)", {
+                        tidColumnIndex,
+                    });
                 }
                 if (itemColumnIndex === tidColumnIndex) {
-                    throw new UserInputError("item column index equal to transaction id", { tidColumnIndex, itemColumnIndex });
+                    throw new UserInputError(
+                        "item column index equal to transaction id",
+                        { tidColumnIndex, itemColumnIndex }
+                    );
                 }
                 break;
             case "TABULAR":
@@ -61,8 +73,10 @@ export class FileFormat extends Model {
                 }
                 break;
             default:
-                throw new UserInputError("Provided incorrect input format", { inputFormat });
+                throw new UserInputError("Provided incorrect input format", {
+                    inputFormat,
+                });
         }
-        return await file.$create("fileFormat", { ...props }) as FileFormat;
+        return (await file.$create("fileFormat", { ...props })) as FileFormat;
     };
 }
