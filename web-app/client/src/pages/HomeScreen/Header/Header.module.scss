@@ -10,7 +10,7 @@
 .background {
   z-index: 0;
   min-width: 100vw;
-  background-color: white;
+  background: $background-light;
   top: 0;
   right: 0;
   position: absolute;
@@ -43,7 +43,7 @@
 
 .header {
   height: calc(100vh - 73px);
-  background-color: white;
+  background: $background-light;
 }
 
 
@@ -60,14 +60,14 @@
 .name_main {
   @include heading-1;
   margin: 0;
-  color: #251E29;
+  color: $text-black;
 }
 
 .description {
   @include heading-6;
   margin: 0;
   margin-top: 1.2rem;
-  color: #251E29;
+  color: $text-black;
 }
 
 .links_img {
@@ -85,15 +85,15 @@
 
 .external_link {  
   @include paragraph;
-  color: #251E29;
+  color: $text-black;
   text-decoration: none;
   background: transparent url('/../public/icons/external-link.svg') center right no-repeat;
   background-size: 16px;
   padding-right: 20px;
   
   &:hover {
-    border-bottom: 1px solid #251E29;
+    border-bottom: 1px solid $text-black;
     margin-top: 1px;
-    color: #251E29;
+    color: $text-black;
   }
 }
