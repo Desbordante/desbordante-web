@@ -52,8 +52,8 @@ export const GET_TASK_INFO = gql`
             approximateAlgorithm
             preciseAlgorithm
             metric
-            radius
-            ratio
+            defaultRadius
+            defaultRatio
           }
         }
       }
