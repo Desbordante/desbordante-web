@@ -1,0 +1,22 @@
+query AllowedDatasetsQuery {
+    algorithmsConfig {
+        allowedDatasets {
+            fileName
+            fileID
+            fileFormat {
+                inputFormat
+                hasTid
+                inputFormat
+                itemColumnIndex
+                fileID
+            }
+            path
+            mimeType
+            delimiter
+            hasHeader
+            countOfColumns
+            header
+        }
+    }
+}
+
