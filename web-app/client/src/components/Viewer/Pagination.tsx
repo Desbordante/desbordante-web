@@ -3,29 +3,23 @@ import Button from "../Button/Button";
 import clamp from "../../functions/clamp";
 import { TaskContext } from "../TaskContext";
 
-interface Props {
-  primitiveType: "FD" | "CFD" | "AR" | "TypoFD";
-}
-
-const Pagination: React.FC<Props> = ({ primitiveType }) => {
-  const { primitiveFilter, setPrimitiveFilter, taskResult } =
+const Pagination: React.FC = () => {
+  const { intersectionFilter, setIntersectionFilter, taskResult } =
     useContext(TaskContext)!;
 
   const { offset: paginationOffset, limit: paginationLimit } =
-    primitiveFilter[primitiveType].pagination;
+    intersectionFilter.pagination;
 
-  const depsAmount = taskResult?.depsAmount || 1;
+  const depsAmount = taskResult?.filteredDeps?.filteredDepsAmount || 1;
 
-  const setOffset = (newOffset: number) =>
-    setPrimitiveFilter((prev) => {
-      const newFilter = { ...prev };
-      newFilter[primitiveType].pagination.offset = clamp(
-        newOffset,
-        0,
-        depsAmount
-      );
-      return newFilter;
-    });
+  const setOffset = (offset: number) =>
+    setIntersectionFilter((filter) => ({
+        ...filter,
+        pagination: {
+          ...filter.pagination,
+          offset: clamp(offset, 0, depsAmount),
+        }
+      }));
 
   const goToPreviousPage = () => setOffset(paginationOffset - paginationLimit);
   const goToNextPage = () => setOffset(paginationOffset + paginationLimit);

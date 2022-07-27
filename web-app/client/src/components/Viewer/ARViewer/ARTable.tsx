@@ -2,6 +2,7 @@ import React, {useCallback, useState} from "react";
 import styled from "styled-components";
 import {Container} from "react-bootstrap";
 
+import _ from "lodash";
 import stringToColor from "../../../functions/stringToColor";
 import {getDataset_taskInfo_dataset_snippet} from "../../../graphql/operations/queries/__generated__/getDataset";
 
@@ -94,8 +95,8 @@ const ARTable: React.FC<Props> = ({
     }
   }, []);
 
-  const colorizedPart = rows.filter((row) => row.some((item) => colorizedItems.includes(item)));
-  const uncolorizedPart = rows.filter((row) => row.every((item) => !colorizedItems.includes(item)));
+  const [colorizedPart, uncoloredPart] = _.partition(rows,
+    (row) => row.some((item) => colorizedItems.includes(item)));
 
   const headerClassName =
     "px-4 py-3 text-white text-nowrap text-center position-relative";
@@ -116,7 +117,6 @@ const ARTable: React.FC<Props> = ({
           }}
         />
         <TableHeader className="bg-light position-relative">
-          {/* @ts-ignore */}
           <tr className="bg-light" ref={changeHeight}>
             {header.map((col) => (
               <th
@@ -152,7 +152,7 @@ const ARTable: React.FC<Props> = ({
               ))}
             </tr>
           ))}
-          {showUncolorizedColumns && uncolorizedPart.map((row, rowIndex) => (
+          {showUncolorizedColumns && uncoloredPart.map((row, rowIndex) => (
             <tr key={rowIndex} className="position-relative">
               {row.map((item) => (
                 <td

@@ -4,10 +4,10 @@ import { Container } from "react-bootstrap";
 import CFDList from "./CFDList";
 import TableSnippet from "../TableSnippet/TableSnippet";
 import Navigation from "../Navigation";
-import { ConditionalDependency } from "../../../types/taskInfo";
 import { TaskContext } from "../../TaskContext";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
 import Charts from "./Charts";
+import { CFD } from "../../../graphql/operations/fragments/__generated__/CFD";
 
 const tabs = ["Attributes", "Dependencies", "Dataset"];
 
@@ -16,9 +16,9 @@ const Index = () => {
 
   const [partShown, setPartShown] = useState(0);
   const [selectedDependency, setSelectedDependency] =
-    useState<ConditionalDependency | null>(null);
+    useState<CFD | null>(null);
 
-  // @ts-ignore
+
   return (
     <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">
       <Navigation

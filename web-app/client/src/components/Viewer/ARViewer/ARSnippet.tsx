@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-import { AssociationRule } from "../../../types/types";
 import colors from "../../../colors";
 import stringToColor from "../../../functions/stringToColor";
+import { AR } from "../../../graphql/operations/fragments/__generated__/AR";
 
 const StyledRule = styled.div`
   transition: 0.3s;
@@ -30,7 +30,7 @@ const StyledRule = styled.div`
 `;
 
 interface Props {
-  rule: AssociationRule;
+  rule: AR;
   isActive: boolean;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   onActiveClick: React.MouseEventHandler<HTMLDivElement>;

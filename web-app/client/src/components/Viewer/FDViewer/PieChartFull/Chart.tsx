@@ -8,7 +8,6 @@ import SelectedAttribute from "../../../SelectedAttribute/SelectedAttribute";
 import { FDAttribute } from "../../../../types/taskInfo";
 import colors from "../../../../colors";
 
-/* eslint-disable no-unused-vars */
 interface Props {
   attributes: FDAttribute[];
   displayAttributes: FDAttribute[];
@@ -16,8 +15,6 @@ interface Props {
   selectedAttributeIndices: number[];
   setSelectedAttributeIndices: (n: number[]) => void;
 }
-
-/* eslint-enable no-unused-vars */
 
 const Chart: React.FC<Props> = ({
   attributes,

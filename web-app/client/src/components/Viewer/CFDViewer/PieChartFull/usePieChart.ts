@@ -33,7 +33,7 @@ export const usePieChart = (
           __typename: "Column",
         },
         value: newOtherValue,
-        __typename: "FDPieChartRow",
+        __typename: "PieChartRow",
       });
     }
 
@@ -45,7 +45,7 @@ export const usePieChart = (
           __typename: "Column",
         },
         value: 0,
-        __typename: "FDPieChartRow",
+        __typename: "PieChartRow",
       });
     }
 

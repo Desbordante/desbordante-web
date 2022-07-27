@@ -12,16 +12,17 @@ import EDPViewer from "./EDPViewer";
 import { ClustersContextProvider } from "./EDPViewer/ClustersContext";
 
 const Index = () => {
-  const { setTaskId, taskState, taskType, taskResult } =
+  const { setTaskId, taskState, taskResult } =
     useContext(TaskContext)!;
   const { taskID } = useParams();
 
   useEffect(() => setTaskId(taskID), [taskID, setTaskId]);
 
+  const is = (type: `${PrimitiveType}`) => taskResult?.__typename === (`${type}TaskResult`);
+
   return (
     <LoadingContainer
       isLoading={
-        // eslint-disable-next-line no-underscore-dangle
         !(taskState?.__typename === "TaskState" && taskState.isExecuted)
       }
     >
@@ -29,10 +30,10 @@ const Index = () => {
         fluid
         className="h-100 w-100 p-4 flex-grow-1 d-flex flex-column"
       >
-        {taskType === PrimitiveType.FD && <FDViewer />}
-        {taskType === PrimitiveType.CFD && taskResult?.CFD && <CFDViewer />}
-        {taskType === PrimitiveType.AR && taskResult?.AR && <ARViewer />}
-        {taskType === PrimitiveType.TypoFD && taskResult?.TypoFD && (
+        {is("FD") && <FDViewer />}
+        {is("CFD") && <CFDViewer />}
+        {is("AR") && <ARViewer />}
+        {is("TypoFD") && (
           <ClustersContextProvider>
             <EDPViewer />
           </ClustersContextProvider>

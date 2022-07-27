@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 
 import colors from "../../../colors";
-import { ConditionalDependency } from "../../../types/taskInfo";
 import CFDAttribute from "./CFDAttribute";
+import { CFD } from "../../../graphql/operations/fragments/__generated__/CFD";
 
 const DependencyContainer = styled.div`
   transition: 0.3s;
@@ -23,7 +23,7 @@ const Arrow = styled.svg`
 `;
 
 interface Props {
-  dependency: ConditionalDependency;
+  dependency: CFD;
   isActive: boolean;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   onActiveClick: React.MouseEventHandler<HTMLDivElement>;

@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import stringToColor from "../../../functions/stringToColor";
 import colors from "../../../colors";
-import { FunctionalDependency } from "../../../types/taskInfo";
+import { FD } from "../../../graphql/operations/fragments/__generated__/FD";
 
 const DependencyContainer = styled.div`
   transition: 0.3s;
@@ -27,7 +27,7 @@ const Arrow = styled.svg`
 `;
 
 interface Props {
-  dependency: FunctionalDependency;
+  dependency: FD;
   isActive: boolean;
   onClick: React.MouseEventHandler<HTMLDivElement>;
   onActiveClick: React.MouseEventHandler<HTMLDivElement>;

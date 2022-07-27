@@ -3,11 +3,11 @@ import { Container } from "react-bootstrap";
 
 import FDList from "./FDList";
 import Navigation from "../Navigation";
-import { FunctionalDependency } from "../../../types/taskInfo";
 import { TaskContext } from "../../TaskContext";
 import LoadingContainer from "../../LoadingContainer/LoadingContainer";
 import TableSnippet from "../TableSnippet/TableSnippet";
 import Charts from "./Charts";
+import { FD } from "../../../graphql/operations/fragments/__generated__/FD";
 
 const tabs = ["Attributes", "Dependencies", "Dataset"];
 
@@ -16,7 +16,7 @@ const Index = () => {
 
   const [partShown, setPartShown] = useState(0);
   const [selectedDependency, setSelectedDependency] =
-    useState<FunctionalDependency | null>(null);
+    useState<FD | null>(null);
 
   return (
     <Container fluid className="h-100 p-4 flex-grow-1 d-flex flex-column">

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
@@ -78,20 +79,26 @@ interface Props {
 
 const Cluster: React.FC<Props> = ({ cluster }) => {
   const { dataset } = useContext(TaskContext)!;
-  const { selectedDependency: sd, startSpecificTask, setClusterSorted } =
+  const { selectedDependency, startSpecificTask, setClusterSorted } =
     useContext(ClustersContext)!;
-  const selectedDependency = sd!;
+  if (!selectedDependency) {
+    throw new Error("There is no selected dependency");
+  }
+
+  const { data: clusterData } = cluster;
+
   const isExpanded = Boolean(
-    cluster.data.cluster && cluster.data.squashedCluster
+    clusterData.cluster && clusterData.squashedCluster
   );
 
   const [isSquashed, setIsSquashed] = useState(false);
   const [headerWidth, setHeaderWidth] = useState(0);
   const [headerHeight, setHeaderHeight] = useState(0);
 
-  const colorizedColumns = selectedDependency.lhs
+  const coloredColumns = selectedDependency.lhs
     .map(({ name }) => name)
     .concat(selectedDependency.rhs.name);
+
   const rows = cluster.data[
     isSquashed ? "squashedCluster" : "cluster"
   ]!.items?.map(({ row }) => row) || [[]];
@@ -116,13 +123,13 @@ const Cluster: React.FC<Props> = ({ cluster }) => {
       col,
       index,
     }))
-    .filter(({ col }) => colorizedColumns.includes(col));
-  const uncolorizedPart = header
+    .filter(({ col }) => coloredColumns.includes(col));
+  const uncoloredPart = header
     .map((col, index) => ({
       col,
       index,
     }))
-    .filter(({ col }) => !colorizedColumns.includes(col));
+    .filter(({ col }) => !coloredColumns.includes(col));
 
   const isSuspicions = (row: number) =>
     cluster.data.cluster!.items![row].isSuspicious;
@@ -185,7 +192,7 @@ const Cluster: React.FC<Props> = ({ cluster }) => {
                     {col}
                   </th>
                 ))}
-                {uncolorizedPart.map(({ col }) => (
+                {uncoloredPart.map(({ col }) => (
                   <th
                     key={col}
                     className={headerClassName}
@@ -231,7 +238,7 @@ const Cluster: React.FC<Props> = ({ cluster }) => {
                       {row[index]}
                     </td>
                   ))}
-                  {uncolorizedPart.map(({ col, index }) => (
+                  {uncoloredPart.map(({ col, index }) => (
                     <td
                       key={index}
                       className={bodyClassName}

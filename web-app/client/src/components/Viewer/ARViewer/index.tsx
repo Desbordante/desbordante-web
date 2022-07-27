@@ -3,14 +3,14 @@ import { Container } from "react-bootstrap";
 
 import ARList from "./ARList";
 import Navigation from "../Navigation";
-import { AssociationRule } from "../../../types/types";
 import ARTableSnippet from "./ARTableSnippet";
+import { AR } from "../../../graphql/operations/fragments/__generated__/AR";
 
 const tabs = ["Association Rules", "Dataset"];
 
 const Index = () => {
   const [partShown, setPartShown] = useState(0);
-  const [selectedRule, setSelectedRule] = useState<AssociationRule | null>(
+  const [selectedDependency, setDependency] = useState<AR | null>(
     null
   );
 
@@ -22,11 +22,11 @@ const Index = () => {
         options={tabs}
       />
       {partShown === 0 && (
-        <ARList selectedRule={selectedRule} setSelectedRule={setSelectedRule} />
+        <ARList selectedDependency={selectedDependency} setSelectedDependency={setDependency} />
       )}
       {partShown === 1 && (
         <ARTableSnippet
-          selectedItems={selectedRule?.lhs.concat(selectedRule?.rhs)}
+          selectedItems={selectedDependency?.lhs.concat(selectedDependency?.rhs)}
         />
       )}
     </Container>
