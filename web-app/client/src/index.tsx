@@ -11,13 +11,10 @@ import { createUploadLink } from "apollo-upload-client";
 import "./index.scss";
 import App from "./App";
 import { AuthContextProvider } from "./components/AuthContext";
-import { TaskContextProvider } from "./components/TaskContext";
 import { ErrorContextProvider } from "./components/ErrorContext";
 import { graphQLEndpoint } from "./APIFunctions";
-import { AlgorithmConfigContextProvider } from "./components/AlgorithmConfigContext";
 import { customFetch } from "./graphql/customFetch";
 import { errorLink, requestIdLink } from "./graphql/context";
-import { FileFormContextProvider } from "./components/FileFormContext";
 
 const client = new ApolloClient({
   uri: graphQLEndpoint,
@@ -37,13 +34,7 @@ ReactDOM.render(
   <ApolloProvider client={client}>
     <ErrorContextProvider>
       <AuthContextProvider>
-        <TaskContextProvider>
-          <AlgorithmConfigContextProvider>
-            <FileFormContextProvider>
               <App />
-            </FileFormContextProvider>
-          </AlgorithmConfigContextProvider>
-        </TaskContextProvider>
       </AuthContextProvider>
     </ErrorContextProvider>
   </ApolloProvider>,

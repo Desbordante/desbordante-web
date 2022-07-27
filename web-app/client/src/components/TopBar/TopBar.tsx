@@ -1,21 +1,15 @@
 import React, {useContext} from "react";
 import {Container, Navbar} from "react-bootstrap";
 import {useHistory, useLocation} from "react-router-dom";
-import {sentenceCase} from "change-case";
 
 import Button from "../Button/Button";
-import {TaskContext} from "../TaskContext";
 import {AuthContext} from "../AuthContext";
-import ProgressBar from "../ProgressBar/ProgressBar";
-import Phasename from "./Phasename/Phasename";
-import TaskConfig from "./TaskConfig";
 
 import styles from "./TopBar.module.scss"
 
 const TopBar = () => {
   const history = useHistory();
   const location = useLocation();
-  const {taskState, resetTask, dataset} = useContext(TaskContext)!;
   const {user, setIsSignUpShown, setIsLogInShown, signOut} =
     useContext(AuthContext)!;
 
@@ -27,7 +21,6 @@ const TopBar = () => {
         <Navbar.Brand
           className={styles.brand}
           onClick={() => {
-            resetTask();
             history.push("/");
           }}
         >
@@ -41,18 +34,6 @@ const TopBar = () => {
           Desbordante
         </Navbar.Brand>
         <Container fluid className="d-flex text-muted ps-0">
-          {!isHomeScreen && dataset && dataset.originalFileName && (
-            <p className="mx-1 my-auto text-secondary">
-              {dataset.originalFileName}
-            </p>
-          )}
-          {!isHomeScreen && taskState &&
-            "processStatus" in taskState && (
-              <p className="mx-1 my-auto text-secondary">
-                ({sentenceCase(taskState.processStatus)})
-              </p>
-            )}
-          {!isHomeScreen && <TaskConfig/>}
         </Container>
         {user?.name ? (
           <>
@@ -84,20 +65,6 @@ const TopBar = () => {
           </div>
         )}
       </Container>
-      {!isHomeScreen &&
-        taskState &&
-        "progress" in taskState &&
-        !!taskState.progress && (
-          <>
-            <ProgressBar
-              progress={taskState.progress / 100}
-              maxWidth={100}
-              thickness={0.35}
-            />
-            {/* @ts-ignore */}
-            <Phasename {...taskState} />
-          </>
-        )}
     </Navbar>
   );
 };
