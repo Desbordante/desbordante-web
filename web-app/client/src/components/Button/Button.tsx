@@ -1,14 +1,11 @@
-import React from "react";
+import React, { HTMLProps } from "react";
 
 import styles from "./Button.module.scss";
 
-interface Props {
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
+interface Props extends HTMLProps<HTMLButtonElement>{
   enabled?: boolean;
   variant?: string;
-  className?: string;
-  style?: React.CSSProperties;
-  size?: "sm" | "lg";
+  sizeStyle?: "sm" | "lg" | "md";
 }
 
 const Button: React.FC<Props> = ({
@@ -18,19 +15,22 @@ const Button: React.FC<Props> = ({
   className = "",
   children,
   style,
-  size = "md",
+  title,
+  sizeStyle = "md"
 }) => {
   const defaultClassName = styles[variant]
-  const defaultSizeClassName = styles[size]
+  const defaultSizeClassName = styles[sizeStyle]
   return (
-    <span tabIndex={0}
+    <button
       className={`${styles.button} ${defaultSizeClassName} ${defaultClassName} ${className}`}
       onClick={enabled ? onClick : () => {}}
       style={style}
+      title={title}
     >
       <>{children}</>
-    </span>
+    </button>
   );
 }
+
 
 export default Button;
