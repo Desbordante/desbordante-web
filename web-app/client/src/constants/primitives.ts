@@ -1,12 +1,12 @@
 import {
   ARSortBy,
   CFDSortBy,
+  FDSortBy,
+  IntersectionFilter,
+  MainPrimitiveType,
   OrderBy,
-  Pagination,
-  SortBy,
-  SortSide,
+  Pagination
 } from "../types/globalTypes";
-import { PrimitiveFilter } from "../types/primitives";
 
 export const primitiveTypeList = [
   "Functional Dependencies",
@@ -15,75 +15,84 @@ export const primitiveTypeList = [
   "Error Detection Pipeline",
 ] as const;
 
-export const sortOptions = {
-  FD: Object.keys(SortSide) as SortSide[],
-  CFD: Object.keys(CFDSortBy) as CFDSortBy[],
-  AR: Object.keys(ARSortBy) as ARSortBy[],
-  TypoFD: Object.keys(SortSide) as SortSide[],
+export const defaultIntersectionFilter: IntersectionFilter = {
+  pagination: {
+    offset: 0,
+    limit: 10,
+  },
+  filterString: "",
+  orderBy: OrderBy.DESC,
+  withoutKeys: true,
+  mustContainRhsColIndices: null,
+  mustContainLhsColIndices: null,
 };
 
-export const defaultPrimitiveFilter: PrimitiveFilter = {
-  FD: {
-    filterString: null,
-    mustContainLhsColIndices: null,
-    mustContainRhsColIndices: null,
-    orderBy: OrderBy.ASC,
-    sortBy: SortBy.COL_NAME,
-    sortSide: SortSide.LHS,
-    pagination: {
-      limit: 10,
-      offset: 0,
-    },
-    withoutKeys: false,
-  },
-  CFD: {
-    filterString: null,
-    orderBy: OrderBy.DESC,
-    sortBy: CFDSortBy.CONF,
-    mustContainRhsColIndices: null,
-    mustContainLhsColIndices: null,
-    withoutKeys: false,
-    pagination: {
-      limit: 10,
-      offset: 0,
-    },
-  },
-  AR: {
-    filterString: null,
-    orderBy: OrderBy.DESC,
-    sortBy: ARSortBy.DEFAULT,
-    pagination: {
-      limit: 10,
-      offset: 0,
-    },
-  },
-  TypoFD: {
-    filterString: null,
-    orderBy: OrderBy.DESC,
-    sortBy: SortBy.COL_NAME,
-    sortSide: SortSide.LHS,
-    pagination: {
-      limit: 10,
-      offset: 0,
-    },
-  },
-};
+const getSpecificDefaultFilterParams = (type: MainPrimitiveType): Partial<IntersectionFilter> => {
+  switch (type) {
+    case "AR":
+      return {
+        ARSortBy: ARSortBy.CONF,
+      }
+    case "FD":
+    case "TypoFD":
+      return {
+        orderBy: OrderBy.ASC,
+        mustContainLhsColIndices: null,
+        mustContainRhsColIndices: null,
+        withoutKeys: true,
+        FDSortBy: FDSortBy.LHS_NAME,
+      }
+    case "CFD":
+      return {
+        CFDSortBy: CFDSortBy.CONF,
+      }
+    default:
+      throw new Error("Unreachable code");
+  }
+}
+
+export const getDefaultFilterParams = (type: MainPrimitiveType): IntersectionFilter =>
+    ({
+    ...defaultIntersectionFilter,
+    ...getSpecificDefaultFilterParams(type),
+  });
 
 export const defaultDatasetPagination: Pagination = {
   limit: 100,
   offset: 0,
 };
 
-export const ARSortByLabels = {
-  [ARSortBy.CONF]: "Confidence",
-  [ARSortBy.DEFAULT]: "Default",
-  [ARSortBy.LHS_NAME]: "LHS",
-  [ARSortBy.RHS_NAME]: "RHS",
-};
+export const setFilterParams = (params: Partial<IntersectionFilter>) =>
+    (filter: IntersectionFilter) => ({...filter, ...params});
 
-export const CFDSortByLabels = {
-  [CFDSortBy.SUP]: "Support",
-  [CFDSortBy.CONF]: "Confidence",
-  [CFDSortBy.LHS_COL_NAME]: "LHS",
-  [CFDSortBy.RHS_COL_NAME]: "RHS",
-}
+export const sortByLabels = {
+  [MainPrimitiveType.AR]: {
+    [ARSortBy.CONF]: "Confidence",
+    [ARSortBy.LHS_NAME]: "LHS",
+    [ARSortBy.RHS_NAME]: "RHS",
+  },
+  [MainPrimitiveType.FD]: {
+    [FDSortBy.LHS_NAME]: "LHS",
+    [FDSortBy.RHS_NAME]: "RHS",
+  },
+  [MainPrimitiveType.CFD]: {
+    [CFDSortBy.SUP]: "Support",
+    [CFDSortBy.CONF]: "Confidence",
+    [CFDSortBy.LHS_COL_NAME]: "LHS",
+    [CFDSortBy.RHS_COL_NAME]: "RHS",
+  }
+} as const;
+
+export const getSpecificSortByLabels = <T extends keyof typeof sortByLabels>(type: T) => sortByLabels[type]
+
+export type SortByLabelsType<T extends keyof typeof sortByLabels> = keyof ReturnType<typeof getSpecificSortByLabels<T>>;
+
+export type CFDSortByLabelsType = SortByLabelsType<MainPrimitiveType.CFD>;
+export type FDSortByLabelsType = SortByLabelsType<MainPrimitiveType.FD>;
+export type ARSortByLabelsType = SortByLabelsType<MainPrimitiveType.AR>
+
+export const sortOptions = {
+  FD: Object.keys(FDSortBy) as FDSortByLabelsType[],
+  CFD: Object.keys(CFDSortBy) as CFDSortByLabelsType[],
+  AR: Object.keys(ARSortBy) as ARSortByLabelsType[],
+};

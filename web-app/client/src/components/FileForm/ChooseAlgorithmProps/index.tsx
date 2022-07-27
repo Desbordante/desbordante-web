@@ -10,12 +10,14 @@ import { PrimitiveType } from "../../../types/globalTypes";
 const ChooseAlgorithmProps = () => {
   const { primitiveType } = useContext(FileFormContext)!;
 
+  const is = (type: `${PrimitiveType}`) => primitiveType === type;
+
   return (
     <>
-      {primitiveType === PrimitiveType.FD && <FDAlgorithmProps />}
-      {primitiveType === PrimitiveType.CFD && <CFDAlgorithmProps />}
-      {primitiveType === PrimitiveType.AR && <ARAlgorithmProps />}
-      {primitiveType === PrimitiveType.TypoFD && <EDPAlgorithmProps />}
+      {is("FD") && <FDAlgorithmProps />}
+      {is("CFD") && <CFDAlgorithmProps />}
+      {is("AR") && <ARAlgorithmProps />}
+      {is("TypoFD") && <EDPAlgorithmProps />}
     </>
   );
 };

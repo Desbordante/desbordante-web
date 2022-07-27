@@ -26,8 +26,8 @@ export type EDPAlgorithmProps = {
   preciseAlgorithm?: FDAlgorithm;
   approximateAlgorithm?: FDAlgorithm;
   metric: MetricType;
-  radius: string;
-  ratio: string;
+  defaultRadius: string;
+  defaultRatio: string;
 };
 
 export type AlgorithmProps = FDAlgorithmProps &

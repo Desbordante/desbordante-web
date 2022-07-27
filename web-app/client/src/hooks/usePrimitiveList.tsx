@@ -1,35 +1,17 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
 
-import { PrimitiveType } from "../types/globalTypes";
-import { TaskResult } from "../types/taskInfo";
+import { IntersectionFilter, PrimitiveType } from "../types/globalTypes";
+import { isMainPrimitiveType, TaskResult } from "../types/taskInfo";
 import { ErrorContext } from "../components/ErrorContext";
-import { GET_FDS } from "../graphql/operations/queries/FD/getFDs";
-import {
-  getFDs,
-  getFDsVariables,
-} from "../graphql/operations/queries/FD/__generated__/getFDs";
-import { GET_CFDS } from "../graphql/operations/queries/CFD/getCFDs";
-import {
-  getCFDs,
-  getCFDsVariables,
-} from "../graphql/operations/queries/CFD/__generated__/getCFDs";
-import { GET_ARS } from "../graphql/operations/queries/AR/getARs";
-import {
-  getARs,
-  getARsVariables,
-} from "../graphql/operations/queries/AR/__generated__/getARs";
-import { PrimitiveFilter } from "../types/primitives";
-import {
-  getTypoFDs,
-  getTypoFDsVariables,
-} from "../graphql/operations/queries/EDP/__generated__/getTypoFDs";
-import { GET_TYPO_FDS } from "../graphql/operations/queries/EDP/getTypoFDs";
+import { GET_MAIN_TASK_DEPS } from "../graphql/operations/queries/getDeps";
+import { GetMainTaskDeps, GetMainTaskDepsVariables } from "../graphql/operations/queries/__generated__/GetMainTaskDeps";
+import { getDefaultFilterParams } from "../constants/primitives";
 
 export const usePrimitiveList = (
   taskID?: string,
   primitiveType?: PrimitiveType,
-  filter?: PrimitiveFilter,
+  filter?: IntersectionFilter,
   isFinished?: boolean
 ) => {
   const { showError } = useContext(ErrorContext)!;
@@ -37,58 +19,31 @@ export const usePrimitiveList = (
   const [taskResult, setTaskResult] = useState<TaskResult>();
   const [loading, setLoading] = useState(false);
 
-  const [getFDs] = useLazyQuery<getFDs, getFDsVariables>(GET_FDS, {fetchPolicy: "network-only"});
-  const [getCFDs] = useLazyQuery<getCFDs, getCFDsVariables>(GET_CFDS, {fetchPolicy: "network-only"});
-  const [getARs] = useLazyQuery<getARs, getARsVariables>(GET_ARS, {fetchPolicy: "network-only"});
-  const [getTypoFDs] = useLazyQuery<getTypoFDs, getTypoFDsVariables>(
-    GET_TYPO_FDS, {fetchPolicy: "network-only"}
-  );
+  const [getTaskDeps] = useLazyQuery<GetMainTaskDeps, GetMainTaskDepsVariables>(GET_MAIN_TASK_DEPS, { fetchPolicy: "no-cache" });
 
   const getTaskResult = useCallback(async () => {
-    if (!taskID || !primitiveType || !filter || !isFinished) {
+    if (!taskID || !primitiveType || !filter || !isFinished || !isMainPrimitiveType(primitiveType)) {
       return;
     }
 
     setLoading(true);
-    let res;
 
     try {
-      switch (primitiveType) {
-        case PrimitiveType.FD: {
-          res = await getFDs({
-            variables: { taskID, filter: filter.FD },
-          });
-          break;
-        }
-        case PrimitiveType.CFD: {
-          res = await getCFDs({
-            variables: { taskID, filter: filter.CFD },
-          });
-          break;
-        }
-        case PrimitiveType.AR: {
-          res = await getARs({
-            variables: { taskID, filter: filter.AR },
-          });
-          break;
-        }
-        case PrimitiveType.TypoFD: {
-          res = await getTypoFDs({
-            variables: { taskID, filter: filter.TypoFD },
-          });
-          break;
-        }
-        default: {
-          showError({ message: "Unexpected application behaviour" });
-          return;
-        }
+      const { data, error } = await getTaskDeps(({
+        variables: { taskID, filter: { ...getDefaultFilterParams(primitiveType), ...filter} }
+      }))
+      if (error) {
+        throw error;
       }
+      if (data == null || data.taskInfo.__typename !== "TaskInfo") {
+        throw Error("Received data is undefined");
+      }
+      const { data: taskInfoData } = data.taskInfo;
 
-      setTaskResult({
-        [primitiveType]: res.data?.taskInfo.data.result,
-        // @ts-ignore
-        depsAmount: res.data?.taskInfo.data.result.depsAmount,
-      });
+      if (taskInfoData.result == null) {
+        throw Error("Result is undefined");
+      }
+      setTaskResult(taskInfoData.result);
     } catch (error: any) {
       showError(error);
       return;
@@ -96,9 +51,7 @@ export const usePrimitiveList = (
     setLoading(false);
   }, [
     filter,
-    getARs,
-    getCFDs,
-    getFDs,
+    getTaskDeps,
     primitiveType,
     showError,
     taskID,

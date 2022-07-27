@@ -8,16 +8,16 @@ import { CREATE_TASK_WITH_CHOOSING_DATASET } from "../../graphql/operations/muta
 import { FileFormContext } from "../FileFormContext";
 import { ErrorContext } from "../ErrorContext";
 import { isBuiltinDataset } from "../../types/dataset";
-import { FileProps, IntersectionTaskProps } from "../../types/globalTypes";
-import {
-  createTaskWithDatasetUploading,
-  createTaskWithDatasetUploadingVariables,
-} from "../../graphql/operations/mutations/__generated__/createTaskWithDatasetUploading";
+import { FileProps, IntersectionMainTaskProps } from "../../types/globalTypes";
 import {
   createTaskWithDatasetChoosing,
   createTaskWithDatasetChoosingVariables,
 } from "../../graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing";
 import { AllowedDataset } from "../../types/types";
+import {
+  createMainTaskWithDatasetUploading,
+  createMainTaskWithDatasetUploadingVariables
+} from "../../graphql/operations/mutations/__generated__/createMainTaskWithDatasetUploading";
 
 const SubmitButton = styled.button`
   transition: 0.3s;
@@ -43,8 +43,8 @@ const CreateTaskButton = () => {
   const history = useHistory();
 
   const [createTask] = useMutation<
-    createTaskWithDatasetUploading,
-    createTaskWithDatasetUploadingVariables
+    createMainTaskWithDatasetUploading,
+    createMainTaskWithDatasetUploadingVariables
   >(CREATE_TASK_WITH_UPLOADING_DATASET);
   const [chooseTask] = useMutation<
     createTaskWithDatasetChoosing,
@@ -53,7 +53,7 @@ const CreateTaskButton = () => {
 
   const submit = () => {
     if (isValid) {
-      const props: IntersectionTaskProps = {
+      const props: IntersectionMainTaskProps = {
         algorithmName: algorithmProps.algorithm!.name,
         type: primitiveType,
         errorThreshold: algorithmProps.algorithm!.properties.hasErrorThreshold
@@ -71,8 +71,8 @@ const CreateTaskButton = () => {
         preciseAlgorithm: algorithmProps.preciseAlgorithm?.name,
         approximateAlgorithm: algorithmProps.approximateAlgorithm?.name,
         metric: algorithmProps.metric,
-        radius: +algorithmProps.radius!,
-        ratio: +algorithmProps.ratio!,
+        defaultRadius: +algorithmProps.defaultRadius!,
+        defaultRatio: +algorithmProps.defaultRatio!,
       };
       const datasetProps: FileProps = {
         delimiter: fileProps.delimiter,
@@ -93,11 +93,11 @@ const CreateTaskButton = () => {
 
       if (isBuiltinDataset(dataset)) {
         chooseTask({
-          variables: { props, fileID: (dataset as AllowedDataset).fileID },
+          variables: { props, fileID: (dataset as AllowedDataset).fileID, forceCreate: true },
           context,
         })
           .then((res) =>
-            history.push(res.data?.createTaskWithDatasetChoosing.taskID)
+            history.push(res.data?.createMainTaskWithDatasetChoosing.taskID)
           )
           .catch((error) => showError({ message: error.message }))
           .finally(() => setFileUploadProgress(0));
@@ -107,7 +107,7 @@ const CreateTaskButton = () => {
           context,
         })
           .then((res) =>
-            history.push(res.data?.createTaskWithDatasetUploading.taskID)
+            history.push(res.data?.createMainTaskWithDatasetUploading.taskID)
           )
           .catch((error) => showError({ message: error.message }))
           .finally(() => setFileUploadProgress(0));

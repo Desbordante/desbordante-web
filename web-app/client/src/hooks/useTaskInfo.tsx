@@ -52,7 +52,6 @@ export const useTaskInfo = (taskID?: string) => {
 
         setTaskType(type);
         setTaskProperties({algorithmName, specificConfig});
-        // eslint-disable-next-line no-underscore-dangle
         switch (state.__typename) {
           case "TaskState": {
             setTaskState(state);

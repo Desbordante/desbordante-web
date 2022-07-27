@@ -1,35 +1,32 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useLazyQuery, useMutation } from "@apollo/client";
 
-import { ClustersInfo, ClusterTask } from "../types/primitives";
 import {
-  getClustersPreview_taskInfo_data_result_TypoClusterTaskResult,
-  getClustersPreviewVariables,
   getClustersPreview,
+  getClustersPreviewVariables,
 } from "../graphql/operations/queries/EDP/__generated__/getClustersPreview";
 import { GET_CLUSTERS_PREVIEW } from "../graphql/operations/queries/EDP/getClustersPreview";
-import {
-  createClustersPreview,
-  createClustersPreviewVariables,
-} from "../graphql/operations/mutations/__generated__/createClustersPreview";
-import { CREATE_CLUSTERS_PREVIEW } from "../graphql/operations/mutations/createClustersPreview";
 import { dependencyToAttributeIds } from "../functions/primitives";
 import { ErrorContext } from "../components/ErrorContext";
 import { TaskContext } from "../components/TaskContext";
-import { FunctionalDependency } from "../types/taskInfo";
-import {
-  createDedicatedClusterTask,
-  createDedicatedClusterTaskVariables,
-} from "../graphql/operations/mutations/__generated__/createDedicatedClusterTask";
-import { CREATE_DEDICATED_CLUSTER_TASK } from "../graphql/operations/mutations/createDedicatedClusterTask";
 import { GET_SPECIFIC_CLUSTER } from "../graphql/operations/queries/EDP/getSpecificCluster";
 import {
   getSpecificCluster,
-  getSpecificCluster_taskInfo_data_result_SpecificTypoClusterTaskResult,
   getSpecificClusterVariables,
 } from "../graphql/operations/queries/EDP/__generated__/getSpecificCluster";
+import { FD } from "../graphql/operations/fragments/__generated__/FD";
+import {
+  createSpecificTask,
+  createSpecificTaskVariables
+} from "../graphql/operations/mutations/__generated__/createSpecificTask";
+import { CREATE_SPECIFIC_TASK } from "../graphql/operations/mutations/createSpecificTask";
+import { SpecificTaskType } from "../types/globalTypes";
+import { GET_TASK_INFO } from "../graphql/operations/queries/getTaskInfo";
+import { getTaskState, getTaskStateVariables } from "../graphql/operations/queries/__generated__/getTaskState";
+import { ClustersInfo, SpecificCluster } from "../types/primitives";
 
-export const useClusters = (selectedDependency?: FunctionalDependency) => {
+// TODO: WIP
+export const useClusters = (selectedDependency?: FD) => {
   const { showError } = useContext(ErrorContext)!;
   const { taskId } = useContext(TaskContext)!;
 
@@ -37,39 +34,39 @@ export const useClusters = (selectedDependency?: FunctionalDependency) => {
   const [typoTaskId, setTypoTaskId] = useState<string>();
 
   const previewTaskRef = useRef<NodeJS.Timer | null>(null);
+  type SpecificClusterInfo = { clusterID: number, typoTaskID: string };
   const specificTasksPull = useRef<
-    { clusterId: number; specificTaskId: string; timer: NodeJS.Timer }[]
+    (SpecificClusterInfo & { /* parentTaskId: string; */ timer: NodeJS.Timer })[]
   >([]);
 
-  const [getClustersPreview] = useLazyQuery<
+  const [getClusters] = useLazyQuery<
     getClustersPreview,
     getClustersPreviewVariables
   >(GET_CLUSTERS_PREVIEW, {fetchPolicy: "network-only"});
-  const [createPreviewTask] = useMutation<
-    createClustersPreview,
-    createClustersPreviewVariables
-  >(CREATE_CLUSTERS_PREVIEW);
-  const [createDedicatedClusterTask] = useMutation<
-    createDedicatedClusterTask,
-    createDedicatedClusterTaskVariables
-  >(CREATE_DEDICATED_CLUSTER_TASK);
+  const [createClusters] = useMutation<
+    createSpecificTask,
+    createSpecificTaskVariables
+  >(CREATE_SPECIFIC_TASK, {fetchPolicy: "network-only"});
+
   const [getSpecificCluster] = useLazyQuery<
     getSpecificCluster,
     getSpecificClusterVariables
   >(GET_SPECIFIC_CLUSTER, {fetchPolicy: "network-only"});
 
+  // @ts-ignore
   const setClusterTask = (
     id: number,
-    action: (prev: ClusterTask) => ClusterTask
+    action: (prev: SpecificCluster) => SpecificCluster
   ) =>
     setClusters(
       (prev) =>
-        prev && {
-          ...prev,
-          TypoClusters: prev.TypoClusters.map((cluster) =>
-            cluster.id === id ? action(cluster) : cluster
-          ),
-        }
+        prev
+        // && {
+        //   ...prev,
+        //   typoClusters: prev.typoClusters.map((cluster) =>
+        //     cluster.id === id ? action(cluster) : cluster
+        //   ),
+        // }
     );
 
   useEffect(() => {
@@ -85,13 +82,20 @@ export const useClusters = (selectedDependency?: FunctionalDependency) => {
     const createTask = async () => {
       try {
         if (taskId) {
-          const res = await createPreviewTask({
+          const res = await createClusters({
             variables: {
-              taskId,
-              typoFD: dependencyToAttributeIds(selectedDependency),
+              props: {
+                algorithmName: "Typo Miner",
+                type: SpecificTaskType.TypoCluster,
+                parentTaskID: taskId,
+                typoFD: dependencyToAttributeIds(selectedDependency),
+              }
             },
           });
-          setTypoTaskId(res.data?.createTypoMinerTask.taskID || "");
+          setTypoTaskId(res.data?.createSpecificTask.taskID || "");
+          if (res.errors) {
+            throw new Error("Cannot calculate clusters for this dependency");
+          }
         }
       } catch (error: any) {
         showError(error);
@@ -99,7 +103,7 @@ export const useClusters = (selectedDependency?: FunctionalDependency) => {
     };
 
     createTask();
-  }, [createPreviewTask, selectedDependency, showError, taskId]);
+  }, [createClusters, selectedDependency, showError, taskId]);
 
   const stopPolling = () => {
     if (previewTaskRef.current) {
@@ -108,113 +112,148 @@ export const useClusters = (selectedDependency?: FunctionalDependency) => {
     }
   };
 
+  const [getTaskStateQuery] = useLazyQuery<getTaskState, getTaskStateVariables>(
+    GET_TASK_INFO,
+    {
+      fetchPolicy: "network-only"
+    }
+  );
+
   useEffect(() => {
     if (!previewTaskRef.current && typoTaskId) {
       previewTaskRef.current = setInterval(async () => {
         try {
-          const res = await getClustersPreview({
+          const stateInfo = await getTaskStateQuery({
+            variables: {
+              taskID: typoTaskId,
+            }
+          })
+          if (!stateInfo.data) {
+            throw new Error("Internal server error");
+          }
+          const {state} = stateInfo.data.taskInfo;
+
+          if (state.__typename !== "TaskState") {
+            throw new Error(state.errorStatus);
+          }
+          if (!state.isExecuted) {
+            return;
+          }
+          stopPolling();
+
+          const clustersInfo = await getClusters({
             variables: {
               taskId: typoTaskId,
-              pagination: { offset: 0, limit: 100 },
+              clustersPagination: { offset: 0, limit: 5},
+              itemsLimit: 10,
             },
           });
-          const dataResult = res.data?.taskInfo.data
-            .result as getClustersPreview_taskInfo_data_result_TypoClusterTaskResult;
-          if (dataResult) {
-            setClusters({
-              clustersCount: dataResult.clustersCount,
-              TypoClusters: dataResult.TypoClusters.map((cluster) => ({
-                data: { cluster },
-                loading: false,
-                error: false,
-                isSorted: true,
-                id: cluster.id,
-              })),
-            });
-            stopPolling();
+          const { data } = clustersInfo;
+          if (!data) {
+            throw new Error("Internal server error")
           }
+          const { taskInfo } = data;
+          if (taskInfo.__typename !== "SpecificTaskInfo"
+            || taskInfo.data.__typename !== "SpecificTaskData"
+            || taskInfo.data.result == null) {
+            throw new Error("Internal server error");
+          }
+          const { result } = taskInfo.data;
+          const { clustersCount, typoClusters } = result;
+          setClusters({
+            clustersCount,
+            typoClusters: typoClusters.map((cluster) => ({
+              data: {cluster},
+              loading: false,
+              error: false,
+              isSorted: true,
+              id: cluster.clusterID,
+            })),
+          })
         } catch (error: any) {
           showError(error);
           stopPolling();
         }
-      }, 1000);
+      }, 500);
     }
 
     return stopPolling;
   }, [typoTaskId]);
 
-  const stopPollingSpecificTask = (specificTaskId: string) => {
+  const stopPollingSpecificTask = (clusterInfo: SpecificClusterInfo) => {
     const { current: pull } = specificTasksPull;
-    const found = pull.find(({ specificTaskId: id }) => id === specificTaskId);
+    const found = pull.find(({typoTaskID, clusterID}) => clusterInfo.typoTaskID === typoTaskID && clusterInfo.clusterID === clusterID);
     if (found) {
       clearInterval(found.timer);
-      // specificTasksPull.current = pull.filter((element) => element !== found);
     }
   };
 
   const pollSpecificTask =
-    (specificTaskId: string, sort: boolean) => async () => {
-      try {
+    (info: SpecificClusterInfo, sort: boolean, squash: boolean) => async () => {
+    const {typoTaskID, clusterID} = info;
+    try {
         const res = await getSpecificCluster({
           variables: {
-            taskId: specificTaskId,
+            props: {
+              sort,
+              squash,
+              clusterID,
+            },
+            taskId: typoTaskID,
             pagination: { offset: 0, limit: 100 },
-            sort,
           },
         });
-        const dataResult = res.data?.taskInfo.data
-          .result as getSpecificCluster_taskInfo_data_result_SpecificTypoClusterTaskResult;
-        if (dataResult) {
-          setClusterTask(dataResult.cluster.id, (prev) => ({
+        const taskInfoData = res.data?.taskInfo.data;
+        if (taskInfoData?.__typename !== "SpecificTaskData" || taskInfoData.result == null) {
+          throw Error("Received undefined result or incorrect data");
+        }
+        const {result} = taskInfoData;
+        if (result) {
+          setClusterTask(clusterID, (prev) => ({
             ...prev,
             loading: false,
-            data: dataResult,
+            data: result.specificCluster,
           }));
-          stopPollingSpecificTask(specificTaskId);
+          stopPollingSpecificTask(info);
         }
       } catch (error: any) {
         showError(error);
-        stopPollingSpecificTask(specificTaskId);
+        stopPollingSpecificTask(info);
       }
     };
 
   const setClusterSorted = (clusterId: number, isSorted: boolean) => {
+    const isSquashed = false;
     setClusters((prev) => {
-      if (prev && prev.TypoClusters) {
+      if (prev && prev.typoClusters) {
         const newClusters = {...prev};
-        newClusters.TypoClusters.find(({id}) => id === clusterId)!.isSorted =
+        newClusters.typoClusters.find(({id}) => id === clusterId)!.isSorted =
           isSorted;
         return newClusters;
       }
       return undefined;
     });
     const { current: pull } = specificTasksPull;
-    const found = pull.find(({ clusterId: id }) => id === clusterId);
+    const found = pull.find(({ clusterID: id }) => id === clusterId);
     if (found) {
       clearInterval(found.timer);
-      found.timer = setInterval(pollSpecificTask(found.specificTaskId, isSorted), 1000);
+      found.timer = setInterval(pollSpecificTask({ ...found }, isSorted, isSquashed), 1000);
     }
   }
 
-  const startSpecificTask = async (clusterId: number) => {
+  const startSpecificTask = async (clusterID: number) => {
     const { current: pull } = specificTasksPull;
-    const found = pull.find(({ clusterId: id }) => id === clusterId);
+    const found = pull.find(({ clusterID: id }) => id === clusterID);
 
     if (!found) {
       try {
         if (typoTaskId) {
-          const res = await createDedicatedClusterTask({
-            variables: { taskId: typoTaskId, clusterId },
+          pull.push({
+            typoTaskID: typoTaskId,
+            clusterID,
+            timer: setInterval(pollSpecificTask({typoTaskID: typoTaskId, clusterID}, true, false), 1000),
           });
-          const specificTaskId = res.data?.createTypoMinerTask.taskID;
-          if (specificTaskId) {
-            pull.push({
-              specificTaskId,
-              clusterId,
-              timer: setInterval(pollSpecificTask(specificTaskId, true), 1000),
-            });
-          }
-          setClusterTask(clusterId, (prev) => ({
+          setClusterTask(clusterID, (prev) => ({
             ...prev,
             loading: true,
           }));

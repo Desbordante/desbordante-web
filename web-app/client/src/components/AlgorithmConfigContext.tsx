@@ -5,7 +5,7 @@ import { AllowedDataset, AllowedAlgorithms } from "../types/types";
 import { GET_ALGORITHMS_CONFIG } from "../graphql/operations/queries/getAlgorithmsConfig";
 import { getAlgorithmsConfig } from "../graphql/operations/queries/__generated__/getAlgorithmsConfig";
 import { ErrorContext } from "./ErrorContext";
-import { PrimitiveType } from "../types/globalTypes";
+import { MainPrimitiveType } from "../types/globalTypes";
 
 type AlgorithmConfigContextType = {
   allowedValues: {
@@ -18,7 +18,7 @@ type AlgorithmConfigContextType = {
     isOfValidSize: (file?: File) => boolean;
     isOfValidFormat: (file?: File) => boolean;
     isBuiltinDatasetValid: (
-      primitive: PrimitiveType,
+      primitive: MainPrimitiveType,
       file?: AllowedDataset
     ) => boolean;
     isValidSeparator: (n?: string) => boolean;
@@ -87,7 +87,7 @@ export const AlgorithmConfigContextProvider: React.FC = ({ children }) => {
       allowedFileFormats && file && allowedFileFormats.indexOf(file.type) !== -1
     );
   const isBuiltinDatasetValid = (
-    primitive: PrimitiveType,
+    primitive: MainPrimitiveType,
     file?: AllowedDataset
   ) => Boolean(file && file.supportedPrimitives.includes(primitive));
 

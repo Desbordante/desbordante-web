@@ -10,7 +10,7 @@ import FormItem from "../FormItem/FormItem";
 import Toggle from "../Toggle/Toggle";
 import Value from "../Value/Value";
 import Selector from "../Selector/Selector";
-import { InputFileFormat, PrimitiveType } from "../../types/globalTypes";
+import { InputFileFormat, MainPrimitiveType } from "../../types/globalTypes";
 
 const ChooseFileProps = () => {
   const { fileProps, setFileProps, primitiveType, dataset } =
@@ -80,7 +80,7 @@ const ChooseFileProps = () => {
           {fileProps.hasHeader ? "Yes" : "No"}
         </Toggle>
       </FormItem>
-      {primitiveType === PrimitiveType.AR && (
+      {primitiveType === MainPrimitiveType.AR && (
         <FormItem enabled={!isBuiltinDataset(dataset)}>
           <h5 className="text-white mb-0 mx-2">File format:</h5>
           <Selector
@@ -92,7 +92,7 @@ const ChooseFileProps = () => {
           />
         </FormItem>
       )}
-      {primitiveType === PrimitiveType.AR && (
+      {primitiveType === MainPrimitiveType.AR && (
         <>
           <FormItem
             enabled={

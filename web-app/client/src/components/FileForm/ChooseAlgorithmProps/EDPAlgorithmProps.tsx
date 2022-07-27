@@ -100,7 +100,9 @@ const EDPAlgorithmProps = () => {
     });
   }, []);
 
-  const {errorThreshold, arityConstraint, threadsCount, metric, radius, ratio} = algorithmProps;
+  const {
+    errorThreshold, arityConstraint, threadsCount, metric, defaultRadius, defaultRatio
+  } = algorithmProps;
 
   return (
     <>
@@ -215,16 +217,16 @@ const EDPAlgorithmProps = () => {
         />
       </FormItem>
       <FormItem enabled={algorithmProps.algorithm?.properties.hasRadius}>
-        <h5 className="text-white mb-0 mx-2">Radius:</h5>
+        <h5 className="text-white mb-0 mx-2">Default radius:</h5>
         <Value
-          value={radius}
+          value={defaultRadius}
           onChange={changeRadius}
           size={3}
           inputValidator={validators.isPositive}
           className="mx-2"
         />
         <Slider
-          value={radius}
+          value={defaultRadius}
           min={1}
           max={10}
           onChange={changeRadius}
@@ -233,16 +235,16 @@ const EDPAlgorithmProps = () => {
         />
       </FormItem>
       <FormItem enabled={algorithmProps.algorithm?.properties.hasRatio}>
-        <h5 className="text-white mb-0 mx-2">Ratio:</h5>
+        <h5 className="text-white mb-0 mx-2">Default ratio:</h5>
         <Value
-          value={ratio}
+          value={defaultRatio}
           onChange={changeRatio}
           size={3}
           inputValidator={validators.isBetweenZeroAndOne}
           className="mx-2"
         />
         <Slider
-          value={ratio}
+          value={defaultRatio}
           min={0}
           max={1}
           onChange={changeRatio}

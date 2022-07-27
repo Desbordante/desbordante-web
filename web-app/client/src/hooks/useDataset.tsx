@@ -28,8 +28,12 @@ export const useDataset = (taskID?: string, pagination?: Pagination) => {
 
     try {
       const res = await getDataset({variables: {taskID, pagination}});
-      console.log("getDataset", res);
-      setDataset(res.data?.taskInfo.dataset);
+      if (res.data?.taskInfo?.dataset == null) {
+        throw new Error("Dataset info not found");
+      }
+      const { dataset: datasetInfo } = res.data.taskInfo;
+
+      setDataset(datasetInfo);
     } catch (error: any) {
       showError(error);
       return;

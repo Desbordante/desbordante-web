@@ -1,10 +1,10 @@
 import { getAlgorithmsConfig_algorithmsConfig_allowedDatasets } from "../graphql/operations/queries/__generated__/getAlgorithmsConfig";
-import { getARs_taskInfo_data_result_ARTaskResult_ARs } from "../graphql/operations/queries/AR/__generated__/getARs";
 
 export type Attribute = {
   column: { name: string; index?: number };
   value: number;
 };
+
 export type TaskStatus =
   | "UNSCHEDULED"
   | "PROCESSING"
@@ -83,8 +83,6 @@ export type BuiltinDataset = {
   fileName: string;
   ID: string;
 };
-
-export type AssociationRule = getARs_taskInfo_data_result_ARTaskResult_ARs;
 
 export type SignUpFormProps = {
   fullName: string;

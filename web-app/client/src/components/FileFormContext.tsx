@@ -4,15 +4,14 @@ import { Dataset, isBuiltinDataset } from "../types/dataset";
 import { FileProps } from "../types/fileProps";
 import { AlgorithmConfigContext } from "./AlgorithmConfigContext";
 import {
-  InputFileFormat,
+  InputFileFormat, MainPrimitiveType,
   MetricType,
-  PrimitiveType,
 } from "../types/globalTypes";
 import { AllowedDataset } from "../types/types";
 
 type FileFormContextType = {
-  primitiveType: PrimitiveType;
-  setPrimitiveType: React.Dispatch<React.SetStateAction<PrimitiveType>>;
+  primitiveType: MainPrimitiveType;
+  setPrimitiveType: React.Dispatch<React.SetStateAction<MainPrimitiveType>>;
   dataset: Dataset | undefined;
   setDataset: React.Dispatch<React.SetStateAction<Dataset | undefined>>;
   fileProps: FileProps;
@@ -43,15 +42,15 @@ const defaultAlgorithmProps: AlgorithmProps = {
   minSupportAR: "0.15",
   threadsCount: "2",
   metric: MetricType.MODULUS_OF_DIFFERENCE,
-  radius: "3",
-  ratio: "1",
+  defaultRadius: "3",
+  defaultRatio: "1",
 };
 
 export const FileFormContextProvider: React.FC = ({children}) => {
   const {validators} = useContext(AlgorithmConfigContext)!;
 
-  const [primitiveType, setPrimitiveType] = useState<PrimitiveType>(
-    PrimitiveType.FD
+  const [primitiveType, setPrimitiveType] = useState<MainPrimitiveType>(
+    MainPrimitiveType.FD
   );
 
   const [dataset, setDataset] = useState<Dataset>();
@@ -91,7 +90,7 @@ export const FileFormContextProvider: React.FC = ({children}) => {
       ...prevError,
       fileProps:
         (isBuiltinDataset(dataset) && !validators.isValidSeparator(fileProps.delimiter)) ||
-        (primitiveType === PrimitiveType.AR &&
+        (primitiveType === MainPrimitiveType.AR &&
           !(
             validators.isInteger(fileProps.itemSetColumn) &&
             validators.isInteger(fileProps.transactionIdColumn)
@@ -126,8 +125,8 @@ export const FileFormContextProvider: React.FC = ({children}) => {
             !validators.isBetweenZeroAndOne(algorithmProps.minSupportAR)) ||
           (hasSupport &&
             !validators.isInteger(algorithmProps.minSupportCFD)) ||
-          (hasRadius && !validators.isPositive(algorithmProps.radius)) ||
-          (hasRatio && !validators.isBetweenZeroAndOne(algorithmProps.ratio))
+          (hasRadius && !validators.isPositive(algorithmProps.defaultRadius)) ||
+          (hasRatio && !validators.isBetweenZeroAndOne(algorithmProps.defaultRatio))
         ),
       }));
     } else {

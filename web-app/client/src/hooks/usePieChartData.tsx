@@ -1,18 +1,14 @@
 import {useCallback, useContext, useEffect, useState} from "react";
 import {useLazyQuery} from "@apollo/client";
 import {PrimitiveType} from "../types/globalTypes";
-import {GET_FDS_PIE_CHART_DATA} from "../graphql/operations/queries/FD/getFDsPieChartData";
-import {
-  getFDsPieChartData,
-  getFDsPieChartDataVariables,
-} from "../graphql/operations/queries/FD/__generated__/getFDsPieChartData";
-import {GET_CFDS_PIE_CHART_DATA} from "../graphql/operations/queries/CFD/getCFDsPieChartData";
-import {
-  getCFDsPieChartData,
-  getCFDsPieChartDataVariables,
-} from "../graphql/operations/queries/CFD/__generated__/getCFDsPieChartData";
 import {ErrorContext} from "../components/ErrorContext";
-import {PieChartData} from "../types/taskInfo";
+import {
+  isMainPrimitiveType,
+  isPrimitiveWithPieChartData,
+  PieChartData, primitivesWithPieChartData,
+} from "../types/taskInfo";
+import {getPieChartData, getPieChartDataVariables} from "../graphql/operations/queries/__generated__/getPieChartData";
+import {GET_PIE_CHART_DATA} from "../graphql/operations/queries/getPieChartData";
 
 export const usePieChartData = (
   taskID?: string,
@@ -24,40 +20,37 @@ export const usePieChartData = (
   const [pieChartData, setPieChartData] = useState<PieChartData>();
   const [loading, setLoading] = useState(false);
 
-  const [getFDsPieChartData] = useLazyQuery<getFDsPieChartData,
-    getFDsPieChartDataVariables>(GET_FDS_PIE_CHART_DATA);
-  const [getCFDsPieChartData] = useLazyQuery<getCFDsPieChartData,
-    getCFDsPieChartDataVariables>(GET_CFDS_PIE_CHART_DATA);
+  const [getPieChartData] = useLazyQuery<getPieChartData,
+    getPieChartDataVariables>(GET_PIE_CHART_DATA);
 
-  const getPieChartData = useCallback(async () => {
+  const getData = useCallback(async () => {
     if (!taskID || !primitiveType || !isFinished) {
       return;
     }
 
-    let res;
-    await setLoading(true);
+    setLoading(true);
+
     try {
-      switch (primitiveType) {
-        case PrimitiveType.FD: {
-          res = await getFDsPieChartData({variables: {taskID}});
-          break;
-        }
-        case PrimitiveType.CFD: {
-          res = await getCFDsPieChartData({variables: {taskID}});
-          break;
-        }
-        default: {
-          // showError({ message: "Unexpected application behaviour" });
-          return;
-        }
+      if (!isMainPrimitiveType(primitiveType) || !isPrimitiveWithPieChartData(primitiveType)) {
+        return;
+      }
+      const res = await getPieChartData({ variables: { taskID } });
+
+      if (res.data?.taskInfo.data.__typename !== "TaskWithDepsData") {
+        return;
       }
 
-      const result = res && res.data?.taskInfo.data.result;
-      if (result) {
-        setPieChartData({
-          // @ts-ignore
-          [primitiveType]: result.pieChartData,
-        });
+      const {data: {pieChartData : chartData}} = res.data.taskInfo;
+
+      if (chartData == null) {
+        return;
+      }
+
+      const isPieChartData = (data: typeof chartData): data is PieChartData =>
+        primitivesWithPieChartData.some(type => data.__typename.startsWith(type));
+
+      if (isPieChartData(chartData)) {
+        setPieChartData(chartData);
       }
     } catch (error: any) {
       showError(error);
@@ -66,8 +59,7 @@ export const usePieChartData = (
 
     setLoading(false);
   }, [
-    getCFDsPieChartData,
-    getFDsPieChartData,
+    getPieChartData,
     primitiveType,
     showError,
     taskID,
@@ -75,8 +67,8 @@ export const usePieChartData = (
   ]);
 
   useEffect(() => {
-    getPieChartData();
-  }, [getPieChartData]);
+    getData();
+}, [getData]);
 
   useEffect(() => {
     if (!taskID) {

@@ -6,15 +6,13 @@ import {
   TaskResult,
   TaskStateAnswer,
 } from "../types/taskInfo";
-import {Pagination, PrimitiveType} from "../types/globalTypes";
+import {IntersectionFilter, Pagination, PrimitiveType} from "../types/globalTypes";
 import {useTaskInfo} from "../hooks/useTaskInfo";
-import {PrimitiveFilter} from "../types/primitives";
 import {usePrimitiveList} from "../hooks/usePrimitiveList";
 import {useDataset} from "../hooks/useDataset";
 import {useDeleteTask} from "../hooks/useDeleteTask";
 import {
-  defaultDatasetPagination,
-  defaultPrimitiveFilter,
+  defaultDatasetPagination, defaultIntersectionFilter
 } from "../constants/primitives";
 import {usePieChartData} from "../hooks/usePieChartData";
 
@@ -32,16 +30,17 @@ type TaskContextType = {
   pieChartDataLoading: boolean;
   resetTask: () => void;
   deleteTask: () => Promise<any>;
-  primitiveFilter: PrimitiveFilter;
-  setPrimitiveFilter: React.Dispatch<React.SetStateAction<PrimitiveFilter>>;
+  intersectionFilter: IntersectionFilter;
+  setIntersectionFilter: React.Dispatch<React.SetStateAction<IntersectionFilter>>;
+  setFilterParams: (params: Partial<IntersectionFilter>) => void
 };
 
 export const TaskContext = createContext<TaskContextType | null>(null);
 
 export const TaskContextProvider: React.FC = ({children}) => {
   const [taskId, setTaskId] = useState<string>();
-  const [primitiveFilter, setPrimitiveFilter] = useState<PrimitiveFilter>(
-    defaultPrimitiveFilter
+  const [intersectionFilter, setIntersectionFilter] = useState<IntersectionFilter>(
+    defaultIntersectionFilter
   );
   const [datasetPagination, setDatasetPagination] = useState<Pagination>(
     defaultDatasetPagination
@@ -51,7 +50,7 @@ export const TaskContextProvider: React.FC = ({children}) => {
   const {taskResult, loading: taskResultLoading} = usePrimitiveList(
     taskId,
     taskType,
-    primitiveFilter,
+    intersectionFilter,
     taskState?.isExecuted
   );
   const {pieChartData, loading: pieChartDataLoading} = usePieChartData(
@@ -69,14 +68,18 @@ export const TaskContextProvider: React.FC = ({children}) => {
     setTaskId(undefined);
   }, []);
 
+  const setFilterParams = (params: Partial<IntersectionFilter>) =>
+    setIntersectionFilter((filter) => ({...filter, ...params}));
+
   const outValue = {
     taskId,
     setTaskId,
     taskState,
     taskType,
     taskProperties,
-    primitiveFilter,
-    setPrimitiveFilter,
+    intersectionFilter,
+    setIntersectionFilter,
+    setFilterParams,
     datasetPagination,
     setDatasetPagination,
     taskResult,
