@@ -90,4 +90,10 @@
   background: transparent url('/../public/icons/external-link.svg') center right no-repeat;
   background-size: 16px;
   padding-right: 20px;
+  
+  &:hover {
+    border-bottom: 1px solid #251E29;
+    margin-top: 1px;
+    color: #251E29;
+  }
 }
