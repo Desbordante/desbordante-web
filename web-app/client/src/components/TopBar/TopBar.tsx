@@ -64,21 +64,21 @@ const TopBar = () => {
                 Verify Email
               </Button>
             )}
-            <Button variant="outline-danger" onClick={signOut} className="mx-2">
+            <Button variant="secondary" onClick={signOut} className="mx-2">
               Sign Out
             </Button>
           </>
         ) : (
           <div className={styles.nav_buttons}>
             <Button
-              variant="light"
+              variant="tetriaty"
               onClick={() => setIsLogInShown(true)}
               className="mx-2"
               sizeStyle="sm"
             >
               Log In
             </Button>
-            <Button sizeStyle="sm" onClick={() => setIsSignUpShown(true)} variant="dark"> 
+            <Button sizeStyle="sm" onClick={() => setIsSignUpShown(true)} variant="gradient"> 
               Sign Up
             </Button>
           </div>
