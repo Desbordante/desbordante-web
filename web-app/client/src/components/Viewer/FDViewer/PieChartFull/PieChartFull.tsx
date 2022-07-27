@@ -57,7 +57,7 @@ const PieChartFull: React.FC<Props> = ({
           className="mx-2"
         />
         <Button
-          variant="dark"
+          variant="primary"
           onClick={() => setDepth(depth - 1)}
           enabled={depth > 0}
           className="mx-2"

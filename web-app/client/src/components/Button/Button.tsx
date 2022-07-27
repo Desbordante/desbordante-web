@@ -4,14 +4,14 @@ import styles from "./Button.module.scss";
 
 interface Props extends HTMLProps<HTMLButtonElement>{
   enabled?: boolean;
-  variant?: string;
+  variant?: "gradient" | "primary" | "secondary" | "tetriaty";
   sizeStyle?: "sm" | "lg" | "md";
 }
 
 const Button: React.FC<Props> = ({
   onClick,
   enabled = true,
-  variant = "light",
+  variant = "tetriaty",
   className = "",
   children,
   style,
