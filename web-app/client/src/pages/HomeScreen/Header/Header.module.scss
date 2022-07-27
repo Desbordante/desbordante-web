@@ -22,7 +22,6 @@
   position: relative;
   margin-left: 13.3vw;
   margin-top: 22vh;
-  font-family: $font-display;
   padding: 0;
 }
 
@@ -84,15 +83,11 @@
   gap: 48px;
 }
 
-.link_text {
-  font-size: 1rem;
-  color: black;
-}
-
-.external_link {
+.external_link {  
+  @include paragraph;
+  color: #251E29;
   text-decoration: none;
   background: transparent url('/../public/icons/external-link.svg') center right no-repeat;
   background-size: 16px;
   padding-right: 20px;
-  color: black;
 }
