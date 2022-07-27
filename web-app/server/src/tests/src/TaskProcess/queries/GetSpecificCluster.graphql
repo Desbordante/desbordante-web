@@ -1,0 +1,39 @@
+query GetSpecificCluster($taskID: ID! $clusterID: Int! $sort: Boolean! $itemsPagination: Pagination! $squashed: Boolean! $squashedRow: Boolean!){
+    taskInfo(taskID: $taskID) {
+        ...on SpecificTaskInfo {
+            __typename
+            data {
+                ...on SpecificTaskData {
+                    __typename
+                    result {
+                        ...on TypoClusterTaskResult {
+                            __typename
+                            taskID
+                            specificCluster(props: {clusterID: $clusterID sort: $sort squash: $squashed }) {
+                                __typename
+                                ...on ClusterBase {
+                                    clusterID
+                                    itemsAmount
+                                    ...on Cluster {
+                                        items(pagination: $itemsPagination) {
+                                            isSuspicious
+                                            rowIndex
+                                            __typename
+                                        }
+                                    }
+                                    ...on SquashedCluster {
+                                        items(pagination: $itemsPagination) {
+                                            amount
+                                            rowIndex
+                                            row(squashed: $squashedRow)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
