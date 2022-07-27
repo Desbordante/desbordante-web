@@ -37,68 +37,77 @@
 }
 
 .tetriaty {
-  color: rgba(118, 0, 209, 1);
+  color: $primary-0;
   text-decoration: underline;  
   &:hover {
-    color: #59009E;
-  }
-  &:active {
-    color: #9327E7;
+    color: $primary-1;
   }
   &:focus{
-    color: #7600D1;
     border: 2px solid #7600D1;
-    filter: drop-shadow(0px 0px 8px #48BDFF);
+    box-shadow: 0px 0px 8px $info;
+  }
+  
+  &:active {
+    color: $primary-2;
+    border: none;
+    box-shadow: none;
   }
 }
 
 .secondary {
-  color: #7600D1;
-  border: 2px solid #7600D1;
+  color: $primary-0;
+  border: 2px solid $primary-0;
   &:hover{
-    background: rgba(118, 0, 209, 0.05);
+    background: $secondary-1;
   }
-  &:active{
-    background: rgba(118, 0, 209, 0.1);
-  }
+
   &:focus{
-    border: 2px solid #7600D1;
-    filter: drop-shadow(0px 0px 8px #48BDFF);
+    border: 2px solid $primary-0;
+    filter: drop-shadow(0px 0px 8px $info);
+  }
+
+  &:active{
+    background: $secondary-2;
+    border: none;
+    filter: none;
   }
 }
 
 .primary {
-  background: #7600D1;
+  background: $primary-0;
   color: #FFFFFF;
   &:hover{
-    background: #59009E;
-  }
-  &:active{
-    background: #9327E7;
+    background: $primary-1;
   }
   &:focus {
-    background: #7600D1;
-    box-shadow: 0px 0px 8px #48BDFF;
+    box-shadow: 0px 0px 8px $info;
+  }
+  
+  &:active{
+    background: $primary-2;
+    box-shadow: none;
   }
 }
 
 
 .gradient {
-    background: linear-gradient(53.13deg, #8200D1 9.04%, #534AC2 89.96%);
-    box-shadow: 0px 75px 92px rgba(0, 0, 0, 0.12), 0px 31.3332px 38.4354px rgba(0, 0, 0, 0.0862625), 0px 16.7522px 20.5494px rgba(0, 0, 0, 0.0715329), 0px 9.39116px 11.5198px rgba(0, 0, 0, 0.06), 0px 4.98758px 6.11809px rgba(0, 0, 0, 0.0484671), 0px 2.07544px 2.54588px rgba(0, 0, 0, 0.0337375);
+    background: $primary-gradient-0;
+    box-shadow: $primary-shadow-0;
     color: #FFFFFF;
 
     &:hover {
-      background: linear-gradient(53.13deg, #6A00AB 9.04%, #433B9C 89.96%);
-      box-shadow: 0px 75px 92px rgba(0, 0, 0, 0.12), 0px 31.3332px 38.4354px rgba(0, 0, 0, 0.0862625), 0px 16.7522px 20.5494px rgba(0, 0, 0, 0.0715329), 0px 9.39116px 11.5198px rgba(0, 0, 0, 0.06), 0px 4.98758px 6.11809px rgba(0, 0, 0, 0.0484671), 0px 2.07544px 2.54588px rgba(0, 0, 0, 0.0337375);
+      background: $primary-gradient-1;
+      box-shadow: $primary-shadow-0;
     }
 
-    &:active {
-      background: linear-gradient(53.13deg, #912AD1 9.04%, #6E67C2 89.96%);
-      box-shadow: 0px 75px 92px rgba(0, 0, 0, 0.12), 0px 31.3332px 38.4354px rgba(0, 0, 0, 0.0862625), 0px 16.7522px 20.5494px rgba(0, 0, 0, 0.0715329), 0px 9.39116px 11.5198px rgba(0, 0, 0, 0.06), 0px 4.98758px 6.11809px rgba(0, 0, 0, 0.0484671), 0px 2.07544px 2.54588px rgba(0, 0, 0, 0.0337375);
-    }
     &:focus {
-      background: linear-gradient(53.13deg, #8200D1 9.04%, #534AC2 89.96%);
-      box-shadow: 0px 0px 8px #48BDFF, 0px 75px 92px rgba(0, 0, 0, 0.12), 0px 31.3332px 38.4354px rgba(0, 0, 0, 0.0862625), 0px 16.7522px 20.5494px rgba(0, 0, 0, 0.0715329), 0px 9.39116px 11.5198px rgba(0, 0, 0, 0.06), 0px 4.98758px 6.11809px rgba(0, 0, 0, 0.0484671), 0px 2.07544px 2.54588px rgba(0, 0, 0, 0.0337375);
+      background: $primary-gradient-0;
+      box-shadow: $primary-shadow-1;
+    }
+
+    
+    &:active {
+      background: $primary-gradient-0;
+      box-shadow: $primary-shadow-0;
     }
 }
