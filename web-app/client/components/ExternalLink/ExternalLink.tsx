@@ -17,7 +17,9 @@ const ExternalLink: FC<HTMLProps<HTMLAnchorElement>> = ({
       {...props}
     >
       {children}
-      <Image src={externalLinkIcon} alt="link" width={16} height={16} />
+      <div className={styles.imageWrapper}>
+        <Image src={externalLinkIcon} alt="link" width={16} height={16} />
+      </div>
     </a>
   );
 };
