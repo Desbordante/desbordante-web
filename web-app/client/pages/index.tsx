@@ -1,22 +1,19 @@
 import type { NextPage } from 'next';
-import Image from 'next/image';
 
 import Button from '@components/Button';
 import ExternalLink from '@components/ExternalLink';
 import styles from '@styles/Home.module.scss';
 
-import plexus from '@assets/images/plexus.svg';
+import plexus from '@public/plexus.jpg';
 
 const Home: NextPage = () => {
   return (
     <div className={styles.home}>
       <div className={styles.background}>
-        <Image
-          src={plexus}
+        <img
+          src={plexus.src}
           className={styles.background_image}
           alt="background"
-          layout="fill"
-          objectFit="contain"
         />
       </div>
 
