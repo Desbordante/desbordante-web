@@ -2,9 +2,12 @@ import { FC, ButtonHTMLAttributes } from 'react';
 import classNames from 'classnames';
 import styles from './Button.module.scss';
 
+type ButtonVariant = 'gradient' | 'primary' | 'secondary' | 'tertiary';
+type ButtonSize = 'sm' | 'lg' | 'md';
+
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'gradient' | 'primary' | 'secondary' | 'tertiary';
-  size?: 'sm' | 'lg' | 'md';
+  variant?: ButtonVariant;
+  size?: ButtonSize;
 }
 
 const Button: FC<Props> = ({
