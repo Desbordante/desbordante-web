@@ -1,0 +1,21 @@
+@import "styles/common";
+
+.header {
+  position: fixed;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 24px 64px;
+  z-index: 1000;
+
+  .brand, .auth {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .brand {
+    cursor: pointer;
+  }
+}
