@@ -1,5 +1,11 @@
 @import "styles/common";
 
+.background_image {
+  margin-top: -1550px;
+  margin-right: -2900px;
+  min-width: 100vw;
+}
+
 .background {
   position: absolute;
   z-index: 0;
@@ -8,8 +14,7 @@
   overflow: hidden;
   min-width: 100vw;
   max-height: 100vh;
-  margin-top: -1550px;
-  margin-right: -2900px;
+  background: $background-light;
 }
 
 .home_text {
@@ -24,7 +29,6 @@
     margin-top: -1300px;
     margin-right: -3070px;
   }
-
   .home_text {
     margin-top: 14.3vh;
   }
