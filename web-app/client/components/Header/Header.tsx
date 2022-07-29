@@ -4,8 +4,14 @@ import Button from '@components/Button';
 import styles from './Header.module.scss';
 
 import logo from '@public/logo.svg';
+import { useContext } from 'react';
+import { AuthContext } from '@components/AuthContext';
 
 const Header = () => {
+
+  const {user, setIsSignUpShown, setIsLogInShown, signOut} =
+    useContext(AuthContext)!;
+
   return (
     <header className={styles.header}>
       <Link href="/">
@@ -24,7 +30,7 @@ const Header = () => {
         <Button variant="tertiary" size="sm">
           Log In
         </Button>
-        <Button variant="gradient" size="sm">
+        <Button variant="gradient" size="sm" onClick={() => setIsSignUpShown(true)}>
           Sign Up
         </Button>
       </div>
