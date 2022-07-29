@@ -9,6 +9,7 @@ const client = new ApolloClient({
   uri: graphQLEndpoint,
   cache: new InMemoryCache(),
   link: ApolloLink.from([
+    //@ts-ignore
     errorLink,
     requestIdLink,
     createUploadLink({
