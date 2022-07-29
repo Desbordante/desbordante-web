@@ -14,11 +14,18 @@
     "apollo-link-error": "^1.1.13",
     "apollo-link-token-refresh": "^0.4.0",
     "apollo-upload-client": "^17.0.0",
+    "check-password-strength": "^2.0.7",
     "classnames": "^2.3.1",
+    "clientjs": "^0.2.1",
     "cookie": "^0.5.0",
+    "countries-list": "^2.6.1",
+    "crypto-js": "^4.1.1",
+    "formik": "^2.2.9",
     "graphql": "^15.3.0",
+    "jwt-decode": "^3.1.2",
     "next": "12.2.3",
     "react": "18.2.0",
+    "react-bootstrap": "^2.4.0",
     "react-dom": "18.2.0",
     "uuid": "^8.3.2"
   },
@@ -33,6 +40,7 @@
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
     "@typescript-eslint/parser": "^5.31.0",
+    "apollo": "2.33.9",
     "eslint": "^8.20.0",
     "eslint-config-next": "^12.2.3",
     "eslint-config-prettier": "^8.5.0",
@@ -41,7 +49,6 @@
     "eslint-plugin-react": "^7.30.1",
     "prettier": "^2.7.1",
     "sass": "^1.54.0",
-    "typescript": "4.7.4",
-    "apollo": "2.33.9"
+    "typescript": "4.7.4"
   }
 }
