@@ -1,8 +1,8 @@
-import { FC, useEffect, useState } from "react"
+import { FC, PropsWithChildren, useEffect, useState } from "react"
 
 
 
-const ClientOnly: FC<any> = ({children}) => {
+const ClientOnly: FC<PropsWithChildren<any>> = ({children}) => {
     const [isMounted, setIsMounted] = useState(false)
     
     useEffect(() => setIsMounted(true), [])
