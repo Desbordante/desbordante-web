@@ -1,9 +1,0 @@
-@import "../../variables.scss";
-
-button.toggle {
-  transition: 0.3s;
-
-  &:hover {
-    transform: scale(103%);
-  }
-}

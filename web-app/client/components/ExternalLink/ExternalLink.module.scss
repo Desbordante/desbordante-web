@@ -1,0 +1,20 @@
+@import "styles/common";
+
+.externalLink {
+  @include paragraph;
+  display: flex;
+  align-items: center;
+  background-size: 16px;
+  text-decoration: none;
+  color: $text-black;
+
+  &:hover {
+    border-bottom: 1px solid $text-black;
+    margin-top: 1px;
+    color: $text-black;
+  }
+
+  .imageWrapper {
+    margin: 0 0 0 4px;
+  }
+}
