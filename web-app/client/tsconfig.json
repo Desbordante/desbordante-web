@@ -26,6 +26,9 @@
       "@components/*": [
         "components/*"
       ],
+      "@constants/*": [
+        "constants/*"
+      ],
       "@graphql/*": [
         "graphql/*"
       ],
