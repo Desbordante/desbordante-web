@@ -9,9 +9,8 @@ import { AuthContext } from '@components/AuthContext';
 
 const Header = () => {
 
-  const {user, setIsSignUpShown, setIsLogInShown, signOut} =
-    useContext(AuthContext)!;
-  console.log(user)
+  const {user, setIsSignUpShown, setIsLogInShown, signOut} = useContext(AuthContext)!
+  
   return (
     <header className={styles.header}>
       <Link href="/">
