@@ -11,7 +11,7 @@ const Header = () => {
 
   const {user, setIsSignUpShown, setIsLogInShown, signOut} =
     useContext(AuthContext)!;
-
+  console.log(user)
   return (
     <header className={styles.header}>
       <Link href="/">
@@ -27,12 +27,19 @@ const Header = () => {
         </div>
       </Link>
       <div className={styles.auth}>
-        <Button variant="tertiary" size="sm">
-          Log In
-        </Button>
-        <Button variant="gradient" size="sm" onClick={() => setIsSignUpShown(true)}>
-          Sign Up
-        </Button>
+        {user?.name ? (<>
+          <span>Welcome, {user.name}</span>
+          <Button variant="tertiary" size="sm" onClick={signOut}>
+            Log Out
+          </Button>
+        </>) : (<>
+          <Button variant="tertiary" size="sm" onClick={() => setIsLogInShown(true)}>
+            Log In
+          </Button>
+          <Button variant="gradient" size="sm" onClick={() => setIsSignUpShown(true)}>
+            Sign Up
+          </Button>
+        </>)}
       </div>
     </header>
   );
