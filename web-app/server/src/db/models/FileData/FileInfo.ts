@@ -1,21 +1,36 @@
-import { Row } from "@fast-csv/parse";
-import { ApolloError, UserInputError } from "apollo-server-core";
-import { CsvParserStream, parse } from "fast-csv";
-import fs from "fs";
-import path from "path";
 import { BOOLEAN, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
-import { BelongsTo, Column, ForeignKey, HasMany, HasOne, IsUUID, Model, Table } from "sequelize-typescript";
-import { finished } from "stream/promises";
-import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/generateHeader";
-import { FileProps } from "../../../graphql/types/types";
-import { BaseTaskConfig } from "../TaskData/TaskConfig";
-import { User } from "../UserInfo/User";
-import { FileFormat } from "./FileFormat";
+import {
+    BelongsTo,
+    Column,
+    ForeignKey,
+    HasMany,
+    HasOne,
+    IsUUID,
+    Model,
+    Table,
+} from "sequelize-typescript";
+import {
+    BuiltInDatasetInfoType,
+    builtInDatasets,
+    getPathToBuiltInDataset,
+} from "../../initBuiltInDatasets";
+import { CsvParserStream, parse } from "fast-csv";
 import {
     SingularFileFormatProps,
-    TabularFileFormatProps, createTabularFileFromSingular, findRowsAndColumnsNumber,
+    TabularFileFormatProps,
+    createTabularFileFromSingular,
+    findRowsAndColumnsNumber,
 } from "../../../graphql/schema/TaskCreating/csvValidator";
-import { BuiltInDatasetInfoType, getPathToBuiltInDataset } from "../../initBuiltInDatasets";
+import { ApolloError } from "apollo-server-core";
+import { FileFormat } from "./FileFormat";
+import { FileProps } from "../../../graphql/types/types";
+import { GeneralTaskConfig } from "../TaskData/configs/GeneralTaskConfig";
+import { Row } from "@fast-csv/parse";
+import { User } from "../UserData/User";
+import { finished } from "stream/promises";
+import fs from "fs";
+import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/generateHeader";
+import path from "path";
 import validator from "validator";
 import isUUID = validator.isUUID;
 
@@ -45,8 +60,8 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     @BelongsTo(() => User)
     user!: User | null;
 
-    @HasMany(() => BaseTaskConfig)
-    baseConfigs?: [BaseTaskConfig];
+    @HasMany(() => GeneralTaskConfig)
+    baseConfigs?: [GeneralTaskConfig];
 
     @HasOne(() => FileFormat)
     fileFormat?: FileFormat;
@@ -111,7 +126,9 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         if (!isUUID(fileID, 4)) {
             throw new ApolloError("Incorrect fileID");
         }
-        const file = await FileInfo.findByPk(fileID, { attributes: ["renamedHeader"] });
+        const file = await FileInfo.findByPk(fileID, {
+            attributes: ["renamedHeader"],
+        });
         if (!file) {
             throw new ApolloError("File not found");
         }
@@ -130,8 +147,12 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         const [file, created] = await FileInfo.findOrCreate({
             where: { path },
             defaults: {
-                fileName, originalFileName: fileName, renamedHeader,
-                isBuiltIn: true, hasHeader, delimiter,
+                fileName,
+                originalFileName: fileName,
+                renamedHeader,
+                isBuiltIn: true,
+                hasHeader,
+                delimiter,
             },
         });
         if (created) {
@@ -149,12 +170,27 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         return file;
     };
 
-    static uploadDataset = async (datasetProps: FileProps, table: any, userID: string | null = null, withFileFormat = false) => {
-        const { createReadStream, filename: originalFileName, mimetype: mimeType, encoding } = await table;
+    static uploadDataset = async (
+        datasetProps: FileProps,
+        table: any,
+        userID: string | null = null,
+        withFileFormat = false
+    ) => {
+        const {
+            createReadStream,
+            filename: originalFileName,
+            mimetype: mimeType,
+            encoding,
+        } = await table;
 
         const stream = createReadStream();
-        const file = await FileInfo.create(
-            { ...datasetProps, encoding, mimeType, originalFileName, userID });
+        const file = await FileInfo.create({
+            ...datasetProps,
+            encoding,
+            mimeType,
+            originalFileName,
+            userID,
+        });
 
         const { fileID } = file;
         const fileName = `${fileID}.csv`;
@@ -167,56 +203,91 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         stream.pipe(out);
         await finished(out);
 
-        await file.update({ renamedHeader: JSON.stringify(await file.generateHeader()) });
+        await file.update({
+            renamedHeader: JSON.stringify(await file.generateHeader()),
+        });
 
         if (withFileFormat) {
             if (!datasetProps.inputFormat) {
                 throw new ApolloError("File hasn't input format");
             }
-            const fileFormat = await FileFormat.createFileFormatIfPropsValid(file, datasetProps);
-            let specificFileFormat = datasetProps.inputFormat! === "SINGULAR" ?
-                { inputFormat: "SINGULAR", tidColumnIndex: datasetProps.tidColumnIndex,
-                    itemColumnIndex: datasetProps.itemColumnIndex } as SingularFileFormatProps
-                : { inputFormat: "TABULAR", hasTid: datasetProps.hasTid } as TabularFileFormatProps;
+            const fileFormat = await FileFormat.createFileFormatIfPropsValid(
+                file,
+                datasetProps
+            );
+            let specificFileFormat =
+                datasetProps.inputFormat === "SINGULAR"
+                    ? ({
+                          inputFormat: "SINGULAR",
+                          tidColumnIndex: datasetProps.tidColumnIndex,
+                          itemColumnIndex: datasetProps.itemColumnIndex,
+                      } as SingularFileFormatProps)
+                    : ({
+                          inputFormat: "TABULAR",
+                          hasTid: datasetProps.hasTid,
+                      } as TabularFileFormatProps);
 
             // Find rows count before creating new file
             let counters = await findRowsAndColumnsNumber(
-                path, datasetProps.delimiter, specificFileFormat
+                path,
+                datasetProps.delimiter,
+                specificFileFormat
             );
             await file.update(counters);
 
             if (datasetProps.inputFormat === "SINGULAR") {
-                const newPath = await createTabularFileFromSingular(path, datasetProps.delimiter,
-                    datasetProps.tidColumnIndex!, datasetProps.itemColumnIndex!);
+                const newPath = await createTabularFileFromSingular(
+                    path,
+                    datasetProps.delimiter,
+                    datasetProps.tidColumnIndex!,
+                    datasetProps.itemColumnIndex!
+                );
 
                 // Find rows count after creating file
-                specificFileFormat = { inputFormat: "TABULAR", hasTid: true } as TabularFileFormatProps;
-                await fileFormat.update({ inputFormat: "TABULAR", hasTid: true });
-                counters = await findRowsAndColumnsNumber(newPath, datasetProps.delimiter, specificFileFormat);
-                await file.update({ path: newPath, ...counters, hasHeader: false });
+                specificFileFormat = {
+                    inputFormat: "TABULAR",
+                    hasTid: true,
+                } as TabularFileFormatProps;
+                await fileFormat.update({
+                    inputFormat: "TABULAR",
+                    hasTid: true,
+                });
+                counters = await findRowsAndColumnsNumber(
+                    newPath,
+                    datasetProps.delimiter,
+                    specificFileFormat
+                );
+                await file.update({
+                    path: newPath,
+                    ...counters,
+                    hasHeader: false,
+                });
             }
         } else {
-            const counters = await findRowsAndColumnsNumber(
-                path, datasetProps.delimiter
-            );
+            const counters = await findRowsAndColumnsNumber(path, datasetProps.delimiter);
             await file.update(counters);
         }
         return file;
     };
 
-    static GetRowsByIndices = async (datasetPath: fs.PathLike, delimiter: string, indices: number[], hasHeader: boolean) => {
+    static GetRowsByIndices = async (
+        fileInfo: { path: fs.PathLike; delimiter: string; hasHeader: boolean },
+        indices: number[]
+    ): Promise<Map<number, string[]>> => {
         const sortedIndices = indices.sort((a, b) => a - b);
         const rows = new Map<number, string[]>();
         let curRowNum = sortedIndices[0];
 
-        return new Promise(resolve => {
+        const { delimiter, hasHeader, path } = fileInfo;
+
+        return new Promise((resolve) => {
             const parser: CsvParserStream<Row, Row> = parse({
-                delimiter,
+                delimiter: delimiter,
                 skipRows: curRowNum + Number(hasHeader),
                 maxRows: sortedIndices[sortedIndices.length - 1] - curRowNum + 1,
             });
 
-            fs.createReadStream(datasetPath)
+            fs.createReadStream(`/home/vs9lh/s/Desbordante/${path}`)
                 .pipe(parser)
                 .on("error", (e) => {
                     throw new ApolloError(`ERROR WHILE READING FILE:\n\r${e.message}`);
@@ -230,5 +301,23 @@ export class FileInfo extends Model implements FileInfoModelMethods {
                     resolve(rows);
                 });
         });
+    };
+
+    static findBuiltInDatasets = async () => {
+        const datasets = await FileInfo.findAll({
+            where: { isBuiltIn: true },
+        });
+        return datasets.filter(({ fileName }) =>
+            builtInDatasets.find((info) => info.fileName === fileName)
+        );
+    };
+
+    static findBuiltInDataset = async (name: string) => {
+        const datasets = await FileInfo.findBuiltInDatasets();
+        const dataset = datasets.find(({ fileName }) => fileName === `${name}.csv`);
+        if (!dataset) {
+            throw new Error("File not found");
+        }
+        return dataset;
     };
 }

@@ -1,0 +1,78 @@
+query GetFDTaskInfo($taskID: ID!){
+    taskInfo(taskID: $taskID) {
+        state {
+            __typename
+            ... on TaskState {
+                taskID
+                phaseName
+                processStatus
+                isExecuted
+            }
+        }
+        ... on TaskInfo {
+            data {
+                baseConfig {
+                    algorithmName
+                    type
+                }
+                specificConfig {
+                    ...on FDTaskConfig {
+                        taskID
+                        maxLHS
+                        threadsCount
+                        taskID
+                        errorThreshold
+                    }
+                }
+                result {
+                    __typename
+                    ...on TaskWithDepsResult {
+                        depsAmount
+                    }
+                    ... on FDTaskResult {
+                        PKs {
+                            ...Col
+                        }
+                        filteredDeps(filter: {pagination: {offset: 0, limit: 10}, filterString: "", withoutKeys:true orderBy: ASC, FDSortBy: LHS_COL_ID}) {
+                            filteredDepsAmount
+                            ... on FilteredFDs {
+                                __typename
+                                deps {
+                                    lhs {
+                                        ...Col
+                                    }
+                                    rhs {
+                                        ...Col
+                                    }
+                                }
+                            }
+                        }
+                        pieChartData {
+                            withoutPatterns {
+                                lhs{
+                                    ...Row
+                                }
+                                rhs {
+                                    ...Row
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+}
+
+fragment Col on Column {
+    name
+    index
+}
+
+fragment Row on PieChartRow {
+    column {
+        ...Col
+    }
+    value
+}

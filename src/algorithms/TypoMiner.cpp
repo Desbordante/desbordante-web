@@ -132,11 +132,11 @@ void TypoMiner::SortCluster(FD const& sort_on, util::PLI::Cluster& cluster) cons
     std::stable_sort(cluster.begin(), cluster.end(), MakeTuplesByIndicesComparator(frequency_map));
 }
 
-void TypoMiner::RestoreLineOrder(FD const& typo_fd, util::PLI::Cluster& cluster) const {
+void TypoMiner::RestoreLineOrder(util::PLI::Cluster& cluster) const {
     std::sort(cluster.begin(), cluster.end());
 }
 
-void TypoMiner::RestoreLineOrder(FD const& typo_fd, std::vector<TypoMiner::SquashedElement>& squashed_cluster) const {
+void TypoMiner::RestoreLineOrder(std::vector<TypoMiner::SquashedElement>& squashed_cluster) const {
     std::sort(squashed_cluster.begin(), squashed_cluster.end(),
               [](const TypoMiner::SquashedElement& lhs, const TypoMiner::SquashedElement& rhs) {
                   return lhs.tuple_index < rhs.tuple_index;

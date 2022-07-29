@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+import { COLUMN } from "../../fragments/fragments";
 
 export const GET_CLUSTERS_PREVIEW = gql`
   query getClustersPreview($taskId: ID!, $pagination: Pagination!) {

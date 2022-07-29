@@ -1,25 +1,31 @@
 import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core";
+import { Code, CodeType } from "../../../db/models/UserData/Code";
+import {
+    GeneralTaskConfig,
+    MainPrimitiveType,
+} from "../../../db/models/TaskData/configs/GeneralTaskConfig";
+import { PermissionType, Resolvers } from "../../types/types";
+import {
+    RefreshTokenInstance,
+    SessionStatusType,
+} from "../../../db/models/UserData/Session";
+import { AccountStatusType } from "../../../db/models/UserData/User";
 import { AuthenticationError } from "apollo-server-express";
-import jwt from "jsonwebtoken";
 import { FindOptions } from "sequelize";
-import { Code, CodeType } from "../../../db/models/UserInfo/Code";
-import { Permission } from "../../../db/models/UserInfo/Permission";
-import { Role } from "../../../db/models/UserInfo/Role";
-import { RefreshTokenInstance, SessionStatusType } from "../../../db/models/UserInfo/Session";
-import { AccountStatusType } from "../../../db/models/UserInfo/User";
-import { Resolvers } from "../../types/types";
+import { Permission } from "../../../db/models/UserData/Permission";
+import { Role } from "../../../db/models/UserData/Role";
+import config from "../../../config";
 import { createAndSendVerificationCode } from "./emailSender";
+import jwt from "jsonwebtoken";
 
-export const UserResolvers : Resolvers = {
+export const UserResolvers: Resolvers = {
     Role: {
-        // @ts-ignore
         permissions: async ({ permissionIndices }) => {
             const indices = JSON.parse(permissionIndices) as number[];
-            return indices.map(id => Permission.getAllPermissions()[id]);
+            return indices.map((id) => Permission.getAllPermissions()[id]);
         },
     },
     Session: {
-        // @ts-ignore
         user: async ({ userID }, _, { models }) => {
             const user = await models.User.findByPk(userID);
             if (!user) {
@@ -29,7 +35,6 @@ export const UserResolvers : Resolvers = {
         },
     },
     User: {
-        // @ts-ignore
         permissions: async ({ userID }, _, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
@@ -38,7 +43,7 @@ export const UserResolvers : Resolvers = {
             if (!user) {
                 throw new ApolloError("User not found");
             }
-            return await user.getPermissions();
+            return (await user.getPermissions()) as PermissionType[];
         },
         roles: async ({ userID }, _, { models }) => {
             if (!userID) {
@@ -46,30 +51,33 @@ export const UserResolvers : Resolvers = {
             }
             return models.Role.findAll({ where: { userID } });
         },
-        // @ts-ignore
-        feedbacks: async ({ userID }, { pagination }, { models }) => {
+        feedbacks: async ({ userID }, _, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            return await models.Feedback.findAll({ where: { userID }, ...pagination });
+            return await models.Feedback.findAll({ where: { userID } });
         },
-        // @ts-ignore
-        tasks: async ({ userID }, { withDeleted, pagination }, { models }) => {
+        tasks: async ({ userID }, _, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            return await models.TaskState.findAll({ where: { userID }, paranoid: !withDeleted, ...pagination },);
+            const configs = await models.GeneralTaskConfig.findAll({
+                where: { userID },
+                paranoid: true,
+                attributes: ["taskID", "fileID", ["type", "propertyPrefix"]],
+            });
+            return configs as (GeneralTaskConfig & {
+                prefix: MainPrimitiveType;
+            })[];
         },
-        // @ts-ignore
-        datasets: async ({ userID }, { pagination }, { models }) => {
+        datasets: async ({ userID }, _, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            return await models.FileInfo.findAll({ where: { userID }, ...pagination });
+            return await models.FileInfo.findAll({ where: { userID } });
         },
     },
     Feedback: {
-        // @ts-ignore
         user: async ({ userID }, _, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
@@ -83,26 +91,26 @@ export const UserResolvers : Resolvers = {
         },
     },
     Query: {
-        // @ts-ignore
         feedbacks: async (parent, args, { models, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
                 throw new ForbiddenError("User must have permission");
             }
-            if (args.offset < 0 || args.limit <= 0 || args.limit > 100 ) {
+            if (args.offset < 0 || args.limit <= 0 || args.limit > 100) {
                 throw new UserInputError("Incorrect offset or limit", args);
             }
             return await models.Feedback.findAll(args);
         },
-        // @ts-ignore
         getAnonymousPermissions: () => {
-            return Role.getPermissionsForRole("ANONYMOUS");
+            return Role.getPermissionsForRole("ANONYMOUS") as PermissionType[];
         },
-        // @ts-ignore
         user: async (parent, { userID }, { models, sessionInfo }) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
             }
-            if (sessionInfo.permissions.includes("VIEW_ADMIN_INFO") || sessionInfo.userID === userID) {
+            if (
+                sessionInfo.permissions.includes("VIEW_ADMIN_INFO") ||
+                sessionInfo.userID === userID
+            ) {
                 const user = await models.User.findOne({ where: { userID } });
                 if (!user) {
                     throw new UserInputError("User not found");
@@ -111,22 +119,21 @@ export const UserResolvers : Resolvers = {
             }
             throw new ForbiddenError("User doesn't have permissions");
         },
-        // @ts-ignore
         users: async (parent, { pagination }, { models, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
                 throw new ForbiddenError("User don't have permission");
             }
             return await models.User.findAll(pagination);
         },
-        // @ts-ignore
-        sessions: async (parent, { offset, limit, onlyValid }, { models, sessionInfo }) => {
+        sessions: async (parent, { pagination, onlyValid }, { models, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
                 throw new ForbiddenError("User don't have permission");
             }
+            const { limit, offset } = pagination;
             if (limit < 1 || limit > 100 || offset < 0) {
                 throw new UserInputError("Incorrect limit or offset");
             }
-            let options: FindOptions = { offset, limit };
+            let options: FindOptions = { ...pagination };
             if (onlyValid) {
                 const status: SessionStatusType = "VALID";
                 options = { ...options, where: { status } };
@@ -135,7 +142,6 @@ export const UserResolvers : Resolvers = {
         },
     },
     Mutation: {
-        // @ts-ignore
         createFeedback: async (parent, args, { models, sessionInfo }) => {
             const userID = sessionInfo ? sessionInfo.userID : null;
             return await models.Feedback.create({ userID, ...args });
@@ -144,7 +150,9 @@ export const UserResolvers : Resolvers = {
             if (sessionInfo) {
                 throw new AuthenticationError("You are already logged");
             }
-            const user = await models.User.findOne({ where: { email, pwdHash } });
+            const user = await models.User.findOne({
+                where: { email, pwdHash },
+            });
             if (!user) {
                 throw new UserInputError("Incorrect login or password");
             }
@@ -156,7 +164,9 @@ export const UserResolvers : Resolvers = {
                 throw new UserInputError("Session information wasn't provided");
             }
             const status: SessionStatusType = "INVALID";
-            const options = allSessions ? { where: { userID: sessionInfo.userID } } : { where: { sessionID: sessionInfo.sessionID } };
+            const options = allSessions
+                ? { where: { userID: sessionInfo.userID } }
+                : { where: { sessionID: sessionInfo.sessionID } };
             const [affectedRows] = await models.Session.update({ status }, options);
             if (affectedRows >= 1) {
                 return `Successfully updated ${affectedRows} sessions`;
@@ -164,7 +174,11 @@ export const UserResolvers : Resolvers = {
                 throw new ApolloError("Session wasn't updated");
             }
         },
-        issueVerificationCode: async (parent, args , { models, logger, device, sessionInfo }) => {
+        issueVerificationCode: async (
+            parent,
+            args,
+            { models, logger, device, sessionInfo }
+        ) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be logged in");
             }
@@ -184,46 +198,79 @@ export const UserResolvers : Resolvers = {
                 await models.Code.destroy(options);
             }
             await createAndSendVerificationCode(
-                userID, device.deviceID, user.email, "EMAIL_VERIFICATION", logger);
+                userID,
+                device.deviceID,
+                user.email,
+                "EMAIL_VERIFICATION",
+                logger
+            );
             return { message: "Verification code was sent to email" };
         },
-        issueCodeForPasswordRecovery: async (parent, { email },
-                                             { models, sessionInfo, device, logger }) => {
+        issueCodeForPasswordRecovery: async (
+            parent,
+            { email },
+            { models, sessionInfo, device, logger }
+        ) => {
             if (sessionInfo) {
                 throw new UserInputError("User must be logged out");
             }
-            const user = await models.User.findOne({ where: { email }, attributes: ["email", "userID"] });
+            const user = await models.User.findOne({
+                where: { email },
+                attributes: ["email", "userID"],
+            });
             if (!user) {
                 throw new UserInputError(`Email ${email} not found`, { email });
             }
             const type: CodeType = "PASSWORD_RECOVERY_PENDING";
-            let options = { where: { userID: user.userID, type } } as FindOptions<Code>;
+            let options = {
+                where: { userID: user.userID, type },
+            } as FindOptions<Code>;
             let code = await models.Code.findOne(options);
             if (code) {
                 await models.Code.destroy(options);
             }
-            options = { where: { userID: user.userID, type: "PASSWORD_RECOVERY_APPROVED" } } as FindOptions<Code>;
+            options = {
+                where: {
+                    userID: user.userID,
+                    type: "PASSWORD_RECOVERY_APPROVED",
+                },
+            } as FindOptions<Code>;
             code = await models.Code.findOne(options);
             if (code) {
                 await models.Code.destroy(options);
             }
 
-            await createAndSendVerificationCode(user.userID, device.deviceID, user.email,
-                                          "PASSWORD_RECOVERY_PENDING", logger);
+            await createAndSendVerificationCode(
+                user.userID,
+                device.deviceID,
+                user.email,
+                "PASSWORD_RECOVERY_PENDING",
+                logger
+            );
             return { message: "Verification code was sent to email" };
         },
-        changePassword: async (parent, { currentPwdHash, newPwdHash, email }, { device, models, sessionInfo, logger }) => {
+        changePassword: async (
+            parent,
+            { currentPwdHash, newPwdHash, email },
+            { device, models, sessionInfo, logger }
+        ) => {
             if (!sessionInfo) {
                 const { deviceID } = device;
                 if (!email) {
-                    throw new UserInputError("Email in undefined");
+                    throw new UserInputError("Email is undefined");
                 }
-                const user = await models.User.findOne({ where: { email }, attributes: ["email", "userID"] });
+                const user = await models.User.findOne({
+                    where: { email },
+                    attributes: ["email", "userID"],
+                });
                 if (!user) {
                     throw new UserInputError("Incorrect email was provided");
                 }
                 const code = await models.Code.findAndDestroyCodeIfNotValid(
-                    user.userID, "PASSWORD_RECOVERY_APPROVED", deviceID);
+                    user.userID,
+                    "PASSWORD_RECOVERY_APPROVED",
+                    deviceID
+                );
                 await code.destroy();
                 try {
                     await user.update({ pwdHash: newPwdHash });
@@ -249,23 +296,35 @@ export const UserResolvers : Resolvers = {
                 }
                 try {
                     await user.update({ pwdHash: newPwdHash });
-                    return { __typename: "SuccessfulMessage", message: "Password successfully changed" };
+                    return {
+                        __typename: "SuccessfulMessage",
+                        message: "Password successfully changed",
+                    };
                 } catch (e) {
                     logger("Error while changing password", e);
                     throw new ApolloError("Error while changing password");
                 }
             }
         },
-        createUser: async (parent, { props }, { models, logger, sessionInfo, device }) => {
+        createUser: async (
+            parent,
+            { props },
+            { models, logger, sessionInfo, device }
+        ) => {
             if (sessionInfo) {
                 throw new AuthenticationError("User already logged in");
             }
-            const user = await models.User.findOne({ where: { email: props.email } });
+            const user = await models.User.findOne({
+                where: { email: props.email },
+            });
             if (user) {
                 throw new UserInputError(`Email ${props.email} already used`);
             }
             const accountStatus: AccountStatusType = "EMAIL_VERIFICATION";
-            const newUser = await models.User.create({ ...props, accountStatus });
+            const newUser = await models.User.create({
+                ...props,
+                accountStatus,
+            });
             await newUser.addRole("ANONYMOUS");
 
             const session = await newUser.createSession(device.deviceID);
@@ -274,7 +333,11 @@ export const UserResolvers : Resolvers = {
             const tokens = await session.issueTokenPair();
             return { message: "New account created", tokens };
         },
-        approveUserEmail: async (parent, { codeValue }, { models, device, sessionInfo }) => {
+        approveUserEmail: async (
+            parent,
+            { codeValue },
+            { models, device, sessionInfo }
+        ) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be logged in");
             }
@@ -288,7 +351,12 @@ export const UserResolvers : Resolvers = {
                 throw new UserInputError("User has incorrect account status");
             }
             const type: CodeType = "EMAIL_VERIFICATION";
-            const code = await models.Code.findAndDestroyCodeIfNotValid(userID, type, device.deviceID, codeValue);
+            const code = await models.Code.findAndDestroyCodeIfNotValid(
+                userID,
+                type,
+                device.deviceID,
+                codeValue
+            );
             await code.destroy();
             const accountStatus: AccountStatusType = "EMAIL_VERIFIED";
             await user.update({ accountStatus });
@@ -300,7 +368,11 @@ export const UserResolvers : Resolvers = {
             }
             return session.issueTokenPair();
         },
-        approveRecoveryCode: async (parent, { email, codeValue }, { models, device, sessionInfo }) => {
+        approveRecoveryCode: async (
+            parent,
+            { email, codeValue },
+            { models, device, sessionInfo }
+        ) => {
             if (sessionInfo) {
                 throw new UserInputError("User must be logged out");
             }
@@ -310,7 +382,11 @@ export const UserResolvers : Resolvers = {
                 throw new UserInputError("Incorrect email was provided");
             }
             const code = await models.Code.findAndDestroyCodeIfNotValid(
-                user.userID, "PASSWORD_RECOVERY_PENDING", deviceID, codeValue);
+                user.userID,
+                "PASSWORD_RECOVERY_PENDING",
+                deviceID,
+                codeValue
+            );
             const type: CodeType = "PASSWORD_RECOVERY_APPROVED";
             try {
                 await code.update({ type });
@@ -322,13 +398,23 @@ export const UserResolvers : Resolvers = {
         refresh: async (parent, { refreshToken }, { models, device }) => {
             let decoded: RefreshTokenInstance;
             try {
-                decoded = jwt.verify(refreshToken, process.env.SECRET_KEY!) as RefreshTokenInstance;
+                decoded = jwt.verify(
+                    refreshToken,
+                    config.keys.secretKey
+                ) as RefreshTokenInstance;
             } catch (e) {
                 throw new AuthenticationError("INVALID REFRESH TOKEN WAS PROVIDED");
             }
             const { userID, sessionID, deviceID, iat } = decoded;
-            const session = await models.Session.findByPk(sessionID,
-                { attributes: ["refreshTokenIat", "status", "deviceID", "userID", "sessionID"] });
+            const session = await models.Session.findByPk(sessionID, {
+                attributes: [
+                    "refreshTokenIat",
+                    "status",
+                    "deviceID",
+                    "userID",
+                    "sessionID",
+                ],
+            });
 
             if (!session) {
                 throw new AuthenticationError("Invalid sessionID was provided");
@@ -342,8 +428,7 @@ export const UserResolvers : Resolvers = {
             if (session.status !== "VALID") {
                 throw new AuthenticationError("Using invalid session");
             }
-            if (session.deviceID !== device.deviceID
-                || session.deviceID !== deviceID) {
+            if (session.deviceID !== device.deviceID || session.deviceID !== deviceID) {
                 throw new AuthenticationError("User's device changed");
             }
             return session.issueTokenPair();

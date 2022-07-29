@@ -1,11 +1,16 @@
 import {
-    Column, HasMany, IsEmail, IsUUID, Model, Table,
+    Column,
+    HasMany,
+    IsEmail,
+    IsUUID,
+    Model,
+    Table,
 } from "sequelize-typescript";
 import { Role, RoleType } from "./Role";
 import { STRING, UUID, UUIDV4 } from "sequelize";
 import { Session, SessionStatusType } from "./Session";
 import { Feedback } from "./Feedback";
-import { FileInfo } from "../FileInfo/FileInfo";
+import { FileInfo } from "../FileData/FileInfo";
 import { Permission } from "./Permission";
 import { TaskState } from "../TaskData/TaskState";
 
@@ -69,8 +74,9 @@ export class User extends Model implements UserModelMethods {
     accountStatus!: AccountStatusType;
 
     getPermissions = async () => {
-        return await this.getPermissionIndices()
-            .then(indices => indices.map(id => Permission.getAllPermissions()[id]));
+        return await this.getPermissionIndices().then((indices) =>
+            indices.map((id) => Permission.getAllPermissions()[id])
+        );
     };
 
     getPermissionIndices = async () => {
@@ -79,24 +85,29 @@ export class User extends Model implements UserModelMethods {
             return [] as number[];
         }
         return roles
-            .map(role => JSON.parse(role.permissionIndices) as number[])
+            .map((role) => JSON.parse(role.permissionIndices) as number[])
             .reduce((prevIndices, indices) =>
-                Array.from(new Set([...prevIndices, ...indices])));
+                Array.from(new Set([...prevIndices, ...indices]))
+            );
     };
 
     addRole = async (role: RoleType) => {
-        const roles = await this.$get("roles") as Role[];
+        const roles = (await this.$get("roles")) as Role[];
         const roleIdx = roles.findIndex(({ type }) => type === role);
         if (~roleIdx) {
             return roles[roleIdx];
         }
-        const permissionIndices = JSON.stringify(Role.getPermissionIndicesForRole(role));
-        return await this.$create("role",
-            { type: role, permissionIndices }) as Role;
+        const permissionIndices = JSON.stringify(
+            Role.getPermissionIndicesForRole(role)
+        );
+        return (await this.$create("role", {
+            type: role,
+            permissionIndices,
+        })) as Role;
     };
 
     addRoles = async (roles: RoleType[]): Promise<Role[]> =>
-        Promise.all(roles.map(roleValue => this.addRole(roleValue)));
+        Promise.all(roles.map((roleValue) => this.addRole(roleValue)));
 
     createSession = async (deviceID: string) => {
         const status: SessionStatusType = "VALID";

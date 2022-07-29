@@ -1,13 +1,12 @@
-import merge from "lodash/merge";
-
+import { AppConfigResolvers } from "./AppConfiguration/resolvers";
 import { GraphQLUpload } from "graphql-upload";
 import { MetaInfoResolvers } from "./MetaInfoResolvers/resolvers";
 import { TaskCreatingResolvers } from "./TaskCreating/resolvers";
-import { AppConfigResolvers } from "./AppConfiguration/resolvers";
 import { TaskInfoResolvers } from "./TaskInfo/resolvers";
 import { UserResolvers } from "./UserResolvers/resolvers";
+import merge from "lodash/merge";
 
-export = merge(
+export const resolvers = merge(
     AppConfigResolvers,
     TaskInfoResolvers,
     TaskCreatingResolvers,
@@ -15,3 +14,5 @@ export = merge(
     { Upload: GraphQLUpload },
     UserResolvers
 );
+
+export default resolvers;

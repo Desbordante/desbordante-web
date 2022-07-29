@@ -7,9 +7,22 @@
   ],
   "rules": {
     "@typescript-eslint/object-curly-spacing": [
-      "warn", "always", { "arraysInObjects": true, "objectsInObjects": true }
+      "warn",
+      "always",
+      {
+        "arraysInObjects": true,
+        "objectsInObjects": true
+      }
     ],
     "@typescript-eslint/ban-ts-comment": "warn",
+    "@typescript-eslint/ban-types": ["error",
+      {
+        "types": {
+          "Function": false
+        },
+        "extendDefaults": true
+      }
+    ],
     "linebreak-style": 1,
     "curly": 1,
     "implicit-arrow-linebreak": "off",
@@ -18,7 +31,7 @@
     "operator-linebreak": "off",
     "function-paren-newline": "off",
     "@typescript-eslint/brace-style": ["error", "1tbs"],
-    "@typescript-eslint/no-unused-vars": ["error"],
+    "@typescript-eslint/no-unused-vars": ["warn"],
     "no-console": 0,
     "no-shadow": "off",
     "no-unused-vars": "off",
@@ -28,13 +41,22 @@
     "space-before-function-paren": ["error",
       {
         "anonymous": "always",
-        "named": "always",
+        "named": "never",
         "asyncArrow": "always"
       }],
-    "object-curly-newline": "off",
+    "object-curly-newline": [
+      "error",
+      {
+        "ObjectExpression": { "consistent": true, "multiline": true },
+        "ObjectPattern": { "consistent": true, "multiline": false },
+        "ImportDeclaration": { "consistent": false, "multiline": true },
+        "ExportDeclaration": "never"
+      }
+    ],
     "no-use-before-define": ["off", "error", { "variables": false }],
     "import/prefer-default-export": "off",
     "sort-imports": "warn",
-    "semi": "warn"
+    "semi": "warn",
+    "max-len": ["warn", { "code": 100, "ignoreComments": true, "ignoreTemplateLiterals": true }]
   }
 }

@@ -1,16 +1,21 @@
+/* eslint-disable consistent-return */
+/* eslint-disable default-case */
+/* eslint-disable arrow-body-style */
+
 import { onError } from "apollo-link-error";
 import { fromPromise } from "apollo-link";
 import { setContext } from "@apollo/client/link/context";
 import { v4 as uuidv4 } from "uuid";
+import { graphQLEndpoint } from "../APIFunctions";
 import {
   getAccessToken,
   getRefreshToken,
   removeTokenPair,
   removeUser,
   saveTokenPair,
-} from "@utils/tokens";
-import { TokenPair } from "types/auth";
-import { graphQLEndpoint } from '@constants/endpoints';
+  setAccessToken,
+} from "../functions/authTokens";
+import { TokenPair } from "../types/types";
 
 export function generateRequestHeaders() {
   const deviceID = localStorage.getItem("deviceID") || "";
