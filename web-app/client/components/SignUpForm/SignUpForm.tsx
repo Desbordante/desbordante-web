@@ -6,7 +6,7 @@ import { passwordStrength } from "check-password-strength";
 import { useMutation } from "@apollo/client";
 import * as Yup from "yup";
 
-import { SignUpFormProps } from "@types/auth";
+import { SignUpFormProps } from "../../types/auth";
 import { CREATE_USER } from "@graphql/operations/mutations/createUser";
 import {
   createUser,
