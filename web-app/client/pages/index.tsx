@@ -1,9 +1,7 @@
 import type { NextPage } from 'next';
-
 import Button from '@components/Button';
 import ExternalLink from '@components/ExternalLink';
 import styles from '@styles/Home.module.scss';
-
 import plexus from '@public/plexus.jpg';
 
 const Home: NextPage = () => {
