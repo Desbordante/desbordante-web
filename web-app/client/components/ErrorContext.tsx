@@ -1,6 +1,6 @@
 import React, { createContext, PropsWithChildren, useCallback, useState } from "react";
 
-import { Error } from "../types/algorithms";
+import { Error } from "types/algorithms";
 
 type ErrorContextType = {
   error: Error | undefined;
