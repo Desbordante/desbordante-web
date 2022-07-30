@@ -6,14 +6,14 @@ import { passwordStrength } from "check-password-strength";
 import { useMutation } from "@apollo/client";
 import * as Yup from "yup";
 
-import { SignUpFormProps } from "../../types/auth";
-import { CREATE_USER } from "../../graphql/operations/mutations/createUser";
+import { SignUpFormProps } from "@types/auth";
+import { CREATE_USER } from "@graphql/operations/mutations/createUser";
 import {
   createUser,
   createUserVariables,
-} from "../../graphql/operations/mutations/__generated__/createUser";
-import hashPassword from "../../utils/hashPassword";
-import { AuthContext } from "../AuthContext";
+} from "@graphql/operations/mutations/__generated__/createUser";
+import hashPassword from "@utils/hashPassword";
+import { AuthContext } from "@components/AuthContext";
 
 const countryNames = Object.entries(countries).map(([_, country]) => country);
 

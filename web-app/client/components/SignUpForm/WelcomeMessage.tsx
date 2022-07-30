@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Button } from "react-bootstrap";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "@components/AuthContext";
 
 interface Props {
   onClose: () => void;
