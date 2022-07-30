@@ -1,7 +1,8 @@
 import { SHA256 } from "crypto-js";
+import { passwordSaltPostfix, passwordSaltPrefix } from "./env";
 
 export default function hashPassword(password: string) {
-  const saltPrefix = process.env.REACT_APP_PASSWORD_SALT_PREFIX || "";
-  const saltPostfix = process.env.REACT_APP_PASSWORD_SALT_POSTFIX || "";
+  const saltPrefix = passwordSaltPrefix || "";
+  const saltPostfix = passwordSaltPostfix || "";
   return SHA256(saltPrefix + SHA256(password) + saltPostfix).toString();
 }
