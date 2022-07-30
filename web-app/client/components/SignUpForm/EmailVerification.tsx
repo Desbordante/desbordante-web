@@ -7,11 +7,11 @@ import * as Yup from "yup";
 import {
   approveUserEmail,
   approveUserEmailVariables,
-} from "../../graphql/operations/mutations/__generated__/approveUserEmail";
-import { APPROVE_USER_EMAIL } from "../../graphql/operations/mutations/approveUserEmail";
-import { AuthContext } from "../AuthContext";
-import { issueVerificationCode } from "../../graphql/operations/mutations/__generated__/issueVerificationCode";
-import { ISSUE_VERIFICATION_CODE } from "../../graphql/operations/mutations/issueVerificationCode";
+} from "@graphql/operations/mutations/__generated__/approveUserEmail";
+import { APPROVE_USER_EMAIL } from "@graphql/operations/mutations/approveUserEmail";
+import { AuthContext } from "@components/AuthContext";
+import { issueVerificationCode } from "@graphql/operations/mutations/__generated__/issueVerificationCode";
+import { ISSUE_VERIFICATION_CODE } from "@graphql/operations/mutations/issueVerificationCode";
 
 const codeSchema = Yup.object().shape({
   code: Yup.string()

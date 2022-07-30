@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
 import { Container } from "react-bootstrap";
 
-import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";
-import { AuthContext } from "../AuthContext";
+import PopupWindowContainer from "@components/PopupWindowContainer/PopupWindowContainer";
+import { AuthContext } from "@components/AuthContext";
 import StageOne from "./SignUpForm";
 import StageTwo from "./EmailVerification";
 import WelcomeMessage from "./WelcomeMessage";
