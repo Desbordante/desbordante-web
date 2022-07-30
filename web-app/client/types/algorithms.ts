@@ -1,5 +1,5 @@
-import { getAlgorithmsConfig_algorithmsConfig_allowedDatasets } from "../graphql/operations/queries/__generated__/getAlgorithmsConfig";
-import { getARs_taskInfo_data_result_ARTaskResult_ARs } from "../graphql/operations/queries/AR/__generated__/getARs";
+import { getAlgorithmsConfig_algorithmsConfig_allowedDatasets } from "@graphql/operations/queries/__generated__/getAlgorithmsConfig";
+import { getARs_taskInfo_data_result_ARTaskResult_ARs } from "@graphql/operations/queries/AR/__generated__/getARs";
 
 export type Attribute = {
   column: { name: string; index?: number };
@@ -58,20 +58,7 @@ export type AllowedAlgorithms = {
   allowedARAlgorithms: ARAlgorithm[];
 };
 
-export type UserPermissions = {
-  canUseBuiltinDatasets: boolean;
-  canChooseTask: boolean;
-  canUploadFiles: boolean;
-  canViewAdminInfo: boolean;
-  canManageUserSessions: boolean;
-};
-export type User = {
-  id?: string;
-  name?: string;
-  email?: string;
-  isVerified?: boolean;
-  permissions: UserPermissions;
-};
+
 export type AllowedDataset =
   getAlgorithmsConfig_algorithmsConfig_allowedDatasets;
 export type Error = {
@@ -85,27 +72,3 @@ export type BuiltinDataset = {
 };
 
 export type AssociationRule = getARs_taskInfo_data_result_ARTaskResult_ARs;
-
-export type SignUpFormProps = {
-  fullName: string;
-  email: string;
-  password: string;
-  country: string;
-  company: string;
-  occupation: string;
-};
-export type TokenPair = {
-  accessToken: string;
-  refreshToken: string;
-};
-export type DecodedToken = {
-  deviceID: string;
-  exp: number;
-  iat: number;
-  sessionID: string;
-  userID: string;
-  email: string;
-  fullName: string;
-  permissions: string[];
-  accountStatus: string;
-};
