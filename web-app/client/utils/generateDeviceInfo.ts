@@ -1,10 +1,7 @@
-
 export default function () {
   const { ClientJS } = require("clientjs");
   const { v4: uuidv4 } = require("uuid");
-
   const client = new ClientJS();
-
   const deviceAttributes = {
     deviceID: `${uuidv4()}:${client.getFingerprint()}`,
     userAgent: client.getUserAgent(),
