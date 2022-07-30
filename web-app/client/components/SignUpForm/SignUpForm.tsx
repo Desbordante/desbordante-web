@@ -12,7 +12,7 @@ import {
   createUser,
   createUserVariables,
 } from "../../graphql/operations/mutations/__generated__/createUser";
-import hashPassword from "../../functions/hashPassword";
+import hashPassword from "../../utils/hashPassword";
 import { AuthContext } from "../AuthContext";
 
 const countryNames = Object.entries(countries).map(([_, country]) => country);

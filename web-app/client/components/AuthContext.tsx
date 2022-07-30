@@ -2,21 +2,21 @@ import React, { createContext, useState, useEffect, useContext, PropsWithChildre
 import { useLazyQuery, useMutation } from "@apollo/client";
 import jwtDecode from "jwt-decode";
 
-import { removeTokenPair, saveTokenPair } from "../functions/authTokens";
-import parseUserPermissions from "../functions/parseUserPermissions";
-import setupDeviceInfo from "../functions/setupDeviceInfo";
-import { LOG_OUT } from "../graphql/operations/mutations/logOut";
+import { removeTokenPair, saveTokenPair } from "@utils/tokens";
+import parseUserPermissions from "@utils/parseUserPermissions";
+import setupDeviceInfo from "@utils/setupDeviceInfo";
+import { LOG_OUT } from "@graphql/operations/mutations/logOut";
 import {
   logOut,
   logOutVariables,
-} from "../graphql/operations/mutations/__generated__/logOut";
-import { GET_ANONYMOUS_PERMISSIONS } from "../graphql/operations/queries/getAnonymousPermissions";
-import { GET_USER } from "../graphql/operations/queries/getUser";
-import { getAnonymousPermissions } from "../graphql/operations/queries/__generated__/getAnonymousPermissions";
+} from "@graphql/operations/mutations/__generated__/logOut";
+import { GET_ANONYMOUS_PERMISSIONS } from "@graphql/operations/queries/getAnonymousPermissions";
+import { GET_USER } from "@graphql/operations/queries/getUser";
+import { getAnonymousPermissions } from "@graphql/operations/queries/__generated__/getAnonymousPermissions";
 import {
   getUser,
   getUserVariables,
-} from "../graphql/operations/queries/__generated__/getUser";
+} from "@graphql/operations/queries/__generated__/getUser";
 import { DecodedToken, TokenPair, User } from "../types/types";
 import { ErrorContext } from "./ErrorContext";
 
