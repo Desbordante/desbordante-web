@@ -1,4 +1,4 @@
-import { UserPermissions } from "../types/types";
+import { UserPermissions } from "../types/auth";
 
 export default function parseUserPermissions(
   permissions: string[] | null

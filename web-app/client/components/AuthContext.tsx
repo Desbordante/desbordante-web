@@ -17,7 +17,7 @@ import {
   getUser,
   getUserVariables,
 } from "@graphql/operations/queries/__generated__/getUser";
-import { DecodedToken, TokenPair, User } from "../types/types";
+import { DecodedToken, TokenPair, User } from "../types/auth";
 import { ErrorContext } from "./ErrorContext";
 
 type AuthContextType = {
