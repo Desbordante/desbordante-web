@@ -50,10 +50,7 @@ static DesbordanteDbManager::BaseTables BaseTables() {
           {
               std::make_shared<ExtendedAttribute<std::string>>("type", "type"),
               std::make_shared<ExtendedAttribute<std::string>>("algorithmName", "algo_name"),
-              std::make_shared<ExtendedAttribute<std::string>>("fileID", "fileID", [](const TaskConfig& config){
-                  return config.GetPreciseMiningType() != +TaskMiningType::TypoCluster
-                         && config.GetPreciseMiningType() != +TaskMiningType::SpecificTypoCluster;
-              }),
+              std::make_shared<ExtendedAttribute<std::string>>("fileID", "fileID"),
           }}},
         {BaseTablesType::fileinfo,
          {file_info_table,
@@ -126,19 +123,19 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
               std::make_shared<ExtendedAttribute<double>>("errorThreshold", "error"),
               std::make_shared<ExtendedAttribute<std::string>>("preciseAlgorithm", "precise_algo"),
               std::make_shared<ExtendedAttribute<std::string>>("approximateAlgorithm", "approx_algo"),
-              std::make_shared<ExtendedAttribute<double>>("radius", "radius"),
-              std::make_shared<ExtendedAttribute<double>>("ratio", "ratio"),
           }}},
         {{SpecificTablesType::config, TaskMiningType::TypoCluster},
          {get_specific_config_table_name(TaskMiningType::TypoCluster),
           SearchByAttr::taskID,
           {std::make_shared<ExtendedAttribute<std::string>>("typoFD", "typo_fd"),
-              std::make_shared<ExtendedAttribute<std::string>>("typoTaskID", "typo_task_id"),
+              std::make_shared<ExtendedAttribute<std::string>>("parentTaskID", "typo_task_id"),
+              std::make_shared<ExtendedAttribute<double>>("radius", "radius"),
+              std::make_shared<ExtendedAttribute<double>>("ratio", "ratio"),
           }}},
         {{SpecificTablesType::config, TaskMiningType::SpecificTypoCluster},
          {get_specific_config_table_name(TaskMiningType::SpecificTypoCluster),
           SearchByAttr::taskID,
-          {std::make_shared<ExtendedAttribute<std::string>>("typoClusterTaskID", "typo_cluster_task_id"),
+          {std::make_shared<ExtendedAttribute<std::string>>("parentTaskID", "typo_cluster_task_id"),
               std::make_shared<ExtendedAttribute<unsigned int>>("clusterID", "cluster_id"),
           }}},
         {{SpecificTablesType::result, TaskMiningType::FD},
@@ -146,7 +143,7 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
           SearchByAttr::taskID,
           {
               std::make_shared<ExtendedAttribute<std::string>>("PKColumnIndices", "pk"),
-              std::make_shared<ExtendedAttribute<std::string>>("FDs", "deps"),
+              std::make_shared<ExtendedAttribute<std::string>>("deps", "deps"),
               std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
               std::make_shared<ExtendedAttribute<std::string>>("withoutPatterns",
                                                                "chart_data_without_patterns"),
@@ -156,7 +153,7 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
           SearchByAttr::taskID,
           {
               std::make_shared<ExtendedAttribute<std::string>>("PKColumnIndices", "pk"),
-              std::make_shared<ExtendedAttribute<std::string>>("CFDs", "deps"),
+              std::make_shared<ExtendedAttribute<std::string>>("deps", "deps"),
               std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
               std::make_shared<ExtendedAttribute<std::string>>("withoutPatterns",
                                                                "chart_data_without_patterns"),
@@ -168,7 +165,7 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
          {get_specific_result_table_name(TaskMiningType::AR),
           SearchByAttr::taskID,
           {
-              std::make_shared<ExtendedAttribute<std::string>>("ARs", "deps"),
+              std::make_shared<ExtendedAttribute<std::string>>("deps", "deps"),
               std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
               std::make_shared<ExtendedAttribute<std::string>>("valueDictionary", "value_dictionary"),
           }}},
@@ -176,7 +173,8 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
          {get_specific_result_table_name(TaskMiningType::TypoFD),
           SearchByAttr::taskID,
           {
-              std::make_shared<ExtendedAttribute<std::string>>("TypoFDs", "deps"),
+              std::make_shared<ExtendedAttribute<std::string>>("PKColumnIndices", "pk"),
+              std::make_shared<ExtendedAttribute<std::string>>("deps", "deps"),
               std::make_shared<ExtendedAttribute<unsigned int>>("depsAmount", "deps_amount"),
           }}},
         {{SpecificTablesType::result, TaskMiningType::TypoCluster},

@@ -1,12 +1,12 @@
 import { gql } from "@apollo/client";
 
 export const CREATE_TASK_WITH_UPLOADING_DATASET = gql`
-  mutation createTaskWithDatasetUploading(
-    $props: IntersectionTaskProps!
+  mutation createMainTaskWithDatasetUploading(
+    $props: IntersectionMainTaskProps!
     $datasetProps: FileProps!
     $table: Upload!
   ) {
-      createTaskWithDatasetUploading(props: $props, datasetProps: $datasetProps, table: $table) {
+      createMainTaskWithDatasetUploading(props: $props, datasetProps: $datasetProps, table: $table) {
           taskID
       }
   }

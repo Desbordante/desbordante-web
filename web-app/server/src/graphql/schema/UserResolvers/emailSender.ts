@@ -1,6 +1,6 @@
-import nodemailer from "nodemailer";
-import { Code, CodeType } from "../../../db/models/UserInfo/Code";
+import { Code, CodeType } from "../../../db/models/UserData/Code";
 import { ApolloError } from "apollo-server-core";
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -13,7 +13,11 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-export const sendVerificationCode = async (code: number, userEmail: string, type: CodeType) => {
+export const sendVerificationCode = async (
+    code: number,
+    userEmail: string,
+    type: CodeType
+) => {
     let text: string | undefined;
 
     if (type === "EMAIL_VERIFICATION") {
@@ -33,8 +37,12 @@ export const sendVerificationCode = async (code: number, userEmail: string, type
 };
 
 export const createAndSendVerificationCode = async (
-    userID: string, deviceID: string, userEmail: string, type: CodeType,
-    logger?: typeof console.log) => {
+    userID: string,
+    deviceID: string,
+    userEmail: string,
+    type: CodeType,
+    logger?: typeof console.log
+) => {
     const code = await Code.createVerificationCode(userID, deviceID, type);
     if (process.env.USE_NODEMAILER === "true") {
         try {

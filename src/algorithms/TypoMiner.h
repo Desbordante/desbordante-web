@@ -91,8 +91,8 @@ public:
      */
     void SortCluster(FD const& sort_on, util::PLI::Cluster& cluster) const;
 
-    void RestoreLineOrder(FD const& typo_fd, util::PLI::Cluster& cluster) const;
-    void RestoreLineOrder(FD const& typo_fd, std::vector<TypoMiner::SquashedElement>& squashed_cluster) const;
+    void RestoreLineOrder(util::PLI::Cluster& cluster) const;
+    void RestoreLineOrder(std::vector<TypoMiner::SquashedElement>& squashed_cluster) const;
 
         /* Finds lines in a cluster that has typos on typos_fd.GetRhs() column values. A value is said
      * to contain a typo if it differs from the most frequent value in the cluster by less
@@ -133,6 +133,10 @@ public:
     }
     std::string GetApproxFDsAsJson() const {
         return FDAlgorithm::FDsToJson(approx_fds_);
+    }
+
+    std::vector<const Column *> GetKeys() const {
+        return precise_algo_->GetKeys();
     }
 
     template <typename PreciseAlgo, typename ApproxAlgo = Pyro>

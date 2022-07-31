@@ -65,16 +65,10 @@ std::string TaskProcessor::GetPieChartData(const std::list<model::CFD>& deps, in
 
 void TaskProcessor::SaveFdTaskResult() const {
     auto algo = GetAlgoAs<FDAlgorithm>();
-    auto key_cols = algo->GetKeys();
-    std::vector<std::string> key_cols_indices;
-    for (const auto* col : key_cols) {
-        key_cols_indices.push_back(std::to_string(col->GetIndex()));
-    }
-    std::string pk_column_positions = boost::algorithm::join(key_cols_indices, ",");
 
     const auto& deps = algo->FdList();
     task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
-                        {{"pk", pk_column_positions},
+                        {{"pk", GetCompactString(algo->GetKeys())},
                          {"deps", GetCompactDeps<const std::list<FD>&, FD>(deps)},
                          {"chart_data_without_patterns", GetPieChartData(deps, 1)},
                          {"deps_amount", std::to_string(deps.size())}});
@@ -83,17 +77,11 @@ void TaskProcessor::SaveFdTaskResult() const {
 
 void TaskProcessor::SaveCfdTaskResult() const {
     auto algo = GetAlgoAs<CFDAlgorithm>();
-    auto key_cols = algo->GetKeys();
-    std::vector<std::string> key_cols_indices;
     const auto& item_names = algo->ItemNames();
-    for (const auto* col : key_cols) {
-        key_cols_indices.push_back(std::to_string(col->GetIndex()));
-    }
-    std::string pk_column_positions = boost::algorithm::join(key_cols_indices, ",");
 
     const auto& deps = algo->CFDList();
     task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
-                        {{"pk", pk_column_positions},
+                        {{"pk", GetCompactString(algo->GetKeys())},
                          {"value_dictionary", boost::join(item_names, ",")},
                          {"deps", GetCompactDeps<const std::list<model::CFD>&, model::CFD>(deps)},
                          {"chart_data_without_patterns", GetPieChartData(deps, 1)},
@@ -118,6 +106,7 @@ void TaskProcessor::SaveTypoFdTaskResult() const {
     LOG(INFO) << "Update params for typo fd result";
     task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
                         {{"deps", GetCompactDeps<const std::vector<FD>&, FD>(typo_fds)},
+                         {"pk", GetCompactString(algo->GetKeys())},
                          {"deps_amount", std::to_string(typo_fds.size())}});
 }
 
@@ -165,9 +154,7 @@ void TaskProcessor::MineDeps() {
             task_->UpdateParams(BaseTablesType::state,
                                 {{"elapsed_time", std::to_string(elapsed_time)}});
             UpdateProgress();
-            if (!algo_has_progress_) {
-                task_->UpdateParams(BaseTablesType::state, {{"progress", "100"}});
-            }
+            task_->UpdateParams(BaseTablesType::state, {{"progress", "100"}});
         } else if (status == std::future_status::timeout) {
             if (algo_has_progress_) {
                 UpdateProgress();
@@ -248,12 +235,12 @@ void TaskProcessor::MineSpecificClusters() {
     };
     auto sq_sorted =
         GetCompactData<TypoMiner::SquashedElement>(squashed_cluster, to_compact_string);
-    algo->RestoreLineOrder(fd, squashed_cluster);
+    algo->RestoreLineOrder(squashed_cluster);
 
     auto sq_not_sorted =
         GetCompactData<TypoMiner::SquashedElement>(squashed_cluster, to_compact_string);
 
-    algo->RestoreLineOrder(fd, cluster);
+    algo->RestoreLineOrder(cluster);
     std::string not_sq_not_sorted = GetStringFromIndices(cluster);
 
     task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),

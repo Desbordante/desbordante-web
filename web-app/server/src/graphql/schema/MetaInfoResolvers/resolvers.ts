@@ -1,11 +1,10 @@
-import { ForbiddenError } from "apollo-server-core";
 import { AuthenticationError } from "apollo-server-express";
 import { FindOptions } from "sequelize";
+import { ForbiddenError } from "apollo-server-core";
 import { Resolvers } from "../../types/types";
 
 export const MetaInfoResolvers: Resolvers = {
     Query: {
-        // @ts-ignore
         datasets: async (parent, { props }, { models, sessionInfo }) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");

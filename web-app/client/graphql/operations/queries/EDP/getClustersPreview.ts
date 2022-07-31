@@ -1,22 +1,24 @@
 import { gql } from "@apollo/client";
 
 export const GET_CLUSTERS_PREVIEW = gql`
-  query getClustersPreview($taskId: ID!, $pagination: Pagination!) {
+  query getClustersPreview($taskId: ID! $clustersPagination: Pagination! $itemsLimit: Int!) {
     taskInfo(taskID: $taskId) {
       data {
-        result {
-          __typename
-          ... on TypoClusterTaskResult {
-            TypoClusters(pagination: $pagination) {
-              id
-              items(pagination: { limit: 10, offset: 0 }) {
-                rowIndex
-                row
-                isSuspicious
+        ...on SpecificTaskData {
+          result {
+            ...on TypoClusterTaskResult {
+              __typename
+              typoClusters(pagination: $clustersPagination) {
+                  clusterID
+                  items(pagination: { limit: $itemsLimit, offset: 0 }) {
+                    rowIndex
+                    row
+                    isSuspicious
+                  }
+                  itemsAmount
+                }
+                clustersCount
               }
-              itemsAmount
-            }
-            clustersCount
           }
         }
       }

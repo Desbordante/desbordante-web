@@ -22,7 +22,7 @@ const static std::map<std::string, Algo> algo_name_resolution{
     {"Pyro", Algo::pyro},       {"Dep Miner", Algo::depminer}, {"TaneX", Algo::tane},
     {"FastFDs", Algo::fastfds}, {"FD mine", Algo::fdmine},     {"DFD", Algo::dfd},
     {"FDep", Algo::fdep},       {"Apriori", Algo::apriori},    {"Typo Miner", Algo::typominer},
-    { "CTane", Algo::ctane},    {"FUN", Algo::fun}
+    {"CTane", Algo::ctane},     {"FUN", Algo::fun}
 };
 
 class TaskProcessor {
@@ -82,6 +82,14 @@ class TaskProcessor {
     template <typename T>
     const T* GetAlgoAs() const {
         return dynamic_cast<const T*>(algo_.get());
+    }
+
+    static std::string GetCompactString(const std::vector<const Column *>& columns) {
+        std::vector<std::string> key_cols_indices(columns.size());
+        for (const auto* col : columns) {
+            key_cols_indices.push_back(std::to_string(col->GetIndex()));
+        }
+        return boost::algorithm::join(key_cols_indices, ",");
     }
 
     static std::string GetPieChartData(const std::list<FD>& deps, int degree = 1);
