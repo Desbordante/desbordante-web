@@ -12,9 +12,6 @@ const SignUpForm = () => {
   const [stage, setStage] = useState(user?.id && !user?.isVerified ? 2 : 1);
   const goToNextStage = () => setStage((prevStage) => prevStage + 1);
   return (<>
-    <Head>          
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
-    </Head>
     <PopupWindowContainer onOutsideClick={() => setIsSignUpShown(false)}>
       <Container className="form-container bg-light m-4 m-sm-5 p-4 p-sm-5 rounded-3 w-auto shadow-lg">
         {stage === 1 && <StageOne onSuccess={goToNextStage} />}

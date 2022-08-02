@@ -4,16 +4,16 @@ import { Form, Button } from "react-bootstrap";
 import { useMutation } from "@apollo/client";
 import * as Yup from "yup";
 
-import { ISSUE_CODE_FOR_PASSWORD_RECOVERY } from "../../../graphql/operations/mutations/issueCodeForPasswordRecovery";
+import { ISSUE_CODE_FOR_PASSWORD_RECOVERY } from "@graphql/operations/mutations/issueCodeForPasswordRecovery";
 import {
   issueCodeForPasswordRecovery,
   issueCodeForPasswordRecoveryVariables,
-} from "../../../graphql/operations/mutations/__generated__/issueCodeForPasswordRecovery";
-import { APPROVE_RECOVERY_CODE } from "../../../graphql/operations/mutations/approveRecoveryCode";
+} from "@graphql/operations/mutations/__generated__/issueCodeForPasswordRecovery";
+import { APPROVE_RECOVERY_CODE } from "@graphql/operations/mutations/approveRecoveryCode";
 import {
-  approveRecoveryCode,
+  approveRecoveryCode, 
   approveRecoveryCodeVariables,
-} from "../../../graphql/operations/mutations/__generated__/approveRecoveryCode";
+} from "@graphql/operations/mutations/__generated__/approveRecoveryCode";
 
 const codeSchema = Yup.object().shape({
   code: Yup.string()
