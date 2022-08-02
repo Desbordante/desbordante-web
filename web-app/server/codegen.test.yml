@@ -1,10 +1,6 @@
 overwrite: true
 schema: "src/graphql/schema/**/*.ts"
 documents: "src/tests/**/**.graphql"
-watch: "src/tests/**/*.graphql"
-watchConfig:
-  usePolling: true
-  interval: 100
 generates:
   src/tests/__generated__/types.ts:
     plugins:
