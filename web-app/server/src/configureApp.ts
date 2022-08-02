@@ -1,4 +1,4 @@
-import express, { Application } from "express";
+import express, { Application, Express } from "express";
 import { Permission } from "./db/models/UserData/Permission";
 import config from "./config";
 import { configureGraphQL } from "./graphql/configureGraphQL";
@@ -31,7 +31,7 @@ async function configureDB() {
     }
 }
 
-export const configureApp = async () => {
+export const configureApp = async (): Promise<Express> => {
     const app = express();
     setMiddlewares(app);
 
