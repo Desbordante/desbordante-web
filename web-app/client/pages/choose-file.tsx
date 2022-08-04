@@ -8,12 +8,13 @@ import { ErrorContext } from '@components/ErrorContext';
 import { AllowedDataset } from 'types/algorithms';
 import _ from 'lodash'
 import { BaseCard, BuiltInDatasetCard, FileCard } from '@components/DatasetCard/DatasetCard';
+import { MainPrimitiveType } from 'types/globalTypes';
+import { Collapse } from '@components/Collapse/Collapse';
+import Button from '@components/Button';
 import styles from '@styles/ChooseFile.module.scss';
 import bg from '@public/bg.svg';
-import arrowDown from '@assets/icons/arrow-down.svg';
 import uploadIcon from '@assets/icons/upload.svg';
-import { MainPrimitiveType } from 'types/globalTypes';
-
+import settingsIcon from '@assets/icons/settings.svg';
 
 interface ChooseFileProps {
   primivite?: MainPrimitiveType
@@ -26,7 +27,6 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
     GET_ALGORITHMS_CONFIG
   );
   const allowedDatasets = (data?.algorithmsConfig?.allowedDatasets || []).filter(e => e.supportedPrimitives.includes(primivite))
-
   const [builtInDatasets, userDatasets] = _.partition(allowedDatasets, e => e.isBuiltIn)
   const [uploadingFile, setUploadingFile] = useState<File>()
   const [selection, setSelection] = useState<AllowedDataset|File>()
@@ -42,8 +42,7 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
   })
 
   const userFiles = (
-    <>
-      <h5>My Files <img src={arrowDown.src} width={20} /></h5>
+    <Collapse title={<>My Files</>}>
       {user?.permissions.canUploadFiles && (
         <div className={styles.files}>
           <BaseCard>
@@ -55,7 +54,7 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
               style={{display: "none"}}
               onChange={
                 e => {
-                  if (e.target.files) {
+                  if (e.target.files?.length) {
                     setUploadingFile(e.target.files[0])
                     setSelection(e.target.files[0])
                   }
@@ -71,17 +70,17 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
 
           {user?.permissions.canUploadFiles && userDatasets && userDatasets.map(file => <BuiltInDatasetCard isSelected={selection === file} onClick={() => setSelection(file)} file={file} />)} 
         </div>) || <p>You must be authorized to upload files</p>}
-    </>)
+    </Collapse>)
+
   const datasets = (
-    <>
-      <h5>Built-in Datasets <img src={arrowDown.src} width={20} /></h5>
+    <Collapse title={<>Built-in Datasets</>}>
       <div className={styles.files}>
         {user?.permissions.canUseBuiltinDatasets && builtInDatasets && builtInDatasets.map(file => <BuiltInDatasetCard isSelected={selection === file} onClick={() => setSelection(file)} file={file} />)}
       </div>
-    </>)
-  return (
-    <div className={styles.home}>
+    </Collapse>)
 
+  return (
+    <div className={styles.page}>
       <div className={styles.background}>
         <img
           src={bg.src}
@@ -89,17 +88,17 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
           alt="background"
         />
       </div>
-      
-      <div className={styles.home_text}>
+      <div className={styles.section_text}>
         <h2 className={styles.name_main}>Choose a File</h2>
         <h6 className={styles.description}>We have prepared some datasets for you</h6>
       </div>
-
-
       <div className={styles.userFiles}>
         {user?.permissions.canUploadFiles && <>{userFiles}{datasets}</> || <>{datasets}{userFiles}</>}
       </div>
-
+      <div className={styles.footer}>
+        <Button variant="secondary">Go Back</Button>
+        <Button variant="primary" icon={settingsIcon}>Configure algorithm</Button>
+      </div>
     </div>
   );
 };

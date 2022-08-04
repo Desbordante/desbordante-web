@@ -8,6 +8,7 @@ type ButtonSize = 'sm' | 'lg' | 'md';
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  icon?: any
 }
 
 const Button: FC<Props> = ({
@@ -15,6 +16,7 @@ const Button: FC<Props> = ({
   disabled = false,
   variant = 'primary',
   className = '',
+  icon = null,
   children,
   size = 'md',
   ...rest
@@ -32,8 +34,8 @@ const Button: FC<Props> = ({
         defaultClassName,
         className
       )}
-    >
-      <>{children}</>
+      onClick={disabled ? undefined : onClick}>
+      <>{icon && <img className={styles.icon} src={icon.src} width={24} />}{children}</>
     </button>
   );
 };

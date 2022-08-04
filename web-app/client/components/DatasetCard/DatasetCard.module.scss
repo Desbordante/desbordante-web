@@ -17,13 +17,20 @@
     order: 2;
     flex-grow: 0;
     cursor: pointer;
+}
+
+@media(max-width: 1000px){
+  .card {
+    width: calc(50% - 16px);
   }
-  .card.selected {
+}
+
+.card.selected {
     background: rgba(118, 0, 209, 0.05);
     border: 2px solid #7600D1;
-  }
+}
   
-  .card_description{
+.card_description{
     display: flex;
     width: 100%;
     flex-direction: column;
@@ -33,8 +40,8 @@
     span.large_content {
         font-size: 12px;
     }
-  }
-  .card_title {
+}
+.card_title {
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -42,4 +49,4 @@
     img {
       cursor:pointer;
     }
-  }
+}
