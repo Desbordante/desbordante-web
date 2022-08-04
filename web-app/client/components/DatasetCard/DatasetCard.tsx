@@ -16,8 +16,8 @@ interface BaseCardProps extends BaseHTMLAttributes<HTMLDivElement> {
     isSelected?: boolean
 }
 
-export const BuiltInDatasetCard: FC<DatasetCardProps> = ({file, ...rest}) => {
-    const fileDescription = `421 KB: ${file.rowsCount} rows, ${file.countOfColumns} columns`
+export const DatasetCard: FC<DatasetCardProps> = ({file, ...rest}) => {
+    const fileDescription = `${file.rowsCount} rows, ${file.countOfColumns} columns`
     return (
     <BaseCard {...rest}>
         <div className={styles.card_title}><p>{limitString(file.fileName, 14)}</p><img src={threeDots.src} width={20} /></div>

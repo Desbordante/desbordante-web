@@ -7,7 +7,7 @@ import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithms
 import { ErrorContext } from '@components/ErrorContext';
 import { AllowedDataset } from 'types/algorithms';
 import _ from 'lodash'
-import { BaseCard, BuiltInDatasetCard, FileCard } from '@components/DatasetCard/DatasetCard';
+import { BaseCard, DatasetCard, FileCard } from '@components/DatasetCard/DatasetCard';
 import { MainPrimitiveType } from 'types/globalTypes';
 import { Collapse } from '@components/Collapse/Collapse';
 import Button from '@components/Button';
@@ -68,14 +68,14 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
             <FileCard isSelected={selection === uploadingFile} onClick={() => setSelection(uploadingFile)} file={uploadingFile} />
           )}
 
-          {user?.permissions.canUploadFiles && userDatasets && userDatasets.map(file => <BuiltInDatasetCard isSelected={selection === file} onClick={() => setSelection(file)} file={file} />)} 
+          {user?.permissions.canUploadFiles && userDatasets && userDatasets.map(file => <DatasetCard isSelected={selection === file} onClick={() => setSelection(file)} file={file} />)} 
         </div>) || <p>You must be authorized to upload files</p>}
     </Collapse>)
 
   const datasets = (
     <Collapse title={<>Built-in Datasets</>}>
       <div className={styles.files}>
-        {user?.permissions.canUseBuiltinDatasets && builtInDatasets && builtInDatasets.map(file => <BuiltInDatasetCard isSelected={selection === file} onClick={() => setSelection(file)} file={file} />)}
+        {user?.permissions.canUseBuiltinDatasets && builtInDatasets && builtInDatasets.map(file => <DatasetCard isSelected={selection === file} onClick={() => setSelection(file)} file={file} />)}
       </div>
     </Collapse>)
 
