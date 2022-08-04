@@ -1,0 +1,66 @@
+@import "styles/common";
+
+.inputCheckbox {
+  .inputContainer {
+    display: flex;
+    align-items: center;
+
+    input {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      margin: 0 16px 0 0;
+      border: 2px solid $black-50;
+      border-radius: 4px;
+
+      &:hover:not(:disabled) {
+        border: 2px solid $primary-0;
+      }
+
+      &:checked {
+        background: $primary-0;
+        border: 2px solid $primary-0;
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: $white;
+        clip-path: polygon(38.5% 66.8%, 77.3% 17.5%, 87% 25%, 39.3% 83%, 14.3% 61.3%, 22.3% 52.5%);
+      }
+
+      &.checkboxError {
+        border: 2px solid $error;
+
+        &:hover {
+          border: 2px solid $error;
+        }
+
+        &:checked {
+          background: $error;
+          border: 2px solid $error;
+        }
+      }
+    }
+
+    label {
+      display: block;
+      @include paragraph;
+      color: $black;
+    }
+  }
+
+  .error {
+    @include paragraph-small;
+    margin: 8px 0 0;
+    color: $error;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
