@@ -75,13 +75,13 @@
 
 .footer {
   position: relative;
+  gap: 16px;
+  justify-content: center;
+  display: flex;
   width: 70%;
   margin-top: 96px;
   margin-left: auto;
   margin-right: auto;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
 }
 
 .userFiles {
@@ -98,16 +98,16 @@
 }
 
 .files {
-  display: flex;
   gap: 16px;
   flex-wrap: wrap;
+  display: flex;
 }
 
 .uploader_title {
+  justify-content: center; 
+  gap: 8px;
   display: flex;
   width: 100%;
   margin: auto; 
-  justify-content: center; 
-  gap: 8px;
   cursor: pointer;
 }
