@@ -14,7 +14,7 @@
   overflow: hidden;
   min-width: 100vw;
   max-height: 100vh;
-  background: $background-light;
+  background: $white;
 }
 
 .home_text {
@@ -53,12 +53,12 @@
 
 .name_main {
   margin: 0;
-  color: $text-black;
+  color: $black;
 }
 
 .description {
   margin: 1.2rem 0 0;
-  color: $text-black;
+  color: $black;
 }
 
 .links_img {

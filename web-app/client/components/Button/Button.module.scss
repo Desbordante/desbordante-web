@@ -11,6 +11,10 @@
   background: transparent;
   text-align: center;
   text-decoration: none;
+
+  &:disabled {
+    cursor: default;
+  }
 }
 
 .icon{
@@ -55,6 +59,11 @@
     box-shadow: 0 0 8px $info;
     outline: 2px solid $primary-0;
   }
+
+  &:disabled {
+    color: $black-50;
+    box-shadow: none;
+  }
 }
 
 .secondary {
@@ -75,6 +84,13 @@
     background: $secondary-2;
     filter: none;
   }
+
+  &:disabled {
+    color: $black-50;
+    box-shadow: none;
+    background: none;
+    border: 2px solid $black-25;
+  }
 }
 
 .primary {
@@ -92,6 +108,12 @@
   &:active {
     box-shadow: none;
     background: $primary-2;
+  }
+
+  &:disabled {
+    color: $black-50;
+    box-shadow: none;
+    background: $black-10;
   }
 }
 
@@ -114,5 +136,11 @@
   &:active {
     box-shadow: $primary-shadow-0;
     background: $primary-gradient-0;
+  }
+
+  &:disabled {
+    color: $black-50;
+    box-shadow: none;
+    background: linear-gradient(53.13deg, rgba(37, 30, 41, 0.12) 9.04%, rgba(37, 30, 41, 0.08) 89.96%);
   }
 }

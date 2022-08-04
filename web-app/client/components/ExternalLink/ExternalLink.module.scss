@@ -6,12 +6,12 @@
   align-items: center;
   background-size: 16px;
   text-decoration: none;
-  color: $text-black;
+  color: $black;
 
   &:hover {
-    border-bottom: 1px solid $text-black;
+    border-bottom: 1px solid $black;
     margin-top: 1px;
-    color: $text-black;
+    color: $black;
   }
 
   .imageWrapper {

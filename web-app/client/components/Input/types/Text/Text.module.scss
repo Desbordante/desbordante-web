@@ -1,0 +1,50 @@
+@import "styles/common";
+
+.inputText {
+  .top {
+    display: flex;
+    align-items: center;
+    margin: 0 0 8px;
+
+    label {
+      @include paragraph;
+      display: block;
+      margin: 0 8px 0 0;
+      color: $black;
+    }
+  }
+
+  .inputContainer {
+    padding: 16px 32px;
+    border: 1px solid $black-25;
+    border-radius: 8px;
+
+    &.error {
+      border: 2px solid $error;
+    }
+
+    input {
+      @include paragraph;
+      color: $black;
+      border: none;
+
+      &:focus {
+        outline: none;
+      }
+
+      &::placeholder {
+        color: $black-50;
+      }
+    }
+  }
+
+  .error {
+    @include paragraph-small;
+    margin: 8px 0 0;
+    color: $error;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
