@@ -1,8 +1,8 @@
-import { limitString } from "@utils/strings"
+import classNames from "classnames";
 import { BaseHTMLAttributes, FC } from "react"
+import { limitString } from "@utils/strings"
 import { AllowedDataset } from "types/algorithms"
 import threeDots from '@assets/icons/three-dots.svg';
-import classNames from "classnames";
 import styles from './DatasetCard.module.scss';
 
 interface DatasetCardProps extends BaseCardProps {
@@ -40,7 +40,6 @@ export const FileCard: FC<FileCardProps> = ({file, ...rest}) => {
     </BaseCard>
     )
 }
-  
 
 export const BaseCard: FC<BaseCardProps> = ({children, isSelected=false, ...rest}) => {
     return (<div className={classNames(styles.card, isSelected ? styles.selected : null)} {...rest}>{children}</div>)

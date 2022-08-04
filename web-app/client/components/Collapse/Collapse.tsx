@@ -1,7 +1,5 @@
 import { FC, PropsWithChildren, ReactElement, useState } from "react"
-
 import arrowDown from '@assets/icons/arrow-down.svg';
-
 
 interface Props extends PropsWithChildren {
     title: ReactElement
