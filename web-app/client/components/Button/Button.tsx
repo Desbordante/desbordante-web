@@ -24,13 +24,14 @@ const Button: FC<Props> = ({
   return (
     <button
       {...rest}
+      disabled={disabled}
+      onClick={onClick}
       className={classNames(
         styles.button,
         defaultSizeClassName,
         defaultClassName,
         className
       )}
-      onClick={disabled ? undefined : onClick}
     >
       <>{children}</>
     </button>
