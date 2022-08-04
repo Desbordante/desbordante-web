@@ -6,12 +6,33 @@ import plexus from '@public/plexus.jpg';
 import threeDots from '@assets/icons/three-dots.svg';
 import arrowDown from '@assets/icons/arrow-down.svg';
 import uploadIcon from '@assets/icons/upload.svg';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { AuthContext } from '@components/AuthContext';
+import { useQuery } from '@apollo/client';
+import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
+import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithmsConfig';
+import { ErrorContext } from '@components/ErrorContext';
+import { limitString } from '@utils/strings';
 
 const ChooseFile: NextPage = () => {
   const {user} = useContext(AuthContext)!
+  const {showError} = useContext(ErrorContext)!
 
+  const { loading, data, error } = useQuery<getAlgorithmsConfig>(
+    GET_ALGORITHMS_CONFIG
+  );
+
+  const builtInDatasets = data?.algorithmsConfig?.allowedDatasets
+
+
+  useEffect(() => {
+    if (error) {
+      showError({
+        message: error.message,
+        suggestion: "Please, try reloading the page.",
+      });
+    }
+  })
 
   const userFiles = (
     <>
@@ -35,17 +56,18 @@ const ChooseFile: NextPage = () => {
   const datasets = (
     <>
       <h5>Built-in Datasets <img src={arrowDown.src} width={20} /></h5>
-      {user?.permissions.canUseBuiltinDatasets && (
-        <div className={styles.files}>
-          <div className={styles.card}>
-            <div className={styles.card_title}><p>my-data-file.csv</p><img src={threeDots.src} width={20} /></div>
-            <div className={styles.card_description}>
-              <span>421 KB: 152 rows, 13 columns</span>
-              <span>Uploaded 15 minutes ago</span>
+      <div className={styles.files}>
+        {user?.permissions.canUseBuiltinDatasets && builtInDatasets && builtInDatasets.map(file => (
+            <div className={styles.card}>
+              <div className={styles.card_title}><p>{limitString(file.fileName, 14)}</p><img src={threeDots.src} width={20} /></div>
+              <div className={styles.card_description}>
+                <span>421 KB: {file.rowsCount} rows, {file.countOfColumns} columns</span>
+                <span>Uploaded 15 minutes ago</span>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
+
     </>)
   return (
     <div className={styles.home}>
