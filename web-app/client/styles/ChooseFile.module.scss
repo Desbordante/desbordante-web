@@ -88,6 +88,7 @@
 .files {
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .card_title {
