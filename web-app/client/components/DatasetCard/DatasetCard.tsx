@@ -5,6 +5,9 @@ import { AllowedDataset } from "types/algorithms"
 import threeDots from '@assets/icons/three-dots.svg';
 import styles from './DatasetCard.module.scss';
 import Image from "next/image";
+import '@formatjs/intl-numberformat/polyfill'
+import '@formatjs/intl-numberformat/locale-data/en'
+
 
 interface DatasetCardProps extends BaseCardProps {
     file: AllowedDataset | File,
@@ -16,13 +19,18 @@ interface BaseCardProps extends BaseHTMLAttributes<HTMLDivElement> {
 
 const getFileDescription = (file: AllowedDataset | File) => {
     if(file instanceof File){
+        const formatter = new Intl.NumberFormat('en', {unit: 'byte', style: 'unit', unitDisplay: 'narrow', notation: 'compact'})
+        const fileSize = formatter.format(file.size)
         return [
-            file.size < 1024 ? `${file.size} B` : `${(file.size / 1024).toFixed(2)} KB`,
+            fileSize,
             "File is not uploaded yet"
         ]
     }else{
+        const formatter = new Intl.NumberFormat('en', {notation: 'compact'})
+        const rowsCount = formatter.format(file.rowsCount)
+        const countOfColumns = formatter.format(file.countOfColumns || 0)
         return [
-            `${file.rowsCount} rows, ${file.countOfColumns} columns`,
+            `${rowsCount} rows, ${countOfColumns} columns`,
             "Updated 15 minutes ago"
         ]
     }
