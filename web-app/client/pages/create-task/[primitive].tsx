@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router'
 import { AuthContext } from '@components/AuthContext';
 import { useQuery } from '@apollo/client';
@@ -29,6 +29,7 @@ const ChooseFile: NextPage = () => {
   const [builtInDatasets, userDatasets] = _.partition(allowedDatasets, e => e.isBuiltIn)
   const [uploadingFile, setUploadingFile] = useState<File>()
   const [selection, setSelection] = useState<AllowedDataset|File>()
+  const [fileIsDragged, setFileIsDragged] = useState(false)
 
   useEffect(() => {
     if (error) {
@@ -43,7 +44,7 @@ const ChooseFile: NextPage = () => {
     <Collapse title="My Files" titleProps={{className: styles.collapse_title}}>
       {user?.permissions.canUploadFiles && (
         <div className={styles.files}>
-          <DatasetUploader onChange={files => {
+          <DatasetUploader isDraggedOutside={fileIsDragged} onChange={files => {
               if (files?.length) {
                 setUploadingFile(files[0])
                 setSelection(files[0])
@@ -75,7 +76,7 @@ const ChooseFile: NextPage = () => {
   </>
 
   return (
-    <WizardLayout header={header} footer={footer}>
+    <WizardLayout onDrop={e => {e.preventDefault(); setFileIsDragged(false)}} onDragOver={() => setFileIsDragged(true)} onDragLeave={() => setFileIsDragged(false)}  header={header} footer={footer}>
       {user?.permissions.canUploadFiles && <>{userFiles}{datasets}</> || <>{datasets}{userFiles}</>}
     </WizardLayout>
   );

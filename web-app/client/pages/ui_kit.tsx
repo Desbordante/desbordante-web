@@ -1,7 +1,7 @@
 import Button from '@components/Button';
 import Input from '@components/Input';
 import Tooltip from '@components/Tooltip';
-import styles from '@styles/UIKit.module.scss';
+import styles from '@styles/UiKit.module.scss';
 
 const Buttons = () => {
   const buttonContent = 'Click Me';
