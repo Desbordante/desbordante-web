@@ -20,6 +20,12 @@
 .icon{
   vertical-align: middle;
   margin-right: 8px;
+  & > span {
+    vertical-align: middle;
+  }
+  img {
+    vertical-align: middle;
+  }
 }
 
 .sm {
