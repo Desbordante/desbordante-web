@@ -680,6 +680,11 @@
   dependencies:
     classnames "*"
 
+"@types/clientjs@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@types/clientjs/-/clientjs-0.2.0.tgz#9a7847ed304c191d7edd5daec4e716dbfcf34882"
+  integrity sha512-O3cGzu0RNSefR2eg48swjV0Mc9RFnQLeQfYyKDLaevFWg1UAFkjXGqF3K5PqbUZmxxZMNQGwfNbvePyTpUxuig==
+
 "@types/cookie@^0.5.1":
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/@types/cookie/-/cookie-0.5.1.tgz#b29aa1f91a59f35e29ff8f7cb24faf1a3a750554"
@@ -4877,21 +4882,6 @@ stylelint-config-recommended@^8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/stylelint-config-recommended/-/stylelint-config-recommended-8.0.0.tgz#7736be9984246177f017c39ec7b1cd0f19ae9117"
   integrity sha512-IK6dWvE000+xBv9jbnHOnBq01gt6HGVB2ZTsot+QsMpe82doDQ9hvplxfv4YnpEuUwVGGd9y6nbaAnhrjcxhZQ==
-
-stylelint-config-standard-scss@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/stylelint-config-standard-scss/-/stylelint-config-standard-scss-5.0.0.tgz#afc5e43c73e7a15875b8f30f54204b01a2634743"
-  integrity sha512-zoXLibojHZYPFjtkc4STZtAJ2yGTq3Bb4MYO0oiyO6f/vNxDKRcSDZYoqN260Gv2eD5niQIr1/kr5SXlFj9kcQ==
-  dependencies:
-    stylelint-config-recommended-scss "^7.0.0"
-    stylelint-config-standard "^26.0.0"
-
-stylelint-config-standard@^26.0.0:
-  version "26.0.0"
-  resolved "https://registry.yarnpkg.com/stylelint-config-standard/-/stylelint-config-standard-26.0.0.tgz#4701b8d582d34120eec7d260ba779e4c2d953635"
-  integrity sha512-hUuB7LaaqM8abvkOO84wh5oYSkpXgTzHu2Zza6e7mY+aOmpNTjoFBRxSLlzY0uAOMWEFx0OMKzr+reG1BUtcqQ==
-  dependencies:
-    stylelint-config-recommended "^8.0.0"
 
 stylelint-scss@^4.0.0:
   version "4.3.0"
