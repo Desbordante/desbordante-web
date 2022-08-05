@@ -1,4 +1,4 @@
-export default (number: number, min: number, max?: number) => {
+const clamp = (number: number, min: number, max?: number) => {
   const computedMax = Math.max(min, number);
   if (max !== undefined) {
     return Math.min(max, computedMax);
@@ -6,3 +6,5 @@ export default (number: number, min: number, max?: number) => {
 
   return computedMax;
 };
+
+export default clamp;

@@ -1,13 +1,10 @@
-const { v4: uuidv4 } = require("uuid");
+import { ClientJS } from 'clientjs';
+import { v4 as UUIDv4 } from "uuid";
 
-
-export function generateDeviceInfo() {
-  const { ClientJS } = require("clientjs");
-
+const generateDeviceInfo =  () => {
   const client = new ClientJS();
-
   const deviceAttributes = {
-    deviceID: `${uuidv4()}:${client.getFingerprint()}`,
+    deviceID: `${UUIDv4()}:${client.getFingerprint()}`,
     userAgent: client.getUserAgent(),
     browser: client.getBrowser(),
     engine: client.getEngine(),
