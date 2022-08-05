@@ -18,7 +18,6 @@
 }
 
 .section_text {
-  margin-top: 8.7vh;
   padding: 0;
   position: relative;
   text-align: center;
@@ -41,7 +40,11 @@
 }
 
 .page{
+  display: flex;
+  flex-direction: column;
+  gap: 96px;
   overflow: hidden;
+  margin-top: 48px;
 }
 
 @media(max-width: 800px) {
@@ -56,7 +59,6 @@
   justify-content: center;
   display: flex;
   width: 70%;
-  margin-top: 96px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -65,5 +67,4 @@
     position: relative;
     width: 75%;
     margin: auto;
-    margin-top: 48px;
 }

@@ -1,7 +1,6 @@
 @import "styles/common";
 
 .collapse_title {
-  margin-top: 48px;
   margin-bottom: 24px;
   user-select: none;
   cursor: pointer;
@@ -11,4 +10,5 @@
   gap: 16px;
   flex-wrap: wrap;
   display: flex;
+  margin-bottom: 48px;
 }
