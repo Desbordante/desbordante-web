@@ -15,6 +15,7 @@ import styles from '@styles/ChooseFile.module.scss';
 import uploadIcon from '@assets/icons/upload.svg';
 import settingsIcon from '@assets/icons/settings.svg';
 import { WizardLayout } from '@components/WizardLayout/WizardLayout';
+import Image from 'next/image';
 
 interface ChooseFileProps {
   primivite?: MainPrimitiveType
@@ -46,7 +47,7 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
       {user?.permissions.canUploadFiles && (
         <div className={styles.files}>
           <BaseCard>
-            <div className={styles.uploader_title} onClick={() => inputFile?.current?.click()}><img src={uploadIcon.src} width={20} /><p>Upload a File</p></div>
+            <div className={styles.uploader_title} onClick={() => inputFile?.current?.click()}><Image src={uploadIcon} height={20} width={20} /><p>Upload a File</p></div>
             <input
               type="file"
               id="file"
