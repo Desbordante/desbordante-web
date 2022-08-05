@@ -11,7 +11,7 @@
     box-sizing: border-box;
     padding: 16px 24px;
     width: 250px;
-    height: 112px;
+    min-height: 112px;
     border: 2px solid #251E29;
     border-radius: 8px;
     cursor: pointer;
@@ -31,10 +31,7 @@
   
 .card_description{
   @include paragraph-small;
-  flex-direction: column;
-  display: flex;
-  width: 100%;
-  font-size: 15px;
+  white-space: pre-line;
 
   span.large_content {
     font-size: 12px;
