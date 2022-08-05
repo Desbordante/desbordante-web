@@ -51,7 +51,10 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.30.1",
     "prettier": "^2.7.1",
-    "sass": "^1.54.0",
+    "sass": "^1.54.3",
+    "stylelint": "^14.9.1",
+    "stylelint-config-recommended-scss": "^7.0.0",
+    "stylelint-webpack-plugin": "^3.3.0",
     "typescript": "4.7.4"
   }
 }

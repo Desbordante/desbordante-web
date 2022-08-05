@@ -25,22 +25,26 @@
 }
 
 @media(max-width: 1370px) {
+
   .background_image {
     margin-top: -1300px;
     margin-right: -3070px;
   }
+
   .home_text {
     margin-top: 14.3vh;
   }
 }
 
 @media(min-height: 1430px) {
+
   .background_image {
     height: 300vh;
   }
 }
 
 @media(max-width: 800px) {
+
   .home {
     max-height: 50vh;
   }

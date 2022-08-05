@@ -1,7 +1,7 @@
 export type TokenPair = {
   accessToken: string;
   refreshToken: string;
-}
+};
 
 export type SignUpFormProps = {
   fullName: string;
@@ -31,6 +31,7 @@ export type UserPermissions = {
   canViewAdminInfo: boolean;
   canManageUserSessions: boolean;
 };
+
 export type User = {
   id?: string;
   name?: string;
