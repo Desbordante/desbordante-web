@@ -46,8 +46,8 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
     <Collapse title="My Files" titleProps={{className: styles.collapse_title}}>
       {user?.permissions.canUploadFiles && (
         <div className={styles.files}>
-          <BaseCard>
-            <div className={styles.uploader_title} onClick={() => inputFile?.current?.click()}><Image src={uploadIcon} height={20} width={20} /><p>Upload a File</p></div>
+          <BaseCard onClick={() => inputFile?.current?.click()}>
+            <div className={styles.uploader_title}><Image src={uploadIcon} height={20} width={20} /><p>Upload a File</p></div>
             <input
               type="file"
               id="file"
