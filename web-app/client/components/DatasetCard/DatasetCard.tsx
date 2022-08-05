@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { BaseHTMLAttributes, FC } from "react"
+import { BaseHTMLAttributes, FC, PropsWithChildren } from "react"
 import '@formatjs/intl-numberformat/polyfill'
 import '@formatjs/intl-numberformat/locale-data/en'
 import { limitString } from "@utils/strings"
@@ -13,8 +13,10 @@ interface DatasetCardProps extends BaseCardProps {
     file: AllowedDataset | File,
 }
 
-interface BaseCardProps extends BaseHTMLAttributes<HTMLDivElement> {
-    isSelected?: boolean
+interface BaseCardProps extends PropsWithChildren {
+    isSelected?: boolean,
+    className?: string,
+    onClick?: () => void
 }
 
 const getFileDescription = (file: AllowedDataset | File) => {
