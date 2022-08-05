@@ -2,7 +2,7 @@ import classNames from "classnames";
 import { BaseHTMLAttributes, FC, PropsWithChildren } from "react"
 import '@formatjs/intl-numberformat/polyfill'
 import '@formatjs/intl-numberformat/locale-data/en'
-import { limitString } from "@utils/strings"
+import { formatDistance, subMinutes } from 'date-fns'
 import { AllowedDataset } from "types/algorithms"
 import threeDots from '@assets/icons/three-dots.svg';
 import styles from './DatasetCard.module.scss';
@@ -31,9 +31,10 @@ const getFileDescription = (file: AllowedDataset | File) => {
         const formatter = new Intl.NumberFormat('en', {notation: 'compact'})
         const rowsCount = formatter.format(file.rowsCount)
         const countOfColumns = formatter.format(file.countOfColumns || 0)
+        const range = formatDistance(subMinutes(new Date(), 15), new Date(), { addSuffix: true })
         return [
             `${rowsCount} rows, ${countOfColumns} columns`,
-            "Updated 15 minutes ago"
+            `Updated ${range}` 
         ]
     }
 }
