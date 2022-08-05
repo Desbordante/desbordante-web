@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.5.8",
+    "@formatjs/intl-numberformat": "^8.0.4",
     "apollo-link": "^1.2.14",
     "apollo-link-error": "^1.1.13",
     "apollo-link-token-refresh": "^0.4.0",

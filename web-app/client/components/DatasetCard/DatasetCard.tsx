@@ -7,36 +7,35 @@ import styles from './DatasetCard.module.scss';
 import Image from "next/image";
 
 interface DatasetCardProps extends BaseCardProps {
-    file: AllowedDataset,
+    file: AllowedDataset | File,
 }
 
-interface FileCardProps extends BaseCardProps {
-    file: File,
-}
 interface BaseCardProps extends BaseHTMLAttributes<HTMLDivElement> {
     isSelected?: boolean
 }
 
-export const DatasetCard: FC<DatasetCardProps> = ({file, ...rest}) => {
-    const fileDescription = `${file.rowsCount} rows, ${file.countOfColumns} columns`
-    return (
-    <BaseCard {...rest}>
-        <div className={styles.card_title}><p>{limitString(file.fileName, 14)}</p><Image src={threeDots.src} width={20} height={20} /></div>
-        <div className={styles.card_description}>
-          <span className={fileDescription.length > 27 ? styles.large_content : undefined}>{fileDescription}</span>
-          <span>Uploaded 15 minutes ago</span>
-        </div>
-    </BaseCard>
-    )
+const getFileDescription = (file: AllowedDataset | File) => {
+    if(file instanceof File){
+        return [
+            file.size < 1024 ? `${file.size} B` : `${(file.size / 1024).toFixed(2)} KB`,
+            "File is not uploaded yet"
+        ]
+    }else{
+        return [
+            `${file.rowsCount} rows, ${file.countOfColumns} columns`,
+            "Updated 15 minutes ago"
+        ]
+    }
 }
 
-export const FileCard: FC<FileCardProps> = ({file, ...rest}) => {
+export const DatasetCard: FC<DatasetCardProps> = ({file, ...rest}) => {
+    const descriptionList = getFileDescription(file)
+    const fileName = file instanceof File ? file.name : file.fileName
     return (
     <BaseCard {...rest}>
-        <div className={styles.card_title}><p>{limitString(file.name, 14)}</p><Image src={threeDots.src} height={20} width={20} /></div>
+        <div className={styles.card_title}><p>{limitString(fileName, 14)}</p><Image src={threeDots.src} width={20} height={20} /></div>
         <div className={styles.card_description}>
-          <span>{file.size < 1024 ? `${file.size} B` : `${(file.size / 1024).toFixed(2)} KB`}</span>
-          <span>File is not uploaded yet</span>
+            <span>{descriptionList.join("\n")}</span>
         </div>
     </BaseCard>
     )
