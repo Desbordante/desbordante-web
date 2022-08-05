@@ -1,10 +1,26 @@
 
+@import "styles/common";
+
 .uploader_title {
-    justify-content: center; 
-    gap: 8px;
-    display: flex;
-    width: 100%;
-    margin: auto; 
-    cursor: pointer;
-  }
-  
+  justify-content: center; 
+  gap: 8px;
+  display: flex;
+  width: 100%;
+  margin: auto; 
+  cursor: pointer;
+}
+
+.uploader:hover{
+  outline: none;
+  border: 2px solid $primary-0;
+  background: $primary-05;
+}
+
+.dragged_outside {
+  border: 2px dashed $primary-0;
+}
+
+.dragged_inside {
+  border: 2px dashed $primary-0;
+  background: $primary-05;
+}

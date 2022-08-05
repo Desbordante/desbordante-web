@@ -52,6 +52,6 @@ export const DatasetCard: FC<DatasetCardProps> = ({file, ...rest}) => {
     )
 }
 
-export const BaseCard: FC<BaseCardProps> = ({children, isSelected=false, ...rest}) => {
+const BaseCard: FC<BaseCardProps> = ({children, isSelected=false, ...rest}) => {
     return (<div className={classNames(styles.card, isSelected ? styles.selected : null)} {...rest}>{children}</div>)
 }
