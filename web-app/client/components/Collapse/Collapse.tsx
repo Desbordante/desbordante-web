@@ -13,6 +13,6 @@ export const Collapse: FC<Props> = ({title, titleProps, children}) => {
     const [isShown, setIsShown] = useState(true)
     return <>
         <div className={classNames(!isShown && styles.collapsed, styles.title)} onClick={() => setIsShown(isShown => !isShown)}><h5 {...titleProps}>{title} <Image height={20} src={arrowDown.src} width={20} /></h5></div>
-        <div className={classNames(!isShown && styles.collapsed, styles.content)}>{children}</div>
+        {isShown && <div>{children}</div>}
     </>
 }
