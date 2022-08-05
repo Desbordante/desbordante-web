@@ -12,9 +12,9 @@ import { MainPrimitiveType } from 'types/globalTypes';
 import { Collapse } from '@components/Collapse/Collapse';
 import Button from '@components/Button';
 import styles from '@styles/ChooseFile.module.scss';
-import bg from '@public/bg.svg';
 import uploadIcon from '@assets/icons/upload.svg';
 import settingsIcon from '@assets/icons/settings.svg';
+import { WizardLayout } from '@components/WizardLayout/WizardLayout';
 
 interface ChooseFileProps {
   primivite?: MainPrimitiveType
@@ -42,7 +42,7 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
   })
 
   const userFiles = (
-    <Collapse title={<>My Files</>}>
+    <Collapse title="My Files" titleProps={{className: styles.collapse_title}}>
       {user?.permissions.canUploadFiles && (
         <div className={styles.files}>
           <BaseCard>
@@ -73,33 +73,26 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
     </Collapse>)
 
   const datasets = (
-    <Collapse title={<>Built-in Datasets</>}>
+    <Collapse title="Built-in Datasets" titleProps={{className: styles.collapse_title}}>
       <div className={styles.files}>
         {user?.permissions.canUseBuiltinDatasets && builtInDatasets && builtInDatasets.map(file => <DatasetCard isSelected={selection === file} onClick={() => setSelection(file)} file={file} />)}
       </div>
     </Collapse>)
 
+  const header = <>
+    <h2 className={styles.name_main}>Choose a File</h2>
+    <h6 className={styles.description}>We have prepared some datasets for you</h6>
+  </>
+
+  const footer = <>
+    <Button variant="secondary">Go Back</Button>
+    <Button variant="primary" icon={settingsIcon}>Configure algorithm</Button>
+  </>
+
   return (
-    <div className={styles.page}>
-      <div className={styles.background}>
-        <img
-          src={bg.src}
-          className={styles.background_image}
-          alt="background"
-        />
-      </div>
-      <div className={styles.section_text}>
-        <h2 className={styles.name_main}>Choose a File</h2>
-        <h6 className={styles.description}>We have prepared some datasets for you</h6>
-      </div>
-      <div className={styles.userFiles}>
-        {user?.permissions.canUploadFiles && <>{userFiles}{datasets}</> || <>{datasets}{userFiles}</>}
-      </div>
-      <div className={styles.footer}>
-        <Button variant="secondary">Go Back</Button>
-        <Button variant="primary" icon={settingsIcon}>Configure algorithm</Button>
-      </div>
-    </div>
+    <WizardLayout header={header} footer={footer}>
+      {user?.permissions.canUploadFiles && <>{userFiles}{datasets}</> || <>{datasets}{userFiles}</>}
+    </WizardLayout>
   );
 };
 

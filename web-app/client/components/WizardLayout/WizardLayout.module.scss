@@ -1,0 +1,79 @@
+@import "styles/common";
+
+.background_image {
+  margin-top: -850px;
+  margin-right: -1800px;
+  min-width: 100vw;
+}
+
+.background {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  overflow: hidden;
+  min-width: 50vw;
+  background: $white;
+  max-height: 100%;
+}
+
+.section_text {
+  margin-top: 8.7vh;
+  padding: 0;
+  position: relative;
+  text-align: center;
+}
+
+@media(max-width: 1370px) {
+  .background_image {
+    margin-top: -1300px;
+    margin-right: -3070px;
+  }
+  .section_text {
+    margin-top: 14.3vh;
+  }
+}
+
+@media(min-height: 1430px) {
+  .background_image {
+    height: 300vh;
+  }
+}
+
+.page{
+  overflow: hidden;
+}
+
+@media(max-width: 800px) {
+  .page {
+    max-height: 50vh;
+  }
+}
+
+.name_main {
+  margin: 0;
+  color: $black;
+}
+
+.description {
+  margin: 1.2rem 0 0;
+  color: $black;
+}
+
+.footer {
+  position: relative;
+  gap: 16px;
+  justify-content: center;
+  display: flex;
+  width: 70%;
+  margin-top: 96px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.content {
+    position: relative;
+    width: 75%;
+    margin: auto;
+    margin-top: 48px;
+}
