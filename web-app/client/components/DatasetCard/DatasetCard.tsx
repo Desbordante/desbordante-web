@@ -41,7 +41,7 @@ export const DatasetCard: FC<DatasetCardProps> = ({file, ...rest}) => {
     const fileName = file instanceof File ? file.name : file.fileName
     return (
     <BaseCard {...rest}>
-        <div className={styles.card_title}><p>{limitString(fileName, 14)}</p><Image src={threeDots.src} width={20} height={20} /></div>
+        <div className={styles.card_title}><p>{fileName}</p><Image src={threeDots.src} width={20} height={20} /></div>
         <div className={styles.card_description}>
             <span>{descriptionList.join("\n")}</span>
         </div>
