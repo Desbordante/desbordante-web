@@ -1,12 +1,12 @@
 import classNames from "classnames";
 import { BaseHTMLAttributes, FC } from "react"
+import '@formatjs/intl-numberformat/polyfill'
+import '@formatjs/intl-numberformat/locale-data/en'
 import { limitString } from "@utils/strings"
 import { AllowedDataset } from "types/algorithms"
 import threeDots from '@assets/icons/three-dots.svg';
 import styles from './DatasetCard.module.scss';
 import Image from "next/image";
-import '@formatjs/intl-numberformat/polyfill'
-import '@formatjs/intl-numberformat/locale-data/en'
 
 
 interface DatasetCardProps extends BaseCardProps {
