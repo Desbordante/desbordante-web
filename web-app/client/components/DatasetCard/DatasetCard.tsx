@@ -4,6 +4,7 @@ import { limitString } from "@utils/strings"
 import { AllowedDataset } from "types/algorithms"
 import threeDots from '@assets/icons/three-dots.svg';
 import styles from './DatasetCard.module.scss';
+import Image from "next/image";
 
 interface DatasetCardProps extends BaseCardProps {
     file: AllowedDataset,
@@ -20,7 +21,7 @@ export const DatasetCard: FC<DatasetCardProps> = ({file, ...rest}) => {
     const fileDescription = `${file.rowsCount} rows, ${file.countOfColumns} columns`
     return (
     <BaseCard {...rest}>
-        <div className={styles.card_title}><p>{limitString(file.fileName, 14)}</p><img src={threeDots.src} width={20} /></div>
+        <div className={styles.card_title}><p>{limitString(file.fileName, 14)}</p><Image src={threeDots.src} width={20} height={20} /></div>
         <div className={styles.card_description}>
           <span className={fileDescription.length > 27 ? styles.large_content : undefined}>{fileDescription}</span>
           <span>Uploaded 15 minutes ago</span>
@@ -32,7 +33,7 @@ export const DatasetCard: FC<DatasetCardProps> = ({file, ...rest}) => {
 export const FileCard: FC<FileCardProps> = ({file, ...rest}) => {
     return (
     <BaseCard {...rest}>
-        <div className={styles.card_title}><p>{limitString(file.name, 14)}</p><img src={threeDots.src} width={20} /></div>
+        <div className={styles.card_title}><p>{limitString(file.name, 14)}</p><Image src={threeDots.src} height={20} width={20} /></div>
         <div className={styles.card_description}>
           <span>{file.size < 1024 ? `${file.size} B` : `${(file.size / 1024).toFixed(2)} KB`}</span>
           <span>File is not uploaded yet</span>
