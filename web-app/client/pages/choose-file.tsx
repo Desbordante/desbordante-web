@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '@components/AuthContext';
 import { useQuery } from '@apollo/client';
 import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
@@ -7,15 +7,14 @@ import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithms
 import { ErrorContext } from '@components/ErrorContext';
 import { AllowedDataset } from 'types/algorithms';
 import _ from 'lodash'
-import { BaseCard, DatasetCard } from '@components/DatasetCard/DatasetCard';
+import { DatasetCard } from '@components/DatasetCard/DatasetCard';
 import { MainPrimitiveType } from 'types/globalTypes';
 import { Collapse } from '@components/Collapse/Collapse';
 import Button from '@components/Button';
 import styles from '@styles/ChooseFile.module.scss';
-import uploadIcon from '@assets/icons/upload.svg';
 import settingsIcon from '@assets/icons/settings.svg';
 import { WizardLayout } from '@components/WizardLayout/WizardLayout';
-import Image from 'next/image';
+import DatasetUploader from '@components/DatasetUploader/DatasetUploader';
 
 interface ChooseFileProps {
   primivite?: MainPrimitiveType
@@ -31,7 +30,6 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
   const [builtInDatasets, userDatasets] = _.partition(allowedDatasets, e => e.isBuiltIn)
   const [uploadingFile, setUploadingFile] = useState<File>()
   const [selection, setSelection] = useState<AllowedDataset|File>()
-  const inputFile = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (error) {
@@ -46,25 +44,12 @@ const ChooseFile: NextPage<ChooseFileProps> = ({primivite = MainPrimitiveType.FD
     <Collapse title="My Files" titleProps={{className: styles.collapse_title}}>
       {user?.permissions.canUploadFiles && (
         <div className={styles.files}>
-          <BaseCard onClick={() => inputFile?.current?.click()}>
-            <div className={styles.uploader_title}><Image src={uploadIcon} height={20} width={20} /><p>Upload a File</p></div>
-            <input
-              type="file"
-              id="file"
-              ref={inputFile}
-              style={{display: "none"}}
-              onChange={
-                e => {
-                  if (e.target.files?.length) {
-                    setUploadingFile(e.target.files[0])
-                    setSelection(e.target.files[0])
-                  }
-                }
+          <DatasetUploader onChange={files => {
+              if (files?.length) {
+                setUploadingFile(files[0])
+                setSelection(files[0])
               }
-              multiple={false}
-              accept=".csv, .CSV"
-            />
-          </BaseCard>    
+          }}/>
           {uploadingFile && (
             <DatasetCard isSelected={selection === uploadingFile} onClick={() => setSelection(uploadingFile)} file={uploadingFile} />
           )}
