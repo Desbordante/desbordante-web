@@ -1,6 +1,7 @@
 @import "styles/common";
 
 .inputCheckbox {
+
   .inputContainer {
     display: flex;
     align-items: center;
@@ -13,14 +14,15 @@
       border: 2px solid $black-50;
       border-radius: 4px;
 
-      &:hover:not(:disabled) {
-        border: 2px solid $primary-0;
-      }
-
       &:checked {
         background: $primary-0;
         border: 2px solid $primary-0;
       }
+
+      &:hover:not(:disabled) {
+        border: 2px solid $primary-0;
+      }
+
 
       &::after {
         content: "";
