@@ -24,7 +24,7 @@ const Header = () => {
       </Link>
       <div className={styles.auth}>
         {user?.name ? (<>
-          <span>Welcome, {user.name}</span>
+          <p>Welcome, {user.name}</p>
           <Button variant="tertiary" size="sm" onClick={signOut}>
             Log Out
           </Button>

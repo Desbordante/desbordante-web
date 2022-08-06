@@ -5,6 +5,7 @@ import SignUpForm from '@components/SignUpForm';
 import Header from '@components/Header';
 import { FCWithChildren } from "types/react";
 import styles from './Layout.module.scss';
+import LogInForm from '@components/LogInForm/LogInForm';
 
 const Layout: FCWithChildren = ({ children }) => {
   const { isSignUpShown, isFeedbackShown, isLogInShown } = useContext(AuthContext)!;
@@ -16,6 +17,7 @@ const Layout: FCWithChildren = ({ children }) => {
       </Head>
       <Header />
       {isSignUpShown && <SignUpForm />}
+      {isLogInShown && <LogInForm />}
       <main className={styles.content}>{children}</main>
     </>
   );
