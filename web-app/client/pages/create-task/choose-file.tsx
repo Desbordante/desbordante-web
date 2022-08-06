@@ -25,7 +25,7 @@ const ChooseFile: NextPage = () => {
   const { loading, data, error } = useQuery<getAlgorithmsConfig>(
     GET_ALGORITHMS_CONFIG
   );
-  const allowedDatasets = (data?.algorithmsConfig?.allowedDatasets || []).filter(e => e.supportedPrimitives.includes(primitive as MainPrimitiveType))
+  const allowedDatasets = (data?.algorithmsConfig?.allowedDatasets || []).filter(e => e.supportedPrimitives.includes((primitive || "FD") as MainPrimitiveType))
   const [builtInDatasets, userDatasets] = _.partition(allowedDatasets, e => e.isBuiltIn)
   const [uploadingFile, setUploadingFile] = useState<File>()
   const [selection, setSelection] = useState<AllowedDataset|File>()
