@@ -8,6 +8,16 @@ export const GET_USER = gql`
       email
       permissions
       accountStatus
+      datasets {
+        fileID
+        fileName
+        hasHeader
+        delimiter
+        supportedPrimitives
+        rowsCount
+        countOfColumns
+        isBuiltIn
+      }
     }
   }
 `;

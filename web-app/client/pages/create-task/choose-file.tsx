@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router'
 import { AuthContext } from '@components/AuthContext';
-import { useQuery } from '@apollo/client';
+import { DefaultContext, useMutation, useQuery } from '@apollo/client';
 import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
 import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithmsConfig';
 import { ErrorContext } from '@components/ErrorContext';
@@ -16,6 +16,8 @@ import styles from '@styles/ChooseFile.module.scss';
 import settingsIcon from '@assets/icons/settings.svg';
 import { WizardLayout } from '@components/WizardLayout/WizardLayout';
 import DatasetUploader from '@components/DatasetUploader/DatasetUploader';
+import { uploadDataset, uploadDatasetVariables } from '@graphql/operations/mutations/__generated__/uploadDataset';
+import { UPLOAD_DATASET } from '@graphql/operations/mutations/uploadDataset';
 
 const ChooseFile: NextPage = () => {
   const router = useRouter()
@@ -25,8 +27,25 @@ const ChooseFile: NextPage = () => {
   const { loading, data, error } = useQuery<getAlgorithmsConfig>(
     GET_ALGORITHMS_CONFIG
   );
+
+  const [uploadDataset] = useMutation<
+    uploadDataset,
+    uploadDatasetVariables
+  >(UPLOAD_DATASET);
+
+  const context: DefaultContext = {
+    fetchOptions: {
+      useUpload: true,
+      onProgress: (ev: ProgressEvent) => {
+        console.log(ev.loaded / ev.total)
+        // setFileUploadProgress(ev.loaded / ev.total);
+      },
+    },
+  };
+
   const allowedDatasets = (data?.algorithmsConfig?.allowedDatasets || []).filter(e => e.supportedPrimitives.includes((primitive || "FD") as MainPrimitiveType))
-  const [builtInDatasets, userDatasets] = _.partition(allowedDatasets, e => e.isBuiltIn)
+  const [builtInDatasets, _otherDatasets] = _.partition(allowedDatasets, e => e.isBuiltIn)
+  const [userDatasets, setUserDatasets] = useState(user?.datasets || [])
   const [uploadingFile, setUploadingFile] = useState<File>()
   const [selection, setSelection] = useState<AllowedDataset|File>()
   const [fileIsDragged, setFileIsDragged] = useState(false)
@@ -46,8 +65,11 @@ const ChooseFile: NextPage = () => {
         <div className={styles.files}>
           <DatasetUploader isDraggedOutside={fileIsDragged} onChange={files => {
               if (files?.length) {
-                setUploadingFile(files[0])
-                setSelection(files[0])
+                uploadDataset({
+                  variables: { datasetProps: {  delimiter: ',', hasHeader: false}, table: files[0]},
+                  context,
+                }).then((res) => setUserDatasets([...userDatasets, res.data?.uploadDataset as AllowedDataset]))
+                  .catch((error) => showError({ message: error.message }));
               }
           }}/>
           {uploadingFile && (
