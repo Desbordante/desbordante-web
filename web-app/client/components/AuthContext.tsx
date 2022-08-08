@@ -79,6 +79,7 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) =
       email: data.email,
       isVerified: data.accountStatus === "EMAIL_VERIFIED",
       permissions: parseUserPermissions(data.permissions),
+      datasets: []
     });
   };
 
@@ -91,7 +92,7 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) =
           },
         });
         if (response.data?.user) {
-          const { userID, fullName, email, accountStatus, permissions } =
+          const { userID, fullName, email, accountStatus, permissions, datasets } =
             response.data.user;
           setUser({
             id: userID,
@@ -99,6 +100,7 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) =
             email,
             isVerified: accountStatus === "EMAIL_VERIFIED",
             permissions: parseUserPermissions(permissions),
+            datasets: datasets || []
           });
         } else {
           showError({
@@ -124,6 +126,7 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) =
               permissions: parseUserPermissions(
                 anonymousPermissions.data!.getAnonymousPermissions
               ),
+              datasets: []
             }));
           }
         })();
