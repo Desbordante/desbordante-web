@@ -14,7 +14,7 @@ export const MetaInfoResolvers: Resolvers = {
             }
 
             const { includeBuiltInDatasets, includeDeletedDatasets, pagination } = props;
-            let options: FindOptions = { where: {}, ...pagination };
+            let options: FindOptions = { where: { isValid: true }, ...pagination };
 
             if (includeBuiltInDatasets === false) {
                 options.where = { ...options.where, isBuiltInDataset: false };

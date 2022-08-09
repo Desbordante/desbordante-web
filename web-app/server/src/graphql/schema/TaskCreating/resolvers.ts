@@ -11,14 +11,9 @@ export const TaskCreatingResolvers: Resolvers = {
             const permissions = Permission.getPermissionsBySessionInfo(sessionInfo);
             if (permissions.includes("USE_BUILTIN_DATASETS")) {
                 const { models } = context;
-                context.logger("creating");
                 const file = await models.GeneralTaskConfig.getFileInfo(
                     props.parentTaskID!
                 );
-                context.logger("creating2");
-                context.logger("creating2");
-                context.logger("creating2");
-                context.logger("creating2");
                 return await TaskCreatorFactory.build(
                     props.type,
                     context,
@@ -38,7 +33,12 @@ export const TaskCreatingResolvers: Resolvers = {
             context
         ) => {
             const { models, sessionInfo } = context;
-            const file = await models.FileInfo.findByPk(fileID);
+            const file = await models.FileInfo.findOne({
+                where: {
+                    fileID,
+                    isValid: true,
+                },
+            });
             if (!file) {
                 throw new UserInputError("File not found", { fileID });
             }
