@@ -1,10 +1,15 @@
-import { forwardRef, ForwardRefRenderFunction } from 'react';
+import {
+  forwardRef,
+  ForwardRefRenderFunction,
+  HTMLProps,
+} from 'react';
 import cn from 'classnames';
-import { InputProps } from '../../Input';
-
+import { InputPropsBase } from '@components/Inputs';
 import styles from './Checkbox.module.scss';
 
-const Checkbox: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
+type Props = InputPropsBase & HTMLProps<HTMLInputElement>;
+
+const Checkbox: ForwardRefRenderFunction<HTMLInputElement, Props> = (
   { id, label, error, className, ...props },
   ref
 ) => {

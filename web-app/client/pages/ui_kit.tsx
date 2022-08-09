@@ -1,7 +1,14 @@
 import Button from '@components/Button';
-import Input from '@components/Input';
+import { Text, Checkbox, Select } from '@components/Inputs';
 import Tooltip from '@components/Tooltip';
 import styles from '@styles/UiKit.module.scss';
+
+const tooltipContent = (
+  <div className={styles.tooltipChildren}>
+    <p>Title</p>
+    <small>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</small>
+  </div>
+);
 
 const Buttons = () => {
   const buttonContent = 'Click Me';
@@ -35,10 +42,14 @@ const Buttons = () => {
 const InputText = () => {
   return (
     <div className={styles.row}>
-      <Input label="Label" placeholder="Type something" />
-      <Input label="Label" placeholder="Type something" tooltip="Tooltip" />
-      <Input label="Label" error="Error message" placeholder="Type something" />
-      <Input label="Label" placeholder="Type something" disabled />
+      <Text label="Label" placeholder="Type something" />
+      <Text
+        label="Label"
+        placeholder="Type something"
+        tooltip={tooltipContent}
+      />
+      <Text label="Label" error="Error message" placeholder="Type something" />
+      <Text label="Label" placeholder="Type something" disabled />
     </div>
   );
 };
@@ -46,27 +57,62 @@ const InputText = () => {
 const InputCheckbox = () => {
   return (
     <div className={styles.row}>
-      <Input type="checkbox" label="Label" />
-      <Input type="checkbox" label="Label" error="Error message" />
-      <Input type="checkbox" label="Label" disabled />
+      <Checkbox type="checkbox" label="Label" />
+      <Checkbox type="checkbox" label="Label" error="Error message" />
+      <Checkbox type="checkbox" label="Label" disabled />
     </div>
   );
 };
 
 const Tooltips = () => {
-  const children = (
-    <div className={styles.tooltipChildren}>
-      <p>Title</p>
-      <small>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</small>
+  return (
+    <div className={styles.row}>
+      <Tooltip>{tooltipContent}</Tooltip>
+      <Tooltip position="right">{tooltipContent}</Tooltip>
+      <Tooltip position="bottom">{tooltipContent}</Tooltip>
+      <Tooltip position="left">{tooltipContent}</Tooltip>
     </div>
   );
+};
+
+const Selects = () => {
+  const options = [
+    {
+      label: 'Comma (" , ")',
+      value: ',',
+    },
+    {
+      label: 'New line (" \\n ")',
+      value: '\\n',
+    },
+    {
+      label: 'Tabulation (" \\t ")',
+      value: '\\t',
+    },
+  ];
 
   return (
     <div className={styles.row}>
-      <Tooltip>{children}</Tooltip>
-      <Tooltip position="right">{children}</Tooltip>
-      <Tooltip position="bottom">{children}</Tooltip>
-      <Tooltip position="left">{children}</Tooltip>
+      <Select label="Label" placeholder="Select" options={options} />
+      <Select
+        label="Label"
+        placeholder="Select"
+        options={options}
+        isSearchable={false}
+      />
+      <Select
+        label="Label"
+        placeholder="Select"
+        options={options}
+        tooltip={tooltipContent}
+      />
+      <Select
+        label="Label"
+        placeholder="Select"
+        options={options}
+        error="Error message"
+      />
+      <Select label="Label" placeholder="Select" options={options} isDisabled />
     </div>
   );
 };
@@ -78,6 +124,7 @@ const UIKit = () => {
       <InputText />
       <InputCheckbox />
       <Tooltips />
+      <Selects />
     </div>
   );
 };
