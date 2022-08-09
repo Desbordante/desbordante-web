@@ -107,6 +107,9 @@ export const UserResolvers: Resolvers = {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
             }
+            if (!userID) {
+                userID = sessionInfo.userID;
+            }
             if (
                 sessionInfo.permissions.includes("VIEW_ADMIN_INFO") ||
                 sessionInfo.userID === userID
