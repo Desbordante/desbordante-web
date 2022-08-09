@@ -69,6 +69,9 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     @Column({ type: BOOLEAN, defaultValue: false, allowNull: false })
     isBuiltIn!: boolean;
 
+    @Column({ type: BOOLEAN, defaultValue: true, allowNull: false })
+    isValid!: boolean;
+
     @Column({ type: STRING, allowNull: true })
     mimeType!: string | null;
 
@@ -145,7 +148,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         const renamedHeader = JSON.stringify(header);
 
         const [file, created] = await FileInfo.findOrCreate({
-            where: { path },
+            where: { path, isValid: true },
             defaults: {
                 fileName,
                 originalFileName: fileName,
@@ -190,6 +193,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
             mimeType,
             originalFileName,
             userID,
+            isValid: false,
         });
 
         const { fileID } = file;
@@ -267,6 +271,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
             const counters = await findRowsAndColumnsNumber(path, datasetProps.delimiter);
             await file.update(counters);
         }
+        await file.update({ isValid: true });
         return file;
     };
 
@@ -305,7 +310,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
 
     static findBuiltInDatasets = async () => {
         const datasets = await FileInfo.findAll({
-            where: { isBuiltIn: true },
+            where: { isBuiltIn: true, isValid: true },
         });
         return datasets.filter(({ fileName }) =>
             builtInDatasets.find((info) => info.fileName === fileName)

@@ -596,6 +596,9 @@ export const TaskInfoResolvers: Resolvers = {
             if (!file) {
                 throw new UserInputError("File not found");
             }
+            if (!file.isValid) {
+                throw new ApolloError("File isn't valid");
+            }
             if (
                 file.isBuiltIn ||
                 (sessionInfo && sessionInfo.userID === file.userID) ||

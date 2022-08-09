@@ -74,7 +74,12 @@ export const UserResolvers: Resolvers = {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            return await models.FileInfo.findAll({ where: { userID } });
+            return await models.FileInfo.findAll({
+                where: {
+                    userID,
+                    isValid: true,
+                },
+            });
         },
     },
     Feedback: {
