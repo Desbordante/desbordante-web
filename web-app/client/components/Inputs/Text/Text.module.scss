@@ -1,6 +1,7 @@
 @import "styles/common";
 
 .inputText {
+
   .top {
     display: flex;
     align-items: center;
@@ -15,9 +16,13 @@
   }
 
   .inputContainer {
-    padding: 16px 32px;
+    padding: 16px;
     border: 1px solid $black-25;
     border-radius: 8px;
+
+    &.focused {
+      border: 1px solid $primary-0;
+    }
 
     &.error {
       border: 2px solid $error;

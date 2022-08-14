@@ -1,14 +1,26 @@
-import { forwardRef, ForwardRefRenderFunction } from 'react';
+import {
+  forwardRef,
+  ForwardRefRenderFunction,
+  HTMLProps,
+  ReactNode,
+  useState,
+} from 'react';
 import cn from 'classnames';
-import { InputProps } from '../../Input';
 import Tooltip from '@components/Tooltip';
-
+import { InputPropsBase } from '@components/Inputs';
 import styles from './Text.module.scss';
 
-const Text: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
+type Props = InputPropsBase &
+  HTMLProps<HTMLInputElement> & {
+    tooltip?: ReactNode;
+  };
+
+const Text: ForwardRefRenderFunction<HTMLInputElement, Props> = (
   { id, label, error, className, tooltip, ...props },
   ref
 ) => {
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
     <div
       className={cn(
@@ -21,8 +33,16 @@ const Text: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
         {label && <label htmlFor={id}>{label}</label>}
         {tooltip && <Tooltip>{tooltip}</Tooltip>}
       </div>
-      <div className={cn(styles.inputContainer, error && styles.error)}>
+      <div
+        className={cn(
+          styles.inputContainer,
+          error && styles.error,
+          isFocused && styles.focused
+        )}
+      >
         <input
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           type="text"
           ref={ref}
           id={id}

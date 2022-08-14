@@ -1,9 +1,9 @@
 import type { AppProps } from 'next/app';
-import { ApolloProvider } from "@apollo/client";
+import { ApolloProvider } from '@apollo/client';
 import Layout from '@components/Layout';
 import GoogleAnalytics from '@components/GoogleAnalytics';
 import { environment } from '@utils/env';
-import client from "@graphql/client";
+import client from '@graphql/client';
 import ClientOnly from '@components/ClientOnly';
 import { AuthContextProvider } from '@components/AuthContext';
 import { ErrorContextProvider } from '@components/ErrorContext';
@@ -16,7 +16,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <ErrorContextProvider>
           <AuthContextProvider>
             <Layout>
-                <Component {...pageProps} />
+              <Component {...pageProps} />
             </Layout>
           </AuthContextProvider>
         </ErrorContextProvider>
