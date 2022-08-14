@@ -16,8 +16,6 @@ import styles from '@styles/ChooseFile.module.scss';
 import settingsIcon from '@assets/icons/settings.svg';
 import { WizardLayout } from '@components/WizardLayout/WizardLayout';
 import DatasetUploader from '@components/DatasetUploader/DatasetUploader';
-import FilePropsForm from '@components/FilePropsForm/FilePropsForm';
-import PopupWindowContainer from '@components/PopupWindowContainer/PopupWindowContainer';
 
 const ChooseFile: NextPage = () => {
   const router = useRouter()
@@ -31,7 +29,7 @@ const ChooseFile: NextPage = () => {
   const allowedDatasets = (data?.algorithmsConfig?.allowedDatasets || []).filter(e => e.supportedPrimitives.includes((primitive || "FD") as MainPrimitiveType))
   const [builtInDatasets, _otherDatasets] = _.partition(allowedDatasets, e => e.isBuiltIn)
   const [userDatasets, setUserDatasets] = useState(user?.datasets || [])
-  const [selection, setSelection] = useState<AllowedDataset|File>()
+  const [selection, setSelection] = useState<AllowedDataset>()
   const [fileIsDragged, setFileIsDragged] = useState(false)
 
   useEffect(() => {
