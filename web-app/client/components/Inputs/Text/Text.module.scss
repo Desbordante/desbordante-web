@@ -32,6 +32,7 @@
       @include paragraph;
       color: $black;
       border: none;
+      background: transparent;
 
       &:focus {
         outline: none;

@@ -16,6 +16,8 @@ import styles from '@styles/ChooseFile.module.scss';
 import settingsIcon from '@assets/icons/settings.svg';
 import { WizardLayout } from '@components/WizardLayout/WizardLayout';
 import DatasetUploader from '@components/DatasetUploader/DatasetUploader';
+import FilePropsForm from '@components/FilePropsForm/FilePropsForm';
+import PopupWindowContainer from '@components/PopupWindowContainer/PopupWindowContainer';
 
 const ChooseFile: NextPage = () => {
   const router = useRouter()
@@ -29,7 +31,6 @@ const ChooseFile: NextPage = () => {
   const allowedDatasets = (data?.algorithmsConfig?.allowedDatasets || []).filter(e => e.supportedPrimitives.includes((primitive || "FD") as MainPrimitiveType))
   const [builtInDatasets, _otherDatasets] = _.partition(allowedDatasets, e => e.isBuiltIn)
   const [userDatasets, setUserDatasets] = useState(user?.datasets || [])
-  const [uploadingFile, setUploadingFile] = useState<File>()
   const [selection, setSelection] = useState<AllowedDataset|File>()
   const [fileIsDragged, setFileIsDragged] = useState(false)
 
@@ -50,9 +51,6 @@ const ChooseFile: NextPage = () => {
             setUserDatasets([...userDatasets, dataset])
             setSelection(dataset)
           }}/>
-          {uploadingFile && (
-            <DatasetCard isSelected={selection === uploadingFile} onClick={() => setSelection(uploadingFile)} file={uploadingFile} />
-          )}
 
           {user?.permissions.canUploadFiles && userDatasets && userDatasets.map(file => <DatasetCard isSelected={selection === file} onClick={() => setSelection(file)} file={file} />)} 
         </div>) || <p>You must be authorized to upload files</p>}
@@ -78,6 +76,7 @@ const ChooseFile: NextPage = () => {
   return (
     <WizardLayout onDrop={e => {e.preventDefault(); setFileIsDragged(false)}} onDragOver={() => setFileIsDragged(true)} onDragLeave={() => setFileIsDragged(false)}  header={header} footer={footer}>
       {user?.permissions.canUploadFiles && <>{userFiles}{datasets}</> || <>{datasets}{userFiles}</>}
+
     </WizardLayout>
   );
 };
