@@ -87,7 +87,7 @@ const FilePropsView: FC<Props> = ({data}) => {
                     {!isEdited && <FilePropsList onEdit={() => setIsEdited(true)} data={data} />}
                     {isEdited && <FilePropsForm onEdit={() => setIsEdited(false)} data={data} />}
                 </Tab>
-                <Tab name="Statistics"><div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: 256}}>Statistics are not available yet</div></Tab>
+                <Tab name="Statistics"><div className={styles.stats}><p>Statistics are not available yet</p></div></Tab>
             </TabView>
         </div>
     
