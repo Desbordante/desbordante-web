@@ -109,6 +109,7 @@ export interface FileProps {
   inputFormat?: InputFileFormat | null;
   itemColumnIndex?: number | null;
   tidColumnIndex?: number | null;
+  fileType?: string;
 }
 
 export interface IntersectionFilter {

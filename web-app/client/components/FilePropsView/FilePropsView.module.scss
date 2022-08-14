@@ -2,15 +2,15 @@
 
 .container {
     width: 560px;
-    height: 851px;
+    height: fit-content;
     padding: 48px;
     border-radius: 16px;
     background-color: $white;
 
     h4 {
-        text-align: center;
         padding:0;
         margin:0;
+        text-align: center;
     }
 
     form > * {
@@ -29,9 +29,30 @@
     }
 }
 
-.buttonsRow {
 
-    display: flex;
+
+.propsList {
+    display:flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-top: 24px;
+
+    & > div {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        & > p {
+            flex-grow: 1;
+            text-align: left;
+            flex: 50%;
+        }
+    }
+}
+
+.buttonsRow {
     gap: 16px;
     justify-content: center;
+    display: flex;
+    margin-top: 32px;
 }
