@@ -21,7 +21,7 @@ import { Select } from '@components/Inputs';
 
 const ConfigureAlgorithm: NextPage = () => {
   const router = useRouter()
-  const { primitive } = router.query
+  const { primitive, fileID } = router.query
   const {user} = useContext(AuthContext)!
   const {showError} = useContext(ErrorContext)!
   const { loading, data, error } = useQuery<getAlgorithmsConfig>(
@@ -56,9 +56,9 @@ const ConfigureAlgorithm: NextPage = () => {
     <WizardLayout header={header} footer={footer}>
       <div style={{width: 340, margin: 'auto'}}>
         <Select label="Algorithm" />
-        <NumberSlider label="Error threshold" />
-        <NumberSlider label="Arity constraint" />
-        <NumberSlider label="Thread count" />
+        <NumberSlider max={9} label="Error threshold" />
+        <NumberSlider max={9} label="Arity constraint" />
+        <NumberSlider max={9} label="Thread count" />
       </div>
     </WizardLayout>
   );
