@@ -40,7 +40,7 @@ export const DatasetCard: FC<DatasetCardProps> = ({file, ...rest}) => {
     return (
     <>
         {filePropsShown && <PopupWindowContainer onOutsideClick={() => setFilePropsShown(false)}>
-            <FilePropsView data={file} />
+            <FilePropsView data={file} onClose={() => setFilePropsShown(false)} />
         </PopupWindowContainer>}
         <BaseCard {...rest}>
             <div className={styles.card_title}><p>{fileName}</p><Image onClick={() => setFilePropsShown(true)} src={threeDots.src} width={20} height={20} /></div>

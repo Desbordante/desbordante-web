@@ -1,6 +1,7 @@
 @import "styles/common";
 
 .tooltip {
+  display: inline-block;
   position: relative;
 
   .icon {
@@ -11,6 +12,7 @@
     @include paragraph-small;
     position: absolute;
     padding: 16px;
+    width: 256px;
     color: $white;
     background: $primary-gradient-0;
     border-radius: 8px;
