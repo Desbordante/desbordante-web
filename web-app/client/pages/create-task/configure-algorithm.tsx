@@ -13,11 +13,13 @@ import { MainPrimitiveType } from 'types/globalTypes';
 import { Collapse } from '@components/Collapse/Collapse';
 import Button from '@components/Button';
 import styles from '@styles/ChooseFile.module.scss';
-import settingsIcon from '@assets/icons/settings.svg';
+import ideaIcon from '@assets/icons/idea.svg';
 import { WizardLayout } from '@components/WizardLayout/WizardLayout';
 import DatasetUploader from '@components/DatasetUploader/DatasetUploader';
+import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
+import { Select } from '@components/Inputs';
 
-const ChooseFile: NextPage = () => {
+const ConfigureAlgorithm: NextPage = () => {
   const router = useRouter()
   const { primitive } = router.query
   const {user} = useContext(AuthContext)!
@@ -40,43 +42,26 @@ const ChooseFile: NextPage = () => {
       });
     }
   })
-
-  const userFiles = (
-    <Collapse title="My Files" titleProps={{className: styles.collapse_title}}>
-      {user?.permissions.canUploadFiles && (
-        <div className={styles.files}>
-          <DatasetUploader isDraggedOutside={fileIsDragged} onUpload={dataset => {
-            setUserDatasets([...userDatasets, dataset])
-            setSelection(dataset)
-          }}/>
-
-          {user?.permissions.canUploadFiles && userDatasets && userDatasets.map(file => <DatasetCard isSelected={selection === file} onClick={() => setSelection(file)} file={file} />)} 
-        </div>) || <p>You must be authorized to upload files</p>}
-    </Collapse>)
-
-  const datasets = (
-    <Collapse title="Built-in Datasets" titleProps={{className: styles.collapse_title}}>
-      <div className={styles.files}>
-        {user?.permissions.canUseBuiltinDatasets && builtInDatasets && builtInDatasets.map(file => <DatasetCard isSelected={selection === file} onClick={() => setSelection(file)} file={file} />)}
-      </div>
-    </Collapse>)
-
   const header = <>
-    <h2 className={styles.name_main}>Choose a File</h2>
-    <h6 className={styles.description}>We have prepared some datasets for you</h6>
+    <h2 className={styles.name_main}>Configure Algorithm</h2>
+    <h6 className={styles.description}>Vitae ipsum leo ut tincidunt viverra nec cum.</h6>
   </>
 
   const footer = <>
-    <Button variant="secondary">Go Back</Button>
-    <Button variant="primary" icon={settingsIcon} onClick={() => router.push("/create-task/configure-algorithm")}>Configure algorithm</Button>
+    <Button variant="secondary" onClick={() => router.back()}>Go Back</Button>
+    <Button variant="primary" icon={ideaIcon}>Analyze</Button>
   </>
 
   return (
-    <WizardLayout onDrop={e => {e.preventDefault(); setFileIsDragged(false)}} onDragOver={() => setFileIsDragged(true)} onDragLeave={() => setFileIsDragged(false)}  header={header} footer={footer}>
-      {user?.permissions.canUploadFiles && <>{userFiles}{datasets}</> || <>{datasets}{userFiles}</>}
-
+    <WizardLayout header={header} footer={footer}>
+      <div style={{width: 340, margin: 'auto'}}>
+        <Select label="Algorithm" />
+        <NumberSlider label="Error threshold" />
+        <NumberSlider label="Arity constraint" />
+        <NumberSlider label="Thread count" />
+      </div>
     </WizardLayout>
   );
 };
 
-export default ChooseFile;
+export default ConfigureAlgorithm;
