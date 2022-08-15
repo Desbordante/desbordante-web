@@ -7,7 +7,7 @@ interface Props extends PropsWithChildren {
     footer: ReactElement,
     onDragOver?: () => void,
     onDragLeave?: () => void,
-    onDrop: (event: DragEvent<HTMLDivElement>) => void,
+    onDrop?: (event: DragEvent<HTMLDivElement>) => void,
 }
 
 export const WizardLayout: FC<Props> = ({header, footer, children, onDragOver, onDragLeave, onDrop}) => {

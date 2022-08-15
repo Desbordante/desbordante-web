@@ -1,0 +1,79 @@
+@import "styles/common";
+
+.slider {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 332px;
+
+  & > :first-child {
+    width: 76px;
+  }
+}
+
+.sliderHandle {
+  width: 0px;
+  height: 30px;
+  border: 4px solid $black;
+  border-radius: 5px;
+  position: absolute;
+  margin-top: -13px;
+  background-color: $primary-0;
+  cursor: grab;
+  touch-action: pan-x;
+}
+
+.inputText {
+
+  .top {
+    display: flex;
+    align-items: center;
+    margin: 0 0 8px;
+
+    label {
+      @include paragraph;
+      display: block;
+      margin: 0 8px 0 0;
+      color: $black;
+    }
+  }
+
+  .inputContainer {
+    padding: 16px;
+    border: 1px solid $black-25;
+    border-radius: 8px;
+
+    &.focused {
+      border: 1px solid $primary-0;
+    }
+
+    &.error {
+      border: 2px solid $error;
+    }
+
+    input {
+      @include paragraph;
+      color: $black;
+      border: none;
+      background: transparent;
+
+      &:focus {
+        outline: none;
+      }
+
+      &::placeholder {
+        color: $black-50;
+      }
+    }
+  }
+
+  .error {
+    @include paragraph-small;
+    margin: 8px 0 0;
+    color: $error;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}

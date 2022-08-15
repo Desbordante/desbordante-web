@@ -69,7 +69,7 @@ const ChooseFile: NextPage = () => {
 
   const footer = <>
     <Button variant="secondary">Go Back</Button>
-    <Button variant="primary" icon={settingsIcon}>Configure algorithm</Button>
+    <Button variant="primary" icon={settingsIcon} onClick={() => router.push("/create-task/configure-algorithm")}>Configure algorithm</Button>
   </>
 
   return (
