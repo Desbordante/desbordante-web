@@ -37,7 +37,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       </div>
       <div className={styles.slider} >
         <Text value={value} onChange={e => setValue(Number.parseFloat(e.currentTarget.value))} {...props} ref={ref} />
-        <Slider value={value} onChange={v => setValue(v as number)} handleRender={(origin, _props) => <div {...origin.props as BaseHTMLAttributes<HTMLDivElement>} className={styles.sliderHandle} />}/>
+        <Slider min={1} max={9} step={0.1} marks={{1: {style: {top: -40}, label: "1"}, 3: " ", 5:{style: {top: -40}, label: "5"}, 7: " ", 9: {style: {top: -40}, label: "9"}}} value={value} onChange={v => setValue(v as number)} handleRender={(origin, _props) => <div {...origin.props as BaseHTMLAttributes<HTMLDivElement>} className={styles.sliderHandle} />}/>
         {error && <p className={styles.error}>{error}</p>}
       </div>
     </div>

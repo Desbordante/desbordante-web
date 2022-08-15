@@ -19,14 +19,14 @@ import DatasetUploader from '@components/DatasetUploader/DatasetUploader';
 
 const ChooseFile: NextPage = () => {
   const router = useRouter()
-  const { primitive } = router.query
+  const primitive = router.query.primitive || "FD"
   const {user} = useContext(AuthContext)!
   const {showError} = useContext(ErrorContext)!
   const { loading, data, error } = useQuery<getAlgorithmsConfig>(
     GET_ALGORITHMS_CONFIG
   );
 
-  const allowedDatasets = (data?.algorithmsConfig?.allowedDatasets || []).filter(e => e.supportedPrimitives.includes((primitive || "FD") as MainPrimitiveType))
+  const allowedDatasets = (data?.algorithmsConfig?.allowedDatasets || []).filter(e => e.supportedPrimitives.includes(primitive as MainPrimitiveType))
   const [builtInDatasets, _otherDatasets] = _.partition(allowedDatasets, e => e.isBuiltIn)
   const [userDatasets, setUserDatasets] = useState(user?.datasets || [])
   const [uploadingFile, setUploadingFile] = useState<File>()
@@ -69,7 +69,7 @@ const ChooseFile: NextPage = () => {
 
   const footer = <>
     <Button variant="secondary">Go Back</Button>
-    <Button variant="primary" icon={settingsIcon} onClick={() => router.push("/create-task/configure-algorithm")}>Configure algorithm</Button>
+    <Button disabled={!selection} variant="primary" icon={settingsIcon} onClick={() => router.push({pathname: "/create-task/configure-algorithm", query: {primitive, fileID: selection?.fileID}})}>Configure algorithm</Button>
   </>
 
   return (
