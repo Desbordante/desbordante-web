@@ -1,0 +1,9 @@
+@import "styles/common";
+
+.container {
+  margin: auto;
+  flex-direction: column;
+  gap: 24px;
+  display: flex;
+  width: 340px;
+}
