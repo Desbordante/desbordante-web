@@ -7,11 +7,11 @@ import {
   useState,
 } from 'react';
 import Slider, { SliderProps } from 'rc-slider';
+import classNames from 'classnames';
+import Tooltip from '@components/Tooltip';
 import { InputPropsBase, Text } from '@components/Inputs';
 import 'rc-slider/assets/index.css';
 import styles from './NumberSlider.module.scss';
-import Tooltip from '@components/Tooltip';
-import classNames from 'classnames';
 
 type Props = InputPropsBase &
   HTMLProps<HTMLInputElement> & {
@@ -38,7 +38,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       </div>
       <div className={styles.slider} >
         <Text value={value} onChange={e => setValue(Number.parseFloat(e.currentTarget.value))} {...props} ref={ref} />
-        <Slider trackStyle={{height: 1}} railStyle={{height: 1}} dotStyle={{borderRadius: 5, height: 8, bottom: 0, borderWidth: 1, width:0, backgroundColor: '#e9e9e9'}} value={value} onChange={v => setValue(v as number)} handleRender={(origin, _props) => <div {...origin.props as BaseHTMLAttributes<HTMLDivElement>} className={styles.sliderHandle} />} {...sliderProps} />
+        <Slider trackStyle={{height: 1, backgroundColor: 'transparent'}} railStyle={{height: 1, backgroundColor: 'rgba(37, 30, 41, 0.25)'}} dotStyle={{borderRadius: 5, height: 8, bottom: 0, borderWidth: 1, width:0, borderColor: 'rgba(37, 30, 41, 0.25)'}} value={value} onChange={v => setValue(v as number)} handleRender={(origin, _props) => <div {...origin.props as BaseHTMLAttributes<HTMLDivElement>} className={styles.sliderHandle} />} {...sliderProps} />
         {error && <p className={styles.error}>{error}</p>}
       </div>
     </div>
