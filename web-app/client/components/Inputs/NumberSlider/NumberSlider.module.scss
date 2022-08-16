@@ -5,6 +5,7 @@
   align-items: center;
   gap: 18px;
   width: 332px;
+  font-family: $font-content;
 
   & > :first-child {
     width: 76px;
@@ -13,11 +14,11 @@
 
 .sliderHandle {
   width: 0px;
-  height: 30px;
-  border: 4px solid $black;
+  height: 13px;
+  border: 2px solid $black;
   border-radius: 5px;
   position: absolute;
-  margin-top: -13px;
+  margin-top: -6px;
   background-color: $primary-0;
   cursor: grab;
   touch-action: pan-x;
