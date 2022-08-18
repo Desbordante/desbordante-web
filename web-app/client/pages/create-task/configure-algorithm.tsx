@@ -10,15 +10,27 @@ import { WizardLayout } from '@components/WizardLayout/WizardLayout';
 import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
 import { Select } from '@components/Inputs';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
+import { useQuery } from '@apollo/client';
+import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
+import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithmsConfig';
+import { MainPrimitiveType } from 'types/globalTypes';
 
 const ConfigureAlgorithm: NextPage = () => {
   const router = useRouter()
-  const { primitive, fileID } = router.query
+  const fileID = router.query.fileID
+  const primitive = router.query.primitive as MainPrimitiveType
+
   const {user} = useContext(AuthContext)!
   const {showError} = useContext(ErrorContext)!
-  const options = [{label: "Pyro", value: "Pyro"},{label: "TaneX", value: "TaneX"},{label: "FastFDs", value: "FastFDs"},{label: "FD mine", value: "FD mine"},{label: "DFD", value: "DFD"},{label: "Deep Miner", value: "Deep Miner"},{label: "FDep", value: "FDep"},{label: "FUN", value: "FUN"}]
-  const [algorithm, setAlgorithm] = useState(options[0])
-  
+  const FDoptions = [{label: "Pyro", value: "Pyro"},{label: "TaneX", value: "TaneX"},{label: "FastFDs", value: "FastFDs"},{label: "FD mine", value: "FD mine"},{label: "DFD", value: "DFD"},{label: "Deep Miner", value: "Deep Miner"},{label: "FDep", value: "FDep"},{label: "FUN", value: "FUN"}]
+  const CFDoptions = [{label: "CTane", value: "CTane"}]
+  const [algorithm, setAlgorithm] = useState(FDoptions[0])
+  const { loading, data, error } = useQuery<getAlgorithmsConfig>(
+    GET_ALGORITHMS_CONFIG
+  );
+
+  console.log(data)
+
   const header = <>
     <h2 className={styles.name_main}>Configure Algorithm</h2>
     <h6 className={styles.description}>Vitae ipsum leo ut tincidunt viverra nec cum.</h6>
@@ -29,14 +41,20 @@ const ConfigureAlgorithm: NextPage = () => {
     <Button variant="primary" icon={ideaIcon}>Analyze</Button>
   </>
 
-  const marks = {1: {style: {top: -40}, label: "1"}, 3: " ", 5:{style: {top: -40}, label: "5"}, 7: " ", 9: {style: {top: -40}, label: "9"}}
   return (
     <WizardLayout header={header} footer={footer}>
       <div className={styles.container}>
-        <Select value={algorithm} onChange={(option: any) => setAlgorithm(option)} label="Algorithm" options={options} />
-        <NumberSlider disabled={["FastFDs", "FD mine", "DFD", "Deep miner", "FDep", "FUN"].indexOf(algorithm?.value) !== -1} sliderProps={{min: 1, max: 9, step: 0.1, marks}}  label="Error threshold" />
-        <NumberSlider disabled={["FastFDs", "FD mine", "DFD", "Deep miner", "FDep", "FUN"].indexOf(algorithm?.value) !== -1}  sliderProps={{min: 1, max: 9, step: 0.1, marks}}  label="Arity constraint" />
-        <NumberSlider disabled={["TaneX", "FD mine", "Deep miner", "FDep", "FUN"].indexOf(algorithm?.value) !== -1}  sliderProps={{min: 1, max: 9, step: 0.1, marks}}  label="Thread count" />
+        {primitive === MainPrimitiveType.FD && <>
+        <Select value={algorithm} onChange={(option: any) => setAlgorithm(option)} label="Algorithm" options={FDoptions} />
+        <NumberSlider sliderProps={{min: 1, max: 9, step: 0.1}}  label="Error threshold" />
+        <NumberSlider sliderProps={{min: 1, max: 9, step: 0.1}}  label="Arity constraint" />
+        <NumberSlider sliderProps={{min: 1, max: 9, step: 0.1}}  label="Thread count" /></>}
+
+        {primitive === MainPrimitiveType.CFD && <>
+          <Select value={algorithm} onChange={(option: any) => setAlgorithm(option)} label="Algorithm" options={CFDoptions} />
+          <NumberSlider sliderProps={{min: 0, max: 1, step: 1e-6}}  label="Minimum confidence" />
+          <NumberSlider sliderProps={{min: 1, max: 10, step: 1}}  label="Arity constraint" />
+          <NumberSlider sliderProps={{min: 1, max: 16, step: 1}}  label="Minimum support" /></>}
       </div>
     </WizardLayout>
   );
