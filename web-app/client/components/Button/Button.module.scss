@@ -72,6 +72,7 @@
   }
 }
 
+
 .secondary {
   border: 2px solid $primary-0;
   color: $primary-0;
@@ -98,6 +99,12 @@
     border: 2px solid $black-25;
   }
 }
+.secondary-danger {
+  @extend .secondary;
+  border: 2px solid $error;
+  color: $error;
+}
+
 
 .primary {
   background: $primary-0;

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import styles from './Button.module.scss';
 import Image, { StaticImageData } from 'next/image'
 
-type ButtonVariant = 'gradient' | 'primary' | 'secondary' | 'tertiary';
+type ButtonVariant = 'gradient' | 'primary' | 'secondary' | 'secondary-danger' | 'tertiary';
 type ButtonSize = 'sm' | 'lg' | 'md';
 type Icon = string | StaticImageData
 

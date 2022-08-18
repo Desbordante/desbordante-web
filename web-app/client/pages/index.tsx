@@ -3,8 +3,11 @@ import Button from '@components/Button';
 import ExternalLink from '@components/ExternalLink';
 import styles from '@styles/Home.module.scss';
 import plexus from '@public/plexus.jpg';
+import { useRouter } from 'next/router'
 
 const Home: NextPage = () => {
+  const router = useRouter()
+
   return (
     <div className={styles.home}>
       <div className={styles.background}>
@@ -19,7 +22,7 @@ const Home: NextPage = () => {
         <h1 className={styles.name_main}>Desbordante</h1>
         <h6 className={styles.description}>Open-source data profiling tool</h6>
         <div className={styles.links}>
-          <Button variant="gradient">Get Started</Button>
+          <Button variant="gradient" onClick={() =>     router.push("/create-task/choose-file")}>Get Started</Button>
 
           <ExternalLink href="https://github.com/Mstrutov/Desbordante">
             GitHub
