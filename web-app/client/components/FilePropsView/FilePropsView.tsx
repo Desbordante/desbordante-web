@@ -74,7 +74,7 @@ const FilePropsList: FC<Props & FormProps> = ({
         </div>
       </div>
       <div className={styles.buttonsRow}>
-        <Button variant="secondary-error" onClick={onDelete}>
+        <Button variant="secondary-danger" onClick={onDelete}>
           Delete
         </Button>
         <Button variant="primary" onClick={switchEdit}>
