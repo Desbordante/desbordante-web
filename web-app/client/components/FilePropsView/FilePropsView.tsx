@@ -38,7 +38,7 @@ const FilePropsList: FC<Props & FormProps> = ({
       <div className={styles.propsList}>
         <div>
           <p>
-            File type{' '}
+            File type
             <Tooltip>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor incididunt ut labore et dolore magna aliqua
@@ -54,24 +54,29 @@ const FilePropsList: FC<Props & FormProps> = ({
           <p>Has header row</p>
           <p>{data.hasHeader ? 'Yes' : 'No'}</p>
         </div>
-        <div>
-          <p>
-            Itemset format{' '}
-            <Tooltip>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua
-            </Tooltip>
-          </p>
-          <p>{data.inputFormat}</p>
-        </div>
-        <div>
-          <p>ID column index</p>
-          <p>{data.tidColumnIndex}</p>
-        </div>
-        <div>
-          <p>Itemset column index</p>
-          <p>{data.itemColumnIndex}</p>
-        </div>
+
+        {data.fileType === 'Itemset' && (
+          <>
+            <div>
+              <p>
+                Itemset format
+                <Tooltip>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                  do eiusmod tempor incididunt ut labore et dolore magna aliqua
+                </Tooltip>
+              </p>
+              <p>{data.inputFormat}</p>
+            </div>
+            <div>
+              <p>ID column index</p>
+              <p>{data.tidColumnIndex}</p>
+            </div>
+            <div>
+              <p>Itemset column index</p>
+              <p>{data.itemColumnIndex}</p>
+            </div>
+          </>
+        )}
       </div>
       <div className={styles.buttonsRow}>
         <Button variant="secondary-danger" onClick={onDelete}>
@@ -90,10 +95,9 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
     register,
     handleSubmit,
     control,
-    watch,
     formState: { errors },
   } = useForm({ defaultValues: data });
-  const onSubmit: SubmitHandler<FieldValues> = (data) =>
+  const onSubmit: SubmitHandler<FileProps> = (data) =>
     switchEdit && switchEdit();
 
   return (
@@ -121,24 +125,32 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
         )}
       />
       <Checkbox label="Has header row" {...register('hasHeader')} />
-      <Controller
-        name="inputFormat"
-        control={control}
-        render={({ field }) => (
-          <Select
-            {...field}
-            label="Itemset format"
-            options={[
-              { value: 'SINGULAR', label: 'Singular' },
-              { value: 'TABULAR', label: 'Tabular' },
-            ]}
+      {data.fileType === 'Itemset' && (
+        <>
+          <Controller
+            name="inputFormat"
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                label="Itemset format"
+                options={[
+                  { value: 'SINGULAR', label: 'Singular' },
+                  { value: 'TABULAR', label: 'Tabular' },
+                ]}
+              />
+            )}
           />
-        )}
-      />
-      <div className={styles.fieldsRow}>
-        <Text label="ID column index" {...register('tidColumnIndex')} />
-        <Text label="Itemset column index" {...register('itemColumnIndex')} />
-      </div>
+          <div className={styles.fieldsRow}>
+            <Text label="ID column index" {...register('tidColumnIndex')} />
+            <Text
+              label="Itemset column index"
+              {...register('itemColumnIndex')}
+            />
+          </div>
+        </>
+      )}
+
       <div className={styles.buttonsRow}>
         <Button variant="secondary" onClick={switchEdit}>
           Cancel
