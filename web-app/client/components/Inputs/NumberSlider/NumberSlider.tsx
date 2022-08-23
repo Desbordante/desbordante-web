@@ -20,7 +20,7 @@ type Props = InputPropsBase &
   };
 
 const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
-  { id, label, error, className, tooltip, sliderProps, ...props },
+  { id, label, error, className, tooltip, sliderProps, onChange, ...props },
   ref
 ) => {
   const [value, setValue] = useState(1);
@@ -64,9 +64,13 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       </div>
       <div className={styles.slider}>
         <Text
-          value={value}
-          onChange={(e) => setValue(Number.parseFloat(e.currentTarget.value))}
           {...props}
+          value={value}
+          onChange={(e) => {
+            const newValue = Number.parseFloat(e.currentTarget.value);
+            setValue(newValue);
+            onChange && onChange(e);
+          }}
           className={styles.text}
           ref={ref}
         />
@@ -83,7 +87,9 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
             borderColor: 'rgba(37, 30, 41, 0.25)',
           }}
           value={value}
-          onChange={(v) => setValue(v as number)}
+          onChange={(v) => {
+            setValue(v as number);
+          }}
           handleRender={(origin, _props) => (
             <div
               {...(origin.props as BaseHTMLAttributes<HTMLDivElement>)}
