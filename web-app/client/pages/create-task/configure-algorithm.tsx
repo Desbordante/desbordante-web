@@ -1,8 +1,6 @@
 import type { NextPage } from 'next';
-import { FC, useContext, useState } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { AuthContext } from '@components/AuthContext';
-import { ErrorContext } from '@components/ErrorContext';
 import _ from 'lodash';
 import Button from '@components/Button';
 import ideaIcon from '@assets/icons/idea.svg';
@@ -10,9 +8,6 @@ import { WizardLayout } from '@components/WizardLayout/WizardLayout';
 import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
 import { Select } from '@components/Inputs';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
-import { useQuery } from '@apollo/client';
-import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
-import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithmsConfig';
 import { MainPrimitiveType } from 'types/globalTypes';
 import {
   Controller,
@@ -22,52 +17,44 @@ import {
   UseFormStateReturn,
 } from 'react-hook-form';
 import {
+  AlgoOption,
+  Algorithms,
   ApproxOptions,
   ARoptions,
   CFDoptions,
   FDoptions,
+  optionsByAlgorithms,
+  optionsByPrimitive,
   TypoOptions,
 } from '@constants/options';
 
-type Algorithms =
-  | 'Pyro'
-  | 'TaneX'
-  | 'FastFDs'
-  | 'FD mine'
-  | 'DFD'
-  | 'Dep Miner'
-  | 'FDep'
-  | 'FUN'
-  | 'CTane'
-  | 'Apriori';
-
 type FDForm = {
-  algorithm: { value: Algorithms };
-  arity: any;
-  threshold: any;
-  threads: any;
+  algorithm: any;
+  arity: number;
+  threshold: number;
+  threads: number;
 };
 type CFDForm = {
-  algorithm: { value: 'CTane' };
-  arity: any;
-  min_confidence: any;
-  min_support: any;
+  algorithm: any;
+  arity: number;
+  min_confidence: number;
+  min_support: number;
 };
 type ARForm = {
-  algorithm: { value: 'Apriori' };
-  min_confidence: any;
-  min_support: any;
+  algorithm: any;
+  min_confidence: number;
+  min_support: number;
 };
 type TypoFDForm = {
-  precise_algorithm?: { value: Algorithms };
-  approximate_algorithm?: { value: Algorithms };
-  arity: any;
-  threshold: any;
-  min_confidence: any;
-  min_support: any;
-  threads: any;
-  radius: any;
-  ratio: any;
+  precise_algorithm?: any;
+  approximate_algorithm?: any;
+  arity: number;
+  threshold: number;
+  min_confidence: number;
+  min_support: number;
+  threads: number;
+  radius: number;
+  ratio: number;
 };
 type AlgorithmConfig = FDForm | CFDForm | ARForm | TypoFDForm;
 type AlgorithmProps = FDForm & CFDForm & ARForm & TypoFDForm;
@@ -80,34 +67,35 @@ type FormInput = (props: {
 const ConfigureAlgorithm: NextPage = () => {
   const {
     handleSubmit,
+    reset,
     control,
     watch,
     formState: { errors },
-  } = useForm<AlgorithmConfig, keyof AlgorithmProps>({});
-
+  } = useForm<AlgorithmConfig, keyof AlgorithmProps>();
   const router = useRouter();
-  const fileID = router.query.fileID;
+
+  useEffect(
+    () =>
+      reset({
+        ...router.query,
+        algorithm:
+          primitive &&
+          optionsByPrimitive[primitive].find(
+            (e) => e.value === (router.query.algorithm as string)
+          ),
+        approximate_algorithm: ApproxOptions.find(
+          (e) => e.value === (router.query.approximate_algorithm as string)
+        ),
+        precise_algorithm: TypoOptions.find(
+          (e) => e.value === (router.query.precise_algorithm as string)
+        ),
+      }),
+    [router.query]
+  );
+
   const primitive = router.query.primitive as MainPrimitiveType;
 
-  const { user } = useContext(AuthContext)!;
-  const { showError } = useContext(ErrorContext)!;
-
-  const showOptions: { [key in Algorithms]: string[] } = {
-    Pyro: ['threshold', 'arity', 'threads'],
-    TaneX: ['threshold', 'arity'],
-    FastFDs: ['threads'],
-    'FD mine': [],
-    DFD: ['threads'],
-    'Dep Miner': [],
-    FDep: [],
-    FUN: [],
-    CTane: [],
-    Apriori: [],
-  };
   const watchAlgorithm = watch('algorithm')?.value || 'Pyro';
-  const { loading, data, error } = useQuery<getAlgorithmsConfig>(
-    GET_ALGORITHMS_CONFIG
-  );
 
   const header = (
     <>
@@ -134,7 +122,7 @@ const ConfigureAlgorithm: NextPage = () => {
       <Button
         variant="primary"
         icon={ideaIcon}
-        // onClick={handleSubmit(data => 0)}
+        onClick={handleSubmit((data) => console.log(3, data))}
       >
         Analyze
       </Button>
@@ -153,7 +141,11 @@ const ConfigureAlgorithm: NextPage = () => {
       threshold: ({ field }) => (
         <NumberSlider
           {...field}
-          disabled={!showOptions[watchAlgorithm].includes('threshold')}
+          disabled={
+            !optionsByAlgorithms[watchAlgorithm as Algorithms].includes(
+              'threshold'
+            )
+          }
           sliderProps={{ min: 0, max: 1, step: 1e-6 }}
           label="Error threshold"
         />
@@ -161,7 +153,9 @@ const ConfigureAlgorithm: NextPage = () => {
       arity: ({ field }) => (
         <NumberSlider
           {...field}
-          disabled={!showOptions[watchAlgorithm].includes('arity')}
+          disabled={
+            !optionsByAlgorithms[watchAlgorithm as Algorithms].includes('arity')
+          }
           sliderProps={{ min: 1, max: 10, step: 1 }}
           label="Arity constraint"
         />
@@ -169,7 +163,11 @@ const ConfigureAlgorithm: NextPage = () => {
       threads: ({ field }) => (
         <NumberSlider
           {...field}
-          disabled={!showOptions[watchAlgorithm].includes('threads')}
+          disabled={
+            !optionsByAlgorithms[watchAlgorithm as Algorithms].includes(
+              'threads'
+            )
+          }
           sliderProps={{ min: 1, max: 16, step: 1 }}
           label="Thread count"
         />

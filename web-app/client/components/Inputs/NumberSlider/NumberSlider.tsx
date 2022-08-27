@@ -17,13 +17,23 @@ type Props = InputPropsBase &
   HTMLProps<HTMLInputElement> & {
     tooltip?: ReactNode;
     sliderProps?: SliderProps;
+    onChange: (value: number) => void;
   };
 
 const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
-  { id, label, error, className, tooltip, sliderProps, onChange, ...props },
+  {
+    id,
+    label,
+    error,
+    className,
+    tooltip,
+    sliderProps,
+    value,
+    onChange,
+    ...props
+  },
   ref
 ) => {
-  const [value, setValue] = useState(1);
   const min = sliderProps?.min || 0;
   const max = sliderProps?.max || 100;
   const dot2 = (min + max) / 2;
@@ -65,12 +75,9 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       <div className={styles.slider}>
         <Text
           {...props}
+          defaultValue={min}
           value={value}
-          onChange={(e) => {
-            const newValue = Number.parseFloat(e.currentTarget.value);
-            setValue(newValue);
-            onChange && onChange(e);
-          }}
+          onChange={onChange}
           className={styles.text}
           ref={ref}
         />
@@ -86,9 +93,9 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
             width: 0,
             borderColor: 'rgba(37, 30, 41, 0.25)',
           }}
-          value={value}
-          onChange={(v) => {
-            setValue(v as number);
+          value={value as number}
+          onChange={(v: number | number[]) => {
+            onChange(v as number);
           }}
           handleRender={(origin, _props) => (
             <div

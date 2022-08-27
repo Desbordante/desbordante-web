@@ -1,21 +1,60 @@
-export const FDoptions = [
+import { MainPrimitiveType } from "types/globalTypes";
+
+export type Algorithms =
+  | 'Pyro'
+  | 'TaneX'
+  | 'FastFDs'
+  | 'FD mine'
+  | 'DFD'
+  | 'Dep Miner'
+  | 'FDep'
+  | 'FUN'
+  | 'CTane'
+  | 'Apriori';
+
+export type AlgoOption = {
+  value: Algorithms,
+  label: Algorithms
+}
+
+export const FDoptions: AlgoOption[] = [
     { label: 'Pyro', value: 'Pyro' },
     { label: 'TaneX', value: 'TaneX' },
     { label: 'FastFDs', value: 'FastFDs' },
     { label: 'FD mine', value: 'FD mine' },
     { label: 'DFD', value: 'DFD' },
-    { label: 'Deep Miner', value: 'Deep Miner' },
+    { label: 'Dep Miner', value: 'Dep Miner' },
     { label: 'FDep', value: 'FDep' },
     { label: 'FUN', value: 'FUN' },
   ];
-export const CFDoptions = [{ label: 'CTane', value: 'CTane' }];
-export const ARoptions = [{ label: 'Apriori', value: 'Apriori' }];
-export const ApproxOptions = [{ label: 'Pyro', value: 'Pyro' }];
-export const TypoOptions = [
+export const CFDoptions: AlgoOption[] = [{ label: 'CTane', value: 'CTane' }];
+export const ARoptions: AlgoOption[] = [{ label: 'Apriori', value: 'Apriori' }];
+export const ApproxOptions: AlgoOption[] = [{ label: 'Pyro', value: 'Pyro' }];
+export const TypoOptions: AlgoOption[] = [
     { label: 'FastFDs', value: 'FastFDs' },
     { label: 'FD mine', value: 'FD mine' },
     { label: 'DFD', value: 'DFD' },
-    { label: 'Deep Miner', value: 'Deep Miner' },
+    { label: 'Dep Miner', value: 'Dep Miner' },
     { label: 'FDep', value: 'FDep' },
     { label: 'FUN', value: 'FUN' },
-  ];
+];
+
+export const optionsByPrimitive: {[key in MainPrimitiveType]: AlgoOption[]} = {
+  [MainPrimitiveType.FD]: FDoptions,
+  [MainPrimitiveType.AR]: ARoptions,
+  [MainPrimitiveType.CFD]: CFDoptions,
+  [MainPrimitiveType.TypoFD]: TypoOptions,
+}
+
+export const optionsByAlgorithms: { [key in Algorithms]: string[] } = {
+    Pyro: ['threshold', 'arity', 'threads'],
+    TaneX: ['threshold', 'arity'],
+    FastFDs: ['threads'],
+    'FD mine': [],
+    DFD: ['threads'],
+    'Dep Miner': [],
+    FDep: [],
+    FUN: [],
+    CTane: [],
+    Apriori: [],
+  };
