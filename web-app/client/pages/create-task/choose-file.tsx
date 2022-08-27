@@ -18,18 +18,24 @@ import { WizardLayout } from '@components/WizardLayout/WizardLayout';
 import DatasetUploader from '@components/DatasetUploader/DatasetUploader';
 
 const ChooseFile: NextPage = () => {
-  const router = useRouter()
-  const primitive = router.query.primitive || "FD"
-  const {user} = useContext(AuthContext)!
-  const {showError} = useContext(ErrorContext)!
+  const router = useRouter();
+  const primitive = router.query.primitive || 'FD';
+  const { user } = useContext(AuthContext)!;
+  const { showError } = useContext(ErrorContext)!;
   const { loading, data, error } = useQuery<getAlgorithmsConfig>(
     GET_ALGORITHMS_CONFIG
   );
-  const allowedDatasets = (data?.algorithmsConfig?.allowedDatasets || []).filter(e => e.supportedPrimitives.includes(primitive as MainPrimitiveType))
-  const [builtInDatasets, _otherDatasets] = _.partition(allowedDatasets, e => e.isBuiltIn)
-  const [userDatasets, setUserDatasets] = useState(user?.datasets || [])
-  const [selection, setSelection] = useState<AllowedDataset>()
-  const [fileIsDragged, setFileIsDragged] = useState(false)
+  const allowedDatasets = (
+    data?.algorithmsConfig?.allowedDatasets || []
+  ).filter((e) =>
+    e.supportedPrimitives.includes(primitive as MainPrimitiveType)
+  );
+  const [builtInDatasets, _otherDatasets] = _.partition(
+    allowedDatasets,
+    (e) => e.isBuiltIn
+  );
+  const [userDatasets, setUserDatasets] = useState(user?.datasets || []);
+  const [selection, setSelection] = useState<AllowedDataset>();
 
   useEffect(() => {
     if (error) {
@@ -38,7 +44,16 @@ const ChooseFile: NextPage = () => {
         suggestion: 'Please, try reloading the page.',
       });
     }
-  });
+  }, []);
+
+  useEffect(() => {
+    const queryFile =
+      userDatasets.find((f) => f.fileID === router.query.fileID) ||
+      builtInDatasets.find((f) => f.fileID === router.query.fileID);
+    if (queryFile) {
+      setSelection(queryFile);
+    }
+  }, [router.query.fileID]);
 
   const userFiles = (
     <Collapse
@@ -48,7 +63,6 @@ const ChooseFile: NextPage = () => {
       {(user?.permissions.canUploadFiles && (
         <div className={styles.files}>
           <DatasetUploader
-            isFileDragged={fileIsDragged}
             onUpload={(dataset) => {
               setUserDatasets([...userDatasets, dataset]);
               setSelection(dataset);
@@ -97,22 +111,27 @@ const ChooseFile: NextPage = () => {
     </>
   );
 
-  const footer = <>
-    <Button variant="secondary">Go Back</Button>
-    <Button disabled={!selection} variant="primary" icon={settingsIcon} onClick={() => router.push({pathname: "/create-task/configure-algorithm", query: {primitive, fileID: selection?.fileID}})}>Configure algorithm</Button>
-  </>
+  const footer = (
+    <>
+      <Button variant="secondary">Go Back</Button>
+      <Button
+        disabled={!selection}
+        variant="primary"
+        icon={settingsIcon}
+        onClick={() =>
+          router.push({
+            pathname: '/create-task/configure-algorithm',
+            query: { primitive, fileID: selection?.fileID },
+          })
+        }
+      >
+        Configure algorithm
+      </Button>
+    </>
+  );
 
   return (
-    <WizardLayout
-      onDrop={(e) => {
-        e.preventDefault();
-        setFileIsDragged(false);
-      }}
-      onDragOver={() => setFileIsDragged(true)}
-      onDragLeave={() => setFileIsDragged(false)}
-      header={header}
-      footer={footer}
-    >
+    <WizardLayout header={header} footer={footer}>
       {(user?.permissions.canUploadFiles && (
         <>
           {userFiles}

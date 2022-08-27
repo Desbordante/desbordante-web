@@ -1,5 +1,12 @@
 import Image from 'next/image';
-import { FC, useContext, useEffect, useRef, useState } from 'react';
+import {
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { DefaultContext, useMutation } from '@apollo/client';
 import {
@@ -19,12 +26,12 @@ import dragIcon from '@assets/icons/drag.svg';
 
 type Props = {
   onUpload: (file: AllowedDataset) => void;
-  isFileDragged?: boolean;
 };
 
-const DatasetUploader: FC<Props> = ({ onUpload, isFileDragged = false }) => {
+const DatasetUploader: FC<Props> = ({ onUpload }) => {
   const { showError } = useContext(ErrorContext)!;
   const inputFile = useRef<HTMLInputElement>(null);
+  const [isFileDragged, setIsFileDragged] = useState(false);
   const [isDraggedInside, setIsDraggedInside] = useState(false);
   const [fileUploadProgress, setFileUploadProgress] = useState<Progress>({
     state: 'idle',
@@ -32,6 +39,32 @@ const DatasetUploader: FC<Props> = ({ onUpload, isFileDragged = false }) => {
   const [uploadDataset] = useMutation<uploadDataset, uploadDatasetVariables>(
     UPLOAD_DATASET
   );
+
+  const onDrop = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    setIsFileDragged(false);
+  }, []);
+
+  const onDragOver = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    setIsFileDragged(true);
+  }, []);
+
+  const onDragLeave = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    setIsFileDragged(false);
+  }, []);
+
+  useEffect(() => {
+    window.document.addEventListener('drop', onDrop);
+    window.document.addEventListener('dragover', onDragOver);
+    window.document.addEventListener('dragleave', onDragLeave);
+    return () => {
+      window.document.removeEventListener('drop', onDrop);
+      window.document.removeEventListener('dragover', onDragOver);
+      window.document.removeEventListener('dragleave', onDragLeave);
+    };
+  }, []);
 
   useEffect(() => {
     if (
