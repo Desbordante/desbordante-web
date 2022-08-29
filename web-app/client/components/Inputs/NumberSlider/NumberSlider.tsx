@@ -75,7 +75,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
         <Text
           {...props}
           defaultValue={min}
-          value={value}
+          value={value as number}
           onChange={onChange}
           className={styles.text}
           ref={ref}

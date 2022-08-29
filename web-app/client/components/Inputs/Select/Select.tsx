@@ -1,6 +1,9 @@
 import { forwardRef, ForwardRefRenderFunction, ReactNode } from 'react';
 import cn from 'classnames';
-import ReactSelect, { Props as ReactSelectProps } from 'react-select';
+import ReactSelect, {
+  Props as ReactSelectProps,
+  PropsValue,
+} from 'react-select';
 import { InputPropsBase } from '@components/Inputs';
 import Tooltip from '@components/Tooltip';
 import customComponents from './customComponents';
