@@ -121,7 +121,7 @@ const ChooseFile: NextPage = () => {
         onClick={() =>
           router.push({
             pathname: '/create-task/configure-algorithm',
-            query: { primitive, fileID: selection?.fileID },
+            query: { ...router.query, primitive, fileID: selection?.fileID },
           })
         }
       >

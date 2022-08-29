@@ -39,14 +39,14 @@ export const TypoOptions: AlgoOption[] = [
     { label: 'FUN', value: 'FUN' },
 ];
 
-export const optionsByPrimitive: {[key in MainPrimitiveType]: AlgoOption[]} = {
+export const optionsByPrimitive: Record<MainPrimitiveType,AlgoOption[]> = {
   [MainPrimitiveType.FD]: FDoptions,
   [MainPrimitiveType.AR]: ARoptions,
   [MainPrimitiveType.CFD]: CFDoptions,
   [MainPrimitiveType.TypoFD]: TypoOptions,
 }
 
-export const optionsByAlgorithms: { [key in Algorithms]: string[] } = {
+export const optionsByAlgorithms: Record<Algorithms, string[]> = {
     Pyro: ['threshold', 'arity', 'threads'],
     TaneX: ['threshold', 'arity'],
     FastFDs: ['threads'],

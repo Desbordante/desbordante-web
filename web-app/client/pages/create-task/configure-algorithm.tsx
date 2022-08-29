@@ -17,7 +17,6 @@ import {
   UseFormStateReturn,
 } from 'react-hook-form';
 import {
-  AlgoOption,
   Algorithms,
   ApproxOptions,
   ARoptions,
@@ -129,11 +128,10 @@ const ConfigureAlgorithm: NextPage = () => {
     </>
   );
 
-  const Inputs: {
-    [key in MainPrimitiveType]: {
-      [key in keyof AlgorithmProps]?: FormInput;
-    };
-  } = {
+  const Inputs: Record<
+    MainPrimitiveType,
+    Partial<Record<keyof AlgorithmProps, FormInput>>
+  > = {
     [MainPrimitiveType.FD]: {
       algorithm: ({ field }) => (
         <Select {...field} label="Algorithm" options={FDoptions} />
