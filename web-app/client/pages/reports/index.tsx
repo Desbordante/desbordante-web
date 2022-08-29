@@ -9,7 +9,7 @@ const ReportsHome: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <Loader status="error" />
+      <Loader taskID={router.query.taskID as string} />
     </div>
   );
 };

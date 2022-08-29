@@ -143,7 +143,7 @@ const ConfigureAlgorithm: NextPage = () => {
         },
       }).then((resp) => {
         router.push({
-          pathname: '/reports/index',
+          pathname: '/reports',
           query: {
             taskID: resp.data?.createMainTaskWithDatasetChoosing.taskID,
           },
@@ -227,9 +227,7 @@ const ConfigureAlgorithm: NextPage = () => {
         <NumberSlider
           {...field}
           disabled={
-            !optionsByAlgorithms[watchAlgorithm as Algorithms].includes(
-              'maxLHS'
-            )
+            !optionsByAlgorithms[watchAlgorithm as Algorithms].includes('arity')
           }
           sliderProps={{ min: 1, max: 10, step: 1 }}
           label="Arity constraint"
