@@ -56,13 +56,13 @@ const DatasetUploader: FC<Props> = ({ onUpload }) => {
   }, []);
 
   useEffect(() => {
-    window.document.addEventListener('drop', onDrop);
-    window.document.addEventListener('dragover', onDragOver);
-    window.document.addEventListener('dragleave', onDragLeave);
+    document.addEventListener('drop', onDrop);
+    document.addEventListener('dragover', onDragOver);
+    document.addEventListener('dragleave', onDragLeave);
     return () => {
-      window.document.removeEventListener('drop', onDrop);
-      window.document.removeEventListener('dragover', onDragOver);
-      window.document.removeEventListener('dragleave', onDragLeave);
+      document.removeEventListener('drop', onDrop);
+      document.removeEventListener('dragover', onDragOver);
+      document.removeEventListener('dragleave', onDragLeave);
     };
   }, []);
 
@@ -98,7 +98,6 @@ const DatasetUploader: FC<Props> = ({ onUpload }) => {
         context,
       })
         .then((res) => {
-          console.log(res);
           onUpload(res.data?.uploadDataset as AllowedDataset);
           setFileUploadProgress({ state: 'complete' });
         })

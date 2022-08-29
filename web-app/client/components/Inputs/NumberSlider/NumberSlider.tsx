@@ -4,7 +4,6 @@ import {
   ForwardRefRenderFunction,
   HTMLProps,
   ReactNode,
-  useState,
 } from 'react';
 import Slider, { SliderProps } from 'rc-slider';
 import classNames from 'classnames';
@@ -84,14 +83,14 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
         <Slider
           marks={marks}
           trackStyle={{ height: 1, backgroundColor: 'transparent' }}
-          railStyle={{ height: 1, backgroundColor: 'rgba(37, 30, 41, 0.25)' }}
+          railStyle={{ height: 1, backgroundColor: styles.railColor }}
           dotStyle={{
             borderRadius: 5,
             height: 8,
             bottom: 0,
             borderWidth: 1,
             width: 0,
-            borderColor: 'rgba(37, 30, 41, 0.25)',
+            borderColor: styles.railColor,
           }}
           value={value as number}
           onChange={(v: number | number[]) => {
