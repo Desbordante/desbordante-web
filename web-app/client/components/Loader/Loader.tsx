@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren } from 'react';
+import { FC, PropsWithChildren, useEffect, useState } from 'react';
 import styles from './Loader.module.scss';
 import logo from '@public/logo.svg';
 import serverError from '@assets/icons/server-error.svg';
@@ -6,48 +6,101 @@ import usersQueue from '@assets/icons/users-queue.svg';
 import checkFill from '@assets/icons/check-fill.svg';
 import resourcesLimit from '@assets/icons/resources-limit.svg';
 import Image from 'next/image';
+import { useQuery } from '@apollo/client';
+import {
+  getTaskState,
+  getTaskStateVariables,
+} from '@graphql/operations/queries/__generated__/getTaskState';
+import { GET_TASK_STATE } from '@graphql/operations/queries/getTaskState';
+import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
+import {
+  getTaskInfo,
+  getTaskInfoVariables,
+} from '@graphql/operations/queries/__generated__/getTaskInfo';
+import { TaskProcessStatusType } from 'types/globalTypes';
 
 type Props = {
-  status: 'queued' | 'progress' | 'completed' | 'error' | 'resources-limit';
+  taskID: string;
+};
+type Status = {
+  icon: any;
+  label: string;
+  className: string;
+  description: string;
 };
 
-const Loader: FC<Props> = ({ status }) => {
-  const options = {
-    queued: {
-      icon: usersQueue,
-      label: 'Queued',
-      description: 'Task is waiting to be executed',
-    },
-    progress: {
-      icon: logo,
-      label: 'In Progress',
-      description: 'Step 3 of 5: doing something',
-    },
-    completed: {
-      icon: checkFill,
-      label: 'Completed',
-      description: 'You will see the results in a moment',
-    },
-    error: {
-      icon: serverError,
-      label: 'Internal Server Error',
-      description: 'Something went wrong with our server',
-    },
-    'resources-limit': {
-      label: 'Resource Limit Reached',
-      icon: resourcesLimit,
-      description: 'Our server ran out of resources while executing your task',
-    },
-  };
+const Loader: FC<Props> = ({ taskID }) => {
+  const { loading, data, error } = useQuery<getTaskInfo, getTaskInfoVariables>(
+    GET_TASK_INFO,
+    { variables: { taskID } }
+  );
+
+  console.log(data);
+  const [status, setStatus] = useState<Status>();
+  const [tries, setTries] = useState(1);
+
+  useEffect(() => {
+    const state = data?.taskInfo.state;
+    if (!state) return;
+    if (state.__typename === 'TaskState') {
+      if (state.processStatus === 'ADDED_TO_THE_TASK_QUEUE') {
+        setStatus({
+          icon: usersQueue,
+          label: 'Queued',
+          className: 'queued',
+          description: 'Task is waiting to be executed',
+        });
+      }
+      if (state.processStatus === 'COMPLETED') {
+        setStatus({
+          icon: checkFill,
+          label: 'Completed',
+          className: 'completed',
+          description: 'You will see the results in a moment',
+        });
+      }
+      if (state.processStatus === 'IN_PROCESS') {
+        setStatus({
+          icon: logo,
+          label: 'In Progress',
+          className: 'progress',
+          description: `Step ${state.currentPhase} of ${state.maxPhase}: ${state.phaseName}`,
+        });
+      }
+    }
+    if (state.__typename === 'InternalServerTaskError') {
+      setStatus({
+        icon: serverError,
+        label: 'Internal Server Error',
+        className: 'error',
+        description: 'Something went wrong with our server',
+      });
+    }
+    if (state.__typename === 'ResourceLimitTaskError') {
+      setStatus({
+        label: 'Resource Limit Reached',
+        icon: resourcesLimit,
+        className: 'resources-limit',
+        description:
+          'Our server ran out of resources while executing your task',
+      });
+    }
+  }, [data?.taskInfo.state]);
+
+  useEffect(() => {
+    setTimeout(() => setTries((i) => ++i), 2000);
+  }, [tries]);
+
+  if (!status) return <></>;
   return (
     <div className={styles.container}>
-      <Image src={options[status].icon} alt="status" width={70} height={76} />
+      <Image src={status.icon} alt="status" width={70} height={76} />
       <div className={styles.text}>
         <p>
           Task status:
-          <span className={styles[status]}> {options[status].label}</span>
+          <span className={styles[status.className]}> {status.label}</span>
         </p>
-        <p className={styles.description}>{options[status].description}</p>
+        <p className={styles.description}>{status.description}</p>
       </div>
     </div>
   );
