@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { FC, useContext, useEffect, useState } from 'react';
+import { FC, useCallback, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import _ from 'lodash';
 import Button from '@components/Button';
@@ -23,37 +23,43 @@ import {
   CFDoptions,
   FDoptions,
   optionsByAlgorithms,
-  optionsByPrimitive,
   TypoOptions,
 } from '@constants/options';
+import { useMutation } from '@apollo/client';
+import {
+  createTaskWithDatasetChoosing,
+  createTaskWithDatasetChoosingVariables,
+} from '@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing';
+import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations/chooseTask';
 
 type FDForm = {
-  algorithm: any;
-  arity: number;
-  threshold: number;
-  threads: number;
+  algorithmName: any;
+  maxLHS: number;
+  errorThreshold: number;
+  threadsCount: number;
 };
 type CFDForm = {
-  algorithm: any;
-  arity: number;
-  min_confidence: number;
-  min_support: number;
+  algorithmName: any;
+  maxLHS: number;
+  minConfidence: number;
+  minSupportCFD: number;
 };
 type ARForm = {
-  algorithm: any;
-  min_confidence: number;
-  min_support: number;
+  algorithmName: any;
+  minConfidence: number;
+  minSupportAR: number;
 };
 type TypoFDForm = {
-  precise_algorithm?: any;
-  approximate_algorithm?: any;
-  arity: number;
-  threshold: number;
-  min_confidence: number;
-  min_support: number;
-  threads: number;
-  radius: number;
-  ratio: number;
+  preciseAlgorithm?: any;
+  approximateAlgorithm?: any;
+  algorithmName: any;
+  maxLHS: number;
+  errorThreshold: number;
+  minConfidence: number;
+  // minSupport: number;
+  threadsCount: number;
+  defaultRadius: number;
+  defaultRatio: number;
 };
 type AlgorithmConfig = FDForm | CFDForm | ARForm | TypoFDForm;
 type AlgorithmProps = FDForm & CFDForm & ARForm & TypoFDForm;
@@ -63,7 +69,51 @@ type FormInput = (props: {
   formState: UseFormStateReturn<AlgorithmConfig>;
 }) => React.ReactElement;
 
+const castForm: (
+  primitive: MainPrimitiveType,
+  data: AlgorithmConfig
+) => AlgorithmConfig = (primitive, data) => {
+  if (primitive === MainPrimitiveType.FD) return data as FDForm;
+  if (primitive === MainPrimitiveType.AR) return data as ARForm;
+  if (primitive === MainPrimitiveType.CFD) return data as CFDForm;
+  if (primitive === MainPrimitiveType.TypoFD) return data as TypoFDForm;
+  return data;
+};
+
+const defaultValuesByPrimitive = {
+  [MainPrimitiveType.FD]: {
+    algorithmName: 'Pyro',
+    maxLHS: 1,
+    errorThreshold: 1,
+    threadsCount: 1,
+  } as FDForm,
+  [MainPrimitiveType.AR]: {
+    algorithmName: 'Pyro',
+    minConfidence: 0,
+    minSupportAR: 1,
+  } as ARForm,
+  [MainPrimitiveType.CFD]: {
+    algorithmName: 'Pyro',
+    maxLHS: 1,
+    minConfidence: 0,
+    minSupportCFD: 1,
+  } as CFDForm,
+  [MainPrimitiveType.TypoFD]: {
+    preciseAlgorithm: 'Pyro',
+    approximateAlgorithm: 'Pyro',
+    algorithmName: 'Pyro',
+    maxLHS: 1,
+    errorThreshold: 1,
+    minConfidence: 1,
+    threadsCount: 1,
+    defaultRadius: 0,
+    defaultRatio: 0,
+  } as TypoFDForm,
+};
 const ConfigureAlgorithm: NextPage = () => {
+  const router = useRouter();
+  const primitive = router.query.primitive as MainPrimitiveType;
+
   const {
     handleSubmit,
     reset,
@@ -71,30 +121,53 @@ const ConfigureAlgorithm: NextPage = () => {
     watch,
     formState: { errors },
   } = useForm<AlgorithmConfig, keyof AlgorithmProps>();
-  const router = useRouter();
+  const getSelectValue: (opt: any) => string = (opt) => opt?.value;
+  const getSelectOption: (value: string) => Record<string, string> = (
+    value
+  ) => ({ label: value, value });
 
-  useEffect(
-    () =>
-      reset({
-        ...router.query,
-        algorithm:
-          primitive &&
-          optionsByPrimitive[primitive].find(
-            (e) => e.value === (router.query.algorithm as string)
-          ),
-        approximate_algorithm: ApproxOptions.find(
-          (e) => e.value === (router.query.approximate_algorithm as string)
-        ),
-        precise_algorithm: TypoOptions.find(
-          (e) => e.value === (router.query.precise_algorithm as string)
-        ),
-      }),
-    [router.query]
+  const [createTask] = useMutation<
+    createTaskWithDatasetChoosing,
+    createTaskWithDatasetChoosingVariables
+  >(CREATE_TASK_WITH_CHOOSING_DATASET);
+  const analyzeHandler = useCallback(
+    handleSubmit((data) => {
+      createTask({
+        variables: {
+          fileID: router.query.fileID as string,
+          props: {
+            type: primitive,
+            ...castForm(primitive, data),
+          },
+          forceCreate: false,
+        },
+      }).then((resp) => {
+        router.push({
+          pathname: '/reports/index',
+          query: {
+            taskID: resp.data?.createMainTaskWithDatasetChoosing.taskID,
+          },
+        });
+      });
+    }),
+    [primitive]
   );
 
-  const primitive = router.query.primitive as MainPrimitiveType;
+  useEffect(() => {
+    const defaultValues = defaultValuesByPrimitive[primitive];
 
-  const watchAlgorithm = watch('algorithm')?.value || 'Pyro';
+    if (router.query.algorithmName) {
+      // to not populate form with empty values
+      reset({
+        ...defaultValues,
+        ..._.pick(router.query, _.keys(defaultValues)),
+      });
+    } else {
+      reset(defaultValues);
+    }
+  }, [router.query]);
+
+  const watchAlgorithm = watch('algorithmName', 'Pyro') || 'Pyro';
 
   const header = (
     <>
@@ -118,11 +191,7 @@ const ConfigureAlgorithm: NextPage = () => {
       >
         Go Back
       </Button>
-      <Button
-        variant="primary"
-        icon={ideaIcon}
-        onClick={handleSubmit((data) => console.log(3, data))}
-      >
+      <Button variant="primary" icon={ideaIcon} onClick={analyzeHandler}>
         Analyze
       </Button>
     </>
@@ -133,10 +202,16 @@ const ConfigureAlgorithm: NextPage = () => {
     Partial<Record<keyof AlgorithmProps, FormInput>>
   > = {
     [MainPrimitiveType.FD]: {
-      algorithm: ({ field }) => (
-        <Select {...field} label="Algorithm" options={FDoptions} />
+      algorithmName: ({ field: { onChange, value, ...field } }) => (
+        <Select
+          {...field}
+          value={getSelectOption(value)}
+          onChange={(e) => onChange(getSelectValue(e))}
+          label="Algorithm"
+          options={FDoptions}
+        />
       ),
-      threshold: ({ field }) => (
+      errorThreshold: ({ field }) => (
         <NumberSlider
           {...field}
           disabled={
@@ -148,17 +223,19 @@ const ConfigureAlgorithm: NextPage = () => {
           label="Error threshold"
         />
       ),
-      arity: ({ field }) => (
+      maxLHS: ({ field }) => (
         <NumberSlider
           {...field}
           disabled={
-            !optionsByAlgorithms[watchAlgorithm as Algorithms].includes('arity')
+            !optionsByAlgorithms[watchAlgorithm as Algorithms].includes(
+              'maxLHS'
+            )
           }
           sliderProps={{ min: 1, max: 10, step: 1 }}
           label="Arity constraint"
         />
       ),
-      threads: ({ field }) => (
+      threadsCount: ({ field }) => (
         <NumberSlider
           {...field}
           disabled={
@@ -173,24 +250,30 @@ const ConfigureAlgorithm: NextPage = () => {
     },
 
     [MainPrimitiveType.CFD]: {
-      algorithm: ({ field }) => (
-        <Select {...field} label="Algorithm" options={CFDoptions} />
+      algorithmName: ({ field: { onChange, value, ...field } }) => (
+        <Select
+          {...field}
+          value={getSelectOption(value)}
+          onChange={(e) => onChange(getSelectValue(e))}
+          label="Algorithm"
+          options={CFDoptions}
+        />
       ),
-      min_confidence: ({ field }) => (
+      minConfidence: ({ field }) => (
         <NumberSlider
           {...field}
           sliderProps={{ min: 0, max: 1, step: 1e-6 }}
           label="Minimum confidence"
         />
       ),
-      arity: ({ field }) => (
+      maxLHS: ({ field }) => (
         <NumberSlider
           {...field}
           sliderProps={{ min: 1, max: 10, step: 1 }}
           label="Arity constraint"
         />
       ),
-      min_support: ({ field }) => (
+      minSupportCFD: ({ field }) => (
         <NumberSlider
           {...field}
           sliderProps={{ min: 1, max: 16, step: 1 }}
@@ -200,17 +283,23 @@ const ConfigureAlgorithm: NextPage = () => {
     },
 
     [MainPrimitiveType.AR]: {
-      algorithm: ({ field }) => (
-        <Select {...field} label="Algorithm" options={ARoptions} />
+      algorithmName: ({ field: { onChange, value, ...field } }) => (
+        <Select
+          {...field}
+          value={getSelectOption(value)}
+          onChange={(e) => onChange(getSelectValue(e))}
+          label="Algorithm"
+          options={ARoptions}
+        />
       ),
-      min_confidence: ({ field }) => (
+      minConfidence: ({ field }) => (
         <NumberSlider
           {...field}
           sliderProps={{ min: 0, max: 1, step: 1e-6 }}
           label="Minimum confidence"
         />
       ),
-      min_support: ({ field }) => (
+      minSupportAR: ({ field }) => (
         <NumberSlider
           {...field}
           sliderProps={{ min: 1, max: 16, step: 1 }}
@@ -219,45 +308,53 @@ const ConfigureAlgorithm: NextPage = () => {
       ),
     },
     [MainPrimitiveType.TypoFD]: {
-      precise_algorithm: ({ field }) => (
-        <Select {...field} label="Precise Algorithm" options={TypoOptions} />
-      ),
-      approximate_algorithm: ({ field }) => (
+      preciseAlgorithm: ({ field: { onChange, value, ...field } }) => (
         <Select
           {...field}
+          value={getSelectOption(value)}
+          onChange={(e) => onChange(getSelectValue(e))}
+          label="Precise Algorithm"
+          options={TypoOptions}
+        />
+      ),
+      approximateAlgorithm: ({ field: { onChange, value, ...field } }) => (
+        <Select
+          {...field}
+          value={getSelectOption(value)}
+          onChange={(e) => onChange(getSelectValue(e))}
           label="Approximate Algorithm"
           options={ApproxOptions}
         />
       ),
-      threshold: ({ field }) => (
+      errorThreshold: ({ field }) => (
         <NumberSlider
           {...field}
           sliderProps={{ min: 0, max: 1, step: 1e-6 }}
           label="Error threshold"
         />
       ),
-      arity: ({ field }) => (
+      maxLHS: ({ field }) => (
         <NumberSlider
           {...field}
           sliderProps={{ min: 1, max: 9, step: 1 }}
           label="Arity constraint"
         />
       ),
-      threads: ({ field }) => (
+      threadsCount: ({ field }) => (
         <NumberSlider
           {...field}
           sliderProps={{ min: 1, max: 16, step: 1 }}
           label="Thread count"
         />
       ),
-      radius: ({ field }) => (
+      defaultRadius: ({ field }) => (
         <NumberSlider
           {...field}
           sliderProps={{ min: 1, max: 10, step: 1e-6 }}
           label="Radius"
         />
       ),
-      ratio: ({ field }) => (
+      defaultRatio: ({ field }) => (
         <NumberSlider
           {...field}
           sliderProps={{ min: 0, max: 1, step: 0.01 }}
