@@ -72,4 +72,4 @@ export type BuiltinDataset = {
   ID: string;
 };
 
-export type AssociationRule = getARs_taskInfo_data_result_ARTaskResult_ARs;
+// export type AssociationRule = getARs_taskInfo_data_result_ARTaskResult_ARs;
