@@ -5,6 +5,7 @@ import { useSpring, animated } from "react-spring";
 import OutsideClickHandler from "react-outside-click-handler";
 
 import styles from "./PopupWindowContainer.module.scss";
+import Head from "next/head";
 
 interface Props {
   onOutsideClick: () => void;
@@ -36,6 +37,9 @@ const PopupWindowContainer: React.FC<PropsWithChildren<any>> = ({
       className={`${styles.popup_bg} bg-black bg-opacity-50 position-fixed h-100 flex-grow-1 d-flex align-items-center justify-content-center p-3`}
       style={containerProps}
     >
+      <Head>          
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
+      </Head>
       <OutsideClickHandler onOutsideClick={onOutsideClick}>
         <>{children}</>
       </OutsideClickHandler>

@@ -1,7 +1,35 @@
 @import "styles/common";
 
-.inputText {
+.slider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 332px;
+  font-family: $font-content;
+}
 
+.text {
+  width: 76px;
+
+  input {
+    max-width: 100%;
+    text-align: center;
+  }
+}
+
+.sliderHandle {
+  width: 0px;
+  height: 13px;
+  border: 2px solid $black;
+  border-radius: 5px;
+  position: absolute;
+  margin-top: -6px;
+  background-color: $primary-0;
+  cursor: grab;
+  touch-action: pan-x;
+}
+
+.inputText {
   .top {
     display: flex;
     align-items: center;
@@ -16,9 +44,13 @@
   }
 
   .inputContainer {
-    padding: 16px 32px;
+    padding: 16px;
     border: 1px solid $black-25;
     border-radius: 8px;
+
+    &.focused {
+      border: 1px solid $primary-0;
+    }
 
     &.error {
       border: 2px solid $error;
@@ -28,6 +60,7 @@
       @include paragraph;
       color: $black;
       border: none;
+      background: transparent;
 
       &:focus {
         outline: none;
@@ -48,4 +81,9 @@
   &.disabled {
     opacity: 0.5;
   }
+}
+
+
+:export {
+  railColor: $black-25;
 }
