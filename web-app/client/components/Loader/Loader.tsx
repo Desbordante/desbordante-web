@@ -7,17 +7,12 @@ import checkFill from '@assets/icons/check-fill.svg';
 import resourcesLimit from '@assets/icons/resources-limit.svg';
 import Image from 'next/image';
 import { useQuery } from '@apollo/client';
-import {
-  getTaskState,
-  getTaskStateVariables,
-} from '@graphql/operations/queries/__generated__/getTaskState';
-import { GET_TASK_STATE } from '@graphql/operations/queries/getTaskState';
 import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 import {
   getTaskInfo,
   getTaskInfoVariables,
 } from '@graphql/operations/queries/__generated__/getTaskInfo';
-import { TaskProcessStatusType } from 'types/globalTypes';
+import { useRouter } from 'next/router';
 
 type Props = {
   taskID: string;
@@ -35,12 +30,12 @@ const Loader: FC<Props> = ({ taskID }) => {
     { variables: { taskID } }
   );
 
-  console.log(data);
+  const router = useRouter();
   const [status, setStatus] = useState<Status>();
   const [tries, setTries] = useState(1);
+  const state = data?.taskInfo.state;
 
   useEffect(() => {
-    const state = data?.taskInfo.state;
     if (!state) return;
     if (state.__typename === 'TaskState') {
       if (state.processStatus === 'ADDED_TO_THE_TASK_QUEUE') {
@@ -88,7 +83,23 @@ const Loader: FC<Props> = ({ taskID }) => {
   }, [data?.taskInfo.state]);
 
   useEffect(() => {
-    setTimeout(() => setTries((i) => ++i), 2000);
+    if (
+      state?.__typename === 'TaskState' &&
+      state.processStatus === 'COMPLETED'
+    ) {
+      setTimeout(
+        () =>
+          router.push({
+            pathname: 'reports/charts',
+            query: {
+              taskID,
+            },
+          }),
+        500
+      );
+    } else {
+      setTimeout(() => setTries((i) => ++i), 2000);
+    }
   }, [tries]);
 
   if (!status) return <></>;
