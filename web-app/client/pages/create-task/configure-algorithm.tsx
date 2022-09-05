@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { FC, useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import _ from 'lodash';
 import Button from '@components/Button';
@@ -371,7 +371,9 @@ const ConfigureAlgorithm: NextPage = () => {
   );
   return (
     <WizardLayout header={header} footer={footer}>
-      <div className={styles.container}>{InputsForm}</div>
+      <div className={styles.container}>
+        {React.Children.toArray(InputsForm)}
+      </div>
     </WizardLayout>
   );
 };
