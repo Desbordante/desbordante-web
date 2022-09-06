@@ -88,18 +88,18 @@ const defaultValuesByPrimitive = {
     threadsCount: 1,
   } as FDForm,
   [MainPrimitiveType.AR]: {
-    algorithmName: 'Pyro',
+    algorithmName: 'Apriori',
     minConfidence: 0,
     minSupportAR: 1,
   } as ARForm,
   [MainPrimitiveType.CFD]: {
-    algorithmName: 'Pyro',
+    algorithmName: 'CTane',
     maxLHS: 1,
     minConfidence: 0,
     minSupportCFD: 1,
   } as CFDForm,
   [MainPrimitiveType.TypoFD]: {
-    preciseAlgorithm: 'Pyro',
+    preciseAlgorithm: 'FastFDs',
     approximateAlgorithm: 'Pyro',
     algorithmName: 'Pyro',
     maxLHS: 1,
