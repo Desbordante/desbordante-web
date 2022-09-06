@@ -17,10 +17,12 @@ const ReportsCharts: NextPage = () => {
   const router = useRouter();
   const taskID = router.query.taskID as string;
 
-  // const { loading, data, error } = useQuery<
-  //   getPieChartData,
-  //   getPieChartDataVariables
-  // >(GET_PIE_CHART_DATA, { variables: { taskID } });
+  const { loading, data, error } = useQuery<
+    getPieChartData,
+    getPieChartDataVariables
+  >(GET_PIE_CHART_DATA, { variables: { taskID } });
+
+  console.log(data);
 
   return <>{/* <Doughnut data={data?.taskInfo.data} /> */}</>;
 };

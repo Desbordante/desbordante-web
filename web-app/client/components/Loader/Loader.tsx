@@ -1,6 +1,7 @@
 import { FC, PropsWithChildren, useEffect, useState } from 'react';
 import styles from './Loader.module.scss';
 import logo from '@public/logo.svg';
+import animatedLogo from '@public/logo.svg';
 import serverError from '@assets/icons/server-error.svg';
 import usersQueue from '@assets/icons/users-queue.svg';
 import checkFill from '@assets/icons/check-fill.svg';
@@ -22,30 +23,35 @@ type Status = {
   label: string;
   className: string;
   description: string;
+  isAnimated?: boolean;
 };
 
 const Loader: FC<Props> = ({ taskID }) => {
-  const { loading, data, error } = useQuery<getTaskInfo, getTaskInfoVariables>(
-    GET_TASK_INFO,
-    { variables: { taskID } }
-  );
+  const { loading, data, error, startPolling } = useQuery<
+    getTaskInfo,
+    getTaskInfoVariables
+  >(GET_TASK_INFO, { variables: { taskID } });
 
   const router = useRouter();
-  const [status, setStatus] = useState<Status>();
-  const [tries, setTries] = useState(1);
+  const [status, setStatus] = useState<Status>({
+    icon: usersQueue,
+    label: 'Queued',
+    className: 'queued',
+    description: 'Task is waiting to be executed',
+  });
   const state = data?.taskInfo.state;
 
   useEffect(() => {
+    if (error) {
+      setStatus({
+        icon: serverError,
+        label: 'Internal Server Error',
+        className: 'error',
+        description: 'Something went wrong with our server',
+      });
+    }
     if (!state) return;
     if (state.__typename === 'TaskState') {
-      if (state.processStatus === 'ADDED_TO_THE_TASK_QUEUE') {
-        setStatus({
-          icon: usersQueue,
-          label: 'Queued',
-          className: 'queued',
-          description: 'Task is waiting to be executed',
-        });
-      }
       if (state.processStatus === 'COMPLETED') {
         setStatus({
           icon: checkFill,
@@ -56,7 +62,8 @@ const Loader: FC<Props> = ({ taskID }) => {
       }
       if (state.processStatus === 'IN_PROCESS') {
         setStatus({
-          icon: logo,
+          icon: animatedLogo,
+          isAnimated: true,
           label: 'In Progress',
           className: 'progress',
           description: `Step ${state.currentPhase} of ${state.maxPhase}: ${state.phaseName}`,
@@ -97,15 +104,25 @@ const Loader: FC<Props> = ({ taskID }) => {
           }),
         500
       );
-    } else {
-      setTimeout(() => setTries((i) => ++i), 2000);
     }
-  }, [tries]);
+  }, [data?.taskInfo.state]);
 
+  useEffect(() => {
+    startPolling(2000);
+  }, []);
+
+  const icon = status.isAnimated ? (
+    <video autoPlay muted loop width={70} height={76}>
+      <source src="/animated_logo.webm" type="video/mp4" />
+    </video>
+  ) : (
+    <Image src={status.icon} alt="status" width={70} height={76} />
+  );
   if (!status) return <></>;
+
   return (
     <div className={styles.container}>
-      <Image src={status.icon} alt="status" width={70} height={76} />
+      {icon}
       <div className={styles.text}>
         <p>
           Task status:
