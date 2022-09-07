@@ -120,7 +120,13 @@ const ConfigureAlgorithm: NextPage = () => {
     control,
     watch,
     formState: { errors },
-  } = useForm<AlgorithmConfig, keyof AlgorithmProps>();
+  } = useForm<AlgorithmConfig, keyof AlgorithmProps>({
+    defaultValues: {
+      algorithmName: 'Pyro',
+      preciseAlgorithm: 'Pyro',
+      approximateAlgorithm: 'Pyro',
+    },
+  });
   const getSelectValue: (opt: any) => string = (opt) => opt?.value;
   const getSelectOption: (value: string) => Record<string, string> = (
     value
@@ -132,6 +138,7 @@ const ConfigureAlgorithm: NextPage = () => {
   >(CREATE_TASK_WITH_CHOOSING_DATASET);
   const analyzeHandler = useCallback(
     handleSubmit((data) => {
+      console.log(data);
       createTask({
         variables: {
           fileID: router.query.fileID as string,
@@ -241,7 +248,7 @@ const ConfigureAlgorithm: NextPage = () => {
               'threads'
             )
           }
-          sliderProps={{ min: 1, max: 16, step: 1 }}
+          sliderProps={{ min: 1, max: 8, step: 1 }}
           label="Thread count"
         />
       ),
@@ -341,7 +348,7 @@ const ConfigureAlgorithm: NextPage = () => {
       threadsCount: ({ field }) => (
         <NumberSlider
           {...field}
-          sliderProps={{ min: 1, max: 16, step: 1 }}
+          sliderProps={{ min: 1, max: 8, step: 1 }}
           label="Thread count"
         />
       ),
