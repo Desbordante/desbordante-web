@@ -13,32 +13,31 @@
   flex-direction: column;
   display: flex;
 
-  & > .description {
+  .description {
     @include paragraph-small;
   }
 }
 
-.progress {
+.status {
   font-weight: 700;
+}
+
+.progress {
   color: $primary-0;
 }
 
 .queued {
-  font-weight: 700;
   color: $info;
 }
 
 .completed {
-  font-weight: 700;
   color: $success;
 }
 
 .error {
-  font-weight: 700;
   color: $error;
 }
 
 .resources-limit { 
-  font-weight: 700;
   color: $error;
 }
