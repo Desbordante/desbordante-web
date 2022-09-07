@@ -9,7 +9,8 @@ const ReportsHome: NextPage = () => {
 
   return (
     <div className={styles.container}>
-      <Loader taskID={router.query.taskID as string} />
+      {router.query.taskID && <Loader taskID={router.query.taskID as string} />}
+      {!router.query.taskID && <p>You haven't selected a task</p>}
     </div>
   );
 };
