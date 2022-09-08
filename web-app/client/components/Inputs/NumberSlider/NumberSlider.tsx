@@ -107,7 +107,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
             borderColor: styles.railColor,
           }}
           value={value}
-          onChange={(v: number | number[]) => {
+          onChange={(v) => {
             if (Array.isArray(v)) return; // currently don't support multiple selection on the track
             onChange(v);
             setTempValue(v.toString());
