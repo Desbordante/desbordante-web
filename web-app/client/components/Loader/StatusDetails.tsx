@@ -13,10 +13,10 @@ type Status = {
   isAnimated?: boolean;
 };
 
-const getStatusDetails: (
+const getStatusDetails = (
   error: ApolloError | undefined,
   taskInfo: getTaskInfo | undefined
-) => Status = (error, taskInfo) => {
+) => {
   const state = taskInfo?.taskInfo.state;
 
   if (error) {
