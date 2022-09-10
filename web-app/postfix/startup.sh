@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -f "./configured" ]; then
-    echo "Desbordante-postfix started at $(date)" | mail -r $POSTFIX_EMAIL -s "Desbordante-postfix started" $POSTFIX_ADMINEMAIL
+    echo "Desbordante-postfix started at $(date) on the $HOSTNAME machine." | mail -r $POSTFIX_EMAIL -a "From: Desbordante <$POSTFIX_EMAIL>" -s "Desbordante-postfix started" $POSTFIX_ADMINEMAIL
 else 
     ./configure.sh
     touch ./configured

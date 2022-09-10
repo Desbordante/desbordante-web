@@ -6,17 +6,11 @@ FROM debian:bullseye-slim
 # pre config apt
 RUN echo "postfix postfix/main_mailer_type string Internet site" > preseed.txt && \
     echo "postfix postfix/mailname string desbordante.local" >> preseed.txt
-# load pre config for apt
+# load pre-config for apt
 RUN debconf-set-selections preseed.txt
 RUN apt-get -y update \
  && apt-get -y install postfix mailutils rsyslog \
  && apt-get -y install opendkim opendkim-tools
-
-### ################### ###
-### BASIC CONFIGURATION ###
-### ################### ###
-RUN postconf -e mynetworks="127.0.0.1 172.0.0.0/8"; \
-    postconf -e inet_protocols="ipv4"
 
 COPY postfix/ /postfix/
 WORKDIR /postfix/
