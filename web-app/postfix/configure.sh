@@ -1,5 +1,12 @@
 #!/bin/bash
 
+### ################### ###
+### BASIC CONFIGURATION ###
+### ################### ###
+postconf -e inet_protocols="ipv4"
+# don't receive mail from the internet
+postconf -e mynetworks="127.0.0.1 172.0.0.0/8"
+
 ### ################## ###
 ### SITE CONFIGURATION ###
 ### ################## ###
@@ -10,11 +17,10 @@ else
 fi
 echo $POSTFIX_DOMAIN > /etc/mailname
 # internet hostname of this server (SPF, DMARC, DKIM should be configured in the DNS)
+# the domain that locally-posted mail appears to come from
 postconf -e myhostname="$POSTFIX_DOMAIN"
 # the list of domains that this machine considers itself the final destination for
-postconf -e mydestination="$POSTFIX_DOMAIN, $(hostname), localhost"
-# the domain that locally-posted mail appears to come from. The default is to append $myhostname
-postconf -e myorigin="/etc/mailname"
+postconf -e mydestination="$POSTFIX_DOMAIN, localhost"
 # forward system mail outside
 sed -i "/root:.*/d" /etc/aliases
 echo "root: $POSTFIX_ADMINEMAIL" >> /etc/aliases
@@ -27,19 +33,13 @@ if [ -z "$POSTFIX_RELAY" ]; then
     # generate DKIM keys. Remember to copy the public one into the DNS!
     mkdir -m 750 /etc/opendkim && chown opendkim:opendkim /etc/opendkim
     opendkim-genkey -D /etc/opendkim --domain=$POSTFIX_DOMAIN --selector=mail
-    echo "WARNING: add the following TXT entry into the DNS!" >> /etc/opendkim/reminder.txt
+    echo "WARNING: add the following TXT entry into the DNS!" > /etc/opendkim/reminder.txt
     echo "Subdomain: mail._domainkey" >> /etc/opendkim/reminder.txt
     echo "Text: $(cat /etc/opendkim/mail.txt | tr -d '\n' | sed 's/.*v=/v=/; s/[)].*//; s/\"//g; s/\s//g')" >> /etc/opendkim/reminder.txt
     # configure opendkim
     chown opendkim:opendkim /etc/opendkim/mail.private
     chmod 600 /etc/opendkim/mail.private
-    cat > /etc/opendkim/TrustedHosts << EOF
-127.0.0.1
-localhost
-172.0.0.0/8
-$POSTFIX_DOMAIN
-$(hostname)
-EOF
+    echo "172.0.0.0/8" > /etc/opendkim/TrustedHosts
     cat > /etc/opendkim.conf << EOF
 SubDomains              Yes
 SendReports             Yes
@@ -68,7 +68,7 @@ else
     postconf -e relayhost="$POSTFIX_RELAY"
     # enable client-side authentication
     postconf -e smtp_sasl_auth_enable="yes"
-    # location of username and password for the gateway
+    # location of username and password for the relay
     postconf -e smtp_sasl_password_maps="hash:/etc/postfix/sasl/sasl_passwd"
     # disallow plain-text authentication
     postconf -e smtp_sasl_security_options="noanonymous"
@@ -93,4 +93,4 @@ fi
 
 # remind to configure DKIM in the DNS
 cat /etc/opendkim/reminder.txt >> /var/log/mail.log
-cat /etc/opendkim/reminder.txt | mail -r $POSTFIX_EMAIL -s "Please configure DKIM" $POSTFIX_ADMINEMAIL
+cat /etc/opendkim/reminder.txt | mail -r $POSTFIX_EMAIL -a "From: Desbordante <$POSTFIX_EMAIL>" -s "Please configure DKIM" $POSTFIX_ADMINEMAIL
