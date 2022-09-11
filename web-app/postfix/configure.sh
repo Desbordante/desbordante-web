@@ -6,6 +6,14 @@
 postconf -e inet_protocols="ipv4"
 # don't receive mail from the internet
 postconf -e mynetworks="127.0.0.1 172.0.0.0/8"
+# the min and max time between attempts to deliver a deferred message
+# default: 300s and 4000s
+postconf -e minimal_backoff_time="30s"
+postconf -e maximal_backoff_time="1h"
+# time between queue scans. Must be less or equal to minimal_backoff_time
+postconf -e queue_run_delay="30s"
+# the maximal time a message is queued before it is sent back as undeliverable
+postconf -e maximal_queue_lifetime="1d"
 
 ### ################## ###
 ### SITE CONFIGURATION ###
