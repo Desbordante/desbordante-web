@@ -74,7 +74,12 @@ export const UserResolvers: Resolvers = {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            return await models.FileInfo.findAll({ where: { userID } });
+            return await models.FileInfo.findAll({
+                where: {
+                    userID,
+                    isValid: true,
+                },
+            });
         },
     },
     Feedback: {
@@ -106,6 +111,9 @@ export const UserResolvers: Resolvers = {
         user: async (parent, { userID }, { models, sessionInfo }) => {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
+            }
+            if (!userID) {
+                userID = sessionInfo.userID;
             }
             if (
                 sessionInfo.permissions.includes("VIEW_ADMIN_INFO") ||

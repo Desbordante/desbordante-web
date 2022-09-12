@@ -630,7 +630,7 @@ const typeDefs = gql`
         Query for admins with permission "VIEW_ADMIN_INFO"
         """
         tasksInfo(pagination: Pagination!): [AbstractTaskInfo!]
-        user(userID: ID!): User
+        user(userID: ID): User
         """
         Query for admins with permission "VIEW_ADMIN_INFO"
         """

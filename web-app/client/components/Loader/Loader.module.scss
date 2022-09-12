@@ -1,0 +1,43 @@
+@import "styles/common";
+
+.container {
+  gap: 40px;
+  justify-content: center;
+  display: flex;
+  height: fit-content;
+}
+
+.text {
+  gap: 16px;
+  justify-content: space-around;
+  flex-direction: column;
+  display: flex;
+
+  .description {
+    @include paragraph-small;
+  }
+}
+
+.status {
+  font-weight: 700;
+}
+
+.progress {
+  color: $primary-0;
+}
+
+.queued {
+  color: $info;
+}
+
+.completed {
+  color: $success;
+}
+
+.error {
+  color: $error;
+}
+
+.resources-limit { 
+  color: $error;
+}
