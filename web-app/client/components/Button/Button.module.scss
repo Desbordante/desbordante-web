@@ -17,12 +17,14 @@
   }
 }
 
-.icon{
+.icon {
   vertical-align: middle;
   margin-right: 8px;
+
   & > span {
     vertical-align: middle;
   }
+
   img {
     vertical-align: middle;
   }
@@ -72,8 +74,7 @@
   }
 }
 
-
-.secondary {
+%secondary {
   border: 2px solid $primary-0;
   color: $primary-0;
 
@@ -99,16 +100,21 @@
     border: 2px solid $black-25;
   }
 }
+
+.secondary {
+  @extend %secondary;
+}
+
 .secondary-danger {
-  @extend .secondary;
+  @extend %secondary;
+
   border: 2px solid $error;
   color: $error;
 }
 
-
 .primary {
   background: $primary-0;
-  color: #FFFFFF;
+  color: $white;
 
   &:hover {
     background: $primary-1;
@@ -130,11 +136,10 @@
   }
 }
 
-
 .gradient {
   box-shadow: $primary-shadow-0;
   background: $primary-gradient-0;
-  color: #FFFFFF;
+  color: $white;
 
   &:hover {
     box-shadow: $primary-shadow-0;
@@ -154,6 +159,10 @@
   &:disabled {
     color: $black-50;
     box-shadow: none;
-    background: linear-gradient(53.13deg, rgba(37, 30, 41, 0.12) 9.04%, rgba(37, 30, 41, 0.08) 89.96%);
+    background: linear-gradient(
+      53.13deg,
+      rgba(37, 30, 41, 0.12) 9.04%,
+      rgba(37, 30, 41, 0.08) 89.96%
+    );
   }
 }

@@ -23,23 +23,24 @@
   text-align: center;
 }
 
-@media(max-width: 1370px) {
+@media (max-width: 1370px) {
   .background_image {
     margin-top: -1300px;
     margin-right: -3070px;
   }
+
   .section_text {
     margin-top: 14.3vh;
   }
 }
 
-@media(min-height: 1430px) {
+@media (min-height: 1430px) {
   .background_image {
     height: 300vh;
   }
 }
 
-.page{
+.page {
   display: flex;
   flex-direction: column;
   gap: 96px;
