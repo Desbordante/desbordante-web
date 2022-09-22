@@ -13,11 +13,11 @@
   position: absolute;
   top: 80px;
   width: 100%;
-  text-align:center;
+  text-align: center;
   padding: 5px;
 
   p {
-    border-bottom: 1px solid $error ; 
+    border-bottom: 1px solid $error;
     width: fit-content;
     color: $error;
     cursor: pointer;

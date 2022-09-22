@@ -25,7 +25,6 @@
     "comment-whitespace-inside": "always",
     "comment-empty-line-before": "always",
     "at-rule-no-vendor-prefix": true,
-    "rule-empty-line-before": "always-multi-line",
     "selector-pseudo-element-colon-notation": "double",
     "selector-pseudo-class-parentheses-space-inside": "never",
     "selector-no-vendor-prefix": true,
@@ -34,6 +33,19 @@
     "media-feature-parentheses-space-inside": "never",
     "media-feature-name-no-vendor-prefix": true,
     "media-feature-colon-space-before": "never",
-    "media-feature-colon-space-after": "always"
+    "media-feature-colon-space-after": "always",
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": ["export"]
+      }
+    ],
+
+    "property-no-unknown": [
+      true,
+      {
+        "ignoreProperties": ["railColor"]
+      }
+    ]
   }
 }
