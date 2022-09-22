@@ -1,16 +1,15 @@
 @import "styles/common";
 
 .header {
-    justify-content: center;
-    display: flex;
+  justify-content: center;
+  display: flex;
 
-    p {
-        padding: 16px 32px;
-        border-bottom: 2px solid $black-10;
-        cursor: pointer;
-    }
-    p.selected {
-        border-bottom: 2px solid $primary-0;
-    }
+  p {
+    padding: 16px 32px;
+    border-bottom: 2px solid $black-10;
+    cursor: pointer;
+  }
+  p.selected {
+    border-bottom: 2px solid $primary-0;
+  }
 }
-

@@ -1,7 +1,8 @@
-import { ClientJS } from 'clientjs';
 import { v4 as UUIDv4 } from "uuid";
 
-const generateDeviceInfo =  () => {
+const generateDeviceInfo = () => {
+  const { ClientJS } = require("clientjs");
+
   const client = new ClientJS();
   const deviceAttributes = {
     deviceID: `${UUIDv4()}:${client.getFingerprint()}`,
@@ -21,7 +22,7 @@ const generateDeviceInfo =  () => {
   const { deviceID } = deviceAttributes;
 
   return { deviceID, deviceInfoBase64: window.btoa(deviceInfo) };
-}
+};
 
 export default function setupDeviceInfo() {
   if (
