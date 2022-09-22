@@ -94,64 +94,63 @@ export enum TaskProcessStatusType {
 }
 
 export interface CreatingUserProps {
-  companyOrAffiliation: string;
-  country: string;
-  email: string;
   fullName: string;
-  occupation: string;
+  email: string;
   pwdHash: string;
+  country: string;
+  companyOrAffiliation: string;
+  occupation: string;
 }
 
 export interface FileProps {
   delimiter: string;
   hasHeader: boolean;
-  hasTid?: boolean | null;
   inputFormat?: InputFileFormat | null;
-  itemColumnIndex?: number | null;
   tidColumnIndex?: number | null;
-  fileType?: string;
+  itemColumnIndex?: number | null;
+  hasTid?: boolean | null;
 }
 
 export interface IntersectionFilter {
+  filterString: string;
+  orderBy: OrderBy;
+  pagination: Pagination;
   ARSortBy?: ARSortBy | null;
   CFDSortBy?: CFDSortBy | null;
   FDSortBy?: FDSortBy | null;
-  filterString: string;
-  mustContainLhsColIndices?: number[] | null;
   mustContainRhsColIndices?: number[] | null;
-  orderBy: OrderBy;
-  pagination: Pagination;
+  mustContainLhsColIndices?: number[] | null;
   withoutKeys?: boolean | null;
 }
 
 export interface IntersectionMainTaskProps {
   algorithmName: string;
-  approximateAlgorithm?: string | null;
-  defaultRadius?: number | null;
-  defaultRatio?: number | null;
+  type: MainPrimitiveType;
   errorThreshold?: number | null;
   maxLHS?: number | null;
-  metric?: MetricType | null;
-  minConfidence?: number | null;
-  minSupportAR?: number | null;
-  minSupportCFD?: number | null;
-  preciseAlgorithm?: string | null;
   threadsCount?: number | null;
-  type: MainPrimitiveType;
+  minSupportCFD?: number | null;
+  minSupportAR?: number | null;
+  minConfidence?: number | null;
+  preciseAlgorithm?: string | null;
+  approximateAlgorithm?: string | null;
+  metric?: MetricType | null;
+  defaultRadius?: number | null;
+  defaultRatio?: number | null;
 }
 
 export interface IntersectionSpecificTaskProps {
   algorithmName: string;
+  type: SpecificTaskType;
   parentTaskID?: string | null;
+  typoFD?: number[] | null;
   radius?: number | null;
   ratio?: number | null;
-  type: SpecificTaskType;
-  typoFD?: number[] | null;
 }
 
 export interface Pagination {
-  limit: number;
   offset: number;
+  limit: number;
 }
 
 export interface SpecificClusterTaskProps {
