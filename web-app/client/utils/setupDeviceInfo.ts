@@ -1,7 +1,7 @@
-import { v4 as UUIDv4 } from 'uuid';
+import { v4 as UUIDv4 } from "uuid";
 
 const generateDeviceInfo = () => {
-  const { ClientJS } = require('clientjs');
+  const { ClientJS } = require("clientjs");
 
   const client = new ClientJS();
   const deviceAttributes = {
@@ -26,11 +26,11 @@ const generateDeviceInfo = () => {
 
 export default function setupDeviceInfo() {
   if (
-    !localStorage.getItem('deviceInfo') ||
-    !localStorage.getItem('deviceID')
+    !localStorage.getItem("deviceInfo") ||
+    !localStorage.getItem("deviceID")
   ) {
     const { deviceID, deviceInfoBase64 } = generateDeviceInfo();
-    localStorage.setItem('deviceID', deviceID);
-    localStorage.setItem('deviceInfo', deviceInfoBase64);
+    localStorage.setItem("deviceID", deviceID);
+    localStorage.setItem("deviceInfo", deviceInfoBase64);
   }
 }
