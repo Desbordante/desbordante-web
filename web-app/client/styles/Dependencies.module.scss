@@ -1,0 +1,40 @@
+@import "styles/common";
+
+.filters {
+  flex-direction: row;
+  gap: 16px;
+  display: flex;
+  align-items: end;
+  margin-top: 32px;
+
+  .buttons {
+    display: flex;
+    gap: 16px;
+  }
+}
+
+.rows {
+  padding-top: 24px;
+}
+
+.attr {
+  background: $black-10;
+  border-radius: 8px;
+  padding: 8px 18px;
+  text-align: center;
+  color: $black-75;
+}
+
+.attr.active {
+  background: $black-05;
+  border: 2px solid $primary-0;
+  color: $black;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  height: 35px;
+  cursor: pointer;
+}
