@@ -1,24 +1,24 @@
-import Button from "@components/Button";
-import PopupWindowContainer from "@components/PopupWindowContainer";
+import Button from '@components/Button';
+import PopupWindowContainer from '@components/PopupWindowContainer';
 import React, {
   useState,
   FC,
   useEffect,
   useCallback,
   ReactElement,
-} from "react";
-import { Checkbox, Select, Text } from "@components/Inputs";
-import _ from "lodash";
+} from 'react';
+import { Checkbox, Select, Text } from '@components/Inputs';
+import _ from 'lodash';
 import {
   FDSortBy,
   CFDSortBy,
   ARSortBy,
   OrderBy,
   PrimitiveType,
-} from "types/globalTypes";
-import styles from "./Filters.module.scss";
-import { OrderingTitles } from "@constants/titles";
-import { title } from "process";
+} from 'types/globalTypes';
+import styles from './Filters.module.scss';
+import { OrderingTitles } from '@constants/titles';
+import { title } from 'process';
 
 export type Sorting = FDSortBy | CFDSortBy | ARSortBy;
 
@@ -39,9 +39,9 @@ export const useFilters = (primitive: PrimitiveType) => {
     page: 1,
     ordering: getDefaultOrdering(primitive),
     direction: OrderBy.ASC,
-    search: "",
-    mustContainRhsColIndices: "",
-    mustContainLhsColIndices: "",
+    search: '',
+    mustContainRhsColIndices: '',
+    mustContainLhsColIndices: '',
   });
 
   const setFilterField = (
@@ -56,7 +56,7 @@ export const useFilters = (primitive: PrimitiveType) => {
   };
 
   useEffect(
-    () => setFilterField("ordering", getDefaultOrdering(primitive)),
+    () => setFilterField('ordering', getDefaultOrdering(primitive)),
     [primitive]
   );
 
@@ -66,7 +66,7 @@ export const useFilters = (primitive: PrimitiveType) => {
 export const getSortingParams = (primitive: PrimitiveType) => {
   return {
     [(primitive === PrimitiveType.TypoFD ? PrimitiveType.FD : primitive) +
-    "SortBy"]: _.keys(OrderingTitles[primitive])[0],
+    'SortBy']: _.keys(OrderingTitles[primitive])[0],
   };
 };
 
@@ -95,8 +95,8 @@ export const OrderingWindow: FC<OrderingProps> = ({
   );
 
   const DirectionOptions = {
-    [OrderBy.ASC]: { value: OrderBy.ASC, label: "Ascending" },
-    [OrderBy.DESC]: { value: OrderBy.DESC, label: "Descending" },
+    [OrderBy.ASC]: { value: OrderBy.ASC, label: 'Ascending' },
+    [OrderBy.DESC]: { value: OrderBy.DESC, label: 'Descending' },
   };
 
   return (
@@ -161,13 +161,13 @@ export const FilteringWindow: FC<FilteringProps> = ({
   const validRhs =
     !mustContainRhsColIndices ||
     mustContainRhsColIndices
-      .split(",")
+      .split(',')
       .filter((s) => Number.isNaN(Number.parseFloat(s))).length === 0;
 
   const validLhs =
     !mustContainLhsColIndices ||
     mustContainLhsColIndices
-      .split(",")
+      .split(',')
       .filter((s) => Number.isNaN(Number.parseFloat(s))).length === 0;
 
   return (
@@ -182,7 +182,7 @@ export const FilteringWindow: FC<FilteringProps> = ({
           <Text
             error={
               !validRhs
-                ? "Please enter valid comma-separated numbers"
+                ? 'Please enter valid comma-separated numbers'
                 : undefined
             }
             placeholder="must Contain Rhs Col Indices"
@@ -192,7 +192,7 @@ export const FilteringWindow: FC<FilteringProps> = ({
           <Text
             error={
               !validLhs
-                ? "Please enter valid comma-separated numbers"
+                ? 'Please enter valid comma-separated numbers'
                 : undefined
             }
             placeholder="must Contain Lhs Col Indices"

@@ -77,7 +77,6 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
       [(primitive === PrimitiveType.TypoFD ? PrimitiveType.FD : primitive) +
       'SortBy']: ordering,
     };
-
     getDeps({
       variables: {
         taskID: taskID,
