@@ -1,25 +1,30 @@
-import type { NextPage } from 'next';
-import { useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { AuthContext } from '@components/AuthContext';
-import { useQuery } from '@apollo/client';
-import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
-import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithmsConfig';
-import { ErrorContext } from '@components/ErrorContext';
-import { AllowedDataset } from 'types/algorithms';
-import _ from 'lodash';
-import { DatasetCard } from '@components/DatasetCard/DatasetCard';
-import { MainPrimitiveType } from 'types/globalTypes';
-import { Collapse } from '@components/Collapse/Collapse';
-import Button from '@components/Button';
-import styles from '@styles/ChooseFile.module.scss';
-import settingsIcon from '@assets/icons/settings.svg';
-import { WizardLayout } from '@components/WizardLayout/WizardLayout';
-import DatasetUploader from '@components/DatasetUploader/DatasetUploader';
+import type { NextPage } from "next";
+import { useContext, useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { AuthContext } from "@components/AuthContext";
+import { useLazyQuery, useQuery } from "@apollo/client";
+import { getAlgorithmsConfig } from "@graphql/operations/queries/__generated__/getAlgorithmsConfig";
+import { GET_ALGORITHMS_CONFIG } from "@graphql/operations/queries/getAlgorithmsConfig";
+import { ErrorContext } from "@components/ErrorContext";
+import { AllowedDataset } from "types/algorithms";
+import _ from "lodash";
+import { DatasetCard } from "@components/DatasetCard/DatasetCard";
+import { MainPrimitiveType } from "types/globalTypes";
+import { Collapse } from "@components/Collapse/Collapse";
+import Button from "@components/Button";
+import styles from "@styles/ChooseFile.module.scss";
+import settingsIcon from "@assets/icons/settings.svg";
+import { WizardLayout } from "@components/WizardLayout/WizardLayout";
+import DatasetUploader from "@components/DatasetUploader/DatasetUploader";
+import {
+  getUser,
+  getUserVariables,
+} from "@graphql/operations/queries/__generated__/getUser";
+import { GET_USER } from "@graphql/operations/queries/getUser";
 
 const ChooseFile: NextPage = () => {
   const router = useRouter();
-  const primitive = router.query.primitive || 'FD';
+  const primitive = router.query.primitive || "FD";
   const { user } = useContext(AuthContext)!;
   const { showError } = useContext(ErrorContext)!;
   const { loading, data, error } = useQuery<getAlgorithmsConfig>(
@@ -37,11 +42,22 @@ const ChooseFile: NextPage = () => {
   const [userDatasets, setUserDatasets] = useState(user?.datasets || []);
   const [selection, setSelection] = useState<AllowedDataset>();
 
+  const [getUser] = useLazyQuery<getUser, getUserVariables>(GET_USER);
+
+  useEffect(() => {
+    if (!user || !user?.id) return;
+    getUser({
+      variables: { userID: user.id! },
+    }).then((resp) => {
+      setUserDatasets(resp.data?.user?.datasets || []);
+    });
+  }, [user?.id]);
+
   useEffect(() => {
     if (error) {
       showError({
         message: error.message,
-        suggestion: 'Please, try reloading the page.',
+        suggestion: "Please, try reloading the page.",
       });
     }
   }, []);
@@ -120,7 +136,7 @@ const ChooseFile: NextPage = () => {
         icon={settingsIcon}
         onClick={() =>
           router.push({
-            pathname: '/create-task/configure-algorithm',
+            pathname: "/create-task/configure-algorithm",
             query: { ...router.query, primitive, fileID: selection?.fileID },
           })
         }
