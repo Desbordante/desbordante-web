@@ -69,7 +69,6 @@ export const ReportsLayout: FC<Props> = ({ children }) => {
   const router = useRouter();
   const { taskInfo } = useTaskContext();
   const primitive = taskInfo?.taskInfo.data.baseConfig.type;
-
   return (
     <div className={styles.page}>
       <div className={styles.background}>
