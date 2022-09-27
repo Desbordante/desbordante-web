@@ -20,6 +20,7 @@ import longArrowIcon from "@assets/icons/long-arrow.svg";
 import Image from "next/image";
 import { Column } from "@graphql/operations/fragments/__generated__/Column";
 import { useFilters } from "@components/Filters/Filters";
+import Pagination from "@components/Pagination/Pagination";
 
 const ReportsDependencies: NextPage = () => {
   const router = useRouter();
@@ -98,6 +99,8 @@ const ReportsDependencies: NextPage = () => {
                   {makeSide(row.rhs)}
                 </div>
               ))}
+
+            <Pagination current={7} count={10} />
           </>
         )}
       </div>
