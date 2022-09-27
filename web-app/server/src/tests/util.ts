@@ -30,6 +30,9 @@ export const executeOperation = async <ResultType, VariablesType = never>(
         throw new Error(`File ${dirname}/${queryName}.graphql not found`);
     }
     const { server } = serverInfo;
+    if (!variables) {
+        throw new Error("Variables must be defined");
+    }
     const result = await server.executeOperation({ query, variables });
     return result as Omit<typeof result, "data"> & { data: ResultType };
 };
