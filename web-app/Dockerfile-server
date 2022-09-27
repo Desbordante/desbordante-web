@@ -4,6 +4,7 @@ RUN npm install --global yarn
 RUN npm install -g n
 RUN n stable
 COPY server/package.json server/package.json
+COPY server/yarn.lock server/yarn.lock
 WORKDIR /server/
 RUN yarn
 COPY server/ /server/

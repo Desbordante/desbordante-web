@@ -23,15 +23,15 @@ services:
       context: ./web-app/
       dockerfile: Dockerfile-client
     ports:
-      - "3000:80"
+      - "3000:3000"
     expose:
       - "4000"
     environment:
-      REACT_APP_HOST_SERVER_IP: ${REACT_APP_HOST_SERVER_IP}
-      REACT_APP_SERVER_PORT: 5000
-      REACT_APP_PASSWORD_SALT_PREFIX: ${REACT_APP_PASSWORD_SALT_PREFIX}
-      REACT_APP_PASSWORD_SALT_POSTFIX: ${REACT_APP_PASSWORD_SALT_POSTFIX}
-      REACT_APP_SERVER_PROTOCOL: ${REACT_APP_SERVER_PROTOCOL}
+      NEXT_PUBLIC_HOST_SERVER_IP: ${HOST_SERVER_IP}
+      NEXT_PUBLIC_SERVER_PORT: 5000
+      NEXT_PUBLIC_SERVER_PROTOCOL: ${SERVER_PROTOCOL}
+      NEXT_PUBLIC_PASSWORD_SALT_PREFIX: ${PASSWORD_SALT_PREFIX}
+      NEXT_PUBLIC_PASSWORD_SALT_POSTFIX: ${PASSWORD_SALT_POSTFIX}
       PORT: 3000
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
@@ -88,7 +88,8 @@ services:
         max-size: 20m
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:6.2.0
+    image: confluentinc/cp-zookeeper:7.0.0
+    user: root
     expose:
       - "2181"
     environment:
@@ -107,7 +108,8 @@ services:
         max-size: 20m
 
   kafka:
-    image: confluentinc/cp-kafka:6.2.0
+    image: confluentinc/cp-kafka:7.0.0
+    user: root
     expose:
       - '9092'
       - '1234'
@@ -176,17 +178,6 @@ services:
     links:
       - 'grafana'
 
-  nginx-metrics:
-    image: nginx/nginx-prometheus-exporter
-    command: -nginx.scrape-uri=http://client:4000/nginx_status
-    restart: always
-    networks:
-      - network
-    expose:
-      - '9113'
-    links:
-      - 'prometheus'
-
   node-exporter:
     image: prom/node-exporter
     container_name: monitoring_node_exporter
@@ -201,7 +192,7 @@ services:
       - '/:/host:ro,rslave'
     command:
       - '--path.rootfs=/host'
-      
+
     pid: host
 
   cadvisor:
