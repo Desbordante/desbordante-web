@@ -65,7 +65,8 @@
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true,  /* Disallow inconsistently-cased references to the same file. */
     "traceResolution": false,
-    "pretty": true
+    "pretty": true,
+    "skipLibCheck": true
   },
   "files": ["src/@types/graphql.d.ts"],
 //  "parser": "@typescript-eslint/parser",
