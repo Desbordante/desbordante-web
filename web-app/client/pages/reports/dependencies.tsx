@@ -26,9 +26,9 @@ const ReportsDependencies: NextPage = () => {
   const router = useRouter();
   const taskID = router.query.taskID as string;
 
-  const { search, setSearch } = useFilters();
+  const { search, setSearch, page, setPage } = useFilters();
 
-  const [getDeps, { loading, data, called }] = useLazyQuery<
+  const [getDeps, { loading, data, called, previousData }] = useLazyQuery<
     GetMainTaskDeps,
     GetMainTaskDepsVariables
   >(GET_MAIN_TASK_DEPS);
@@ -42,11 +42,11 @@ const ReportsDependencies: NextPage = () => {
           filterString: search,
           FDSortBy: FDSortBy.LHS_COL_ID,
           orderBy: OrderBy.DESC,
-          pagination: { limit: 10, offset: 0 },
+          pagination: { limit: 10, offset: (page - 1) * 10 },
         },
       },
     });
-  }, [search]);
+  }, [taskID, search, page]);
 
   const makeSide: (data: Column | Column[]) => ReactElement = (data) => {
     if (Array.isArray(data)) {
@@ -61,6 +61,12 @@ const ReportsDependencies: NextPage = () => {
       return makeSide([data]);
     }
   };
+
+  // todo add loading text/animation, maybe in Pagination component too
+  const shownData = loading ? previousData : data;
+  const recordsCount =
+    shownData?.taskInfo.data.result?.__typename === "FDTaskResult" &&
+    shownData?.taskInfo.data.result.depsAmount;
 
   return (
     <ReportsLayout>
@@ -87,22 +93,31 @@ const ReportsDependencies: NextPage = () => {
       </div>
 
       <div className={styles.rows}>
-        {called && !loading && data && (
+        {called && shownData && (
           <>
-            {data.taskInfo.data.result?.__typename === "FDTaskResult" &&
-              data.taskInfo.data.result.filteredDeps.__typename ===
+            {shownData.taskInfo.data.result?.__typename === "FDTaskResult" &&
+              shownData.taskInfo.data.result.filteredDeps.__typename ===
                 "FilteredFDs" &&
-              _.map(data.taskInfo.data.result.filteredDeps.FDs, (row, i) => (
-                <div key={i} className={styles.row}>
-                  {makeSide(row.lhs)}
-                  <Image src={longArrowIcon} />
-                  {makeSide(row.rhs)}
-                </div>
-              ))}
-
-            <Pagination current={7} count={10} />
+              _.map(
+                shownData.taskInfo.data.result.filteredDeps.FDs,
+                (row, i) => (
+                  <div key={i} className={styles.row}>
+                    {makeSide(row.lhs)}
+                    <Image src={longArrowIcon} />
+                    {makeSide(row.rhs)}
+                  </div>
+                )
+              )}
           </>
         )}
+      </div>
+
+      <div className={styles.pagination}>
+        <Pagination
+          onChange={setPage}
+          current={page}
+          count={Math.ceil((recordsCount || 10) / 10)}
+        />
       </div>
     </ReportsLayout>
   );
