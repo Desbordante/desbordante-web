@@ -1,16 +1,41 @@
-import { useContext } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import Button from '@components/Button';
-import { AuthContext } from '@components/AuthContext';
-import styles from './Header.module.scss';
-import logo from '@public/logo.svg';
+import { useCallback, useContext, useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import Button from "@components/Button";
+import { AuthContext } from "@components/AuthContext";
+import styles from "./Header.module.scss";
+import logo from "@public/logo.svg";
+import classNames from "classnames";
 
 const Header = () => {
   const { user, setIsSignUpShown, setIsLogInShown, signOut } =
     useContext(AuthContext)!;
+
+  const [headerBackground, setHeaderBackground] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    if (window.pageYOffset > 100) {
+      setHeaderBackground(true);
+    } else {
+      setHeaderBackground(false);
+    }
+  }, []);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.addEventListener("scroll", checkScroll);
+
+    return () => {
+      window.removeEventListener("scroll", checkScroll);
+    };
+  }, []);
+
   return (
-    <header className={styles.header}>
+    <header
+      className={classNames(
+        styles.header,
+        headerBackground && styles.background
+      )}
+    >
       <Link href="/">
         <div className={styles.brand}>
           <Image
