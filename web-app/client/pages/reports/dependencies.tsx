@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import { GET_MAIN_TASK_DEPS } from "@graphql/operations/queries/getDeps";
 import {
   GetMainTaskDeps,
@@ -22,17 +22,34 @@ import { Column } from "@graphql/operations/fragments/__generated__/Column";
 import { OrderingWindow, useFilters } from "@components/Filters/Filters";
 import Pagination from "@components/Pagination/Pagination";
 import classNames from "classnames";
+import { GET_TASK_INFO } from "@graphql/operations/queries/getTaskInfo";
+import {
+  getTaskInfo,
+  getTaskInfoVariables,
+} from "@graphql/operations/queries/__generated__/getTaskInfo";
+import { PrimitiveType } from "types/globalTypes";
 
-import { useForm } from "react-hook-form";
-
+type GeneralColumn = {
+  column: Column;
+  pattern?: string;
+};
 const ReportsDependencies: NextPage = () => {
   const router = useRouter();
   const taskID = router.query.taskID as string;
 
+  const { data: taskInfo } = useQuery<getTaskInfo, getTaskInfoVariables>(
+    GET_TASK_INFO,
+    {
+      variables: { taskID },
+    }
+  );
+
+  const primitive: PrimitiveType | null =
+    taskInfo?.taskInfo.data.baseConfig.type || null;
   const {
     fields: { search, page, ordering, direction },
     setValue,
-  } = useFilters();
+  } = useFilters(primitive || PrimitiveType.FD);
 
   const [selectedRow, setSelectedRow] = useState<number | undefined>();
 
@@ -42,26 +59,34 @@ const ReportsDependencies: NextPage = () => {
   >(GET_MAIN_TASK_DEPS);
 
   useEffect(() => {
+    if (!primitive) return;
+    const sortingParams = {
+      [primitive + "SortBy"]: ordering,
+    };
     getDeps({
       variables: {
         taskID: taskID,
         filter: {
           withoutKeys: false,
           filterString: search,
-          FDSortBy: (ordering as FDSortBy) || FDSortBy.LHS_NAME,
-          orderBy: direction,
           pagination: { limit: 10, offset: (page - 1) * 10 },
+          ...sortingParams,
+          orderBy: direction,
         },
       },
     });
-  }, [taskID, search, page, ordering, direction]);
+  }, [taskID, primitive, search, page, ordering, direction]);
 
-  const makeSide: (data: Column | Column[]) => ReactElement = (data) => {
+  const makeSide: (data: GeneralColumn | GeneralColumn[]) => ReactElement = (
+    data
+  ) => {
     if (Array.isArray(data)) {
       return (
         <>
           {data.map((e) => (
-            <span className={styles.attr}>{e.name}</span>
+            <span className={styles.attr}>
+              {e.column.name} {e.pattern ? " | " + e.pattern : ""}
+            </span>
           ))}
         </>
       );
@@ -76,15 +101,32 @@ const ReportsDependencies: NextPage = () => {
     shownData?.taskInfo.data.result?.__typename === "FDTaskResult" &&
     shownData?.taskInfo.data.result.depsAmount;
 
-  const primitive = {
-    FDTaskResult: MainPrimitiveType.FD,
-    ARTaskResult: MainPrimitiveType.AR,
-    CFDTaskResult: MainPrimitiveType.CFD,
-    TypoFDTaskResult: MainPrimitiveType.TypoFD,
-    TypoClusterTaskResult: MainPrimitiveType.TypoFD,
-  }[shownData?.taskInfo.data.result?.__typename || "FDTaskResult"];
-
   const [isOrderingShown, setIsOrderingShown] = useState(false);
+
+  const deps: () => {
+    rhs: GeneralColumn;
+    lhs: GeneralColumn[];
+  }[] = () => {
+    if (!shownData) return [];
+    if (primitive === PrimitiveType.FD) {
+      return shownData.taskInfo.data.result?.__typename === "FDTaskResult" &&
+        shownData.taskInfo.data.result.filteredDeps.__typename === "FilteredFDs"
+        ? shownData.taskInfo.data.result.filteredDeps.FDs.map((e) => ({
+            rhs: { column: e.rhs },
+            lhs: e.lhs.map((e) => ({ column: e })),
+          }))
+        : [];
+    }
+
+    if (primitive === PrimitiveType.CFD) {
+      return shownData.taskInfo.data.result?.__typename === "CFDTaskResult" &&
+        shownData.taskInfo.data.result.filteredDeps.__typename ===
+          "FilteredCFDs"
+        ? shownData.taskInfo.data.result.filteredDeps.CFDs
+        : [];
+    }
+    return [];
+  };
 
   return (
     <ReportsLayout>
@@ -93,7 +135,7 @@ const ReportsDependencies: NextPage = () => {
           {...{
             setIsOrderingShown,
             ordering,
-            primitive,
+            primitive: primitive || PrimitiveType.FD,
             direction,
           }}
           setOrdering={(o) => setValue("ordering", o)}
@@ -108,7 +150,7 @@ const ReportsDependencies: NextPage = () => {
           label="Search"
           placeholder="Attribute name or regex"
           value={search}
-          // onChange={(e) => setSearch(e.currentTarget.value)}
+          onChange={(e) => setValue("search", e.currentTarget.value)}
         />
         <div className={styles.buttons}>
           <Button variant="secondary" size="md" icon={filterIcon}>
@@ -131,26 +173,20 @@ const ReportsDependencies: NextPage = () => {
       <div className={styles.rows}>
         {called && shownData && (
           <>
-            {shownData.taskInfo.data.result?.__typename === "FDTaskResult" &&
-              shownData.taskInfo.data.result.filteredDeps.__typename ===
-                "FilteredFDs" &&
-              _.map(
-                shownData.taskInfo.data.result.filteredDeps.FDs,
-                (row, i) => (
-                  <div
-                    key={i}
-                    className={classNames(
-                      styles.row,
-                      selectedRow === i && styles.selectedRow
-                    )}
-                    onClick={() => setSelectedRow(i)}
-                  >
-                    {makeSide(row.lhs)}
-                    <Image src={longArrowIcon} />
-                    {makeSide(row.rhs)}
-                  </div>
-                )
-              )}
+            {_.map(deps(), (row, i) => (
+              <div
+                key={i}
+                className={classNames(
+                  styles.row,
+                  selectedRow === i && styles.selectedRow
+                )}
+                onClick={() => setSelectedRow(i)}
+              >
+                {makeSide(row.lhs)}
+                <Image src={longArrowIcon} />
+                {makeSide(row.rhs)}
+              </div>
+            ))}
           </>
         )}
       </div>

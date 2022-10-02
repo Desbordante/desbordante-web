@@ -1,13 +1,16 @@
 import Button from "@components/Button";
 import PopupWindowContainer from "@components/PopupWindowContainer/PopupWindowContainer";
-import React, { useState, FC, useContext } from "react";
-import { Container } from "react-bootstrap";
-import _ from "lodash";
-import { FDSortBy, CFDSortBy, ARSortBy, OrderBy } from "types/globalTypes";
-import { MainPrimitiveType } from "__generated__/globalTypes";
-import styles from "./Filters.module.scss";
+import React, { useState, FC, useEffect, useCallback } from "react";
 import { Checkbox } from "@components/Inputs";
-import { useFormContext } from "react-hook-form";
+import _ from "lodash";
+import {
+  FDSortBy,
+  CFDSortBy,
+  ARSortBy,
+  OrderBy,
+  PrimitiveType,
+} from "types/globalTypes";
+import styles from "./Filters.module.scss";
 
 export type Sorting = FDSortBy | CFDSortBy | ARSortBy;
 
@@ -18,10 +21,15 @@ export type FiltersFields = {
   page: number;
 };
 
-export const useFilters = () => {
+export const useFilters = (primitive: PrimitiveType) => {
+  const defaultOrdering = useCallback(
+    () => _.keys(orderingTitles[primitive])[0] as Sorting,
+    [primitive]
+  );
+
   const [fields, setFields] = useState<FiltersFields>({
     page: 1,
-    ordering: FDSortBy.LHS_NAME,
+    ordering: defaultOrdering(),
     direction: OrderBy.ASC,
     search: "",
   });
@@ -30,28 +38,34 @@ export const useFilters = () => {
     setFields({ ...fields, [field]: value });
   };
 
+  useEffect(() => setValue("ordering", defaultOrdering()), [primitive]);
+
   return { setValue, fields };
 };
 
 const orderingTitles = {
-  [MainPrimitiveType.FD]: {
+  [PrimitiveType.FD]: {
     [FDSortBy.LHS_NAME]: "LHS NAME",
     [FDSortBy.RHS_NAME]: "RHS NAME",
   },
-  [MainPrimitiveType.CFD]: {
-    [CFDSortBy.CONF]: "Condfidence",
+  [PrimitiveType.CFD]: {
     [CFDSortBy.LHS_COL_NAME]: "LHS NAME",
     [CFDSortBy.RHS_COL_NAME]: "RHS NAME",
+    [CFDSortBy.CONF]: "Condfidence",
     [CFDSortBy.LHS_PATTERN]: "LHS PATTERN",
     [CFDSortBy.LHS_PATTERN]: "RHS PATTERN",
   },
-  [MainPrimitiveType.AR]: {
+  [PrimitiveType.AR]: {
     [ARSortBy.CONF]: "Confidence",
     [ARSortBy.DEFAULT]: "Default",
     [ARSortBy.LHS_NAME]: "LHS NAME",
     [ARSortBy.RHS_NAME]: "RHS NAME",
   },
-  [MainPrimitiveType.TypoFD]: {
+  [PrimitiveType.TypoFD]: {
+    [FDSortBy.LHS_NAME]: "LHS NAME",
+    [FDSortBy.RHS_NAME]: "RHS NAME",
+  },
+  [PrimitiveType.TypoCluster]: {
     [FDSortBy.LHS_NAME]: "LHS NAME",
     [FDSortBy.RHS_NAME]: "RHS NAME",
   },
@@ -60,7 +74,7 @@ const orderingTitles = {
 type OrderingProps = {
   setIsOrderingShown: (arg: boolean) => void;
   ordering: Sorting;
-  primitive: MainPrimitiveType;
+  primitive: PrimitiveType;
   direction: OrderBy;
   setOrdering: (arg: Sorting) => void;
   setDirection: (arg: OrderBy) => void;
@@ -85,20 +99,18 @@ export const OrderingWindow: FC<OrderingProps> = ({
   return (
     <>
       <PopupWindowContainer onOutsideClick={() => setIsOrderingShown(false)}>
-        <Container className="form-container bg-light m-4 m-sm-5 p-4 p-sm-5 rounded-3 w-auto shadow-lg">
+        <div className={styles.container}>
           <h5>Choose ordering</h5>
-          <div className={styles.container}>
-            {_.map(orderingTitles[primitive], (title, name) => (
-              <Button
-                key={title}
-                variant={ordering === name ? "primary" : "secondary"}
-                size="sm"
-                onClick={handleClick(name as Sorting)}
-              >
-                {title}
-              </Button>
-            ))}
-          </div>
+          {_.map(orderingTitles[primitive], (title, name) => (
+            <Button
+              key={title}
+              variant={ordering === name ? "primary" : "secondary"}
+              size="sm"
+              onClick={handleClick(name as Sorting)}
+            >
+              {title}
+            </Button>
+          ))}
 
           <div className={styles.direction}>
             <Checkbox
@@ -114,7 +126,7 @@ export const OrderingWindow: FC<OrderingProps> = ({
               onClick={() => setDirection(OrderBy.DESC)}
             />
           </div>
-        </Container>
+        </div>
       </PopupWindowContainer>
     </>
   );

@@ -88,6 +88,15 @@ export const Item = gql`
     column {
       ...Column
     }
-    pattern
   }
-`
+`;
+
+// it throws error on backend
+// export const Item = gql`
+//   fragment Item on Item {
+//     __typename
+//     column {
+//       ...Column
+//     }
+//     pattern
+//   }
