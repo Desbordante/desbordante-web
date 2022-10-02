@@ -1,14 +1,14 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { GET_MAIN_TASK_DEPS } from "@graphql/operations/queries/getDeps";
 import {
   GetMainTaskDeps,
   GetMainTaskDepsVariables,
 } from "@graphql/operations/queries/__generated__/GetMainTaskDeps";
-import { FDSortBy, OrderBy } from "__generated__/globalTypes";
+import { FDSortBy, MainPrimitiveType } from "__generated__/globalTypes";
 import { ReportsLayout } from "@components/ReportsLayout/ReportsLayout";
-import { ReactElement, useEffect } from "react";
+import { ReactElement, useContext, useEffect, useState } from "react";
 import _ from "lodash";
 import { Text } from "@components/Inputs";
 import Button from "@components/Button";
@@ -19,14 +19,22 @@ import eyeIcon from "@assets/icons/eye.svg";
 import longArrowIcon from "@assets/icons/long-arrow.svg";
 import Image from "next/image";
 import { Column } from "@graphql/operations/fragments/__generated__/Column";
-import { useFilters } from "@components/Filters/Filters";
+import { OrderingWindow, useFilters } from "@components/Filters/Filters";
 import Pagination from "@components/Pagination/Pagination";
+import classNames from "classnames";
+
+import { useForm } from "react-hook-form";
 
 const ReportsDependencies: NextPage = () => {
   const router = useRouter();
   const taskID = router.query.taskID as string;
 
-  const { search, setSearch, page, setPage } = useFilters();
+  const {
+    fields: { search, page, ordering, direction },
+    setValue,
+  } = useFilters();
+
+  const [selectedRow, setSelectedRow] = useState<number | undefined>();
 
   const [getDeps, { loading, data, called, previousData }] = useLazyQuery<
     GetMainTaskDeps,
@@ -40,13 +48,13 @@ const ReportsDependencies: NextPage = () => {
         filter: {
           withoutKeys: false,
           filterString: search,
-          FDSortBy: FDSortBy.LHS_COL_ID,
-          orderBy: OrderBy.DESC,
+          FDSortBy: (ordering as FDSortBy) || FDSortBy.LHS_NAME,
+          orderBy: direction,
           pagination: { limit: 10, offset: (page - 1) * 10 },
         },
       },
     });
-  }, [taskID, search, page]);
+  }, [taskID, search, page, ordering, direction]);
 
   const makeSide: (data: Column | Column[]) => ReactElement = (data) => {
     if (Array.isArray(data)) {
@@ -68,8 +76,31 @@ const ReportsDependencies: NextPage = () => {
     shownData?.taskInfo.data.result?.__typename === "FDTaskResult" &&
     shownData?.taskInfo.data.result.depsAmount;
 
+  const primitive = {
+    FDTaskResult: MainPrimitiveType.FD,
+    ARTaskResult: MainPrimitiveType.AR,
+    CFDTaskResult: MainPrimitiveType.CFD,
+    TypoFDTaskResult: MainPrimitiveType.TypoFD,
+    TypoClusterTaskResult: MainPrimitiveType.TypoFD,
+  }[shownData?.taskInfo.data.result?.__typename || "FDTaskResult"];
+
+  const [isOrderingShown, setIsOrderingShown] = useState(false);
+
   return (
     <ReportsLayout>
+      {isOrderingShown && (
+        <OrderingWindow
+          {...{
+            setIsOrderingShown,
+            ordering,
+            primitive,
+            direction,
+          }}
+          setOrdering={(o) => setValue("ordering", o)}
+          setDirection={(d) => setValue("direction", d)}
+        />
+      )}
+
       <h5>Primitive List</h5>
 
       <div className={styles.filters}>
@@ -77,13 +108,18 @@ const ReportsDependencies: NextPage = () => {
           label="Search"
           placeholder="Attribute name or regex"
           value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
+          // onChange={(e) => setSearch(e.currentTarget.value)}
         />
         <div className={styles.buttons}>
           <Button variant="secondary" size="md" icon={filterIcon}>
             Filters
           </Button>
-          <Button variant="secondary" size="md" icon={orderingIcon}>
+          <Button
+            variant="secondary"
+            size="md"
+            icon={orderingIcon}
+            onClick={() => setIsOrderingShown(true)}
+          >
             Ordering
           </Button>
           <Button variant="secondary" size="md" icon={eyeIcon}>
@@ -101,7 +137,14 @@ const ReportsDependencies: NextPage = () => {
               _.map(
                 shownData.taskInfo.data.result.filteredDeps.FDs,
                 (row, i) => (
-                  <div key={i} className={styles.row}>
+                  <div
+                    key={i}
+                    className={classNames(
+                      styles.row,
+                      selectedRow === i && styles.selectedRow
+                    )}
+                    onClick={() => setSelectedRow(i)}
+                  >
                     {makeSide(row.lhs)}
                     <Image src={longArrowIcon} />
                     {makeSide(row.rhs)}
@@ -114,7 +157,7 @@ const ReportsDependencies: NextPage = () => {
 
       <div className={styles.pagination}>
         <Pagination
-          onChange={setPage}
+          onChange={(n) => setValue("page", n)}
           current={page}
           count={Math.ceil((recordsCount || 10) / 10)}
         />
