@@ -1,12 +1,12 @@
-import { useCallback, useContext, useEffect, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import classNames from "classnames";
-import Button from "@components/Button";
-import {useBrowserEffect} from "hooks/useBrowserEffect";
-import { AuthContext } from "@components/AuthContext";
-import styles from "./Header.module.scss";
-import logo from "@public/logo.svg";
+import { useCallback, useContext, useEffect, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import classNames from 'classnames';
+import Button from '@components/Button';
+import { useBrowserEffect } from 'hooks/useBrowserEffect';
+import { AuthContext } from '@components/AuthContext';
+import styles from './Header.module.scss';
+import logo from '@public/logo.svg';
 
 const Header = () => {
   const { user, setIsSignUpShown, setIsLogInShown, signOut } =
@@ -19,9 +19,9 @@ const Header = () => {
   }, []);
 
   useBrowserEffect(() => {
-    window.addEventListener("scroll", checkScroll);
+    window.addEventListener('scroll', checkScroll);
     return () => {
-      window.removeEventListener("scroll", checkScroll);
+      window.removeEventListener('scroll', checkScroll);
     };
   }, []);
 
