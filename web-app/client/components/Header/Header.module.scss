@@ -9,7 +9,8 @@
   padding: 24px 64px;
   z-index: 1000;
 
-  .brand, .auth {
+  .brand,
+  .auth {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -18,4 +19,10 @@
   .brand {
     cursor: pointer;
   }
+}
+
+.background {
+  border-bottom: 1px solid $primary-0;
+  background: $background;
+  transition: background-color 0.3s;
 }

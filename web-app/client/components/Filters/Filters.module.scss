@@ -1,0 +1,15 @@
+.container {
+  flex-direction: column;
+  gap: 8px;
+  display: flex;
+  padding: 10px;
+}
+
+.direction {
+  justify-content: space-around;
+  display: flex;
+
+  * {
+    cursor: pointer;
+  }
+}
