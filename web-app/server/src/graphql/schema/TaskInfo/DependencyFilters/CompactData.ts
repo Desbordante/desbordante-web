@@ -41,7 +41,10 @@ export class CompactData {
     public static toCompactCFD = (data: string): CFDCompactType => {
         const [confidence, lhs, rhs, support] = data.split(":");
         return {
-            lhs: lhs.split(",").map(CompactData.toItem),
+            lhs: lhs
+                .split(",")
+                .filter((line) => line.length)
+                .map(CompactData.toItem),
             rhs: CompactData.toItem(rhs),
             support: Number(support),
             confidence: Number(confidence),
