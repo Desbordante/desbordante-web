@@ -93,10 +93,10 @@ const mainTaskSchema: SchemaItemType<IntersectionMainTaskProps, MainPrimitiveTyp
         supportedPrimitives: ["AR"],
         info: {
             property: "minSupportAR",
-            expected: "Integer between [0..1]",
+            expected: "Decimal between [0..1]",
         },
-        isValid: ({ minSupportCFD: support }) =>
-            typeof support === "number" && support >= 1,
+        isValid: ({ minSupportAR: support }) =>
+            typeof support === "number" && support >= 0 && support <= 1,
     },
     {
         supportedPrimitives: ["TypoFD"],
