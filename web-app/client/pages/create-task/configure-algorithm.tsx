@@ -1,21 +1,21 @@
-import type { NextPage } from "next";
-import React, { FC, useCallback, useContext, useEffect, useMemo } from "react";
-import { useRouter } from "next/router";
-import _ from "lodash";
-import Button from "@components/Button";
-import ideaIcon from "@assets/icons/idea.svg";
-import { WizardLayout } from "@components/WizardLayout/WizardLayout";
-import NumberSlider from "@components/Inputs/NumberSlider/NumberSlider";
-import { Select } from "@components/Inputs";
-import styles from "@styles/ConfigureAlgorithm.module.scss";
-import { MainPrimitiveType } from "types/globalTypes";
+import type { NextPage } from 'next';
+import React, { FC, useCallback, useContext, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
+import _ from 'lodash';
+import Button from '@components/Button';
+import ideaIcon from '@assets/icons/idea.svg';
+import { WizardLayout } from '@components/WizardLayout/WizardLayout';
+import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
+import { Select } from '@components/Inputs';
+import styles from '@styles/ConfigureAlgorithm.module.scss';
+import { MainPrimitiveType } from 'types/globalTypes';
 import {
   Controller,
   ControllerFieldState,
   ControllerRenderProps,
   useForm,
   UseFormStateReturn,
-} from "react-hook-form";
+} from 'react-hook-form';
 import {
   Algorithms,
   ApproxOptions,
@@ -24,15 +24,15 @@ import {
   FDoptions,
   optionsByAlgorithms,
   TypoOptions,
-} from "@constants/options";
-import { useMutation } from "@apollo/client";
+} from '@constants/options';
+import { useMutation } from '@apollo/client';
 import {
   createTaskWithDatasetChoosing,
   createTaskWithDatasetChoosingVariables,
-} from "@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing";
-import { CREATE_TASK_WITH_CHOOSING_DATASET } from "@graphql/operations/mutations/chooseTask";
-import { ErrorContext } from "@components/ErrorContext";
-import { useErrorContext } from "@hooks/useErrorContext";
+} from '@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing';
+import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations/chooseTask';
+import { ErrorContext } from '@components/ErrorContext';
+import { useErrorContext } from '@hooks/useErrorContext';
 
 type FDForm = {
   algorithmName: any;
@@ -74,33 +74,33 @@ type FormInput = (props: {
 
 const defaultValuesByPrimitive = {
   [MainPrimitiveType.FD]: {
-    algorithmName: "Pyro",
+    algorithmName: 'Pyro',
     maxLHS: 1,
     errorThreshold: 1,
     threadsCount: 1,
   } as FDForm,
   [MainPrimitiveType.AR]: {
-    algorithmName: "Apriori",
+    algorithmName: 'Apriori',
     minConfidence: 0,
     minSupportAR: 0,
   } as ARForm,
   [MainPrimitiveType.CFD]: {
-    algorithmName: "CTane",
+    algorithmName: 'CTane',
     maxLHS: 1,
     minConfidence: 0,
     minSupportCFD: 1,
   } as CFDForm,
   [MainPrimitiveType.TypoFD]: {
-    preciseAlgorithm: "FastFDs",
-    approximateAlgorithm: "Pyro",
-    algorithmName: "Typo Miner",
+    preciseAlgorithm: 'FastFDs',
+    approximateAlgorithm: 'Pyro',
+    algorithmName: 'Typo Miner',
     maxLHS: 1,
     errorThreshold: 1,
     // minConfidence: 1,
     threadsCount: 1,
     defaultRadius: 1,
     defaultRatio: 0,
-    metric: "MODULUS_OF_DIFFERENCE",
+    metric: 'MODULUS_OF_DIFFERENCE',
   } as TypoFDForm,
 };
 type QueryProps = {
@@ -116,10 +116,10 @@ const ConfigureAlgorithm: NextPage = () => {
     ...formParams
   } = router.query;
   const primitive =
-    typeof rawPrimitive === "string" && rawPrimitive in MainPrimitiveType
+    typeof rawPrimitive === 'string' && rawPrimitive in MainPrimitiveType
       ? (rawPrimitive as MainPrimitiveType)
       : undefined;
-  const fileID = typeof rawFileID === "string" ? rawFileID : undefined;
+  const fileID = typeof rawFileID === 'string' ? rawFileID : undefined;
   return (
     <>
       {primitive && fileID && (
@@ -148,9 +148,9 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
     formState: { errors },
   } = useForm<AlgorithmConfig, keyof AlgorithmProps>({
     defaultValues: {
-      algorithmName: "Pyro",
-      preciseAlgorithm: "Pyro",
-      approximateAlgorithm: "Pyro",
+      algorithmName: 'Pyro',
+      preciseAlgorithm: 'Pyro',
+      approximateAlgorithm: 'Pyro',
     },
   });
   const getSelectValue: (opt: any) => string = (opt) => opt?.value;
@@ -176,14 +176,14 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
       })
         .then((resp) => {
           router.push({
-            pathname: "/reports",
+            pathname: '/reports',
             query: {
               taskID: resp.data?.createMainTaskWithDatasetChoosing.taskID,
             },
           });
         })
         .catch(() => {
-          showError({ message: "Internal error ocurred. Please try later." });
+          showError({ message: 'Internal error ocurred. Please try later.' });
         });
     }),
     [primitive]
@@ -203,7 +203,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
     }
   }, [formParams]);
 
-  const watchAlgorithm = watch("algorithmName", "Pyro") || "Pyro";
+  const watchAlgorithm = watch('algorithmName', 'Pyro') || 'Pyro';
 
   const header = (
     <>
@@ -220,7 +220,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         variant="secondary"
         onClick={() =>
           router.push({
-            pathname: "/create-task/choose-file",
+            pathname: '/create-task/choose-file',
             query: router.query,
           })
         }
@@ -253,7 +253,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
             {...field}
             disabled={
               !optionsByAlgorithms[watchAlgorithm as Algorithms].includes(
-                "threshold"
+                'threshold'
               )
             }
             sliderProps={{ min: 0, max: 1, step: 1e-6 }}
@@ -265,7 +265,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
             {...field}
             disabled={
               !optionsByAlgorithms[watchAlgorithm as Algorithms].includes(
-                "arity"
+                'arity'
               )
             }
             sliderProps={{ min: 1, max: 10, step: 1 }}
@@ -277,7 +277,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
             {...field}
             disabled={
               !optionsByAlgorithms[watchAlgorithm as Algorithms].includes(
-                "threads"
+                'threads'
               )
             }
             sliderProps={{ min: 1, max: 8, step: 1 }}
