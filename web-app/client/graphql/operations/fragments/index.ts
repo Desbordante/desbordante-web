@@ -88,5 +88,6 @@ export const Item = gql`
     column {
       ...Column
     }
+    pattern
   }
 `;
