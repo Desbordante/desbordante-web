@@ -4,6 +4,7 @@ import { AR, CFD, COLUMN, FD, Item } from "../fragments";
 // currently it supports only FD
 export const GET_MAIN_TASK_DEPS = gql`
   ${FD}
+  ${AR}
   ${CFD}
   ${Item}
   ${COLUMN}
@@ -43,6 +44,25 @@ export const GET_MAIN_TASK_DEPS = gql`
               }
             }
 
+            ... on TypoFDTaskResult {
+              __typename
+              depsAmount
+              filteredDeps(filter: $filter) {
+                __typename
+                filteredDepsAmount
+                ... on FilteredDepsBase {
+                  __typename
+                  filteredDepsAmount
+                }
+
+                ... on FilteredFDs {
+                  FDs: deps {
+                    ...FD
+                  }
+                }
+              }
+            }
+
             ... on CFDTaskResult {
               __typename
               depsAmount
@@ -57,6 +77,25 @@ export const GET_MAIN_TASK_DEPS = gql`
                 ... on FilteredCFDs {
                   CFDs: deps {
                     ...CFD
+                  }
+                }
+              }
+            }
+
+            ... on ARTaskResult {
+              __typename
+              depsAmount
+              filteredDeps(filter: $filter) {
+                __typename
+                filteredDepsAmount
+                ... on FilteredDepsBase {
+                  __typename
+                  filteredDepsAmount
+                }
+
+                ... on FilteredARs {
+                  ARs: deps {
+                    ...AR
                   }
                 }
               }
