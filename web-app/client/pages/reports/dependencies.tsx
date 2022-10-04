@@ -51,6 +51,8 @@ const ReportsDependencies: NextPage = () => {
     setValue,
   } = useFilters(primitive || PrimitiveType.FD);
 
+  const [infoVisible, setInfoVisible] = useState(true);
+
   const [selectedRow, setSelectedRow] = useState<number | undefined>();
 
   const [getDeps, { loading, data, called, previousData }] = useLazyQuery<
@@ -61,7 +63,8 @@ const ReportsDependencies: NextPage = () => {
   useEffect(() => {
     if (!primitive) return;
     const sortingParams = {
-      [primitive + "SortBy"]: ordering,
+      [(primitive === PrimitiveType.TypoFD ? PrimitiveType.FD : primitive) +
+      "SortBy"]: ordering,
     };
     getDeps({
       variables: {
@@ -85,7 +88,8 @@ const ReportsDependencies: NextPage = () => {
         <>
           {data.map((e) => (
             <span className={styles.attr}>
-              {e.column.name} {e.pattern ? " | " + e.pattern : ""}
+              {e.column.name}
+              {infoVisible && e.pattern ? " | " + e.pattern : ""}
             </span>
           ))}
         </>
@@ -104,7 +108,8 @@ const ReportsDependencies: NextPage = () => {
   const [isOrderingShown, setIsOrderingShown] = useState(false);
 
   const deps: () => {
-    rhs: GeneralColumn;
+    confidence?: any;
+    rhs: GeneralColumn[];
     lhs: GeneralColumn[];
   }[] = () => {
     if (!shownData) return [];
@@ -112,7 +117,18 @@ const ReportsDependencies: NextPage = () => {
       return shownData.taskInfo.data.result?.__typename === "FDTaskResult" &&
         shownData.taskInfo.data.result.filteredDeps.__typename === "FilteredFDs"
         ? shownData.taskInfo.data.result.filteredDeps.FDs.map((e) => ({
-            rhs: { column: e.rhs },
+            rhs: [{ column: e.rhs }],
+            lhs: e.lhs.map((e) => ({ column: e })),
+          }))
+        : [];
+    }
+
+    if (primitive === PrimitiveType.TypoFD) {
+      return shownData.taskInfo.data.result?.__typename ===
+        "TypoFDTaskResult" &&
+        shownData.taskInfo.data.result.filteredDeps.__typename === "FilteredFDs"
+        ? shownData.taskInfo.data.result.filteredDeps.FDs.map((e) => ({
+            rhs: [{ column: e.rhs }],
             lhs: e.lhs.map((e) => ({ column: e })),
           }))
         : [];
@@ -122,7 +138,21 @@ const ReportsDependencies: NextPage = () => {
       return shownData.taskInfo.data.result?.__typename === "CFDTaskResult" &&
         shownData.taskInfo.data.result.filteredDeps.__typename ===
           "FilteredCFDs"
-        ? shownData.taskInfo.data.result.filteredDeps.CFDs
+        ? shownData.taskInfo.data.result.filteredDeps.CFDs.map((e) => ({
+            rhs: [e.rhs],
+            lhs: e.lhs,
+          }))
+        : [];
+    }
+
+    if (primitive === PrimitiveType.AR) {
+      return shownData.taskInfo.data.result?.__typename === "ARTaskResult" &&
+        shownData.taskInfo.data.result.filteredDeps.__typename === "FilteredARs"
+        ? shownData.taskInfo.data.result.filteredDeps.ARs.map((e) => ({
+            confidence: e.confidence,
+            rhs: e.rhs.map((name) => ({ column: { name } } as GeneralColumn)),
+            lhs: e.lhs.map((name) => ({ column: { name } } as GeneralColumn)),
+          }))
         : [];
     }
     return [];
@@ -164,7 +194,12 @@ const ReportsDependencies: NextPage = () => {
           >
             Ordering
           </Button>
-          <Button variant="secondary" size="md" icon={eyeIcon}>
+          <Button
+            variant="secondary"
+            size="md"
+            icon={eyeIcon}
+            onClick={() => setInfoVisible((e) => !e)}
+          >
             Visibility
           </Button>
         </div>
@@ -184,6 +219,9 @@ const ReportsDependencies: NextPage = () => {
               >
                 {makeSide(row.lhs)}
                 <Image src={longArrowIcon} />
+                {typeof row.confidence !== "undefined" && (
+                  <p>{row.confidence}</p>
+                )}
                 {makeSide(row.rhs)}
               </div>
             ))}
