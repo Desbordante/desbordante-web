@@ -1,7 +1,7 @@
 import Button from "@components/Button";
 import PopupWindowContainer from "@components/PopupWindowContainer/PopupWindowContainer";
 import React, { useState, FC, useEffect, useCallback } from "react";
-import { Checkbox } from "@components/Inputs";
+import { Checkbox, Text } from "@components/Inputs";
 import _ from "lodash";
 import {
   FDSortBy,
@@ -19,6 +19,8 @@ export type FiltersFields = {
   direction: OrderBy;
   search: string;
   page: number;
+  mustContainRhsColIndices: string;
+  mustContainLhsColIndices: string;
 };
 
 export const useFilters = (primitive: PrimitiveType) => {
@@ -32,6 +34,8 @@ export const useFilters = (primitive: PrimitiveType) => {
     ordering: defaultOrdering(),
     direction: OrderBy.ASC,
     search: "",
+    mustContainRhsColIndices: "",
+    mustContainLhsColIndices: "",
   });
 
   const setValue = (field: keyof FiltersFields, value: string | number) => {
@@ -43,6 +47,12 @@ export const useFilters = (primitive: PrimitiveType) => {
   return { setValue, fields };
 };
 
+export const getSortingParams = (primitive: PrimitiveType) => {
+  return {
+    [(primitive === PrimitiveType.TypoFD ? PrimitiveType.FD : primitive) +
+    "SortBy"]: _.keys(orderingTitles[primitive])[0],
+  };
+};
 const orderingTitles = {
   [PrimitiveType.FD]: {
     [FDSortBy.LHS_NAME]: "LHS NAME",
@@ -126,6 +136,68 @@ export const OrderingWindow: FC<OrderingProps> = ({
               onClick={() => setDirection(OrderBy.DESC)}
             />
           </div>
+        </div>
+      </PopupWindowContainer>
+    </>
+  );
+};
+
+type FilteringProps = {
+  setIsFilteringShown: (arg: boolean) => void;
+  mustContainRhsColIndices: string;
+  mustContainLhsColIndices: string;
+  setMustContainRhsColIndices: (arg: string) => void;
+  setMustContainLhsColIndices: (arg: string) => void;
+};
+
+export const FilteringWindow: FC<FilteringProps> = ({
+  setIsFilteringShown,
+  mustContainRhsColIndices,
+  mustContainLhsColIndices,
+  setMustContainRhsColIndices,
+  setMustContainLhsColIndices,
+}) => {
+  const validRhs =
+    !mustContainRhsColIndices ||
+    mustContainRhsColIndices
+      .split(",")
+      .filter((s) => Number.isNaN(Number.parseFloat(s))).length === 0;
+
+  const validLhs =
+    !mustContainLhsColIndices ||
+    mustContainLhsColIndices
+      .split(",")
+      .filter((s) => Number.isNaN(Number.parseFloat(s))).length === 0;
+
+  return (
+    <>
+      <PopupWindowContainer
+        onOutsideClick={() =>
+          validLhs && validRhs && setIsFilteringShown(false)
+        }
+      >
+        <div className={styles.container}>
+          <h5>Choose filters</h5>
+          <Text
+            error={
+              !validRhs
+                ? "Please enter valid comma-separated numbers"
+                : undefined
+            }
+            placeholder="must Contain Rhs Col Indices"
+            value={mustContainRhsColIndices}
+            onChange={(e) => setMustContainRhsColIndices(e.currentTarget.value)}
+          />
+          <Text
+            error={
+              !validLhs
+                ? "Please enter valid comma-separated numbers"
+                : undefined
+            }
+            placeholder="must Contain Lhs Col Indices"
+            value={mustContainLhsColIndices}
+            onChange={(e) => setMustContainLhsColIndices(e.currentTarget.value)}
+          />
         </div>
       </PopupWindowContainer>
     </>

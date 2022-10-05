@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { AuthContext } from "@components/AuthContext";
@@ -19,19 +19,24 @@ import DatasetUploader from "@components/DatasetUploader/DatasetUploader";
 import {
   getUser,
   getUserVariables,
+  getUser_user_datasets,
 } from "@graphql/operations/queries/__generated__/getUser";
 import { GET_USER } from "@graphql/operations/queries/getUser";
+import client from "@graphql/client";
 
-const ChooseFile: NextPage = () => {
+type Props = {
+  defaultAlgorithmConfig: getAlgorithmsConfig | null;
+  defaultUserDatasets: getUser_user_datasets[];
+};
+
+const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
   const router = useRouter();
   const primitive = router.query.primitive || "FD";
   const { user } = useContext(AuthContext)!;
   const { showError } = useContext(ErrorContext)!;
-  const { loading, data, error } = useQuery<getAlgorithmsConfig>(
-    GET_ALGORITHMS_CONFIG
-  );
+  const { data, error } = useQuery<getAlgorithmsConfig>(GET_ALGORITHMS_CONFIG);
   const allowedDatasets = (
-    data?.algorithmsConfig?.allowedDatasets || []
+    (data || defaultAlgorithmConfig)?.algorithmsConfig?.allowedDatasets || []
   ).filter((e) =>
     e.supportedPrimitives.includes(primitive as MainPrimitiveType)
   );
@@ -161,6 +166,16 @@ const ChooseFile: NextPage = () => {
       )}
     </WizardLayout>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { data: defaultAlgorithmConfig } = await client.query({
+    query: GET_ALGORITHMS_CONFIG,
+  });
+
+  return {
+    props: { defaultAlgorithmConfig },
+  };
 };
 
 export default ChooseFile;
