@@ -10,12 +10,19 @@ import {
   saveTokenPair,
 } from "@utils/tokens";
 import { TokenPair } from "types/auth";
-import { graphQLEndpoint } from '@constants/endpoints';
+import { graphQLEndpoint } from "@constants/endpoints";
+
+const generateServerSideInfo = () => {
+  return Buffer.from(JSON.stringify(SSR_DEVICE_INFO)).toString("base64");
+};
 
 export function generateRequestHeaders() {
-  const deviceID = localStorage.getItem("deviceID") || "";
-  const deviceInfo = localStorage.getItem("deviceInfo") || "";
-  const userID = localStorage.getItem("userID") || "";
+  const inBrowser = typeof window !== "undefined";
+  const deviceID = (inBrowser && localStorage.getItem("deviceID")) || "1";
+  const deviceInfo =
+    (inBrowser && localStorage.getItem("deviceInfo")) ||
+    generateServerSideInfo();
+  const userID = (inBrowser && localStorage.getItem("userID")) || "server";
   const randomID = uuidv4();
 
   const requestId = `${deviceID}:${userID}:${randomID}`;
@@ -34,7 +41,7 @@ export const requestIdLink = setContext((operation, previousContext) => {
     ...generateRequestHeaders(),
   };
 
-  if (getAccessToken()) {
+  if (typeof window !== "undefined" && getAccessToken()) {
     newHeaders.Authorization = `Bearer ${getAccessToken()}`;
   }
 
@@ -128,3 +135,16 @@ export const errorLink = onError(
     }
   }
 );
+
+const SSR_DEVICE_INFO = {
+  deviceID: "server",
+  userAgent: "Mozilla/5.0",
+  browser: "Chrome",
+  engine: "Blink",
+  os: "",
+  osVersion: "",
+  screen: "",
+  plugins: "",
+  timeZone: "+02",
+  language: "en-US",
+};
