@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import React, { FC, useCallback, useContext, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import _ from "lodash";
@@ -419,6 +419,12 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
       <div className={styles.container}>{InputsForm}</div>
     </WizardLayout>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {},
+  };
 };
 
 export default ConfigureAlgorithm;
