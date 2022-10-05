@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { GET_MAIN_TASK_DEPS } from "@graphql/operations/queries/getDeps";
@@ -19,7 +19,12 @@ import eyeIcon from "@assets/icons/eye.svg";
 import longArrowIcon from "@assets/icons/long-arrow.svg";
 import Image from "next/image";
 import { Column } from "@graphql/operations/fragments/__generated__/Column";
-import { OrderingWindow, useFilters } from "@components/Filters/Filters";
+import {
+  FilteringWindow,
+  getSortingParams,
+  OrderingWindow,
+  useFilters,
+} from "@components/Filters/Filters";
 import Pagination from "@components/Pagination/Pagination";
 import classNames from "classnames";
 import { GET_TASK_INFO } from "@graphql/operations/queries/getTaskInfo";
@@ -27,13 +32,19 @@ import {
   getTaskInfo,
   getTaskInfoVariables,
 } from "@graphql/operations/queries/__generated__/getTaskInfo";
-import { PrimitiveType } from "types/globalTypes";
+import { OrderBy, PrimitiveType } from "types/globalTypes";
+import client from "@graphql/client";
 
 type GeneralColumn = {
   column: Column;
   pattern?: string;
 };
-const ReportsDependencies: NextPage = () => {
+
+type Props = {
+  defaultData?: GetMainTaskDeps;
+};
+
+const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
   const router = useRouter();
   const taskID = router.query.taskID as string;
 
@@ -47,7 +58,14 @@ const ReportsDependencies: NextPage = () => {
   const primitive: PrimitiveType | null =
     taskInfo?.taskInfo.data.baseConfig.type || null;
   const {
-    fields: { search, page, ordering, direction },
+    fields: {
+      search,
+      page,
+      ordering,
+      direction,
+      mustContainRhsColIndices,
+      mustContainLhsColIndices,
+    },
     setValue,
   } = useFilters(primitive || PrimitiveType.FD);
 
@@ -75,6 +93,16 @@ const ReportsDependencies: NextPage = () => {
           pagination: { limit: 10, offset: (page - 1) * 10 },
           ...sortingParams,
           orderBy: direction,
+          mustContainRhsColIndices: !mustContainRhsColIndices
+            ? null
+            : mustContainRhsColIndices
+                .split(",")
+                .map((e) => Number.parseFloat(e)),
+          mustContainLhsColIndices: !mustContainLhsColIndices
+            ? null
+            : mustContainLhsColIndices
+                .split(",")
+                .map((e) => Number.parseFloat(e)),
         },
       },
     });
@@ -100,12 +128,13 @@ const ReportsDependencies: NextPage = () => {
   };
 
   // todo add loading text/animation, maybe in Pagination component too
-  const shownData = loading ? previousData : data;
+  const shownData = (loading ? previousData : data) || defaultData;
   const recordsCount =
     shownData?.taskInfo.data.result?.__typename === "FDTaskResult" &&
     shownData?.taskInfo.data.result.depsAmount;
 
   const [isOrderingShown, setIsOrderingShown] = useState(false);
+  const [isFilteringShown, setIsFilteringShown] = useState(false);
 
   const deps: () => {
     confidence?: any;
@@ -173,6 +202,22 @@ const ReportsDependencies: NextPage = () => {
         />
       )}
 
+      {isFilteringShown && (
+        <FilteringWindow
+          {...{
+            setIsFilteringShown,
+            mustContainLhsColIndices,
+            mustContainRhsColIndices,
+          }}
+          setMustContainRhsColIndices={(v) =>
+            setValue("mustContainRhsColIndices", v)
+          }
+          setMustContainLhsColIndices={(v) =>
+            setValue("mustContainLhsColIndices", v)
+          }
+        />
+      )}
+
       <h5>Primitive List</h5>
 
       <div className={styles.filters}>
@@ -183,7 +228,12 @@ const ReportsDependencies: NextPage = () => {
           onChange={(e) => setValue("search", e.currentTarget.value)}
         />
         <div className={styles.buttons}>
-          <Button variant="secondary" size="md" icon={filterIcon}>
+          <Button
+            variant="secondary"
+            size="md"
+            icon={filterIcon}
+            onClick={() => setIsFilteringShown(true)}
+          >
             Filters
           </Button>
           <Button
@@ -194,19 +244,22 @@ const ReportsDependencies: NextPage = () => {
           >
             Ordering
           </Button>
-          <Button
-            variant="secondary"
-            size="md"
-            icon={eyeIcon}
-            onClick={() => setInfoVisible((e) => !e)}
-          >
-            Visibility
-          </Button>
+          {primitive &&
+            [PrimitiveType.AR, PrimitiveType.CFD].includes(primitive) && (
+              <Button
+                variant="secondary"
+                size="md"
+                icon={eyeIcon}
+                onClick={() => setInfoVisible((e) => !e)}
+              >
+                Visibility
+              </Button>
+            )}
         </div>
       </div>
 
       <div className={styles.rows}>
-        {called && shownData && (
+        {shownData && (
           <>
             {_.map(deps(), (row, i) => (
               <div
@@ -239,4 +292,39 @@ const ReportsDependencies: NextPage = () => {
     </ReportsLayout>
   );
 };
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  if (context.query.taskID) {
+    const { data } = await client.query<getTaskInfo>({
+      query: GET_TASK_INFO,
+      variables: { taskID: context.query.taskID },
+    });
+
+    const sortingParams = getSortingParams(data.taskInfo.data.baseConfig.type);
+
+    const { data: taskDeps } = await client.query<GetMainTaskDeps>({
+      query: GET_MAIN_TASK_DEPS,
+      variables: {
+        taskID: context.query.taskID,
+        filter: {
+          withoutKeys: false,
+          filterString: "",
+          pagination: { limit: 10, offset: 0 },
+          ...sortingParams,
+          orderBy: OrderBy.ASC,
+        },
+      },
+    });
+    return {
+      props: {
+        defaultData: taskDeps,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+};
+
 export default ReportsDependencies;
