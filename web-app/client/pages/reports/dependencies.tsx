@@ -159,6 +159,22 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
         />
       )}
 
+      {isFilteringShown && (
+        <FilteringWindow
+          {...{
+            setIsFilteringShown,
+            mustContainLhsColIndices,
+            mustContainRhsColIndices,
+          }}
+          setMustContainRhsColIndices={(v) =>
+            setFilterField('mustContainRhsColIndices', v)
+          }
+          setMustContainLhsColIndices={(v) =>
+            setFilterField('mustContainLhsColIndices', v)
+          }
+        />
+      )}
+
       <h5>Primitive List</h5>
 
       <div className={styles.filters}>
