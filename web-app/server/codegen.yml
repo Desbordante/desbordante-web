@@ -36,6 +36,7 @@ generates:
         BaseTaskConfig: ./models#BaseTaskConfigModel
         PrimitiveTaskConfig: ./models#PrimitiveTaskConfigModel
         FileFormat: ./models#InputFileFormatModel
+        FileStats: ./models#FileStatsModel
         ARTaskResult: ./models#ARTaskResultModel
         FDTaskResult: ./models#FDTaskResultModel
         CFDTaskResult: ./models#CFDTaskResultModel

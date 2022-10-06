@@ -10,6 +10,7 @@
 #include <easylogging++.h>
 
 #include "task-processors/TaskProcessor.h"
+#include "stat-processors/StatProcessor.h"
 
 using namespace consumer;
 
@@ -205,8 +206,23 @@ enum class AnswerEnumType {
     TASK_NOT_FOUND = 3
 };
 
-AnswerEnumType ProcessMsg(const std::string& task_id, std::shared_ptr<DesbordanteDbManager> manager) {
-    if (!TaskConfig::IsTaskValid(manager, task_id)) {
+AnswerEnumType ProcessMsg(const std::string& task_id, const std::string& type, std::shared_ptr<DesbordanteDbManager> manager) {
+    if(type == "fileProcessing")
+    {
+        try {
+            auto task = std::make_unique<TaskConfig>(manager, task_id, type);
+            LOG(DEBUG) << "StatProcessor creating";
+            auto stat_processor = std::make_unique<StatProcessor>(std::move(task));
+            LOG(DEBUG) << "StatProcessor created";
+            stat_processor->Execute();
+            return AnswerEnumType::TASK_SUCCESSFULLY_PROCESSED;
+        } catch (const std::exception& e) {
+            std::cout << "Unexpected behaviour in 'process_task()'.\n" << e.what();
+            return AnswerEnumType::TASK_CRASHED_STATUS_UPDATED;
+        }
+        
+    }
+    if (!TaskConfig::IsTaskValid(manager, task_id)) { //change isTaskValid
         std::cout << "Task with ID = '" << task_id << "' isn't valid. (Cancelled or not found)\n";
         return AnswerEnumType::TASK_NOT_FOUND;
     }
@@ -228,16 +244,17 @@ AnswerEnumType ProcessMsg(const std::string& task_id, std::shared_ptr<Desbordant
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
+    if (argc != 3) {
         throw std::runtime_error("Expected 1 input argument [taskID]");
     }
     try {
         el::Loggers::configureFromGlobal("logging.conf");
         std::string task_id = argv[1];
+        std::string type = argv[2];
         LOG(INFO) << "Create manager";
         auto manager = std::make_shared<DesbordanteDbManager>(DBConnection(), BaseTables(), SpecificTables());
         LOG(INFO) << "Manager created, process msg";
-        return static_cast<int>(ProcessMsg(task_id, manager));
+        return static_cast<int>(ProcessMsg(task_id, type, manager));
     } catch (const std::exception& e) {
         std::cerr << "% Unexpected exception caught: " << e.what() << '\n';
         return static_cast<int>(AnswerEnumType::TASK_CRASHED_WITHOUT_STATUS_UPDATING);

@@ -175,7 +175,7 @@ export abstract class AbstractCreator<
         const task = await this.saveToDB();
         const { taskID } = task;
 
-        await produce({ taskID }, this.context.topicNames.tasks);
+        await produce({ taskID, type: "taskProcessing" }, this.context.topicNames.tasks);
         return task;
     };
 

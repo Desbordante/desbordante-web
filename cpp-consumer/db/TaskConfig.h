@@ -40,7 +40,7 @@ public:
     explicit TaskConfig(std::string task_id)
         : params_intersection_{{{"taskID", task_id}}}, db_manager_(nullptr) {}
 
-    explicit TaskConfig(std::shared_ptr<DesbordanteDbManager> db_manager, std::string task_id);
+    explicit TaskConfig(std::shared_ptr<DesbordanteDbManager> db_manager, std::string task_id, const std::string& type = "taskProcessing");
 
     const ParamsMap& GetParamsIntersection() const;
     ParamsMap& GetParamsIntersection();
@@ -70,6 +70,8 @@ public:
 
     std::pair<SpecificTablesType, TaskMiningType> GetSpecificMapKey(
         SpecificTablesType table_type) const;
+
+    friend class StatProcessor;
 };
 
 }

@@ -104,7 +104,7 @@ def check_active_containers(active_tasks):
             break
 
 
-def create_container(taskID):
+def create_container(taskID, type):
     print(f"creating container for {taskID}", file=sys.stderr)
     env_variables = {
         "POSTGRES_HOST": POSTGRES_HOST,
@@ -115,7 +115,7 @@ def create_container(taskID):
     }
     return docker_client.containers.run("cpp-consumer:latest",
                                         network=DOCKER_NETWORK,
-                                        command=taskID,
+                                        command=[taskID, type],
                                         volumes=[
                                             'desbordante_uploads:/server/uploads/',
                                             'desbordante_datasets:/build/target/inputData/'],
@@ -145,9 +145,9 @@ def main(containers):
             continue
 
         print(f'Received task: {msg.value().decode("utf-8")}', file=sys.stderr)
+        type = json.loads(msg.value().decode('utf-8'))['type']
         taskID = json.loads(msg.value().decode('utf-8'))['taskID']
-
-        container = create_container(taskID)
+        container = create_container(taskID, type)
         containers[taskID] = (container, time.time())
 
     consumer.close()

@@ -31,8 +31,13 @@ void TaskConfig::InsertAllParamsFromTable(MapSearchKey key, std::shared_ptr<Desb
     }
 }
 
-TaskConfig::TaskConfig(std::shared_ptr<DesbordanteDbManager> db_manager, std::string task_id)
+TaskConfig::TaskConfig(std::shared_ptr<DesbordanteDbManager> db_manager, std::string task_id, const std::string& type)
     : params_intersection_{}, db_manager_(std::move(db_manager)) {
+    if (type == "fileProcessing") {
+        params_intersection_.insert({"fileID", {task_id} });
+        InsertParamsFromTable(BaseTablesType::fileinfo);
+        return;
+    } 
     params_intersection_.insert({"taskID", {task_id}});
     LOG(INFO) << "Insert info from base config";
     InsertParamsFromTable(BaseTablesType::config);

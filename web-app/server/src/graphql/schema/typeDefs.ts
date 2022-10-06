@@ -578,6 +578,7 @@ const typeDefs = gql`
         userID: ID
         isBuiltIn: Boolean!
         fileName: String!
+        hasStats: Boolean!
         originalFileName: String!
         mimeType: String
         encoding: String
@@ -591,6 +592,27 @@ const typeDefs = gql`
         snippet: Snippet!
         supportedPrimitives: [MainPrimitiveType!]!
         tasks(filter: TasksInfoFilter!): [TaskInfo!]
+        stats: [FileStats!]!
+    }
+
+    type FileStats {
+        columnIndex: Int!
+        fileID: String!
+        columnName: String
+        distinct: Int
+        isCategorical: Boolean
+        count: Int
+        avg: String
+        STD: String
+        skewness: String
+        kurtosis: String
+        min: String
+        max: String
+        sum: String
+        quantile25: String
+        quantile50: String
+        quantile75: String
+        fileInfo: DatasetInfo!
     }
 
     type Query {
@@ -618,6 +640,7 @@ const typeDefs = gql`
         Users with permission "VIEW_ADMIN_INFO" can see all dataset
         """
         datasetInfo(fileID: ID!): DatasetInfo
+        fileStats(fileID: ID!): [FileStats!]!
         """
         User can see results if one of the conditions is met:
         1) Task was created by anonymous

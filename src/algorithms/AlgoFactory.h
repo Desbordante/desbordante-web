@@ -134,6 +134,18 @@ FDAlgorithm::Config CreateFDAlgorithmConfigFromMap(ParamsMap params) {
 }
 
 template <typename ParamsMap>
+FDAlgorithm::Config CreateStatsConfigFromMap(ParamsMap params) {
+    FDAlgorithm::Config c;
+
+    c.data = ExtractParamFromMap<std::filesystem::path>(params, "data");
+    c.separator = ExtractParamFromMap<char>(params, "separator");
+    c.has_header = ExtractParamFromMap<bool>(params, "has_header");
+    c.is_null_equal_null = ExtractParamFromMap<bool>(params, "is_null_equal_null");
+    std::cout << "End of create stat config\n";
+    return c;
+}
+
+template <typename ParamsMap>
 ARAlgorithm::Config CreateArAlgorithmConfigFromMap(ParamsMap params) {
     ARAlgorithm::Config c;
 

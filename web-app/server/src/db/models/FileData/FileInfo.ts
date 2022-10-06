@@ -24,13 +24,16 @@ import {
 import { ApolloError } from "apollo-server-core";
 import { FileFormat } from "./FileFormat";
 import { FileProps } from "../../../graphql/types/types";
+import { FileStats } from "./FileStats";
 import { GeneralTaskConfig } from "../TaskData/configs/GeneralTaskConfig";
 import { Row } from "@fast-csv/parse";
 import { User } from "../UserData/User";
+import config from "../../../config";
 import { finished } from "stream/promises";
 import fs from "fs";
 import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/generateHeader";
 import path from "path";
+import { produce } from "../../../producer";
 import validator from "validator";
 import isUUID = validator.isUUID;
 
@@ -56,6 +59,9 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     @ForeignKey(() => User)
     @Column({ type: UUID, allowNull: true })
     userID!: string | null;
+
+    @Column({ type: BOOLEAN, allowNull: false })
+    hasStats!: boolean;
 
     @BelongsTo(() => User)
     user!: User | null;
@@ -150,6 +156,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         const [file, created] = await FileInfo.findOrCreate({
             where: { path, isValid: true },
             defaults: {
+                hasStats: false,
                 fileName,
                 originalFileName: fileName,
                 renamedHeader,
@@ -166,11 +173,29 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         }
         const counters = await findRowsAndColumnsNumber(path, delimiter);
         await file.update(counters);
+        const countOfColumns = counters.countOfColumns == null ? 0 : counters.countOfColumns;
+        const columnNames = file.getColumnNames();
+        for(let i = 0; i < countOfColumns; ++i) {
+            await FileStats.findOrCreate({
+                where: { fileID: file.fileID, columnIndex: i },
+                defaults: { columnName: columnNames[i] },
+            });
+        }
 
         if (withFileFormat) {
             await FileFormat.createFileFormatIfPropsValid(file, datasetProps);
         }
+        await FileInfo.createStatProcess(file.fileID);
         return file;
+    };
+
+    static createStatProcess = async (fileID: string) => {
+        const file = await FileInfo.findByPk(fileID);
+        if(file && !file.hasStats) {
+            await produce({ taskID : fileID, type: "fileProcessing" }, config.topicNames.tasks);
+            return true;
+        }
+        return false;
     };
 
     static uploadDataset = async (
@@ -194,6 +219,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
             originalFileName,
             userID,
             isValid: false,
+            hasStats: false,
         });
 
         const { fileID } = file;
@@ -272,6 +298,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
             await file.update(counters);
         }
         await file.update({ isValid: true });
+        FileInfo.createStatProcess(file.fileID);
         return file;
     };
 
