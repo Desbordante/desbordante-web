@@ -8,6 +8,7 @@ jobs:
     - name: check-formatting
       shell: bash
       run: |
+        echo $GITHUB_SHA
         sudo apt-get update
         sudo apt-get install -y clang-format 
         formatterOutput=$(git clang-format --diff $GITHUB_SHA HEAD)
