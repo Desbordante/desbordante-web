@@ -11,29 +11,29 @@ unsigned long long Fd_mine::ExecuteInternal() {
     schema_ = relation_->GetSchema();
     auto start_time = std::chrono::system_clock::now();
 
-    relation_indices_ = dynamic_bitset<>(schema_->GetNumColumns());
+                    relation_indices_ = dynamic_bitset<>(schema_->GetNumColumns());
 
-                            for (size_t column_index = 0; column_index < schema_->GetNumColumns(); column_index++) {
-                                dynamic_bitset<> tmp(schema_->GetNumColumns());
-                                tmp[column_index] = 1;
-                                relation_indices_[column_index] = 1;
-                                candidate_set_.insert(std::move(tmp));
-                            }
+                                            for (size_t column_index = 0; column_index < schema_->GetNumColumns(); column_index++) {
+                                                dynamic_bitset<> tmp(schema_->GetNumColumns());
+                                                tmp[column_index] = 1;
+                                                relation_indices_[column_index] = 1;
+                                                candidate_set_.insert(std::move(tmp));
+                                            }
 
-    for (auto const& candidate : candidate_set_     ) {
-        closure_[candidate] = dynamic_bitset<>(schema_->GetNumColumns());
-    }
+                    for (auto const& candidate : candidate_set_     ) {
+                        closure_[candidate] = dynamic_bitset<>(schema_->GetNumColumns());
+                    }
      
     // 2
-        while (!candidate_set_.empty()          ) {
-            for (auto const& candidate : candidate_set_) {
-                ComputeNonTrivialClosure(candidate);
-                ObtainFDandKey(candidate);
-            }
-            ObtainEqSet();
-                   PruneCandidates();
-            GenerateNextLevelCandidates();
-        }
+                        while (!candidate_set_.empty()          ) {
+                            for (auto const& candidate : candidate_set_) {
+                                ComputeNonTrivialClosure(candidate);
+                                ObtainFDandKey(candidate);
+                            }
+                            ObtainEqSet();
+                                   PruneCandidates();
+                            GenerateNextLevelCandidates();
+                        }
 
     // 3
                 Reconstruct();
@@ -45,9 +45,9 @@ unsigned long long Fd_mine::ExecuteInternal() {
 }
 
 void Fd_mine::ComputeNonTrivialClosure(dynamic_bitset<> const& xi) {
-    if (!closure_.count(xi)) {
-        closure_[xi] = dynamic_bitset<>(xi.size());
-    }
+                        if (!closure_.count(xi)) {
+                            closure_[xi] = dynamic_bitset<>(xi.size());
+                        }
     for (size_t column_index = 0; column_index < schema_->GetNumColumns(); column_index++) {
         if ((relation_indices_ - xi - closure_[xi])[column_index]) {
             dynamic_bitset<> candidate_xy = xi;
@@ -105,7 +105,7 @@ void Fd_mine::ObtainEqSet() {
     }
 }
 
-void Fd_mine::PruneCandidates() {
+                void Fd_mine::PruneCandidates() {
     auto it = candidate_set_.begin();
     while (it != candidate_set_.end()) {
         bool found = false;
@@ -129,7 +129,7 @@ void Fd_mine::PruneCandidates() {
     }
 }
 
-void Fd_mine::GenerateNextLevelCandidates() {
+                void Fd_mine::GenerateNextLevelCandidates() {
     std::vector<dynamic_bitset<>> candidates(candidate_set_.begin(), candidate_set_.end());
 
                 dynamic_bitset<>       candidate_i;
@@ -139,8 +139,8 @@ void Fd_mine::GenerateNextLevelCandidates() {
     for (size_t i = 0; i < candidates.size(); i++) {
         candidate_i = candidates[i];
 
-        for (size_t j = i + 1; j < candidates.size(); j++) {
-            candidate_j = candidates[j];
+                        for (size_t j = i + 1; j < candidates.size(); j++) {
+                            candidate_j = candidates[j];
 
             // apriori-gen
             bool similar = true;
