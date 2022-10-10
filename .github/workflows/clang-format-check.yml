@@ -18,3 +18,5 @@ jobs:
           echo "$formatterOutput"
           exit 1
         fi
+        
+        echo "$formatterOutput"
