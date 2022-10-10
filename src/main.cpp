@@ -20,16 +20,16 @@ template<typename BetterEnumType>
 static std::string EnumToAvailableValues() {
     std::stringstream avail_values;
 
-    avail_values << '[';
+                    avail_values << '[';
 
-    for (auto const& name : BetterEnumType::_names()) {
-        avail_values << name << '|';
-    }
+                    for (auto const& name : BetterEnumType::_names()) {
+                        avail_values << name << '|';
+                    }
 
-    avail_values.seekp(-1, avail_values.cur);
-    avail_values << ']';
+                    avail_values.seekp(-1, avail_values.cur);
+                    avail_values << ']';
 
-    return avail_values.str();
+                    return avail_values.str();
 }
 
 static bool CheckOptions(std::string const& task, std::string const& alg, std::string const& metric, double error) {
@@ -65,16 +65,16 @@ static bool CheckOptions(std::string const& task, std::string const& alg, std::s
 }
 
 int main(int argc, char const* argv[]) {
-    std::string algo;
-    std::string dataset;
-    std::string task;
-    char separator = ',';
-    bool has_header = true;
-    int seed = 0;
-    double error = 0.0;
-    unsigned int max_lhs = -1;
-    ushort threads = 0;
-    bool is_null_equal_null = true;
+                    std::string algo;
+                    std::string dataset;
+                    std::string task;
+                    char separator = ',';
+                    bool has_header = true;
+                    int seed = 0;
+                    double error = 0.0;
+                    unsigned int max_lhs = -1;
+                    ushort threads = 0;
+                    bool is_null_equal_null = true;
 
     /*Options for AR mining and CFD mining algorithms*/
     double min_sup = 0.0;
@@ -96,7 +96,7 @@ int main(int argc, char const* argv[]) {
 
     std::string const algo_desc = "algorithm to use. Available algorithms:\n" + EnumToAvailableValues<algos::Algo>() +
                                   " for FD mining.";
-    std::string const task_desc = "type of dependency to mine. Available tasks:\n" +
+                     std::string const task_desc = "type of dependency to mine. Available tasks:\n" +
                                   EnumToAvailableValues<algos::AlgoMiningType>();
     std::string const metric_desc = "metric to use. Available metrics:\n" +
         EnumToAvailableValues<algos::Metric>();
@@ -104,7 +104,7 @@ int main(int argc, char const* argv[]) {
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "print this message and exit")
-        ("task", po::value<std::string>(&task),
+        ("task",                    po::value<std::string>(&task),
          task_desc.c_str())
         ("algo", po::value<std::string>(&algo),
          algo_desc.c_str())
@@ -130,7 +130,7 @@ int main(int argc, char const* argv[]) {
         ("minconf", po::value<double>(&min_conf), "minimal confidence value (between 0 and 1)")
 
         /*Options for association rule mining algorithms*/
-        ("input_format", po::value<string>(&ar_input_format),
+        ("input_format",                    po::value<string>(&ar_input_format),
          "format of the input dataset. [singular|tabular] for AR mining")
         ("tid_column_index", po::value<unsigned>(&tid_column_index)->default_value(0),
          "index of the column where a tid is stored (only for \"singular\" input type)")
@@ -143,11 +143,11 @@ int main(int argc, char const* argv[]) {
         ("metric", po::value<std::string>(&metric), metric_desc.c_str())
         ("lhs_indices", po::value<std::vector<unsigned int>>(&lhs_indices)->multitoken(),
          "LHS column indices for metric FD verification")
-        ("rhs_index", po::value<unsigned int>(&rhs_index),
+                       ("rhs_index", po::value<unsigned int>(&rhs_index),
          "RHS column indices for metric FD verification")
         ("parameter", po::value<double>(&parameter), "metric FD parameter")
         ("q", po::value<unsigned int>(&q)->default_value(2), "q-gram length for cosine metric")
-        ("dist_to_null_infinity", po::value<bool>(&dist_to_null_infinity)->default_value(false),
+                    ("dist_to_null_infinity", po::value<bool>(&dist_to_null_infinity)->default_value(false),
         "Determines whether distance to NULL value is infinity or zero")
         ;
 
@@ -157,7 +157,7 @@ int main(int argc, char const* argv[]) {
         po::notify(vm);
     } catch (po::error &e) {
         std::cout << e.what() << std::endl;
-        return 0;
+                        return 0;
     }
 
     if (vm.count("help"))
@@ -206,12 +206,12 @@ int main(int argc, char const* argv[]) {
         std::cout << "\"" << std::endl;
     } else if (task == "metric") {
         algo = "metric";
-        std::stringstream stream;
-        copy(lhs_indices.begin(), lhs_indices.end(), std::ostream_iterator<int>(stream, " "));
-        string lhs_indices_str = stream.str();
+                   std::stringstream stream;
+                  copy(lhs_indices.begin(), lhs_indices.end(), std::ostream_iterator<int>(stream, " "));
+                 string lhs_indices_str = stream.str();
         boost::trim_right(lhs_indices_str);
         std::cout << "Input metric \"" << metric;
-        if (metric == "cosine") std::cout << "\" with q \"" << q;
+                    if (metric == "cosine") std::cout << "\" with q \"" << q;
         std::cout << "\" with parameter \"" << parameter
                   << "\" with LHS indices \"" << lhs_indices_str
                   << "\" with RHS index\"" << rhs_index
