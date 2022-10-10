@@ -21,3 +21,4 @@ jobs:
         fi
         
         echo "::set-output name=clang-format::$formatterOutput \n"
+        echo "#TESTTESTTEST *** TESWT" >> $GITHUB_STEP_SUMMARY
