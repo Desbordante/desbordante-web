@@ -23,25 +23,25 @@ unsigned long long Fd_mine::ExecuteInternal() {
     for (auto const& candidate : candidate_set_) {
         closure_[candidate] = dynamic_bitset<>(schema_->GetNumColumns());
     }
-
+     
     // 2
-    while (!candidate_set_.empty()) {
+    while (!candidate_set_.empty()     ) {
         for (auto const& candidate : candidate_set_) {
             ComputeNonTrivialClosure(candidate);
             ObtainFDandKey(candidate);
         }
         ObtainEqSet();
-        PruneCandidates();
+               PruneCandidates();
         GenerateNextLevelCandidates();
     }
 
     // 3
-    Reconstruct();
-    Display();
+                Reconstruct();
+                Display();
 
-    auto elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::system_clock::now() - start_time);
-    return elapsed_milliseconds.count();
+                auto elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::system_clock::now() - start_time);
+                return elapsed_milliseconds.count();
 }
 
 void Fd_mine::ComputeNonTrivialClosure(dynamic_bitset<> const& xi) {
@@ -52,8 +52,8 @@ void Fd_mine::ComputeNonTrivialClosure(dynamic_bitset<> const& xi) {
         if ((relation_indices_ - xi - closure_[xi])[column_index]) {
             dynamic_bitset<> candidate_xy = xi;
             dynamic_bitset<> candidate_y(schema_->GetNumColumns());
-            candidate_xy[column_index] = 1;
-            candidate_y[column_index] = 1;
+                        candidate_xy[column_index] =    1;
+                        candidate_y[column_index] = 1;
 
             if (xi.count() == 1) {
                 auto candidate_x_pli =
@@ -76,19 +76,19 @@ void Fd_mine::ComputeNonTrivialClosure(dynamic_bitset<> const& xi) {
                 plis_[candidate_xy] = plis_[xi]->Intersect(candidate_y_pli);
             }
 
-            if (plis_[xi]->GetNumCluster() == plis_[candidate_xy]->GetNumCluster()) {
-                closure_[xi][column_index] = 1;
-            }
+if (plis_[xi]->GetNumCluster() == plis_[candidate_xy]->GetNumCluster()) {
+    closure_[xi][column_index] = 1;
+}
         }
     }
 }
 
-void Fd_mine::ObtainFDandKey(dynamic_bitset<> const& xi) {
-    fd_set_[xi] = closure_[xi];
-    if (relation_indices_ == (xi | closure_[xi])) {
-        key_set_.insert(xi);
-    }
-}
+                            void Fd_mine::ObtainFDandKey(dynamic_bitset<> const& xi) {
+                                fd_set_[xi] = closure_[xi];
+                                if (relation_indices_ == (xi | closure_[xi])) {
+                                    key_set_.insert(xi);
+                                }
+                            }
 
 void Fd_mine::ObtainEqSet() {
     for (auto const& candidate: candidate_set_) {
@@ -112,7 +112,7 @@ void Fd_mine::PruneCandidates() {
         auto const& xi = *it;
 
         for (auto const& xj : eq_set_[xi]) {
-            if (candidate_set_.find(xj) != candidate_set_.end()) {
+                if (candidate_set_.find(xj) != candidate_set_.end()) {
                 it = candidate_set_.erase(it);
                 found = true;
                 break;
@@ -122,7 +122,7 @@ void Fd_mine::PruneCandidates() {
         if (found) continue;
 
         if (key_set_.find(xi) != key_set_.end()) {
-            it = candidate_set_.erase(it);
+                it = candidate_set_.erase(it);
             continue;
         }
         it++;
@@ -132,7 +132,7 @@ void Fd_mine::PruneCandidates() {
 void Fd_mine::GenerateNextLevelCandidates() {
     std::vector<dynamic_bitset<>> candidates(candidate_set_.begin(), candidate_set_.end());
 
-    dynamic_bitset<> candidate_i;
+    dynamic_bitset<>       candidate_i;
     dynamic_bitset<> candidate_j;
     dynamic_bitset<> candidate_ij;
 
