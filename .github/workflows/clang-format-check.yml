@@ -1,5 +1,5 @@
 name: clang-format
-on: [pull_request_target]
+on: [pull_request]
 jobs:
   formatting-check:
     runs-on: ubuntu-latest
