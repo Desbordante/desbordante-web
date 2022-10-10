@@ -1,0 +1,19 @@
+name: clang-format
+on: [push, pull_request]
+jobs:
+  formatting-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: check-formatting
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format 
+        formatterOutput=$(git clang-format --diff HEAD~1)
+
+        if [ "$formatterOutput" != "clang-format did not modify any files" ]
+        then
+          echo "$formatterOutput"
+          exit 1
+        fi
