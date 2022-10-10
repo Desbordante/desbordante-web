@@ -9,9 +9,10 @@ jobs:
       shell: bash
       run: |
         echo $GITHUB_BASE_REF
+        echo $GITHUB_HEAD_REF
         sudo apt-get update
         sudo apt-get install -y clang-format 
-        formatterOutput=$(git clang-format --diff $GITHUB_BASE_REF HEAD)
+        formatterOutput=$(git clang-format --diff $GITHUB_BASE_REF $GITHUB_HEAD_REF)
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]
         then
