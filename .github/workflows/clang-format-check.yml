@@ -11,7 +11,7 @@ jobs:
         echo $GITHUB_REF_NAME
         sudo apt-get update
         sudo apt-get install -y clang-format 
-        formatterOutput=$(git clang-format --diff $GITHUB_SHA HEAD)
+        formatterOutput=$(git clang-format --diff $GITHUB_REF_NAME HEAD)
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]
         then
