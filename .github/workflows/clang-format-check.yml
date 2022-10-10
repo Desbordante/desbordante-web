@@ -10,6 +10,7 @@ jobs:
       run: |
         echo $GITHUB_BASE_REF
         echo $GITHUB_HEAD_REF
+        git fetch origin $GITHUB_BASE_REF --depth=2
         sudo apt-get update
         sudo apt-get install -y clang-format 
         formatterOutput=$(git clang-format --diff refs/heads/$GITHUB_BASE_REF~1 $GITHUB_HEAD_REF)
