@@ -10,10 +10,11 @@ jobs:
       run: |
         echo $GITHUB_BASE_REF
         echo $GITHUB_HEAD_REF
-        git fetch origin $GITHUB_BASE_REF --depth=2
+        git fetch origin $GITHUB_BASE_REF 
+        git fetch origin $GITHUB_HEAD_REF
         sudo apt-get update
         sudo apt-get install -y clang-format 
-        formatterOutput=$(git clang-format --diff origin/$GITHUB_BASE_REF~1 $GITHUB_HEAD_REF)
+        formatterOutput=$(git clang-format --diff origin/$GITHUB_BASE_REF~1 origin/$GITHUB_HEAD_REF)
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]
         then
