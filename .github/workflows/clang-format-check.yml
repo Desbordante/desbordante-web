@@ -12,7 +12,8 @@ jobs:
         sudo apt-get install -y clang-format 
         formatterOutput=$(git clang-format --diff HEAD~2 HEAD~1)
 
-        if [ "$formatterOutput" != "clang-format did not modify any files" ]
+        if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
+           [ "$formatterOutput" != "no modified files to format" ]
         then
           echo "$formatterOutput"
           exit 1
