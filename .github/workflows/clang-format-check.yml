@@ -15,8 +15,9 @@ jobs:
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]
         then
+          echo "::set-output name=clang-format::$formatterOutput \n"
           echo "$formatterOutput"
           exit 1
         fi
         
-        echo "$formatterOutput"
+        echo "::set-output name=clang-format::$formatterOutput \n"
