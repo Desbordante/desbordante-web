@@ -77,28 +77,28 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData, primitive }) => {
       [(primitive === PrimitiveType.TypoFD ? PrimitiveType.FD : primitive) +
       "SortBy"]: ordering,
     };
-    // getDeps({
-    //   variables: {
-    //     taskID: taskID,
-    //     filter: {
-    //       withoutKeys: false,
-    //       filterString: search,
-    //       pagination: { limit: 10, offset: (page - 1) * 10 },
-    //       ...sortingParams,
-    //       orderBy: direction,
-    //       mustContainRhsColIndices: !mustContainRhsColIndices
-    //         ? null
-    //         : mustContainRhsColIndices
-    //             .split(",")
-    //             .map((e) => Number.parseFloat(e)),
-    //       mustContainLhsColIndices: !mustContainLhsColIndices
-    //         ? null
-    //         : mustContainLhsColIndices
-    //             .split(",")
-    //             .map((e) => Number.parseFloat(e)),
-    //     },
-    //   },
-    // });
+    getDeps({
+      variables: {
+        taskID: taskID,
+        filter: {
+          withoutKeys: false,
+          filterString: search,
+          pagination: { limit: 10, offset: (page - 1) * 10 },
+          ...sortingParams,
+          orderBy: direction,
+          mustContainRhsColIndices: !mustContainRhsColIndices
+            ? null
+            : mustContainRhsColIndices
+                .split(",")
+                .map((e) => Number.parseFloat(e)),
+          mustContainLhsColIndices: !mustContainLhsColIndices
+            ? null
+            : mustContainLhsColIndices
+                .split(",")
+                .map((e) => Number.parseFloat(e)),
+        },
+      },
+    });
   }, [taskID, primitive, search, page, ordering, direction]);
 
   const makeSide: (data: GeneralColumn | GeneralColumn[]) => ReactElement = (
