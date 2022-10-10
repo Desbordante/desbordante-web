@@ -8,16 +8,16 @@
 
 unsigned long long Fd_mine::ExecuteInternal() {
     // 1
-    schema_ = relation_->GetSchema();
-    auto start_time = std::chrono::system_clock::now();
+                schema_ = relation_->GetSchema();
+                auto start_time = std::chrono::system_clock::now();
 
-                    relation_indices_ = dynamic_bitset<>(schema_->GetNumColumns());
+                                relation_indices_ = dynamic_bitset<>(schema_->GetNumColumns());
 
-                                            for (size_t column_index = 0; column_index < schema_->GetNumColumns(); column_index++) {
-                                                dynamic_bitset<> tmp(schema_->GetNumColumns());
-                                                tmp[column_index] = 1;
-                                                relation_indices_[column_index] = 1;
-                                                candidate_set_.insert(std::move(tmp));
+                                                        for (size_t column_index = 0; column_index < schema_->GetNumColumns(); column_index++) {
+                                                            dynamic_bitset<> tmp(schema_->GetNumColumns());
+                                                            tmp[column_index] = 1;
+                                                            relation_indices_[column_index] = 1;
+                                                            candidate_set_.insert(std::move(tmp));
                                             }
 
                     for (auto const& candidate : candidate_set_     ) {
@@ -44,16 +44,16 @@ unsigned long long Fd_mine::ExecuteInternal() {
                 return elapsed_milliseconds.count();
 }
 
-void Fd_mine::ComputeNonTrivialClosure(dynamic_bitset<> const& xi) {
-                        if (!closure_.count(xi)) {
-                            closure_[xi] = dynamic_bitset<>(xi.size());
-                        }
-    for (size_t column_index = 0; column_index < schema_->GetNumColumns(); column_index++) {
-        if ((relation_indices_ - xi - closure_[xi])[column_index]) {
-            dynamic_bitset<> candidate_xy = xi;
-            dynamic_bitset<> candidate_y(schema_->GetNumColumns());
-                        candidate_xy[column_index] =    1;
-                        candidate_y[column_index] = 1;
+                void Fd_mine::ComputeNonTrivialClosure(dynamic_bitset<> const& xi) {
+                                        if (!closure_.count(xi)) {
+                                            closure_[xi] = dynamic_bitset<>(xi.size());
+                                        }
+                    for (size_t column_index = 0; column_index < schema_->GetNumColumns(); column_index++) {
+                        if ((relation_indices_ - xi - closure_[xi])[column_index]) {
+                            dynamic_bitset<> candidate_xy = xi;
+                            dynamic_bitset<> candidate_y(schema_->GetNumColumns());
+                                        candidate_xy[column_index] =    1;
+                                        candidate_y[column_index] = 1;
 
             if (xi.count() == 1) {
                 auto candidate_x_pli =
@@ -111,30 +111,30 @@ void Fd_mine::ObtainEqSet() {
         bool found = false;
         auto const& xi = *it;
 
-        for (auto const& xj : eq_set_[xi]) {
-                if (candidate_set_.find(xj)                 != candidate_set_.end()) {
-                it = candidate_set_.erase(it);
-                found = true;
-                break;
-            }
-        }
+                        for (auto const& xj : eq_set_[xi]) {
+                                if (candidate_set_.find(xj)                 != candidate_set_.end()) {
+                                it = candidate_set_.erase(it);
+                                found = true;
+                                break;
+                            }
+                        }
 
-        if (found) continue;
+                        if (found) continue;
 
-        if (key_set_.find(xi) !=                 key_set_.end()) {
-                it = candidate_set_.erase(it);
-            continue;
-        }
-        it++;
-    }
+                        if (key_set_.find(xi) !=                 key_set_.end()) {
+                                it = candidate_set_.erase(it);
+                            continue;
+                        }
+                        it++;
+                    }
 }
 
                 void Fd_mine::GenerateNextLevelCandidates() {
     std::vector<dynamic_bitset<>> candidates(candidate_set_.begin(), candidate_set_.end());
 
-                dynamic_bitset<>       candidate_i;
-                dynamic_bitset<> candidate_j;
-                dynamic_bitset<> candidate_ij;
+                            dynamic_bitset<>       candidate_i;
+                            dynamic_bitset<> candidate_j;
+                            dynamic_bitset<> candidate_ij;
 
     for (size_t i = 0; i < candidates.size(); i++) {
         candidate_i = candidates[i];
@@ -166,10 +166,10 @@ void Fd_mine::ObtainEqSet() {
                     !(candidate_i).is_subset_of(fd_set_[candidate_j])) {
                     if (candidate_i.count() == 1) {
                         auto candidate_i_pli = relation_->GetColumnData(candidate_i.find_first())
-                                                   .GetPositionListIndex();
+                                                                .GetPositionListIndex();
                         auto candidate_j_pli = relation_->GetColumnData(candidate_j.find_first())
                                                    .GetPositionListIndex();
-                        plis_[candidate_ij] = candidate_i_pli->Intersect(candidate_j_pli);
+                        plis_[candidate_ij] = candidate_i_pli->Intersect(candidate_j_pli);          
                     } else {
                         plis_[candidate_ij] =
                             plis_[candidate_i]->Intersect(plis_[candidate_j].get());
