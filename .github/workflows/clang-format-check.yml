@@ -1,5 +1,5 @@
 name: clang-format
-on: [push, pull_request]
+on: [pull_request_target]
 jobs:
   formatting-check:
     runs-on: ubuntu-latest
@@ -10,13 +10,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y clang-format 
-        formatterOutput=$(git clang-format --diff HEAD~1 HEAD)
-
+        formatterOutput=$(git clang-format --diff $GITHUB_SHA HEAD)
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]
         then
-          echo "$formatterOutput" >> $GITHUB_STEP_SUMMARY
+          echo "$formatterOutput"
           exit 1
         fi
         
-        echo "$formatterOutput" >> $GITHUB_STEP_SUMMARY
+        echo "$formatterOutput"
