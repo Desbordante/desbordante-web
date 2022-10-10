@@ -34,6 +34,7 @@ import {
 } from "@graphql/operations/queries/__generated__/getTaskInfo";
 import { OrderBy, PrimitiveType } from "types/globalTypes";
 import client from "@graphql/client";
+import { da } from "date-fns/locale";
 
 type GeneralColumn = {
   column: Column;
@@ -42,21 +43,13 @@ type GeneralColumn = {
 
 type Props = {
   defaultData?: GetMainTaskDeps;
+  primitive: PrimitiveType;
 };
 
-const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
+const ReportsDependencies: NextPage<Props> = ({ defaultData, primitive }) => {
   const router = useRouter();
   const taskID = router.query.taskID as string;
 
-  const { data: taskInfo } = useQuery<getTaskInfo, getTaskInfoVariables>(
-    GET_TASK_INFO,
-    {
-      variables: { taskID },
-    }
-  );
-
-  const primitive: PrimitiveType | null =
-    taskInfo?.taskInfo.data.baseConfig.type || null;
   const {
     fields: {
       search,
@@ -84,28 +77,28 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
       [(primitive === PrimitiveType.TypoFD ? PrimitiveType.FD : primitive) +
       "SortBy"]: ordering,
     };
-    getDeps({
-      variables: {
-        taskID: taskID,
-        filter: {
-          withoutKeys: false,
-          filterString: search,
-          pagination: { limit: 10, offset: (page - 1) * 10 },
-          ...sortingParams,
-          orderBy: direction,
-          mustContainRhsColIndices: !mustContainRhsColIndices
-            ? null
-            : mustContainRhsColIndices
-                .split(",")
-                .map((e) => Number.parseFloat(e)),
-          mustContainLhsColIndices: !mustContainLhsColIndices
-            ? null
-            : mustContainLhsColIndices
-                .split(",")
-                .map((e) => Number.parseFloat(e)),
-        },
-      },
-    });
+    // getDeps({
+    //   variables: {
+    //     taskID: taskID,
+    //     filter: {
+    //       withoutKeys: false,
+    //       filterString: search,
+    //       pagination: { limit: 10, offset: (page - 1) * 10 },
+    //       ...sortingParams,
+    //       orderBy: direction,
+    //       mustContainRhsColIndices: !mustContainRhsColIndices
+    //         ? null
+    //         : mustContainRhsColIndices
+    //             .split(",")
+    //             .map((e) => Number.parseFloat(e)),
+    //       mustContainLhsColIndices: !mustContainLhsColIndices
+    //         ? null
+    //         : mustContainLhsColIndices
+    //             .split(",")
+    //             .map((e) => Number.parseFloat(e)),
+    //     },
+    //   },
+    // });
   }, [taskID, primitive, search, page, ordering, direction]);
 
   const makeSide: (data: GeneralColumn | GeneralColumn[]) => ReactElement = (
@@ -318,6 +311,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         defaultData: taskDeps,
+        primitive: data.taskInfo.data.baseConfig.type,
       },
     };
   }
