@@ -10,7 +10,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y clang-format 
-        formatterOutput=$(git clang-format --diff HEAD~1)
+        formatterOutput=$(git clang-format --diff HEAD^1)
 
         if [ "$formatterOutput" != "clang-format did not modify any files" ]
         then
