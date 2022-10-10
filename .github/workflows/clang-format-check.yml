@@ -15,10 +15,8 @@ jobs:
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]
         then
-          echo "::set-output name=clang-format::$formatterOutput \n"
-          echo "$formatterOutput"
+          echo "$formatterOutput" >> $GITHUB_STEP_SUMMARY
           exit 1
         fi
         
-        echo "::set-output name=clang-format::$formatterOutput \n"
-        echo "#TESTTESTTES" >> $GITHUB_STEP_SUMMARY
+        echo "$formatterOutput" >> $GITHUB_STEP_SUMMARY
