@@ -24,7 +24,10 @@ jobs:
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]
         then
-          echo ":x: :x: :x: \n \`\`\`$formatterOutput\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo ":x: :x: :x:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$formatterOutput" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "$formatterOutput"
           exit 1
         fi
