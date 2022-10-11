@@ -19,7 +19,7 @@ jobs:
         
     - name: Check formatting
       run: |       
-        formatterOutput=$(git clang-format --diff origin/$GITHUB_BASE_REF origin/$GITHUB_HEAD_REF)
+        formatterOutput=$(git clang-format --diff origin/$GITHUB_BASE_REF...origin/$GITHUB_HEAD_REF)
         
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]
