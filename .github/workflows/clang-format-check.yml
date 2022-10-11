@@ -5,21 +5,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: check-formatting
-      shell: bash
+    - name: pull clang-format
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format 
+        
+    - name: fetch branches
       run: |
         echo $GITHUB_BASE_REF
         echo $GITHUB_HEAD_REF
         git fetch origin $GITHUB_BASE_REF 
         git fetch origin $GITHUB_HEAD_REF
-        sudo apt-get update
-        sudo apt-get install -y clang-format 
+        
+    - name: check formatting
+      run: |       
         formatterOutput=$(git clang-format --diff origin/$GITHUB_BASE_REF origin/$GITHUB_HEAD_REF)
+        
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]
         then
+          echo ":x: :x: :x: \n '''$formatterOutput'''" >> $GITHUB_STEP_SUMMARY
           echo "$formatterOutput"
           exit 1
         fi
         
         echo "$formatterOutput"
+        echo "### $formatterOutput :heavy_check_mark:" >> $GITHUB_STEP_SUMMARY
