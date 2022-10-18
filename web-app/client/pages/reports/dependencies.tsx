@@ -134,7 +134,7 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
   const shownData = (loading ? previousData : data) || defaultData;
   const recordsCount =
     shownData?.taskInfo.data.result?.__typename === 'FDTaskResult' &&
-    shownData?.taskInfo.data.result.depsAmount;
+    shownData?.taskInfo.data.result.filteredDeps.filteredDepsAmount;
 
   const deps = convertDependencies(primitive, shownData);
 
