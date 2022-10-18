@@ -18,12 +18,12 @@ const Pagination: FC<Props> = ({ current, count, onChange }) => {
       <ReactPaginate
         breakLabel="..."
         nextLabel={<Image src={arrowRight} width={16} height={16} />}
-        onPageChange={(e) => onChange(e.selected)}
+        onPageChange={(e) => onChange(e.selected + 1)}
         pageRangeDisplayed={5}
         pageCount={count}
         previousLabel={<Image src={arrowRight} width={16} height={16} />}
         className={styles.container}
-        forcePage={current}
+        forcePage={current - 1}
       />
     </div>
   );
