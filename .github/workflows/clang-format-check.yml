@@ -1,11 +1,11 @@
 name: clang-format
 on: [pull_request]
 jobs:
-  formatting-check:
+  clang-format-check:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Pull clang-format-diff
+    - name: Pull clang-format
       run: |
         sudo apt-get update
         sudo apt-get install -y clang-format-12
@@ -34,3 +34,17 @@ jobs:
         
         echo "$formatterOutput"
         echo "### $formatterOutput :heavy_check_mark:" >> $GITHUB_STEP_SUMMARY
+
+  clang-tidy-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    # Optionally generate compile_commands.json
+
+    - uses: ZedThree/clang-tidy-review@v0.10.0
+      id: review
+    # If there are any comments, fail the check
+    - if: steps.review.outputs.total_comments > 0
+      run: exit 1
