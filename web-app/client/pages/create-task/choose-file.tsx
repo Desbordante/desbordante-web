@@ -54,7 +54,7 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
   const [getUser] = useLazyQuery<getUser, getUserVariables>(GET_USER);
 
   useEffect(() => {
-    if (!user || !user?.id) return;
+    if (!user?.id) return;
     getUser({
       variables: { userID: user.id! },
     }).then((resp) => {
