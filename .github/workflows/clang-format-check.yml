@@ -8,7 +8,7 @@ jobs:
     - name: Pull clang-format-diff
       run: |
         sudo apt-get update
-        sudo apt-get install -y clang-format-diff-13 
+        sudo apt-get install -y clang-format-diff-12
         
     - name: Fetch branches
       run: |
@@ -19,7 +19,7 @@ jobs:
         
     - name: Check formatting
       run: |       
-        formatterOutput=$(git diff origin/$GITHUB_HEAD_REF...origin/$GITHUB_BASE_REF | clang-format-diff-13 -p 1)
+        formatterOutput=$(git diff origin/$GITHUB_HEAD_REF...origin/$GITHUB_BASE_REF | clang-format-diff-12 -p 1)
         
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]
