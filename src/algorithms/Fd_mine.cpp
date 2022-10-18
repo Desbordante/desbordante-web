@@ -22,10 +22,10 @@ unsigned long long Fd_mine::ExecuteInternal() {
 
                     for (auto const& candidate : candidate_set_     ) {
                         closure_[candidate] = dynamic_bitset<>(schema_->GetNumColumns());
-                    }
+                               }
      
     // 2
-                        while (!candidate_set_.empty()          ) {
+                                     while (!candidate_set_.empty()          ) {
                             for (auto const& candidate : candidate_set_) {
                                 ComputeNonTrivialClosure(candidate);
                                 ObtainFDandKey(candidate);
@@ -33,7 +33,7 @@ unsigned long long Fd_mine::ExecuteInternal() {
                             ObtainEqSet();
                                    PruneCandidates();
                             GenerateNextLevelCandidates();
-                        }
+                                      }
 
     // 3
                 Reconstruct();
@@ -55,11 +55,11 @@ unsigned long long Fd_mine::ExecuteInternal() {
                                         candidate_xy[column_index] =    1;
                                         candidate_y[column_index] = 1;
 
-            if (xi.count() == 1) {
+                         if (xi.count() == 1) {
                 auto candidate_x_pli =
-                    relation_->GetColumnData(xi.find_first()).GetPositionListIndex();
+                              relation_->GetColumnData(xi.find_first()).GetPositionListIndex();
                                      auto candidate_y_pli =
-                    relation_->GetColumnData(column_index).GetPositionListIndex();
+                             relation_->GetColumnData(column_index).GetPositionListIndex();
 
                 plis_[candidate_xy] = candidate_x_pli->Intersect(candidate_y_pli);
                 
