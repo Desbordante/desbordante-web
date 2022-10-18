@@ -32,6 +32,7 @@ import {
 } from "@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing";
 import { CREATE_TASK_WITH_CHOOSING_DATASET } from "@graphql/operations/mutations/chooseTask";
 import { ErrorContext } from "@components/ErrorContext";
+import { useErrorContext } from "@hooks/useErrorContext";
 
 type FDForm = {
   algorithmName: any;
@@ -138,7 +139,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   formParams,
 }) => {
   const router = useRouter();
-  const { showError } = useContext(ErrorContext)!;
+  const { showError } = useErrorContext();
   const {
     handleSubmit,
     reset,

@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import classNames from "classnames";
 import Button from "@components/Button";
+import {useBrowserEffect} from "hooks/useBrowserEffect";
 import { AuthContext } from "@components/AuthContext";
 import styles from "./Header.module.scss";
 import logo from "@public/logo.svg";
@@ -14,16 +15,11 @@ const Header = () => {
   const [headerBackground, setHeaderBackground] = useState(false);
 
   const checkScroll = useCallback(() => {
-    if (window.pageYOffset > 100) {
-      setHeaderBackground(true);
-    } else {
-      setHeaderBackground(false);
-    }
+    setHeaderBackground(window.pageYOffset > 100);
   }, []);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.addEventListener("scroll", checkScroll);
 
+  useBrowserEffect(() => {
+    window.addEventListener("scroll", checkScroll);
     return () => {
       window.removeEventListener("scroll", checkScroll);
     };

@@ -1,13 +1,6 @@
-import React, {
-  DragEvent,
-  DragEventHandler,
-  FC,
-  PropsWithChildren,
-  ReactElement,
-} from 'react';
+import React, { FC, PropsWithChildren } from 'react';
 import styles from './ReportsLayout.module.scss';
 import bg from '@public/bg.svg';
-import Button from '@components/Button';
 import settingsIcon from '@assets/icons/settings-black.svg';
 import chartIcon from '@assets/icons/chart.svg';
 import datatableIcon from '@assets/icons/datatable.svg';
