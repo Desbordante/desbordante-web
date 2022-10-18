@@ -1,7 +1,13 @@
 import Button from "@components/Button";
-import PopupWindowContainer from "@components/PopupWindowContainer/PopupWindowContainer";
-import React, { useState, FC, useEffect, useCallback } from "react";
-import { Checkbox, Text } from "@components/Inputs";
+import PopupWindowContainer from "@components/PopupWindowContainer";
+import React, {
+  useState,
+  FC,
+  useEffect,
+  useCallback,
+  ReactElement,
+} from "react";
+import { Checkbox, Select, Text } from "@components/Inputs";
 import _ from "lodash";
 import {
   FDSortBy,
@@ -11,6 +17,8 @@ import {
   PrimitiveType,
 } from "types/globalTypes";
 import styles from "./Filters.module.scss";
+import { OrderingTitles } from "@constants/titles";
+import { title } from "process";
 
 export type Sorting = FDSortBy | CFDSortBy | ARSortBy;
 
@@ -23,118 +31,111 @@ export type FiltersFields = {
   mustContainLhsColIndices: string;
 };
 
-export const useFilters = (primitive: PrimitiveType) => {
-  const defaultOrdering = useCallback(
-    () => _.keys(orderingTitles[primitive])[0] as Sorting,
-    [primitive]
-  );
+const getDefaultOrdering = (primitive: PrimitiveType) =>
+  _.keys(OrderingTitles[primitive])[0] as Sorting;
 
+export const useFilters = (primitive: PrimitiveType) => {
   const [fields, setFields] = useState<FiltersFields>({
     page: 1,
-    ordering: defaultOrdering(),
+    ordering: getDefaultOrdering(primitive),
     direction: OrderBy.ASC,
     search: "",
     mustContainRhsColIndices: "",
     mustContainLhsColIndices: "",
   });
 
-  const setValue = (field: keyof FiltersFields, value: string | number) => {
-    setFields({ ...fields, [field]: value });
+  const setFilterField = (
+    field: keyof FiltersFields,
+    fieldValue: string | number
+  ) => {
+    setFields({ ...fields, [field]: fieldValue });
   };
 
-  useEffect(() => setValue("ordering", defaultOrdering()), [primitive]);
+  const setFilterFields = (newFields: Partial<FiltersFields>) => {
+    setFields({ ...fields, ...newFields });
+  };
 
-  return { setValue, fields };
+  useEffect(
+    () => setFilterField("ordering", getDefaultOrdering(primitive)),
+    [primitive]
+  );
+
+  return { setFilterField, setFilterFields, fields };
 };
 
 export const getSortingParams = (primitive: PrimitiveType) => {
   return {
     [(primitive === PrimitiveType.TypoFD ? PrimitiveType.FD : primitive) +
-    "SortBy"]: _.keys(orderingTitles[primitive])[0],
+    "SortBy"]: _.keys(OrderingTitles[primitive])[0],
   };
-};
-const orderingTitles = {
-  [PrimitiveType.FD]: {
-    [FDSortBy.LHS_NAME]: "LHS NAME",
-    [FDSortBy.RHS_NAME]: "RHS NAME",
-  },
-  [PrimitiveType.CFD]: {
-    [CFDSortBy.LHS_COL_NAME]: "LHS NAME",
-    [CFDSortBy.RHS_COL_NAME]: "RHS NAME",
-    [CFDSortBy.CONF]: "Condfidence",
-    [CFDSortBy.LHS_PATTERN]: "LHS PATTERN",
-    [CFDSortBy.LHS_PATTERN]: "RHS PATTERN",
-  },
-  [PrimitiveType.AR]: {
-    [ARSortBy.CONF]: "Confidence",
-    [ARSortBy.DEFAULT]: "Default",
-    [ARSortBy.LHS_NAME]: "LHS NAME",
-    [ARSortBy.RHS_NAME]: "RHS NAME",
-  },
-  [PrimitiveType.TypoFD]: {
-    [FDSortBy.LHS_NAME]: "LHS NAME",
-    [FDSortBy.RHS_NAME]: "RHS NAME",
-  },
-  [PrimitiveType.TypoCluster]: {
-    [FDSortBy.LHS_NAME]: "LHS NAME",
-    [FDSortBy.RHS_NAME]: "RHS NAME",
-  },
 };
 
 type OrderingProps = {
   setIsOrderingShown: (arg: boolean) => void;
-  ordering: Sorting;
   primitive: PrimitiveType;
-  direction: OrderBy;
-  setOrdering: (arg: Sorting) => void;
-  setDirection: (arg: OrderBy) => void;
+  sortingParams: { direction: OrderBy; ordering: Sorting };
+  setSortingParams: (sorting: Sorting, ordering: OrderBy) => void;
 };
 
 export const OrderingWindow: FC<OrderingProps> = ({
   setIsOrderingShown,
   primitive,
-  ordering,
-  direction,
-  setOrdering,
-  setDirection,
+  sortingParams: { ordering, direction },
+  setSortingParams,
 }) => {
-  const handleClick = (newOrdering: Sorting) => () => {
-    if (newOrdering === ordering) {
-      setOrdering(FDSortBy.LHS_NAME);
-    } else {
-      setOrdering(newOrdering);
-    }
+  const [selectedOrdering, selectOrdering] = useState(ordering);
+  const [selectedDirection, selectDirection] = useState(direction);
+
+  const OrderingOptions = _.mapValues(
+    OrderingTitles[primitive],
+    (k: string, v: string) => ({
+      label: k,
+      value: v,
+    })
+  );
+
+  const DirectionOptions = {
+    [OrderBy.ASC]: { value: OrderBy.ASC, label: "Ascending" },
+    [OrderBy.DESC]: { value: OrderBy.DESC, label: "Descending" },
   };
 
   return (
     <>
       <PopupWindowContainer onOutsideClick={() => setIsOrderingShown(false)}>
         <div className={styles.container}>
-          <h5>Choose ordering</h5>
-          {_.map(orderingTitles[primitive], (title, name) => (
-            <Button
-              key={title}
-              variant={ordering === name ? "primary" : "secondary"}
-              size="sm"
-              onClick={handleClick(name as Sorting)}
-            >
-              {title}
-            </Button>
-          ))}
+          <h4>Choose ordering</h4>
+          <Select
+            label="Order by"
+            options={_.values(OrderingOptions)}
+            value={OrderingOptions[selectedOrdering]}
+            onChange={(e: any) => selectOrdering(e?.value)}
+          />
 
-          <div className={styles.direction}>
-            <Checkbox
-              type="radio"
-              label="ASC"
-              checked={direction === OrderBy.ASC}
-              onClick={() => setDirection(OrderBy.ASC)}
-            />
-            <Checkbox
-              type="checkbox"
-              label="DESC"
-              checked={direction === OrderBy.DESC}
-              onClick={() => setDirection(OrderBy.DESC)}
-            />
+          <Select
+            label="Direction"
+            options={_.values(DirectionOptions)}
+            value={DirectionOptions[selectedDirection]}
+            onChange={(e: any) => selectDirection(e?.value)}
+          />
+
+          <div className={styles.footer}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsOrderingShown(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                setSortingParams(selectedOrdering, selectedDirection);
+                setIsOrderingShown(false);
+              }}
+            >
+              Apply
+            </Button>
           </div>
         </div>
       </PopupWindowContainer>

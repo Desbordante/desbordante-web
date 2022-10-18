@@ -4,33 +4,37 @@
   display: flex;
   gap: 8px;
   align-items: center;
-}
 
-.button {
-  padding: 8px;
-  background: $black-10;
-  cursor: pointer;
-  display: inline-block;
-  border-radius: 8px;
-  text-align: center;
-}
+  li a {
+    @include paragraph;
 
-.button.left {
-  transform: rotate(180deg);
-}
+    padding: 8px;
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 8px;
+    text-align: center;
 
-.page {
-  @include paragraph;
-  cursor: pointer;
-  color: $black-75;
-  padding: 8px;
-  display: inline-block;
-  border-radius: 8px;
-}
+    color: $black-75;
+  }
 
-.page.active {
-  background: $primary-0;
-  color: $white;
-  min-width: 40px;
-  text-align: center;
+  li:first-child a,
+  li:last-child a {
+    padding: 8px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-block;
+    background: $black-10;
+    cursor: pointer;
+    text-align: center;
+    line-height: 3px;
+  }
+  li:first-child a {
+    transform: rotate(180deg);
+  }
+  li a[rel = "canonical"] {
+    background: $primary-0;
+    color: $white;
+    min-width: 40px;
+    text-align: center;
+  }
 }

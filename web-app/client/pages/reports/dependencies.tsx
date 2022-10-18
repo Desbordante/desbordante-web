@@ -1,39 +1,41 @@
-import type { GetServerSideProps, NextPage } from "next";
-import { useRouter } from "next/router";
-import { useLazyQuery, useQuery } from "@apollo/client";
-import { GET_MAIN_TASK_DEPS } from "@graphql/operations/queries/getDeps";
+import type { GetServerSideProps, NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useLazyQuery, useQuery } from '@apollo/client';
+import { GET_MAIN_TASK_DEPS } from '@graphql/operations/queries/getDeps';
 import {
   GetMainTaskDeps,
   GetMainTaskDepsVariables,
-} from "@graphql/operations/queries/__generated__/GetMainTaskDeps";
-import { FDSortBy, MainPrimitiveType } from "__generated__/globalTypes";
-import { ReportsLayout } from "@components/ReportsLayout/ReportsLayout";
-import { ReactElement, useContext, useEffect, useState } from "react";
-import _ from "lodash";
-import { Text } from "@components/Inputs";
-import Button from "@components/Button";
-import styles from "@styles/Dependencies.module.scss";
-import filterIcon from "@assets/icons/filter.svg";
-import orderingIcon from "@assets/icons/ordering.svg";
-import eyeIcon from "@assets/icons/eye.svg";
-import longArrowIcon from "@assets/icons/long-arrow.svg";
-import Image from "next/image";
-import { Column } from "@graphql/operations/fragments/__generated__/Column";
+} from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
+import { FDSortBy, MainPrimitiveType } from '__generated__/globalTypes';
+import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
+import { ReactElement, useContext, useEffect, useState } from 'react';
+import _ from 'lodash';
+import { Text } from '@components/Inputs';
+import Button from '@components/Button';
+import styles from '@styles/Dependencies.module.scss';
+import filterIcon from '@assets/icons/filter.svg';
+import orderingIcon from '@assets/icons/ordering.svg';
+import eyeIcon from '@assets/icons/eye.svg';
+import longArrowIcon from '@assets/icons/long-arrow.svg';
+import Image from 'next/image';
+import { Column } from '@graphql/operations/fragments/__generated__/Column';
 import {
   FilteringWindow,
   getSortingParams,
   OrderingWindow,
+  Sorting,
   useFilters,
-} from "@components/Filters/Filters";
-import Pagination from "@components/Pagination/Pagination";
-import classNames from "classnames";
-import { GET_TASK_INFO } from "@graphql/operations/queries/getTaskInfo";
+} from '@components/Filters/Filters';
+import Pagination from '@components/Pagination/Pagination';
+import classNames from 'classnames';
+import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 import {
   getTaskInfo,
   getTaskInfoVariables,
-} from "@graphql/operations/queries/__generated__/getTaskInfo";
-import { OrderBy, PrimitiveType } from "types/globalTypes";
-import client from "@graphql/client";
+} from '@graphql/operations/queries/__generated__/getTaskInfo';
+import { OrderBy, PrimitiveType } from 'types/globalTypes';
+import client from '@graphql/client';
+import { convertDependencies } from '@utils/convertDependencies';
 
 type GeneralColumn = {
   column: Column;
@@ -55,8 +57,8 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
     }
   );
 
-  const primitive: PrimitiveType | null =
-    taskInfo?.taskInfo.data.baseConfig.type || null;
+  const primitive: PrimitiveType | undefined =
+    taskInfo?.taskInfo.data.baseConfig.type;
   const {
     fields: {
       search,
@@ -66,24 +68,25 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
       mustContainRhsColIndices,
       mustContainLhsColIndices,
     },
-    setValue,
+    setFilterField,
+    setFilterFields,
   } = useFilters(primitive || PrimitiveType.FD);
-
   const [infoVisible, setInfoVisible] = useState(true);
-
   const [selectedRow, setSelectedRow] = useState<number | undefined>();
-
   const [getDeps, { loading, data, called, previousData }] = useLazyQuery<
     GetMainTaskDeps,
     GetMainTaskDepsVariables
   >(GET_MAIN_TASK_DEPS);
+  const [isOrderingShown, setIsOrderingShown] = useState(false);
+  const [isFilteringShown, setIsFilteringShown] = useState(false);
 
   useEffect(() => {
     if (!primitive) return;
     const sortingParams = {
       [(primitive === PrimitiveType.TypoFD ? PrimitiveType.FD : primitive) +
-      "SortBy"]: ordering,
+      'SortBy']: ordering,
     };
+
     getDeps({
       variables: {
         taskID: taskID,
@@ -96,12 +99,12 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
           mustContainRhsColIndices: !mustContainRhsColIndices
             ? null
             : mustContainRhsColIndices
-                .split(",")
+                .split(',')
                 .map((e) => Number.parseFloat(e)),
           mustContainLhsColIndices: !mustContainLhsColIndices
             ? null
             : mustContainLhsColIndices
-                .split(",")
+                .split(',')
                 .map((e) => Number.parseFloat(e)),
         },
       },
@@ -117,7 +120,7 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
           {data.map((e) => (
             <span className={styles.attr}>
               {e.column.name}
-              {infoVisible && e.pattern ? " | " + e.pattern : ""}
+              {infoVisible && e.pattern ? ' | ' + e.pattern : ''}
             </span>
           ))}
         </>
@@ -130,62 +133,10 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
   // todo add loading text/animation, maybe in Pagination component too
   const shownData = (loading ? previousData : data) || defaultData;
   const recordsCount =
-    shownData?.taskInfo.data.result?.__typename === "FDTaskResult" &&
+    shownData?.taskInfo.data.result?.__typename === 'FDTaskResult' &&
     shownData?.taskInfo.data.result.depsAmount;
 
-  const [isOrderingShown, setIsOrderingShown] = useState(false);
-  const [isFilteringShown, setIsFilteringShown] = useState(false);
-
-  const deps: () => {
-    confidence?: any;
-    rhs: GeneralColumn[];
-    lhs: GeneralColumn[];
-  }[] = () => {
-    if (!shownData) return [];
-    if (primitive === PrimitiveType.FD) {
-      return shownData.taskInfo.data.result?.__typename === "FDTaskResult" &&
-        shownData.taskInfo.data.result.filteredDeps.__typename === "FilteredFDs"
-        ? shownData.taskInfo.data.result.filteredDeps.FDs.map((e) => ({
-            rhs: [{ column: e.rhs }],
-            lhs: e.lhs.map((e) => ({ column: e })),
-          }))
-        : [];
-    }
-
-    if (primitive === PrimitiveType.TypoFD) {
-      return shownData.taskInfo.data.result?.__typename ===
-        "TypoFDTaskResult" &&
-        shownData.taskInfo.data.result.filteredDeps.__typename === "FilteredFDs"
-        ? shownData.taskInfo.data.result.filteredDeps.FDs.map((e) => ({
-            rhs: [{ column: e.rhs }],
-            lhs: e.lhs.map((e) => ({ column: e })),
-          }))
-        : [];
-    }
-
-    if (primitive === PrimitiveType.CFD) {
-      return shownData.taskInfo.data.result?.__typename === "CFDTaskResult" &&
-        shownData.taskInfo.data.result.filteredDeps.__typename ===
-          "FilteredCFDs"
-        ? shownData.taskInfo.data.result.filteredDeps.CFDs.map((e) => ({
-            rhs: [e.rhs],
-            lhs: e.lhs,
-          }))
-        : [];
-    }
-
-    if (primitive === PrimitiveType.AR) {
-      return shownData.taskInfo.data.result?.__typename === "ARTaskResult" &&
-        shownData.taskInfo.data.result.filteredDeps.__typename === "FilteredARs"
-        ? shownData.taskInfo.data.result.filteredDeps.ARs.map((e) => ({
-            confidence: e.confidence,
-            rhs: e.rhs.map((name) => ({ column: { name } } as GeneralColumn)),
-            lhs: e.lhs.map((name) => ({ column: { name } } as GeneralColumn)),
-          }))
-        : [];
-    }
-    return [];
-  };
+  const deps = convertDependencies(primitive, shownData);
 
   return (
     <ReportsLayout>
@@ -193,12 +144,12 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
         <OrderingWindow
           {...{
             setIsOrderingShown,
-            ordering,
             primitive: primitive || PrimitiveType.FD,
-            direction,
+            sortingParams: { ordering, direction },
           }}
-          setOrdering={(o) => setValue("ordering", o)}
-          setDirection={(d) => setValue("direction", d)}
+          setSortingParams={(ordering: Sorting, direction: OrderBy) => {
+            setFilterFields({ ordering, direction });
+          }}
         />
       )}
 
@@ -210,10 +161,10 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
             mustContainRhsColIndices,
           }}
           setMustContainRhsColIndices={(v) =>
-            setValue("mustContainRhsColIndices", v)
+            setFilterField('mustContainRhsColIndices', v)
           }
           setMustContainLhsColIndices={(v) =>
-            setValue("mustContainLhsColIndices", v)
+            setFilterField('mustContainLhsColIndices', v)
           }
         />
       )}
@@ -225,7 +176,7 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
           label="Search"
           placeholder="Attribute name or regex"
           value={search}
-          onChange={(e) => setValue("search", e.currentTarget.value)}
+          onChange={(e) => setFilterField('search', e.currentTarget.value)}
         />
         <div className={styles.buttons}>
           <Button
@@ -261,7 +212,7 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
       <div className={styles.rows}>
         {shownData && (
           <>
-            {_.map(deps(), (row, i) => (
+            {_.map(deps, (row, i) => (
               <div
                 key={i}
                 className={classNames(
@@ -272,7 +223,7 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
               >
                 {makeSide(row.lhs)}
                 <Image src={longArrowIcon} />
-                {typeof row.confidence !== "undefined" && (
+                {typeof row.confidence !== 'undefined' && (
                   <p>{row.confidence}</p>
                 )}
                 {makeSide(row.rhs)}
@@ -284,7 +235,7 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
 
       <div className={styles.pagination}>
         <Pagination
-          onChange={(n) => setValue("page", n)}
+          onChange={(n) => setFilterField('page', n)}
           current={page}
           count={Math.ceil((recordsCount || 10) / 10)}
         />
@@ -308,7 +259,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         taskID: context.query.taskID,
         filter: {
           withoutKeys: false,
-          filterString: "",
+          filterString: '',
           pagination: { limit: 10, offset: 0 },
           ...sortingParams,
           orderBy: OrderBy.ASC,
