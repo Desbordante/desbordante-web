@@ -1,3 +1,3 @@
-import PopupWindowContainer from "./PopupWindowContainer";
+import PopupWindowContainer from './PopupWindowContainer';
 
 export default PopupWindowContainer;
