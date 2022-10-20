@@ -1,11 +1,11 @@
-import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
-import { createUploadLink } from "apollo-upload-client";
+import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
+import { createUploadLink } from 'apollo-upload-client';
 
-import { graphQLEndpoint, graphQLLocalEndpoint } from "@constants/endpoints";
-import { errorLink, requestIdLink } from "@graphql/context";
-import { customFetch } from "@graphql/customFetch";
+import { graphQLEndpoint, graphQLLocalEndpoint } from '@constants/endpoints';
+import { errorLink, requestIdLink } from '@graphql/context';
+import { customFetch } from '@graphql/customFetch';
 
-const isServer = typeof window === "undefined";
+const isServer = typeof window === 'undefined';
 // @ts-ignore
 const windowApolloState = !isServer && window.__NEXT_DATA__.apolloState;
 

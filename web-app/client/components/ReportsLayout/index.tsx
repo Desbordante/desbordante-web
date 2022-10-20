@@ -1,2 +1,2 @@
-import { ReportsLayout } from "./ReportsLayout";
+import { ReportsLayout } from './ReportsLayout';
 export { ReportsLayout };
