@@ -51,17 +51,6 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
   const { userDatasets, setUserDatasets } = useUserDatasets();
   const [selection, setSelection] = useState<AllowedDataset>();
 
-  const [getUser] = useLazyQuery<getUser, getUserVariables>(GET_USER);
-
-  useEffect(() => {
-    if (!user?.id) return;
-    getUser({
-      variables: { userID: user.id! },
-    }).then((resp) => {
-      setUserDatasets(resp.data?.user?.datasets || []);
-    });
-  }, [user?.id]);
-
   useEffect(() => {
     if (error) {
       showError({
