@@ -24,7 +24,7 @@ import {
 import { GET_USER } from '@graphql/operations/queries/getUser';
 import client from '@graphql/client';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
-import { useAuthContext } from '@hooks/useAuthContext';
+import { useAuthContext, useUserDatasets } from '@hooks/useAuthContext';
 import { useErrorContext } from '@hooks/useErrorContext';
 
 type Props = {
@@ -48,19 +48,8 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
     allowedDatasets,
     (e) => e.isBuiltIn
   );
-  const [userDatasets, setUserDatasets] = useState(user?.datasets || []);
+  const { userDatasets, setUserDatasets } = useUserDatasets();
   const [selection, setSelection] = useState<AllowedDataset>();
-
-  const [getUser] = useLazyQuery<getUser, getUserVariables>(GET_USER);
-
-  useEffect(() => {
-    if (!user?.id) return;
-    getUser({
-      variables: { userID: user.id! },
-    }).then((resp) => {
-      setUserDatasets(resp.data?.user?.datasets || []);
-    });
-  }, [user?.id]);
 
   useEffect(() => {
     if (error) {

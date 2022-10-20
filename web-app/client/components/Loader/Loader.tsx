@@ -1,19 +1,15 @@
-import { FC, useEffect } from "react";
-import styles from "./Loader.module.scss";
-import serverError from "@assets/icons/server-error.svg";
-import usersQueue from "@assets/icons/users-queue.svg";
-import checkFill from "@assets/icons/check-fill.svg";
-import resourcesLimit from "@assets/icons/resources-limit.svg";
-import Image from "next/image";
-import { ApolloError, useQuery } from "@apollo/client";
-import { GET_TASK_INFO } from "@graphql/operations/queries/getTaskInfo";
+import { FC, useEffect } from 'react';
+import styles from './Loader.module.scss';
+import Image from 'next/image';
+import { useQuery } from '@apollo/client';
+import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 import {
   getTaskInfo,
   getTaskInfoVariables,
-} from "@graphql/operations/queries/__generated__/getTaskInfo";
-import { useRouter } from "next/router";
-import cn from "classnames";
-import getStatusDetails from "./StatusDetails";
+} from '@graphql/operations/queries/__generated__/getTaskInfo';
+import { useRouter } from 'next/router';
+import cn from 'classnames';
+import getStatusDetails from './StatusDetails';
 
 type Props = {
   taskID: string;
@@ -32,13 +28,14 @@ const Loader: FC<Props> = ({ taskID }) => {
     const state = data?.taskInfo.state;
 
     if (
-      state?.__typename === "TaskState" &&
-      state.processStatus === "COMPLETED"
+      state &&
+      'processStatus' in state &&
+      state.processStatus === 'COMPLETED'
     ) {
       setTimeout(
         () =>
           router.push({
-            pathname: "reports/dependencies",
+            pathname: 'reports/dependencies',
             query: {
               taskID,
             },
@@ -66,7 +63,7 @@ const Loader: FC<Props> = ({ taskID }) => {
         <p>
           Task status:
           <span className={cn(styles[status.className], styles.status)}>
-            {" "}
+            {' '}
             {status.label}
           </span>
         </p>

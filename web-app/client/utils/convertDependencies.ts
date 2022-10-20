@@ -2,10 +2,34 @@ import { GetMainTaskDeps } from '@graphql/operations/queries/__generated__/GetMa
 import _ from 'lodash';
 import { Column } from '@graphql/operations/fragments/__generated__/Column';
 import { PrimitiveType } from 'types/globalTypes';
+import { FD } from '@graphql/operations/fragments/__generated__/FD';
+import { CFD } from '@graphql/operations/fragments/__generated__/CFD';
+import { AR } from '@graphql/operations/fragments/__generated__/AR';
 
 export type GeneralColumn = {
   column: Column;
   pattern?: string;
+};
+
+type FilteredDeps = {
+  filteredDepsAmount: number;
+  FDs: [FD];
+  CFDs: [CFD];
+  ARs: [AR];
+  TypoFDs: [FD];
+  TypoClusters: [FD];
+};
+
+const getFilteredDeps: (
+  data: GetMainTaskDeps,
+  type: PrimitiveType
+) => FilteredDeps = (data, type) => {
+  const { result } = data.taskInfo.data;
+  if (!result || result.__typename !== (`${type}TaskResult` as const)) {
+    return [];
+  }
+  // @ts-ignore
+  return result.filteredDeps;
 };
 
 export const convertDependencies: (
@@ -17,45 +41,40 @@ export const convertDependencies: (
   lhs: GeneralColumn[];
 }[] = (primitive, shownData) => {
   if (!shownData || !primitive) return [];
+
+  const deps = getFilteredDeps(shownData, primitive);
+
   if (primitive === PrimitiveType.FD) {
-    return shownData.taskInfo.data.result?.__typename === 'FDTaskResult' &&
-      shownData.taskInfo.data.result.filteredDeps.__typename === 'FilteredFDs'
-      ? shownData.taskInfo.data.result.filteredDeps.FDs.map((e) => ({
-          rhs: [{ column: e.rhs }],
-          lhs: e.lhs.map((e) => ({ column: e })),
-        }))
-      : [];
+    return deps.FDs.map(({ lhs, rhs }) => ({
+      rhs: [{ column: rhs }],
+      lhs: lhs.map((column) => ({ column })),
+    }));
   }
 
   if (primitive === PrimitiveType.TypoFD) {
-    return shownData.taskInfo.data.result?.__typename === 'TypoFDTaskResult' &&
-      shownData.taskInfo.data.result.filteredDeps.__typename === 'FilteredFDs'
-      ? shownData.taskInfo.data.result.filteredDeps.FDs.map((e) => ({
-          rhs: [{ column: e.rhs }],
-          lhs: e.lhs.map((e) => ({ column: e })),
-        }))
-      : [];
+    return deps.TypoFDs.map(({ rhs, lhs }) => ({
+      rhs: [{ column: rhs }],
+      lhs: lhs.map((column) => ({ column })),
+    }));
   }
 
   if (primitive === PrimitiveType.CFD) {
-    return shownData.taskInfo.data.result?.__typename === 'CFDTaskResult' &&
-      shownData.taskInfo.data.result.filteredDeps.__typename === 'FilteredCFDs'
-      ? shownData.taskInfo.data.result.filteredDeps.CFDs.map((e) => ({
-          rhs: [e.rhs],
-          lhs: e.lhs,
-        }))
-      : [];
+    return deps.CFDs.map(({ rhs, lhs }) => ({
+      rhs: [rhs],
+      lhs: lhs,
+    }));
   }
 
   if (primitive === PrimitiveType.AR) {
-    return shownData.taskInfo.data.result?.__typename === 'ARTaskResult' &&
-      shownData.taskInfo.data.result.filteredDeps.__typename === 'FilteredARs'
-      ? shownData.taskInfo.data.result.filteredDeps.ARs.map((e) => ({
-          confidence: e.confidence,
-          rhs: e.rhs.map((name) => ({ column: { name } } as GeneralColumn)),
-          lhs: e.lhs.map((name) => ({ column: { name } } as GeneralColumn)),
-        }))
-      : [];
+    return deps.ARs.map(({ rhs, lhs, confidence }) => ({
+      confidence,
+      rhs: rhs.map((name, index) => ({
+        column: { __typename: 'Column', name, index },
+      })),
+      lhs: lhs.map((name, index) => ({
+        column: { __typename: 'Column', name, index },
+      })),
+    }));
   }
   return [];
 };
