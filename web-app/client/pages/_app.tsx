@@ -4,20 +4,31 @@ import Layout from '@components/Layout';
 import GoogleAnalytics from '@components/GoogleAnalytics';
 import { environment } from '@utils/env';
 import client from '@graphql/client';
+import { NextPage } from 'next';
 import ClientOnly from '@components/ClientOnly';
 import { AuthContextProvider } from '@components/AuthContext';
 import { ErrorContextProvider } from '@components/ErrorContext';
+import { ReactElement, ReactNode } from 'react';
 import '@styles/globals.scss';
 
-function MyApp({ Component, pageProps }: AppProps) {
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  const getLayout = Component.getLayout ?? ((page) => page);
+  console.log(getLayout);
+
   return (
     <ApolloProvider client={client}>
       <ClientOnly>
         <ErrorContextProvider>
           <AuthContextProvider>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
+            <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
           </AuthContextProvider>
         </ErrorContextProvider>
       </ClientOnly>

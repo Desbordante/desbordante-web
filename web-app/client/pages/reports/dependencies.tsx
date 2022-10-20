@@ -29,13 +29,12 @@ import {
 import Pagination from '@components/Pagination/Pagination';
 import classNames from 'classnames';
 import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
-import {
-  getTaskInfo,
-  getTaskInfoVariables,
-} from '@graphql/operations/queries/__generated__/getTaskInfo';
+import { getTaskInfo } from '@graphql/operations/queries/__generated__/getTaskInfo';
 import { OrderBy, PrimitiveType } from 'types/globalTypes';
 import client from '@graphql/client';
 import { convertDependencies } from '@utils/convertDependencies';
+import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
+import { NextPageWithLayout } from '@pages/_app';
 
 type GeneralColumn = {
   column: Column;
@@ -46,16 +45,8 @@ type Props = {
   defaultData?: GetMainTaskDeps;
 };
 
-const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
-  const router = useRouter();
-  const taskID = router.query.taskID as string;
-
-  const { data: taskInfo } = useQuery<getTaskInfo, getTaskInfoVariables>(
-    GET_TASK_INFO,
-    {
-      variables: { taskID },
-    }
-  );
+const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
+  const { taskInfo, taskID } = useTaskContext();
 
   const primitive: PrimitiveType | undefined =
     taskInfo?.taskInfo.data.baseConfig.type;
@@ -139,7 +130,7 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
   const deps = convertDependencies(primitive, shownData);
 
   return (
-    <ReportsLayout>
+    <>
       {isOrderingShown && (
         <OrderingWindow
           {...{
@@ -240,7 +231,7 @@ const ReportsDependencies: NextPage<Props> = ({ defaultData }) => {
           count={Math.ceil((recordsCount || 10) / 10)}
         />
       </div>
-    </ReportsLayout>
+    </>
   );
 };
 
@@ -276,6 +267,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
     props: {},
   };
+};
+
+ReportsDependencies.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <TaskContextProvider>
+      <ReportsLayout>{page}</ReportsLayout>
+    </TaskContextProvider>
+  );
 };
 
 export default ReportsDependencies;
