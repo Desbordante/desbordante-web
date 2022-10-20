@@ -6,7 +6,7 @@ import React, {
   ReactElement,
 } from 'react';
 import styles from './WizardLayout.module.scss';
-import bg from '@public/bg.svg';
+import bg from '@public/bg.jpg';
 
 interface Props extends PropsWithChildren {
   header: ReactElement;
