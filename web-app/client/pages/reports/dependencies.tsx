@@ -6,8 +6,7 @@ import {
   GetMainTaskDeps,
   GetMainTaskDepsVariables,
 } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
-import { FDSortBy, MainPrimitiveType } from '__generated__/globalTypes';
-import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
+import ReportsLayout from '@components/ReportsLayout';
 import { ReactElement, useContext, useEffect, useState } from 'react';
 import _ from 'lodash';
 import { Text } from '@components/Inputs';
@@ -16,8 +15,6 @@ import styles from '@styles/Dependencies.module.scss';
 import filterIcon from '@assets/icons/filter.svg';
 import orderingIcon from '@assets/icons/ordering.svg';
 import eyeIcon from '@assets/icons/eye.svg';
-import longArrowIcon from '@assets/icons/long-arrow.svg';
-import Image from 'next/image';
 import { Column } from '@graphql/operations/fragments/__generated__/Column';
 import {
   FilteringWindow,
@@ -27,14 +24,15 @@ import {
   useFilters,
 } from '@components/Filters/Filters';
 import Pagination from '@components/Pagination/Pagination';
-import classNames from 'classnames';
 import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 import { getTaskInfo } from '@graphql/operations/queries/__generated__/getTaskInfo';
 import { OrderBy, PrimitiveType } from 'types/globalTypes';
 import client from '@graphql/client';
 import { convertDependencies } from '@utils/convertDependencies';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
-import { NextPageWithLayout } from '@pages/_app';
+import { NextPageWithLayout } from 'types/pageWithLayout';
+
+import DependencyList from '@components/DependencyList/DependencyList';
 
 type GeneralColumn = {
   column: Column;
@@ -63,7 +61,6 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
     setFilterFields,
   } = useFilters(primitive || PrimitiveType.FD);
   const [infoVisible, setInfoVisible] = useState(true);
-  const [selectedRow, setSelectedRow] = useState<number | undefined>();
   const [getDeps, { loading, data, called, previousData }] = useLazyQuery<
     GetMainTaskDeps,
     GetMainTaskDepsVariables
@@ -97,25 +94,6 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
       },
     });
   }, [taskID, primitive, search, page, ordering, direction]);
-
-  const makeSide: (data: GeneralColumn | GeneralColumn[]) => ReactElement = (
-    data
-  ) => {
-    if (Array.isArray(data)) {
-      return (
-        <>
-          {data.map((e) => (
-            <span className={styles.attr}>
-              {e.column.name}
-              {infoVisible && e.pattern ? ' | ' + e.pattern : ''}
-            </span>
-          ))}
-        </>
-      );
-    } else {
-      return makeSide([data]);
-    }
-  };
 
   // todo add loading text/animation, maybe in Pagination component too
   const shownData = (loading ? previousData : data) || defaultData;
@@ -192,27 +170,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
       </div>
 
       <div className={styles.rows}>
-        {shownData && (
-          <>
-            {_.map(deps, (row, i) => (
-              <div
-                key={i}
-                className={classNames(
-                  styles.row,
-                  selectedRow === i && styles.selectedRow
-                )}
-                onClick={() => setSelectedRow(i)}
-              >
-                {makeSide(row.lhs)}
-                <Image src={longArrowIcon} />
-                {typeof row.confidence !== 'undefined' && (
-                  <p>{row.confidence}</p>
-                )}
-                {makeSide(row.rhs)}
-              </div>
-            ))}
-          </>
-        )}
+        <DependencyList {...{ deps, infoVisible }} />
       </div>
 
       <div className={styles.pagination}>

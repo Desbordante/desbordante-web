@@ -81,26 +81,25 @@ export const ReportsLayout: FC<Props> = ({ children }) => {
       <div className={styles.menu}>
         <ul>
           {primitive &&
-            React.Children.toArray(
-              reportsTabs[primitive].map(({ icon, label, pathname }) => (
-                <li
-                  className={classNames(
-                    router.pathname === pathname && styles.active
-                  )}
-                  onClick={() =>
-                    router.push({
-                      pathname,
-                      query: router.query,
-                    })
-                  }
-                >
-                  <span className={styles.icon}>
-                    <Image src={icon} width={24} height={24} />
-                  </span>
-                  <p>{label}</p>
-                </li>
-              ))
-            )}
+            reportsTabs[primitive].map(({ icon, label, pathname }) => (
+              <li
+                key={pathname}
+                className={classNames(
+                  router.pathname === pathname && styles.active
+                )}
+                onClick={() =>
+                  router.push({
+                    pathname,
+                    query: router.query,
+                  })
+                }
+              >
+                <span className={styles.icon}>
+                  <Image src={icon} width={24} height={24} />
+                </span>
+                <p>{label}</p>
+              </li>
+            ))}
         </ul>
       </div>
       <div className={styles.content}>{children}</div>

@@ -14,11 +14,11 @@ const Header = () => {
 
   const [headerBackground, setHeaderBackground] = useState(false);
 
-  const checkScroll = useCallback(() => {
-    setHeaderBackground(window.pageYOffset > 100);
-  }, []);
-
   useBrowserEffect(() => {
+    const checkScroll = () => {
+      setHeaderBackground(window.pageYOffset > 100);
+    };
+
     window.addEventListener('scroll', checkScroll);
     return () => {
       window.removeEventListener('scroll', checkScroll);
