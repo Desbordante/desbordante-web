@@ -80,6 +80,31 @@
     }
   }
 }
+
+@media (max-width: 850px) {
+  .page {
+    flex-direction: column;
+  }
+
+  .menu ul {
+    flex-direction: row;
+    display: flex;
+    width: fit-content;
+
+    li {
+      width: auto;
+
+      p {
+        display: none;
+      }
+
+      &.active p {
+        display: inline-block;
+      }
+    }
+  }
+}
+
 .content {
   padding: 64px;
   text-align: left;
