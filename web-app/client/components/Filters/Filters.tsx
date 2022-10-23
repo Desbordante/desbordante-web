@@ -18,7 +18,6 @@ import {
 } from 'types/globalTypes';
 import styles from './Filters.module.scss';
 import { OrderingTitles } from '@constants/titles';
-import { title } from 'process';
 
 export type Sorting = FDSortBy | CFDSortBy | ARSortBy;
 
@@ -86,7 +85,7 @@ export const OrderingWindow: FC<OrderingProps> = ({
   const [selectedOrdering, selectOrdering] = useState(ordering);
   const [selectedDirection, selectDirection] = useState(direction);
 
-  const OrderingOptions = _.mapValues(
+  const orderingOptions = _.mapValues(
     OrderingTitles[primitive],
     (k: string, v: string) => ({
       label: k,
@@ -94,7 +93,7 @@ export const OrderingWindow: FC<OrderingProps> = ({
     })
   );
 
-  const DirectionOptions = {
+  const directionOptions = {
     [OrderBy.ASC]: { value: OrderBy.ASC, label: 'Ascending' },
     [OrderBy.DESC]: { value: OrderBy.DESC, label: 'Descending' },
   };
@@ -106,15 +105,15 @@ export const OrderingWindow: FC<OrderingProps> = ({
           <h4>Choose ordering</h4>
           <Select
             label="Order by"
-            options={_.values(OrderingOptions)}
-            value={OrderingOptions[selectedOrdering]}
+            options={_.values(orderingOptions)}
+            value={orderingOptions[selectedOrdering]}
             onChange={(e: any) => selectOrdering(e?.value)}
           />
 
           <Select
             label="Direction"
-            options={_.values(DirectionOptions)}
-            value={DirectionOptions[selectedDirection]}
+            options={_.values(directionOptions)}
+            value={directionOptions[selectedDirection]}
             onChange={(e: any) => selectDirection(e?.value)}
           />
 

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import _ from 'lodash';
 import Button from '@components/Button';
 import ideaIcon from '@assets/icons/idea.svg';
-import { WizardLayout } from '@components/WizardLayout/WizardLayout';
+import WizardLayout from '@components/WizardLayout';
 import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
 import { Select } from '@components/Inputs';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
