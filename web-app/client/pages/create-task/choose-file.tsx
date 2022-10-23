@@ -14,7 +14,7 @@ import { Collapse } from '@components/Collapse';
 import Button from '@components/Button';
 import styles from '@styles/ChooseFile.module.scss';
 import settingsIcon from '@assets/icons/settings.svg';
-import { WizardLayout } from '@components/WizardLayout';
+import WizardLayout from '@components/WizardLayout';
 import { DatasetUploader } from '@components/DatasetUploader';
 import {
   getUser,
