@@ -41,7 +41,6 @@ const ReportsCharts: NextPageWithLayout = () => {
       <LayeredChart
         title="Left-hand side"
         attributes={lhs}
-        displayAttributes={lhs}
         {...{
           selectedAttributeIndices: dependenciesFilter.lhs,
           setSelectedAttributeIndices: (lhs) =>
@@ -52,7 +51,6 @@ const ReportsCharts: NextPageWithLayout = () => {
       <LayeredChart
         title="Right-hand side"
         attributes={rhs}
-        displayAttributes={rhs}
         {...{
           selectedAttributeIndices: dependenciesFilter.rhs,
           setSelectedAttributeIndices: (rhs) =>
