@@ -30,7 +30,7 @@ const Chart: React.FC<Props> = ({
   attributes,
   selectedAttributeIndices,
   setSelectedAttributeIndices,
-  maxItemsShown = 9,
+  maxItemsShown = 4,
   title,
 }) => {
   const [depth, setDepth] = useState(0);
