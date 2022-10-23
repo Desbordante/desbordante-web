@@ -25,7 +25,8 @@ const getChartData = (data?: getPieChartData) => {
 };
 
 const ReportsCharts: NextPageWithLayout = () => {
-  const { taskID } = useTaskContext();
+  const { taskID, dependenciesFilter, setDependenciesFilter } =
+    useTaskContext();
 
   const { loading, data, error } = useQuery<
     getPieChartData,
@@ -33,12 +34,6 @@ const ReportsCharts: NextPageWithLayout = () => {
   >(GET_PIE_CHART_DATA, { variables: { taskID } });
 
   const { lhs, rhs } = getChartData(data);
-
-  const [selectedLeftAttributeIndices, setSelectedLeftAttributeIndices] =
-    useState<number[]>([]);
-
-  const [selectedRightAttributeIndices, setSelectedRightAttributeIndices] =
-    useState<number[]>([]);
 
   return (
     <div className={styles.container}>
@@ -48,8 +43,9 @@ const ReportsCharts: NextPageWithLayout = () => {
         attributes={lhs}
         displayAttributes={lhs}
         {...{
-          selectedAttributeIndices: selectedLeftAttributeIndices,
-          setSelectedAttributeIndices: setSelectedLeftAttributeIndices,
+          selectedAttributeIndices: dependenciesFilter.lhs,
+          setSelectedAttributeIndices: (lhs) =>
+            setDependenciesFilter(({ rhs }) => ({ rhs, lhs })),
         }}
       />
 
@@ -58,8 +54,9 @@ const ReportsCharts: NextPageWithLayout = () => {
         attributes={rhs}
         displayAttributes={rhs}
         {...{
-          selectedAttributeIndices: selectedRightAttributeIndices,
-          setSelectedAttributeIndices: setSelectedRightAttributeIndices,
+          selectedAttributeIndices: dependenciesFilter.rhs,
+          setSelectedAttributeIndices: (rhs) =>
+            setDependenciesFilter(({ lhs }) => ({ rhs, lhs })),
         }}
       />
     </div>

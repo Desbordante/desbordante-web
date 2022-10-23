@@ -29,6 +29,7 @@ export type FiltersFields = {
   page: number;
   mustContainRhsColIndices: string;
   mustContainLhsColIndices: string;
+  showKeys: boolean;
 };
 
 const getDefaultOrdering = (primitive: PrimitiveType) =>
@@ -42,6 +43,7 @@ export const useFilters = (primitive: PrimitiveType) => {
     search: '',
     mustContainRhsColIndices: '',
     mustContainLhsColIndices: '',
+    showKeys: false,
   });
 
   const setFilterField = (
@@ -145,59 +147,24 @@ export const OrderingWindow: FC<OrderingProps> = ({
 
 type FilteringProps = {
   setIsFilteringShown: (arg: boolean) => void;
-  mustContainRhsColIndices: string;
-  mustContainLhsColIndices: string;
-  setMustContainRhsColIndices: (arg: string) => void;
-  setMustContainLhsColIndices: (arg: string) => void;
+  showKeys: boolean;
+  setShowKeys: (arg: boolean) => void;
 };
 
 export const FilteringWindow: FC<FilteringProps> = ({
   setIsFilteringShown,
-  mustContainRhsColIndices,
-  mustContainLhsColIndices,
-  setMustContainRhsColIndices,
-  setMustContainLhsColIndices,
+  showKeys,
+  setShowKeys,
 }) => {
-  const validRhs =
-    !mustContainRhsColIndices ||
-    mustContainRhsColIndices
-      .split(',')
-      .filter((s) => Number.isNaN(Number.parseFloat(s))).length === 0;
-
-  const validLhs =
-    !mustContainLhsColIndices ||
-    mustContainLhsColIndices
-      .split(',')
-      .filter((s) => Number.isNaN(Number.parseFloat(s))).length === 0;
-
   return (
     <>
-      <PopupWindowContainer
-        onOutsideClick={() =>
-          validLhs && validRhs && setIsFilteringShown(false)
-        }
-      >
+      <PopupWindowContainer onOutsideClick={() => setIsFilteringShown(false)}>
         <div className={styles.container}>
           <h5>Choose filters</h5>
-          <Text
-            error={
-              !validRhs
-                ? 'Please enter valid comma-separated numbers'
-                : undefined
-            }
-            placeholder="must Contain Rhs Col Indices"
-            value={mustContainRhsColIndices}
-            onChange={(e) => setMustContainRhsColIndices(e.currentTarget.value)}
-          />
-          <Text
-            error={
-              !validLhs
-                ? 'Please enter valid comma-separated numbers'
-                : undefined
-            }
-            placeholder="must Contain Lhs Col Indices"
-            value={mustContainLhsColIndices}
-            onChange={(e) => setMustContainLhsColIndices(e.currentTarget.value)}
+          <Checkbox
+            label="Show dependencies containing keys"
+            checked={showKeys}
+            onChange={() => setShowKeys(!showKeys)}
           />
         </div>
       </PopupWindowContainer>

@@ -46,19 +46,19 @@ type Props = {
 };
 
 const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
-  const { taskInfo, taskID } = useTaskContext();
+  const {
+    taskInfo,
+    taskID,
+    dependenciesFilter: {
+      rhs: mustContainRhsColIndices,
+      lhs: mustContainLhsColIndices,
+    },
+  } = useTaskContext();
 
   const primitive: PrimitiveType | undefined =
     taskInfo?.taskInfo.data.baseConfig.type;
   const {
-    fields: {
-      search,
-      page,
-      ordering,
-      direction,
-      mustContainRhsColIndices,
-      mustContainLhsColIndices,
-    },
+    fields: { search, page, ordering, direction, showKeys },
     setFilterField,
     setFilterFields,
   } = useFilters(primitive || PrimitiveType.FD);
@@ -82,21 +82,17 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
       variables: {
         taskID: taskID,
         filter: {
-          withoutKeys: false,
+          withoutKeys: showKeys,
           filterString: search,
           pagination: { limit: 10, offset: (page - 1) * 10 },
           ...sortingParams,
           orderBy: direction,
-          mustContainRhsColIndices: !mustContainRhsColIndices
-            ? null
-            : mustContainRhsColIndices
-                .split(',')
-                .map((e) => Number.parseFloat(e)),
-          mustContainLhsColIndices: !mustContainLhsColIndices
-            ? null
-            : mustContainLhsColIndices
-                .split(',')
-                .map((e) => Number.parseFloat(e)),
+          mustContainRhsColIndices: mustContainRhsColIndices.length
+            ? mustContainRhsColIndices
+            : null,
+          mustContainLhsColIndices: mustContainLhsColIndices.length
+            ? mustContainLhsColIndices
+            : null,
         },
       },
     });
@@ -148,31 +144,9 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
         <FilteringWindow
           {...{
             setIsFilteringShown,
-            mustContainLhsColIndices,
-            mustContainRhsColIndices,
+            showKeys,
+            setShowKeys: (showKeys) => setFilterFields({ showKeys }),
           }}
-          setMustContainRhsColIndices={(v) =>
-            setFilterField('mustContainRhsColIndices', v)
-          }
-          setMustContainLhsColIndices={(v) =>
-            setFilterField('mustContainLhsColIndices', v)
-          }
-        />
-      )}
-
-      {isFilteringShown && (
-        <FilteringWindow
-          {...{
-            setIsFilteringShown,
-            mustContainLhsColIndices,
-            mustContainRhsColIndices,
-          }}
-          setMustContainRhsColIndices={(v) =>
-            setFilterField('mustContainRhsColIndices', v)
-          }
-          setMustContainLhsColIndices={(v) =>
-            setFilterField('mustContainLhsColIndices', v)
-          }
         />
       )}
 

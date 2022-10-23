@@ -6,12 +6,8 @@ import classNames from 'classnames';
 import { Chart as ChartJs, ArcElement } from 'chart.js';
 import { ChartControls } from './ChartControls';
 import styles from './LayeredChart.module.scss';
+import { DepAttribute } from '@components/TaskContext';
 ChartJs.register(ArcElement);
-
-type DepAttribute = {
-  column: Column;
-  value: number;
-};
 
 /* eslint-disable no-unused-vars */
 export interface Props {
