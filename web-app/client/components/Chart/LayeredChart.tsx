@@ -12,7 +12,6 @@ ChartJs.register(ArcElement);
 /* eslint-disable no-unused-vars */
 export interface Props {
   attributes: DepAttribute[];
-  displayAttributes: DepAttribute[];
   selectedAttributeIndices: number[];
   setSelectedAttributeIndices: (n: number[]) => void;
   maxItemsShown?: number;
@@ -29,18 +28,15 @@ export const useControls = () => {
 
 const Chart: React.FC<Props> = ({
   attributes,
-  displayAttributes: defaultDisplayAttributes,
   selectedAttributeIndices,
   setSelectedAttributeIndices,
-  maxItemsShown = 3,
+  maxItemsShown = 9,
   title,
 }) => {
   const [depth, setDepth] = useState(0);
   const [search, setSearch] = useState('');
   const [highlightIndex, setHighlightIndex] = useState<number | null>(null);
-  const [displayAttributes, setDisplayAttributes] = useState(
-    defaultDisplayAttributes
-  );
+  const [displayAttributes, setDisplayAttributes] = useState(attributes);
 
   // Get how much px is one rem, later used in chart dimensions
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
