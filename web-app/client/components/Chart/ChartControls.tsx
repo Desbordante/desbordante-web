@@ -19,7 +19,12 @@ export const ChartControls: FC<Props> = ({
 }) => {
   return (
     <div className={styles.controls}>
-      <Text label="Search" placeholder="Attribute name or index" />
+      <Text
+        label="Search"
+        placeholder="Attribute name or index"
+        value={search}
+        onChange={(e) => setSearch(e.currentTarget.value)}
+      />
       {depth > 0 && (
         <Button
           variant="secondary"
