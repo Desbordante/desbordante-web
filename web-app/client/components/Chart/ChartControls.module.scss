@@ -1,0 +1,9 @@
+.controls {
+  gap: 16px;
+  display: flex;
+
+  button {
+    height: 62px;
+    align-self: flex-end;
+  }
+}
