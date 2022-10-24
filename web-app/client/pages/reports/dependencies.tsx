@@ -20,9 +20,8 @@ import {
   FilteringWindow,
   getSortingParams,
   OrderingWindow,
-  Sorting,
   useFilters,
-} from '@components/Filters/Filters';
+} from '@components/Filters';
 import Pagination from '@components/Pagination/Pagination';
 import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 import { getTaskInfo } from '@graphql/operations/queries/__generated__/getTaskInfo';
@@ -33,11 +32,7 @@ import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
 import DependencyList from '@components/DependencyList/DependencyList';
-
-type GeneralColumn = {
-  column: Column;
-  pattern?: string;
-};
+import { FormProvider } from 'react-hook-form';
 
 type Props = {
   defaultData?: GetMainTaskDeps;
@@ -48,18 +43,17 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
 
   const primitive: PrimitiveType | undefined =
     taskInfo?.taskInfo.data.baseConfig.type;
+  const methods = useFilters(primitive || PrimitiveType.FD);
+  const { watch, register, setValue: setFilterParam } = methods;
   const {
-    fields: {
-      search,
-      page,
-      ordering,
-      direction,
-      mustContainRhsColIndices,
-      mustContainLhsColIndices,
-    },
-    setFilterField,
-    setFilterFields,
-  } = useFilters(primitive || PrimitiveType.FD);
+    search,
+    page,
+    ordering,
+    direction,
+    mustContainRhsColIndices,
+    mustContainLhsColIndices,
+  } = watch();
+
   const [infoVisible, setInfoVisible] = useState(true);
   const [getDeps, { loading, data, called, previousData }] = useLazyQuery<
     GetMainTaskDeps,
@@ -109,50 +103,24 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
 
   return (
     <>
-      {isOrderingShown && (
-        <OrderingWindow
-          {...{
-            setIsOrderingShown,
-            primitive: primitive || PrimitiveType.FD,
-            sortingParams: { ordering, direction },
-          }}
-          setSortingParams={(ordering: Sorting, direction: OrderBy) => {
-            setFilterFields({ ordering, direction });
-          }}
-        />
-      )}
+      <FormProvider {...methods}>
+        {isOrderingShown && (
+          <OrderingWindow
+            {...{
+              setIsOrderingShown,
+              primitive: primitive || PrimitiveType.FD,
+            }}
+          />
+        )}
 
-      {isFilteringShown && (
-        <FilteringWindow
-          {...{
-            setIsFilteringShown,
-            mustContainLhsColIndices,
-            mustContainRhsColIndices,
-          }}
-          setMustContainRhsColIndices={(v) =>
-            setFilterField('mustContainRhsColIndices', v)
-          }
-          setMustContainLhsColIndices={(v) =>
-            setFilterField('mustContainLhsColIndices', v)
-          }
-        />
-      )}
-
-      {isFilteringShown && (
-        <FilteringWindow
-          {...{
-            setIsFilteringShown,
-            mustContainLhsColIndices,
-            mustContainRhsColIndices,
-          }}
-          setMustContainRhsColIndices={(v) =>
-            setFilterField('mustContainRhsColIndices', v)
-          }
-          setMustContainLhsColIndices={(v) =>
-            setFilterField('mustContainLhsColIndices', v)
-          }
-        />
-      )}
+        {isFilteringShown && (
+          <FilteringWindow
+            {...{
+              setIsFilteringShown,
+            }}
+          />
+        )}
+      </FormProvider>
 
       <h5>Primitive List</h5>
 
@@ -160,8 +128,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
         <Text
           label="Search"
           placeholder="Attribute name or regex"
-          value={search}
-          onChange={(e) => setFilterField('search', e.currentTarget.value)}
+          {...register('search')}
         />
         <div className={styles.buttons}>
           <Button
@@ -200,7 +167,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
 
       <div className={styles.pagination}>
         <Pagination
-          onChange={(n) => setFilterField('page', n)}
+          onChange={(n) => setFilterParam('page', n)}
           current={page}
           count={Math.ceil((recordsCount || 10) / 10)}
         />
