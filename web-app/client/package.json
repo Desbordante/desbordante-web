@@ -8,7 +8,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:local": "NEXT_PUBLIC_TYPE=local next dev",
+    "dev:prod": "NEXT_PUBLIC_TYPE=prod next dev"
   },
   "dependencies": {
     "@apollo/client": "^3.5.8",
