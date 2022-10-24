@@ -24,6 +24,11 @@ export const useControls = () => {
   return { depth, setDepth, search, setSearch };
 };
 
+// Get how much px is one rem, later used in chart dimensions
+const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+const AnimatedDoughnut = animated(Doughnut);
+
 /* eslint-enable no-unused-vars */
 
 const Chart: React.FC<Props> = ({
@@ -37,9 +42,6 @@ const Chart: React.FC<Props> = ({
   const [search, setSearch] = useState('');
   const [highlightIndex, setHighlightIndex] = useState<number | null>(null);
   const [displayAttributes, setDisplayAttributes] = useState(attributes);
-
-  // Get how much px is one rem, later used in chart dimensions
-  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
   const maxItemsSelected = 9;
 
@@ -93,26 +95,22 @@ const Chart: React.FC<Props> = ({
     }
   };
 
-  const AnimatedDoughnut = animated(Doughnut);
   return (
     <div className={styles.container}>
       <h5>{title}</h5>
       <ChartControls {...{ depth, setDepth, search, setSearch }} />
       <div className={styles.chart}>
         <ul className={styles.labels}>
-          {React.Children.toArray(
-            displayAttributes
-              .filter((attr) => attr.value)
-              .map((attr, index) => (
-                <li
-                  className={classNames(
-                    index === highlightIndex && styles.hover
-                  )}
-                >
-                  {attr.column.name}
-                </li>
-              ))
-          )}
+          {displayAttributes
+            .filter((attr) => attr.value)
+            .map((attr, index) => (
+              <li
+                key={index}
+                className={classNames(index === highlightIndex && styles.hover)}
+              >
+                {attr.column.name}
+              </li>
+            ))}
         </ul>
         <div
           onMouseOut={() => setHighlightIndex(null)}
@@ -195,20 +193,18 @@ const Chart: React.FC<Props> = ({
         </div>
       </div>
       <div className={styles.selectedAttributes}>
-        {React.Children.toArray(
-          selectedAttributeIndices.map((attributeIndex) => {
-            const attr = attributes.find(
-              (e) => e.column.index === attributeIndex
-            );
-            return (
-              attr && (
-                <span onClick={() => removeAttribute(attr)}>
-                  {attr.column.name}
-                </span>
-              )
-            );
-          })
-        )}
+        {selectedAttributeIndices.map((attributeIndex) => {
+          const attr = attributes.find(
+            (e) => e.column.index === attributeIndex
+          );
+          return (
+            attr && (
+              <span key={attributeIndex} onClick={() => removeAttribute(attr)}>
+                {attr.column.name}
+              </span>
+            )
+          );
+        })}
       </div>
     </div>
   );
