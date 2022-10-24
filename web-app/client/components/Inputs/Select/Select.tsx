@@ -9,7 +9,7 @@ import Tooltip from '@components/Tooltip';
 import customComponents from './customComponents';
 import styles from './Select.module.scss';
 
-type Props = InputPropsBase &
+export type Props = InputPropsBase &
   ReactSelectProps & {
     tooltip?: ReactNode;
   };
