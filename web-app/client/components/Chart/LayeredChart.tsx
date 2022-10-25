@@ -25,7 +25,10 @@ export const useControls = () => {
 };
 
 // Get how much px is one rem, later used in chart dimensions
-const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+const rem =
+  typeof window !== 'undefined'
+    ? parseFloat(window.getComputedStyle(document.documentElement).fontSize)
+    : 18;
 
 const AnimatedDoughnut = animated(Doughnut);
 

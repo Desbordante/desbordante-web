@@ -120,7 +120,8 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
   // todo add loading text/animation, maybe in Pagination component too
   const shownData = (loading ? previousData : data) || defaultData;
   const recordsCount =
-    shownData?.taskInfo.data.result?.__typename === 'FDTaskResult' &&
+    shownData?.taskInfo.data.result &&
+    'filteredDeps' in shownData?.taskInfo.data.result &&
     shownData?.taskInfo.data.result.filteredDeps.filteredDepsAmount;
 
   const deps = convertDependencies(primitive, shownData);
