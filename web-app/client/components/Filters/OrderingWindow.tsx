@@ -20,14 +20,14 @@ export const OrderingWindow: FC<OrderingProps> = ({
 }) => {
   const baseForm = useFormContext();
 
-  const orderingForm = useForm<Partial<FiltersFields>>({
+  const { control, watch, reset } = useForm<Partial<FiltersFields>>({
     defaultValues: {
       ordering: baseForm.watch('ordering'),
       direction: baseForm.watch('direction'),
     },
   });
 
-  const { ordering, direction } = orderingForm.watch();
+  const { ordering, direction } = watch();
 
   const orderingOptions = _.mapValues(
     OrderingTitles[primitive],
@@ -42,20 +42,20 @@ export const OrderingWindow: FC<OrderingProps> = ({
     [OrderBy.DESC]: { value: OrderBy.DESC, label: 'Descending' },
   };
 
-  const Select = ControlledSelect(orderingForm.control);
-
   return (
     <>
       <PopupWindowContainer onOutsideClick={() => setIsOrderingShown(false)}>
         <div className={styles.container}>
           <h4>Choose ordering</h4>
-          <Select
+          <ControlledSelect
+            control={control}
             controlName="ordering"
             label="Order by"
             options={_.values(orderingOptions)}
           />
 
-          <Select
+          <ControlledSelect
+            control={control}
             controlName="direction"
             label="Direction"
             options={_.values(directionOptions)}
@@ -65,7 +65,7 @@ export const OrderingWindow: FC<OrderingProps> = ({
             <Button
               variant="secondary"
               onClick={() => {
-                orderingForm.reset();
+                reset();
                 setIsOrderingShown(false);
               }}
             >
