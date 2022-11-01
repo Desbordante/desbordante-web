@@ -20,32 +20,35 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@assets/*": [
-        "assets/*"
-      ],
-      "@components/*": [
-        "components/*"
-      ],
-      "@constants/*": [
-        "constants/*"
-      ],
-      "@graphql/*": [
-        "graphql/*"
-      ],
-      "@hooks/*": [
-        "hooks/*"
-      ],
-      "@pages/*": [
-        "pages/*"
-      ],
       "@public/*": [
         "public/*"
       ],
+      "@assets/*": [
+        "src/assets/*"
+      ],
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@constants/*": [
+        "src/constants/*"
+      ],
+      "@graphql/*": [
+        "src/graphql/*"
+      ],
+      "@hooks/*": [
+        "src/hooks/*"
+      ],
+      "@pages/*": [
+        "src/pages/*"
+      ],
       "@styles/*": [
-        "styles/*"
+        "src/styles/*"
       ],
       "@utils/*": [
-        "utils/*"
+        "src/utils/*"
+      ],
+      "types/*": [
+        "src/types/*"
       ]
     }
   },

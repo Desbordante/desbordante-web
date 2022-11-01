@@ -1,5 +1,5 @@
 module.exports = {
   client: {
-    includes: ['./graphql/**/*.{ts,tsx,js,jsx,graphql}'],
+    includes: ['./src/graphql/**/*.{ts,tsx,js,jsx,graphql}'],
   },
 };
