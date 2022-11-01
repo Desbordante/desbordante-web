@@ -1,32 +1,46 @@
-import type { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { AuthContext } from '@components/AuthContext';
-import { useQuery } from '@apollo/client';
+import { useLazyQuery, useQuery } from '@apollo/client';
 import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
 import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithmsConfig';
 import { ErrorContext } from '@components/ErrorContext';
 import { AllowedDataset } from 'types/algorithms';
 import _ from 'lodash';
-import { DatasetCard } from '@components/DatasetCard/DatasetCard';
+import { DatasetCard } from '@components/DatasetCard';
 import { MainPrimitiveType } from 'types/globalTypes';
-import { Collapse } from '@components/Collapse/Collapse';
+import { Collapse } from '@components/Collapse';
 import Button from '@components/Button';
 import styles from '@styles/ChooseFile.module.scss';
 import settingsIcon from '@assets/icons/settings.svg';
-import { WizardLayout } from '@components/WizardLayout/WizardLayout';
-import DatasetUploader from '@components/DatasetUploader/DatasetUploader';
+import WizardLayout from '@components/WizardLayout';
+import { DatasetUploader } from '@components/DatasetUploader';
+import {
+  getUser,
+  getUserVariables,
+  getUser_user_datasets,
+} from '@graphql/operations/queries/__generated__/getUser';
+import { GET_USER } from '@graphql/operations/queries/getUser';
+import client from '@graphql/client';
+import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
+import { useAuthContext, useUserDatasets } from '@hooks/useAuthContext';
+import { useErrorContext } from '@hooks/useErrorContext';
 
-const ChooseFile: NextPage = () => {
+type Props = {
+  defaultAlgorithmConfig: getAlgorithmsConfig | null;
+  defaultUserDatasets: getUser_user_datasets[];
+};
+
+const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
   const router = useRouter();
-  const primitive = router.query.primitive || 'FD';
-  const { user } = useContext(AuthContext)!;
-  const { showError } = useContext(ErrorContext)!;
-  const { loading, data, error } = useQuery<getAlgorithmsConfig>(
-    GET_ALGORITHMS_CONFIG
-  );
+  const { primitive, fileID } = useTaskUrlParams();
+
+  const { user } = useAuthContext();
+  const { showError } = useErrorContext();
+  const { data, error } = useQuery<getAlgorithmsConfig>(GET_ALGORITHMS_CONFIG);
   const allowedDatasets = (
-    data?.algorithmsConfig?.allowedDatasets || []
+    (data || defaultAlgorithmConfig)?.algorithmsConfig?.allowedDatasets || []
   ).filter((e) =>
     e.supportedPrimitives.includes(primitive as MainPrimitiveType)
   );
@@ -34,7 +48,7 @@ const ChooseFile: NextPage = () => {
     allowedDatasets,
     (e) => e.isBuiltIn
   );
-  const [userDatasets, setUserDatasets] = useState(user?.datasets || []);
+  const { userDatasets, setUserDatasets } = useUserDatasets();
   const [selection, setSelection] = useState<AllowedDataset>();
 
   useEffect(() => {
@@ -48,12 +62,12 @@ const ChooseFile: NextPage = () => {
 
   useEffect(() => {
     const queryFile =
-      userDatasets.find((f) => f.fileID === router.query.fileID) ||
-      builtInDatasets.find((f) => f.fileID === router.query.fileID);
+      userDatasets.find((f) => f.fileID === fileID) ||
+      builtInDatasets.find((f) => f.fileID === fileID);
     if (queryFile) {
       setSelection(queryFile);
     }
-  }, [router.query.fileID]);
+  }, [fileID]);
 
   const userFiles = (
     <Collapse
@@ -145,6 +159,16 @@ const ChooseFile: NextPage = () => {
       )}
     </WizardLayout>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { data: defaultAlgorithmConfig } = await client.query({
+    query: GET_ALGORITHMS_CONFIG,
+  });
+
+  return {
+    props: { defaultAlgorithmConfig },
+  };
 };
 
 export default ChooseFile;

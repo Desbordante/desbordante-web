@@ -1,11 +1,7 @@
 import { FC, useEffect } from 'react';
 import styles from './Loader.module.scss';
-import serverError from '@assets/icons/server-error.svg';
-import usersQueue from '@assets/icons/users-queue.svg';
-import checkFill from '@assets/icons/check-fill.svg';
-import resourcesLimit from '@assets/icons/resources-limit.svg';
 import Image from 'next/image';
-import { ApolloError, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 import {
   getTaskInfo,
@@ -18,7 +14,6 @@ import getStatusDetails from './StatusDetails';
 type Props = {
   taskID: string;
 };
-
 
 const Loader: FC<Props> = ({ taskID }) => {
   const { data, error, startPolling } = useQuery<
@@ -33,13 +28,14 @@ const Loader: FC<Props> = ({ taskID }) => {
     const state = data?.taskInfo.state;
 
     if (
-      state?.__typename === 'TaskState' &&
+      state &&
+      'processStatus' in state &&
       state.processStatus === 'COMPLETED'
     ) {
       setTimeout(
         () =>
           router.push({
-            pathname: 'reports/charts',
+            pathname: 'reports/dependencies',
             query: {
               taskID,
             },

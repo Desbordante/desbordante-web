@@ -1,28 +1,35 @@
-import { onError } from "apollo-link-error";
-import { fromPromise } from "apollo-link";
-import { setContext } from "@apollo/client/link/context";
-import { v4 as uuidv4 } from "uuid";
+import { onError } from 'apollo-link-error';
+import { fromPromise } from 'apollo-link';
+import { setContext } from '@apollo/client/link/context';
+import { v4 as uuidv4 } from 'uuid';
 import {
   getAccessToken,
   getRefreshToken,
   removeTokenPair,
   removeUser,
   saveTokenPair,
-} from "@utils/tokens";
-import { TokenPair } from "types/auth";
+} from '@utils/tokens';
+import { TokenPair } from 'types/auth';
 import { graphQLEndpoint } from '@constants/endpoints';
 
+const generateServerSideInfo = () => {
+  return Buffer.from(JSON.stringify(SSR_DEVICE_INFO)).toString('base64');
+};
+
 export function generateRequestHeaders() {
-  const deviceID = localStorage.getItem("deviceID") || "";
-  const deviceInfo = localStorage.getItem("deviceInfo") || "";
-  const userID = localStorage.getItem("userID") || "";
+  const inBrowser = typeof window !== 'undefined';
+  const deviceID = (inBrowser && localStorage.getItem('deviceID')) || '1';
+  const deviceInfo =
+    (inBrowser && localStorage.getItem('deviceInfo')) ||
+    generateServerSideInfo();
+  const userID = (inBrowser && localStorage.getItem('userID')) || 'server';
   const randomID = uuidv4();
 
   const requestId = `${deviceID}:${userID}:${randomID}`;
 
   return {
-    "X-Request-ID": requestId,
-    "X-Device": deviceInfo,
+    'X-Request-ID': requestId,
+    'X-Device': deviceInfo,
   };
 }
 
@@ -34,7 +41,7 @@ export const requestIdLink = setContext((operation, previousContext) => {
     ...generateRequestHeaders(),
   };
 
-  if (getAccessToken()) {
+  if (typeof window !== 'undefined' && getAccessToken()) {
     newHeaders.Authorization = `Bearer ${getAccessToken()}`;
   }
 
@@ -54,11 +61,11 @@ const resolvePendingRequests = () => {
 
 const getNewTokens = () => {
   return fetch(graphQLEndpoint, {
-    method: "POST",
+    method: 'POST',
     headers: {
       ...generateRequestHeaders(),
-      accept: "*/*",
-      "content-type": "application/json",
+      accept: '*/*',
+      'content-type': 'application/json',
     },
     body: JSON.stringify({
       query: `mutation refresh($refreshToken: String!) {
@@ -82,8 +89,8 @@ export const errorLink = onError(
       // eslint-disable-next-line no-restricted-syntax
       for (const err of graphQLErrors) {
         switch (err.extensions.code) {
-          case "TOKEN_EXPIRED":
-          case "UNAUTHENTICATED":
+          case 'TOKEN_EXPIRED':
+          case 'UNAUTHENTICATED':
             // eslint-disable-next-line no-case-declarations
             let forward$;
 
@@ -98,7 +105,7 @@ export const errorLink = onError(
                   })
                   // eslint-disable-next-line @typescript-eslint/no-loop-func
                   .catch((error) => {
-                    console.error("Received an error! Logging out: ", error);
+                    console.error('Received an error! Logging out: ', error);
                     pendingRequests = [];
                     removeUser();
                     removeTokenPair();
@@ -128,3 +135,16 @@ export const errorLink = onError(
     }
   }
 );
+
+const SSR_DEVICE_INFO = {
+  deviceID: 'server',
+  userAgent: 'Mozilla/5.0',
+  browser: 'Chrome',
+  engine: 'Blink',
+  os: '',
+  osVersion: '',
+  screen: '',
+  plugins: '',
+  timeZone: '+02',
+  language: 'en-US',
+};

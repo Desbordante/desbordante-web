@@ -1,0 +1,80 @@
+import { GetMainTaskDeps } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
+import _ from 'lodash';
+import { Column } from '@graphql/operations/fragments/__generated__/Column';
+import { PrimitiveType } from 'types/globalTypes';
+import { FD } from '@graphql/operations/fragments/__generated__/FD';
+import { CFD } from '@graphql/operations/fragments/__generated__/CFD';
+import { AR } from '@graphql/operations/fragments/__generated__/AR';
+
+export type GeneralColumn = {
+  column: Column;
+  pattern?: string;
+};
+
+type FilteredDeps = {
+  filteredDepsAmount: number;
+  FDs: [FD];
+  CFDs: [CFD];
+  ARs: [AR];
+  TypoFDs: [FD];
+  TypoClusters: [FD];
+};
+
+const getFilteredDeps: (
+  data: GetMainTaskDeps,
+  type: PrimitiveType
+) => FilteredDeps = (data, type) => {
+  const { result } = data.taskInfo.data;
+  if (!result || result.__typename !== (`${type}TaskResult` as const)) {
+    return [];
+  }
+  // @ts-ignore
+  return result.filteredDeps;
+};
+
+export const convertDependencies: (
+  primitive?: PrimitiveType,
+  shownData?: GetMainTaskDeps
+) => {
+  confidence?: any;
+  rhs: GeneralColumn[];
+  lhs: GeneralColumn[];
+}[] = (primitive, shownData) => {
+  if (!shownData || !primitive) return [];
+
+  const deps = getFilteredDeps(shownData, primitive);
+
+  if (primitive === PrimitiveType.FD) {
+    return deps.FDs.map(({ lhs, rhs }) => ({
+      rhs: [{ column: rhs }],
+      lhs: lhs.map((column) => ({ column })),
+    }));
+  }
+
+  if (primitive === PrimitiveType.TypoFD) {
+    return deps.TypoFDs.map(({ rhs, lhs }) => ({
+      rhs: [{ column: rhs }],
+      lhs: lhs.map((column) => ({ column })),
+    }));
+  }
+
+  if (primitive === PrimitiveType.CFD) {
+    return deps.CFDs.map(({ rhs, lhs }) => ({
+      rhs: [rhs],
+      lhs: lhs,
+    }));
+  }
+
+  if (primitive === PrimitiveType.AR) {
+    return deps.ARs.map(({ rhs, lhs, confidence }) => ({
+      confidence,
+      rhs: rhs.map((name, index) => ({
+        column: { __typename: 'Column', name, index },
+      })),
+      lhs: lhs.map((name, index) => ({
+        column: { __typename: 'Column', name, index },
+      })),
+    }));
+  }
+  return [];
+};

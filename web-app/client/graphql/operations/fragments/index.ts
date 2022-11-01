@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const COLUMN = gql`
   fragment Column on Column {
@@ -90,4 +90,4 @@ export const Item = gql`
     }
     pattern
   }
-`
+`;

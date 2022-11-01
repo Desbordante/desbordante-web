@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import _ from 'lodash';
 import Button from '@components/Button';
 import ideaIcon from '@assets/icons/idea.svg';
-import { WizardLayout } from '@components/WizardLayout/WizardLayout';
+import WizardLayout from '@components/WizardLayout';
 import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
 import { Select } from '@components/Inputs';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
@@ -32,6 +32,7 @@ import {
 } from '@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing';
 import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations/chooseTask';
 import { ErrorContext } from '@components/ErrorContext';
+import { useErrorContext } from '@hooks/useErrorContext';
 
 type FDForm = {
   algorithmName: any;
@@ -56,11 +57,12 @@ type TypoFDForm = {
   algorithmName: any;
   maxLHS: number;
   errorThreshold: number;
-  minConfidence: number;
+  // minConfidence: number;
   // minSupport: number;
   threadsCount: number;
   defaultRadius: number;
   defaultRatio: number;
+  metric: any;
 };
 type AlgorithmConfig = FDForm | CFDForm | ARForm | TypoFDForm;
 type AlgorithmProps = FDForm & CFDForm & ARForm & TypoFDForm;
@@ -80,7 +82,7 @@ const defaultValuesByPrimitive = {
   [MainPrimitiveType.AR]: {
     algorithmName: 'Apriori',
     minConfidence: 0,
-    minSupportAR: 1,
+    minSupportAR: 0,
   } as ARForm,
   [MainPrimitiveType.CFD]: {
     algorithmName: 'CTane',
@@ -91,13 +93,14 @@ const defaultValuesByPrimitive = {
   [MainPrimitiveType.TypoFD]: {
     preciseAlgorithm: 'FastFDs',
     approximateAlgorithm: 'Pyro',
-    algorithmName: 'Pyro',
+    algorithmName: 'Typo Miner',
     maxLHS: 1,
     errorThreshold: 1,
-    minConfidence: 1,
+    // minConfidence: 1,
     threadsCount: 1,
-    defaultRadius: 0,
+    defaultRadius: 1,
     defaultRatio: 0,
+    metric: 'MODULUS_OF_DIFFERENCE',
   } as TypoFDForm,
 };
 type QueryProps = {
@@ -136,7 +139,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   formParams,
 }) => {
   const router = useRouter();
-  const { showError } = useContext(ErrorContext)!;
+  const { showError } = useErrorContext();
   const {
     handleSubmit,
     reset,
@@ -336,7 +339,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         minSupportAR: ({ field }) => (
           <NumberSlider
             {...field}
-            sliderProps={{ min: 1, max: 16, step: 1 }}
+            sliderProps={{ min: 0, max: 1, step: 1e-6 }}
             label="Minimum support"
           />
         ),

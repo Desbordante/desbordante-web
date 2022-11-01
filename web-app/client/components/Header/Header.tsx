@@ -1,7 +1,9 @@
-import { useContext } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import classNames from 'classnames';
 import Button from '@components/Button';
+import { useBrowserEffect } from 'hooks/useBrowserEffect';
 import { AuthContext } from '@components/AuthContext';
 import styles from './Header.module.scss';
 import logo from '@public/logo.svg';
@@ -9,8 +11,27 @@ import logo from '@public/logo.svg';
 const Header = () => {
   const { user, setIsSignUpShown, setIsLogInShown, signOut } =
     useContext(AuthContext)!;
+
+  const [headerBackground, setHeaderBackground] = useState(false);
+
+  useBrowserEffect(() => {
+    const checkScroll = () => {
+      setHeaderBackground(window.pageYOffset > 100);
+    };
+
+    window.addEventListener('scroll', checkScroll);
+    return () => {
+      window.removeEventListener('scroll', checkScroll);
+    };
+  }, []);
+
   return (
-    <header className={styles.header}>
+    <header
+      className={classNames(
+        styles.header,
+        headerBackground && styles.background
+      )}
+    >
       <Link href="/">
         <div className={styles.brand}>
           <Image

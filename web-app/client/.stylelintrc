@@ -44,7 +44,12 @@
     "property-no-unknown": [
       true,
       {
-        "ignoreProperties": ["railColor"]
+        "ignoreProperties": [
+          "railColor",
+          "standardSectionColor",
+          "otherSectionColor",
+          "hoverSectionColor"
+        ]
       }
     ]
   }

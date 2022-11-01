@@ -1,0 +1,26 @@
+@import "styles/common";
+
+.attr {
+  border-radius: 8px;
+  padding: 8px 18px;
+  text-align: center;
+  background: $black-10;
+  color: $black-75;
+}
+
+.row {
+  gap: 16px;
+  display: flex;
+  margin-top: 10px;
+  height: 35px;
+  cursor: pointer;
+}
+
+.row.selectedRow {
+  .attr {
+    padding: 6px 16px;
+    border: 2px solid $primary-0;
+    background: $secondary-1;
+    color: $black;
+  }
+}

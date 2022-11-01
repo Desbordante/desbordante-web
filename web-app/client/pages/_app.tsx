@@ -1,4 +1,3 @@
-import type { AppProps } from 'next/app';
 import { ApolloProvider } from '@apollo/client';
 import Layout from '@components/Layout';
 import GoogleAnalytics from '@components/GoogleAnalytics';
@@ -8,16 +7,17 @@ import ClientOnly from '@components/ClientOnly';
 import { AuthContextProvider } from '@components/AuthContext';
 import { ErrorContextProvider } from '@components/ErrorContext';
 import '@styles/globals.scss';
+import { AppPropsWithLayout } from 'types/pageWithLayout';
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  const getLayout = Component.getLayout ?? ((page) => page);
+
   return (
     <ApolloProvider client={client}>
       <ClientOnly>
         <ErrorContextProvider>
           <AuthContextProvider>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
+            <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
           </AuthContextProvider>
         </ErrorContextProvider>
       </ClientOnly>

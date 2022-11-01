@@ -1,12 +1,15 @@
 import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
 import { createUploadLink } from 'apollo-upload-client';
 
-import { graphQLEndpoint } from '@constants/endpoints';
+import { graphQLEndpoint, graphQLLocalEndpoint } from '@constants/endpoints';
 import { errorLink, requestIdLink } from '@graphql/context';
 import { customFetch } from '@graphql/customFetch';
 
+const isServer = typeof window === 'undefined';
+
 const client = new ApolloClient({
-  uri: graphQLEndpoint,
+  ssrMode: isServer,
+  uri: isServer ? graphQLLocalEndpoint : graphQLEndpoint,
   cache: new InMemoryCache(),
   link: ApolloLink.from([
     //@ts-ignore
