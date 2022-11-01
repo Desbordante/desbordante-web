@@ -7,10 +7,10 @@ module.exports = {
   reactStrictMode: true,
   swcMinify: true,
   eslint: {
-    dirs: ['components', 'constants', 'hooks', 'pages', 'types', 'utils'],
+    dirs: ['src'],
   },
   sassOptions: {
-    includePaths: [path.join(__dirname, 'styles')],
+    includePaths: [path.join(__dirname, 'src')],
   },
   webpack: (config) => {
     config.plugins.push(new StylelintPlugin());

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import classNames from 'classnames';
 import Button from '@components/Button';
-import { useBrowserEffect } from 'hooks/useBrowserEffect';
+import { useBrowserEffect } from '@hooks/useBrowserEffect';
 import { AuthContext } from '@components/AuthContext';
 import styles from './Header.module.scss';
 import logo from '@public/logo.svg';

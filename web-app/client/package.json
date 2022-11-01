@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "download-schema": "apollo service:download --endpoint=http://localhost:5000/graphql --header=\"X-Device: eyJkZXZpY2VJRCI6InRlc3QiLCJ1c2VyQWdlbnQiOiJNb3ppbGxhLzUuMCAoTWFjaW50b3NoOyBJbnRlbCBNYWMgT1MgWCAxMF8xNV83KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMTAzLjAuMC4wIFNhZmFyaS81MzcuMzYiLCJicm93c2VyIjoiQ2hyb21lIiwiZW5naW5lIjoiQmxpbmsiLCJvcyI6Ik1hYyBPUyIsIm9zVmVyc2lvbiI6IjEwLjE1LjciLCJzY3JlZW4iOiJDdXJyZW50IFJlc29sdXRpb246IDE0NDB4OTAwLCBBdmFpbGFibGUgUmVzb2x1dGlvbjogMTQ0MHg3OTAsIENvbG9yIERlcHRoOiAyNCwgRGV2aWNlIFhEUEk6IHVuZGVmaW5lZCwgRGV2aWNlIFlEUEk6IHVuZGVmaW5lZCIsInBsdWdpbnMiOiJQREYgVmlld2VyLCBDaHJvbWUgUERGIFZpZXdlciwgQ2hyb21pdW0gUERGIFZpZXdlciwgTWljcm9zb2Z0IEVkZ2UgUERGIFZpZXdlciwgV2ViS2l0IGJ1aWx0LWluIFBERiIsInRpbWVab25lIjoiKzAyIiwibGFuZ3VhZ2UiOiJydS1SVSJ9\" --header=\"X-Request-Id: test\"",
-    "codegen": "apollo codegen:generate --globalTypesFile=types/globalTypes.ts --localSchemaFile=./schema.json --target=typescript --tagName=gql",
+    "codegen": "apollo codegen:generate --globalTypesFile=src/types/globalTypes.ts --localSchemaFile=./schema.json --target=typescript --tagName=gql",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
