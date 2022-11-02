@@ -13,7 +13,8 @@ module.exports = {
     includePaths: [path.join(__dirname, 'src')],
   },
   webpack: (config) => {
-    config.plugins.push(new StylelintPlugin());
+    // TODO: figure out why it breaks path aliases
+    // config.plugins.push(new StylelintPlugin());
     return config;
   },
 };
