@@ -5,15 +5,7 @@ import resourcesLimit from '@assets/icons/resources-limit.svg';
 import { ApolloError } from '@apollo/client';
 import { getTaskInfo } from '@graphql/operations/queries/__generated__/getTaskInfo';
 
-type Status = {
-  icon: any;
-  label: string;
-  className: string;
-  description: string;
-  isAnimated?: boolean;
-};
-
-const getStatusDetails = (
+const getTaskStatusData = (
   error: ApolloError | undefined,
   taskInfo: getTaskInfo | undefined
 ) => {
@@ -90,4 +82,4 @@ const getStatusDetails = (
   };
 };
 
-export default getStatusDetails;
+export default getTaskStatusData;

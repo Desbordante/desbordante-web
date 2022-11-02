@@ -1,6 +1,6 @@
 {
+  "extends": "./tsconfig.aliases.json",
   "compilerOptions": {
-    "baseUrl": "./",
     "target": "es5",
     "lib": [
       "dom",
@@ -19,40 +19,9 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "paths": {
-      "@public/*": [
-        "public/*"
-      ],
-      "@assets/*": [
-        "src/assets/*"
-      ],
-      "@components/*": [
-        "src/components/*"
-      ],
-      "@constants/*": [
-        "src/constants/*"
-      ],
-      "@graphql/*": [
-        "src/graphql/*"
-      ],
-      "@hooks/*": [
-        "src/hooks/*"
-      ],
-      "@pages/*": [
-        "src/pages/*"
-      ],
-      "@styles/*": [
-        "src/styles/*"
-      ],
-      "@utils/*": [
-        "src/utils/*"
-      ],
-      "types/*": [
-        "src/types/*"
-      ]
-    }
   },
   "include": [
+    "src",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
