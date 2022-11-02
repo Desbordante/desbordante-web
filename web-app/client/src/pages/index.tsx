@@ -1,12 +1,12 @@
 import type { NextPage } from 'next';
-import Button from '@components/Button';
-import ExternalLink from '@components/ExternalLink';
-import styles from '@styles/Home.module.scss';
+import Button from '../components/Button';
+import ExternalLink from '../components/ExternalLink';
+import styles from '../styles/Home.module.scss';
 import plexus from '@public/plexus.jpg';
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
 
 const Home: NextPage = () => {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className={styles.home}>
@@ -22,7 +22,12 @@ const Home: NextPage = () => {
         <h1 className={styles.name_main}>Desbordante</h1>
         <h6 className={styles.description}>Open-source data profiling tool</h6>
         <div className={styles.links}>
-          <Button variant="gradient" onClick={() =>     router.push("/create-task/choose-file")}>Get Started</Button>
+          <Button
+            variant="gradient"
+            onClick={() => router.push('/create-task/choose-file')}
+          >
+            Get Started
+          </Button>
 
           <ExternalLink href="https://github.com/Mstrutov/Desbordante">
             GitHub

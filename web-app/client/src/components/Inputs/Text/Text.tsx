@@ -3,6 +3,7 @@ import {
   ForwardRefRenderFunction,
   HTMLProps,
   ReactNode,
+  useId,
   useState,
 } from 'react';
 import cn from 'classnames';
@@ -20,6 +21,8 @@ const Text: ForwardRefRenderFunction<HTMLInputElement, Props> = (
   ref
 ) => {
   const [isFocused, setIsFocused] = useState(false);
+  const uniqueId = useId();
+  const inputId = id || uniqueId;
 
   return (
     <div
@@ -30,7 +33,7 @@ const Text: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       )}
     >
       <div className={styles.top}>
-        {label && <label htmlFor={id}>{label}</label>}
+        {label && <label htmlFor={inputId}>{label}</label>}
         {tooltip && <Tooltip>{tooltip}</Tooltip>}
       </div>
       <div
@@ -45,7 +48,7 @@ const Text: ForwardRefRenderFunction<HTMLInputElement, Props> = (
           onBlur={() => setIsFocused(false)}
           type="text"
           ref={ref}
-          id={id}
+          id={inputId}
           className={styles.input}
           {...props}
         />

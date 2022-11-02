@@ -1,8 +1,7 @@
-import { v4 as UUIDv4 } from "uuid";
+import { v4 as UUIDv4 } from 'uuid';
 
-const generateDeviceInfo = () => {
-  const { ClientJS } = require("clientjs");
-
+const generateDeviceInfo = async () => {
+  const { ClientJS } = await import('clientjs');
   const client = new ClientJS();
   const deviceAttributes = {
     deviceID: `${UUIDv4()}:${client.getFingerprint()}`,
@@ -24,13 +23,13 @@ const generateDeviceInfo = () => {
   return { deviceID, deviceInfoBase64: window.btoa(deviceInfo) };
 };
 
-export default function setupDeviceInfo() {
+export default async function setupDeviceInfo() {
   if (
-    !localStorage.getItem("deviceInfo") ||
-    !localStorage.getItem("deviceID")
+    !localStorage.getItem('deviceInfo') ||
+    !localStorage.getItem('deviceID')
   ) {
-    const { deviceID, deviceInfoBase64 } = generateDeviceInfo();
-    localStorage.setItem("deviceID", deviceID);
-    localStorage.setItem("deviceInfo", deviceInfoBase64);
+    const { deviceID, deviceInfoBase64 } = await generateDeviceInfo();
+    localStorage.setItem('deviceID', deviceID);
+    localStorage.setItem('deviceInfo', deviceInfoBase64);
   }
 }

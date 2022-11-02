@@ -37,3 +37,4 @@ yarn-error.log*
 #apollo
 __generated__
 schema.json
+globalTypes.ts
