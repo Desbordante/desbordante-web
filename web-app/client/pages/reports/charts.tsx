@@ -8,7 +8,7 @@ import { GET_PIE_CHART_DATA } from '@graphql/operations/queries/getPieChartData'
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
 import LayeredChart from '@components/Chart/LayeredChart';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
-import { NextPageWithLayout } from '@pages/_app';
+import { NextPageWithLayout } from 'types/pageWithLayout';
 import styles from 'styles/Charts.module.scss';
 
 const getChartData = (data?: getPieChartData) => {
