@@ -1,0 +1,71 @@
+@import "styles/common";
+
+.card {
+  background: $white-25;
+  border: 1px solid $black-25;
+  border-radius: 5px;
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  flex-direction: column;
+}
+
+.name {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+
+  span {
+    @include paragraph;
+  }
+
+  h6 {
+    color: $primary-0;
+    font-size: 27px;
+  }
+}
+
+.header {
+  display: flex;
+  gap: 24px;
+  align-items: baseline;
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+}
+
+.stats-header {
+  margin-bottom: 8px;
+  color: $primary-0;
+}
+
+.more-stats {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+
+  & > * {
+    flex: 1;
+  }
+}
+
+.details-button {
+  padding: 8px 16px;
+  margin-left: auto;
+  color: $primary-0;
+  border: none;
+  background: $primary-10;
+}
