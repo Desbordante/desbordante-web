@@ -13,13 +13,13 @@ namespace algos {
 
 BETTER_ENUM(AlgoMiningType, char,
 #if 1
-    fd = 0, 
+    fd = 0,
     cfd,
     typos,
     typofds,
     clusters,
-    ar, 
-    metric, 
+    ar,
+    metric,
     stats
 #else
     fd = 0, /* Functional dependency mining */
@@ -47,6 +47,7 @@ BETTER_ENUM(Algo, char,
     pyro,
     tane,
     fun,
+    hyfd,
     aidfd,
 
     /* Conditional functional dependency mining algorithms */
@@ -66,7 +67,8 @@ BETTER_ENUM(Algo, char,
 );
 
 using StdParamsMap = std::unordered_map<std::string, boost::any>;
-using AlgorithmTypesTuple = std::tuple<Depminer, DFD, FastFDs, FDep, Fd_mine, Pyro, Tane, FUN, Aid>;
+using AlgorithmTypesTuple =
+        std::tuple<Depminer, DFD, FastFDs, FDep, Fd_mine, Pyro, Tane, FUN, hyfd::HyFD, Aid>;
 using ArAlgorithmTuplesType = std::tuple<Apriori>;
 using CfdAlgorithm = std::tuple<CTane>;
 
@@ -120,13 +122,12 @@ T ExtractParamFromMap(ParamsMap& params, std::string const& param_name) {
 template <typename ParamsMap>
 FDAlgorithm::Config CreateFDAlgorithmConfigFromMap(ParamsMap params) {
     FDAlgorithm::Config c;
-
-    c.data = ExtractParamFromMap<std::filesystem::path>(params, "data");
-    c.separator = ExtractParamFromMap<char>(params, "separator");
-    c.has_header = ExtractParamFromMap<bool>(params, "has_header");
-    c.is_null_equal_null = ExtractParamFromMap<bool>(params, "is_null_equal_null");
-    c.max_lhs = ExtractParamFromMap<unsigned int>(params, "max_lhs");
-    c.parallelism = ExtractParamFromMap<ushort>(params, "threads");
+    c.data = ExtractParamFromMap<std::filesystem::path>(params, posr::kData);
+    c.separator = ExtractParamFromMap<char>(params, posr::kSeparatorConfig);
+    c.has_header = ExtractParamFromMap<bool>(params, posr::kHasHeader);
+    c.is_null_equal_null = ExtractParamFromMap<bool>(params, posr::kEqualNulls);
+    c.max_lhs = ExtractParamFromMap<unsigned int>(params, posr::kMaximumLhs);
+    c.parallelism = ExtractParamFromMap<ushort>(params, posr::kThreads);
 
     /* Is it correct to insert all specified parameters into the algorithm config, and not just the
      * necessary ones? It is definitely simpler, so for now leaving it like this
@@ -288,7 +289,7 @@ std::unique_ptr<Primitive> CreateAlgorithmInstance(AlgoMiningType const task, Al
     case AlgoMiningType::typos:
         return details::CreateTypoMinerInstance(algo, std::forward<ParamsMap>(params));
     case AlgoMiningType::ar:
-        return details::CreateArAlgorithmInstance(/*algo, */std::forward<ParamsMap>(params));
+        return details::CreateArAlgorithmInstance(/*algo, */ std::forward<ParamsMap>(params));
     case AlgoMiningType::cfd:
         return details::CreateCFDAlgorithmInstance(algo, std::forward<ParamsMap>(params));
     case AlgoMiningType::metric:
