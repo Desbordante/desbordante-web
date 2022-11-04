@@ -8,6 +8,10 @@
   display: flex;
   gap: 24px;
   flex-direction: column;
+
+  @media (max-width: 960px) {
+    padding: 16px;
+  }
 }
 
 .name {
@@ -29,6 +33,10 @@
   display: flex;
   gap: 24px;
   align-items: baseline;
+
+  @media (max-width: 960px) {
+    justify-content: space-between;
+  }
 }
 
 .badges {
@@ -44,7 +52,8 @@
 
 .stats {
   display: flex;
-  gap: 32px;
+  gap: 16px 32px;
+  flex-wrap: wrap;
 }
 
 .stats-header {
@@ -54,11 +63,19 @@
 
 .more-stats {
   display: flex;
-  gap: 32px;
+  gap: 16px 32px;
   flex-wrap: wrap;
 
   & > * {
     flex: 1;
+  }
+
+  @media (max-width: 960px) {
+    flex-direction: column;
+
+    .stats {
+      justify-content: space-between;
+    }
   }
 }
 

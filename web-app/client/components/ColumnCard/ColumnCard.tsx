@@ -1,7 +1,7 @@
 import { FC, useReducer } from "react";
 import styles from "./ColumnCard.module.scss";
 import { Badge } from "@components/Badge";
-import { Statistic } from "@components/Statistic";
+import { Statistic, StatisticSize } from "@components/Statistic";
 import { getFileStats_fileStats } from "@graphql/operations/queries/__generated__/getFileStats";
 import Button from "@components/Button";
 import chevronDown from "@assets/icons/chevron-down.svg";
@@ -14,7 +14,7 @@ type ColumnCardProps = {
 
 type StatsBlockProps = {
   stats: Array<{ name: string; value: number | string | null }>;
-  size?: "big" | "compact";
+  size?: StatisticSize;
   header?: string;
 };
 
