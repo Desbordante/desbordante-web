@@ -28,3 +28,4 @@ dist
 src/db/test
 src/graphql/types/types.d.ts
 graphql.schema.json
+__generated__
