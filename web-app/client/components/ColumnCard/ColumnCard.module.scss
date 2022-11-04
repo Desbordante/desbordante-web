@@ -69,3 +69,7 @@
   border: none;
   background: $primary-10;
 }
+
+.card :global(.ReactCollapse--collapse) {
+  transition: height 0.3s;
+}
