@@ -6,6 +6,7 @@ import { getFileStats_fileStats } from "@graphql/operations/queries/__generated_
 import Button from "@components/Button";
 import chevronDown from "@assets/icons/chevron-down.svg";
 import chevronUp from "@assets/icons/chevron-up.svg";
+import { Collapse } from "react-collapse";
 
 type ColumnCardProps = {
   column: getFileStats_fileStats;
@@ -21,21 +22,25 @@ const StatsBlock: FC<StatsBlockProps> = ({
   stats,
   size,
   header,
-}: StatsBlockProps) => (
-  <article>
-    {header && <p className={styles["stats-header"]}>{header}</p>}
-    <div className={styles["stats"]}>
-      {stats.map(
-        (item) =>
-          item.value && (
-            <Statistic header={item.name} size={size}>
-              {item.value}
-            </Statistic>
-          )
-      )}
-    </div>
-  </article>
-);
+}: StatsBlockProps) => {
+  if (stats.every((item) => item.value === null)) return null;
+
+  return (
+    <article>
+      {header && <p className={styles["stats-header"]}>{header}</p>}
+      <div className={styles["stats"]}>
+        {stats.map(
+          (item) =>
+            item.value && (
+              <Statistic header={item.name} size={size}>
+                {item.value}
+              </Statistic>
+            )
+        )}
+      </div>
+    </article>
+  );
+};
 
 export const ColumnCard: FC<ColumnCardProps> = ({
   column,
@@ -68,7 +73,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
           ]}
           size="big"
         />
-        {showDetails && (
+        <Collapse isOpened={showDetails}>
           <div className={styles["more-stats"]}>
             <StatsBlock
               stats={[
@@ -89,7 +94,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
               header="Descriptive stats"
             />
           </div>
-        )}
+        </Collapse>
       </div>
 
       <Button
