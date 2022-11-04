@@ -2,8 +2,10 @@ import { FC, HTMLProps } from "react";
 import styles from "./Badge.module.scss";
 import classNames from "classnames";
 
+export type BadgeSize = "primary" | "secondary";
+
 type BadgeProps = {
-  mode?: "primary" | "secondary";
+  mode?: BadgeSize;
 } & HTMLProps<HTMLDivElement>;
 
 export const Badge: FC<BadgeProps> = ({
