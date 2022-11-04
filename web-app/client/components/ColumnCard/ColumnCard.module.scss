@@ -31,17 +31,19 @@
 
 .header {
   display: flex;
-  gap: 24px;
-  align-items: baseline;
-
-  @media (max-width: 960px) {
-    justify-content: space-between;
-  }
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .badges {
   display: flex;
   gap: 8px;
+}
+
+.name-with-badges {
+  display: flex;
+  gap: 16px 24px;
+  flex-wrap: wrap;
 }
 
 .content {
@@ -50,15 +52,43 @@
   gap: 16px;
 }
 
-.stats {
+.stats-blocks {
   display: flex;
   gap: 16px 32px;
   flex-wrap: wrap;
 }
 
+.stats-table {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  th {
+    text-transform: capitalize;
+  }
+
+  tr {
+    display: flex;
+    gap: 32px;
+  }
+
+  td, th {
+    @include paragraph;
+    flex: 1;
+    text-align: left;
+  }
+}
+
 .stats-header {
   margin-bottom: 8px;
   color: $primary-0;
+}
+
+.basic-stats {
+  display: flex;
+  gap: 16px 32px;
+  flex-wrap: wrap;
 }
 
 .more-stats {
@@ -72,21 +102,76 @@
 
   @media (max-width: 960px) {
     flex-direction: column;
+    flex-wrap: initial;
 
-    .stats {
+    .stats-blocks {
       justify-content: space-between;
     }
   }
 }
 
+%secondary {
+  color: $primary-0;
+  background: $secondary-2;
+  border: none;
+
+  &:focus {
+    border: none;
+    filter: none;
+    box-shadow: 0 0 8px 0 $info;
+  }
+}
+
 .details-button {
+  @extend %secondary;
   padding: 8px 16px;
   margin-left: auto;
-  color: $primary-0;
-  border: none;
-  background: $primary-10;
+  display: flex;
+
+  & > :first-child {
+    display: flex;
+  }
 }
 
 .card :global(.ReactCollapse--collapse) {
   transition: height 0.3s;
+}
+
+.mode-button {
+  @extend %secondary;
+  padding: 12px;
+  min-width: initial;
+
+  * {
+    margin: 0;
+    display: flex;
+  }
+
+  @media (max-width: 960px) {
+    padding: 8px;
+  }
+}
+
+.table-mode {
+  .basic-stats {
+    gap: 4px 32px;
+
+    * {
+      flex: 1;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .basic-stats {
+      flex-direction: column;
+    }
+  }
+
+  @media (min-width: 961px) {
+    .basic-stats, .more-stats {
+      & > :first-child {
+        border-right: 1px solid $black-50;
+      }
+    }
+  }
 }
