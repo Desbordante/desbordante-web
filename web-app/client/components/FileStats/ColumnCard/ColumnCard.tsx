@@ -5,12 +5,11 @@ import { getFileStats_fileStats } from "@graphql/operations/queries/__generated_
 import Button from "@components/Button";
 import chevronDown from "@assets/icons/chevron-down.svg";
 import chevronUp from "@assets/icons/chevron-up.svg";
-import grid from "@assets/icons/grid.svg";
-import list from "@assets/icons/list.svg";
 import { Collapse } from "react-collapse";
 import classNames from "classnames";
 import { Paper } from "@components/FileStats/Paper";
 import { StatsBlock, StatsMode } from "@components/FileStats/StatsBlock";
+import { ModeButton } from "@components/FileStats/ModeButton";
 
 type ColumnCardProps = {
   column: getFileStats_fileStats;
@@ -41,12 +40,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
           {column.isCategorical && <Badge>Categorical</Badge>}
         </div>
       </div>
-      <Button
-        variant="secondary"
-        icon={mode === StatsMode.Blocks ? grid : list}
-        className={styles["mode-button"]}
-        onClick={toggleMode}
-      />
+      <ModeButton mode={mode} onClick={toggleMode} />
     </div>
   );
 

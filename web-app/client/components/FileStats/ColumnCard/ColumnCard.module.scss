@@ -65,20 +65,7 @@
   }
 }
 
-%secondary {
-  color: $primary-0;
-  background: $secondary-2;
-  border: none;
-
-  &:focus {
-    border: none;
-    filter: none;
-    box-shadow: 0 0 8px 0 $info;
-  }
-}
-
-.details-button {
-  @extend %secondary;
+button.details-button {
   padding: 8px 16px;
   margin-left: auto;
   display: flex;
@@ -90,21 +77,6 @@
 
 .card :global(.ReactCollapse--collapse) {
   transition: height 0.3s;
-}
-
-.mode-button {
-  @extend %secondary;
-  padding: 12px;
-  min-width: initial;
-
-  * {
-    margin: 0;
-    display: flex;
-  }
-
-  @media (max-width: 960px) {
-    padding: 8px;
-  }
 }
 
 .table-mode {
