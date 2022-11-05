@@ -2,7 +2,7 @@ import { FC, HTMLProps } from "react";
 import styles from "./Statistic.module.scss";
 import classNames from "classnames";
 
-export type StatisticSize = "compact" | "big";
+export type StatisticSize = "sm" | "md" | "lg" | "xl";
 
 type StatisticProps = {
   size?: StatisticSize;

@@ -1,0 +1,23 @@
+@import "styles/common";
+
+.wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  @include paragraph;
+
+  th {
+    text-transform: capitalize;
+  }
+
+  tr {
+    display: flex;
+    gap: 32px;
+  }
+
+  td, th {
+    flex: 1;
+  }
+}
