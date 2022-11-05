@@ -22,7 +22,7 @@ const FileStats: NextPage = () => {
           ]}
         />
       </Group>
-      <Group header="Columns">
+      <Group header="Columns" className={styles.columns}>
         {[...Array(10)].map((value, index) => (
           <ColumnCard
             key={index}
