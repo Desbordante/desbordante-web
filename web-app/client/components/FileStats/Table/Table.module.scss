@@ -8,10 +8,6 @@
   text-align: left;
   @include paragraph;
 
-  th {
-    text-transform: capitalize;
-  }
-
   tr {
     display: flex;
     gap: 32px;
