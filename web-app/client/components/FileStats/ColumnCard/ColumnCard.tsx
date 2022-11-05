@@ -50,16 +50,16 @@ export const ColumnCard: FC<ColumnCardProps> = ({
         <StatsBlock
           tableMode={tableMode}
           stats={[
-            { name: "distinct", value: column.distinct },
-            { name: "count", value: column.count },
+            { name: "Distinct", value: column.distinct },
+            { name: "Count", value: column.count },
           ]}
           size="lg"
         />
         <StatsBlock
           tableMode={tableMode}
           stats={[
-            { name: "avg", value: column.avg },
-            { name: "std", value: column.STD },
+            { name: "Avg", value: column.avg },
+            { name: "Std", value: column.STD },
           ]}
           size="lg"
         />
@@ -69,20 +69,20 @@ export const ColumnCard: FC<ColumnCardProps> = ({
           <StatsBlock
             tableMode={tableMode}
             stats={[
-              { name: "min", value: column.min },
-              { name: "max", value: column.max },
-              { name: "quantile 25", value: column.quantile25 },
-              { name: "quantile 50", value: column.quantile50 },
-              { name: "quantile 75", value: column.quantile75 },
+              { name: "Min", value: column.min },
+              { name: "Max", value: column.max },
+              { name: "Quantile 25", value: column.quantile25 },
+              { name: "Quantile 50", value: column.quantile50 },
+              { name: "Quantile 75", value: column.quantile75 },
             ]}
             header="Quantile stats"
           />
           <StatsBlock
             tableMode={tableMode}
             stats={[
-              { name: "skewness", value: column.skewness },
-              { name: "kurtosis", value: column.kurtosis },
-              { name: "sum", value: column.sum },
+              { name: "Skewness", value: column.skewness },
+              { name: "Kurtosis", value: column.kurtosis },
+              { name: "Sum", value: column.sum },
             ]}
             header="Descriptive stats"
           />
