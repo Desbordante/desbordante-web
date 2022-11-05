@@ -1,0 +1,9 @@
+.wrapper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  & > :first-child {
+    flex: 0.5;
+  }
+}

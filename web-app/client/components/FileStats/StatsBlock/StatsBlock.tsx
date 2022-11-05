@@ -2,24 +2,20 @@ import { FC, HTMLProps } from "react";
 import styles from "./StatsBlock.module.scss";
 import { Statistic, StatisticSize } from "@components/FileStats/Statistic";
 import { Table } from "@components/FileStats/Table";
-
-export enum StatsMode {
-  Blocks,
-  Table,
-}
+import { StatType } from "@/types/fileStats";
 
 type StatsBlockProps = {
-  stats: Array<{ name: string; value: number | string | null }>;
+  stats: StatType[];
   size?: StatisticSize;
   header?: string;
-  mode: StatsMode;
+  tableMode?: boolean;
 } & Omit<HTMLProps<HTMLDivElement>, "size">;
 
 export const StatsBlock: FC<StatsBlockProps> = ({
   stats,
   size,
   header,
-  mode,
+  tableMode,
   ...props
 }: StatsBlockProps) => {
   if (stats.every((item) => item.value === null)) return null;
@@ -28,13 +24,13 @@ export const StatsBlock: FC<StatsBlockProps> = ({
     (item) =>
       item.value && (
         <>
-          {mode === StatsMode.Blocks && (
+          {!tableMode && (
             <Statistic header={item.name} size={size}>
               {item.value}
             </Statistic>
           )}
 
-          {mode === StatsMode.Table && (
+          {tableMode && (
             <tr>
               <th>{item.name}</th>
               <td>{item.value}</td>
@@ -48,11 +44,9 @@ export const StatsBlock: FC<StatsBlockProps> = ({
     <article {...props}>
       {header && <p className={styles.header}>{header}</p>}
 
-      {mode === StatsMode.Blocks && (
-        <div className={styles.blocks}>{items}</div>
-      )}
+      {!tableMode && <div className={styles.blocks}>{items}</div>}
 
-      {mode === StatsMode.Table && <Table>{items}</Table>}
+      {tableMode && <Table>{items}</Table>}
     </article>
   );
 };

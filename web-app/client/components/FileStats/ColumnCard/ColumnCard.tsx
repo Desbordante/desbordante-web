@@ -8,8 +8,9 @@ import chevronUp from "@assets/icons/chevron-up.svg";
 import { Collapse } from "react-collapse";
 import classNames from "classnames";
 import { Paper } from "@components/FileStats/Paper";
-import { StatsBlock, StatsMode } from "@components/FileStats/StatsBlock";
+import { StatsBlock } from "@components/FileStats/StatsBlock";
 import { ModeButton } from "@components/FileStats/ModeButton";
+import { useToggle } from "@components/FileStats/hooks";
 
 type ColumnCardProps = {
   column: getFileStats_fileStats;
@@ -23,10 +24,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
     false
   );
 
-  const [mode, toggleMode] = useReducer(
-    (mode) => (mode === StatsMode.Blocks ? StatsMode.Table : StatsMode.Blocks),
-    StatsMode.Blocks
-  );
+  const [tableMode, toggleMode] = useToggle(false);
 
   const header = (
     <div className={styles.header}>
@@ -40,20 +38,17 @@ export const ColumnCard: FC<ColumnCardProps> = ({
           {column.isCategorical && <Badge>Categorical</Badge>}
         </div>
       </div>
-      <ModeButton mode={mode} onClick={toggleMode} />
+      <ModeButton tableMode={tableMode} onClick={toggleMode} />
     </div>
   );
 
   const content = (
     <div
-      className={classNames(
-        styles.content,
-        mode === StatsMode.Table && styles["table-mode"]
-      )}
+      className={classNames(styles.content, tableMode && styles["table-mode"])}
     >
       <div className={styles["basic-stats"]}>
         <StatsBlock
-          mode={mode}
+          tableMode={tableMode}
           stats={[
             { name: "distinct", value: column.distinct },
             { name: "count", value: column.count },
@@ -61,7 +56,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
           size="lg"
         />
         <StatsBlock
-          mode={mode}
+          tableMode={tableMode}
           stats={[
             { name: "avg", value: column.avg },
             { name: "std", value: column.STD },
@@ -72,7 +67,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
       <Collapse isOpened={showDetails}>
         <div className={styles["more-stats"]}>
           <StatsBlock
-            mode={mode}
+            tableMode={tableMode}
             stats={[
               { name: "min", value: column.min },
               { name: "max", value: column.max },
@@ -83,7 +78,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
             header="Quantile stats"
           />
           <StatsBlock
-            mode={mode}
+            tableMode={tableMode}
             stats={[
               { name: "skewness", value: column.skewness },
               { name: "kurtosis", value: column.kurtosis },
