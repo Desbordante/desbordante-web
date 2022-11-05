@@ -1,0 +1,13 @@
+@import "styles/common";
+
+.wrapper {
+  h5 {
+    margin-bottom: 16px;
+  }
+
+  .inner {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
