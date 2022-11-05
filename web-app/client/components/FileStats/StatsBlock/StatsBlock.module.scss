@@ -1,0 +1,12 @@
+@import "styles/common";
+
+.blocks {
+  display: flex;
+  gap: 16px 32px;
+  flex-wrap: wrap;
+}
+
+.header {
+  margin-bottom: 8px;
+  color: $primary-0;
+}

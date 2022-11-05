@@ -1,0 +1,50 @@
+@import "styles/common";
+
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  @include paragraph;
+  color: $black-50;
+  font-size: 15px;
+  text-transform: uppercase;
+}
+
+.inner {
+  @include paragraph;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.sm {
+  .header {
+    font-size: 12px;
+  }
+
+  .inner {
+    font-size: 20px;
+  }
+}
+
+.lg {
+  .header {
+    font-size: 18px;
+  }
+
+  .inner {
+    font-size: 26px;
+  }
+}
+
+.xl {
+  .header {
+    font-size: 20px;
+  }
+
+  .inner {
+    font-size: 32px;
+  }
+}

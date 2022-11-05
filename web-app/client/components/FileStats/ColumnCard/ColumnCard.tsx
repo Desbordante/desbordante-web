@@ -1,7 +1,6 @@
 import { FC, useReducer } from "react";
 import styles from "./ColumnCard.module.scss";
-import { Badge } from "@components/Badge";
-import { Statistic, StatisticSize } from "@components/Statistic";
+import { Badge } from "@components/FileStats/Badge";
 import { getFileStats_fileStats } from "@graphql/operations/queries/__generated__/getFileStats";
 import Button from "@components/Button";
 import chevronDown from "@assets/icons/chevron-down.svg";
@@ -10,64 +9,11 @@ import grid from "@assets/icons/grid.svg";
 import list from "@assets/icons/list.svg";
 import { Collapse } from "react-collapse";
 import classNames from "classnames";
+import { Paper } from "@components/FileStats/Paper";
+import { StatsBlock, StatsMode } from "@components/FileStats/StatsBlock";
 
 type ColumnCardProps = {
   column: getFileStats_fileStats;
-};
-
-enum StatsMode {
-  Blocks,
-  Table,
-}
-
-type StatsBlockProps = {
-  stats: Array<{ name: string; value: number | string | null }>;
-  size?: StatisticSize;
-  header?: string;
-  mode: StatsMode;
-};
-
-const StatsBlock: FC<StatsBlockProps> = ({
-  stats,
-  size,
-  header,
-  mode,
-}: StatsBlockProps) => {
-  if (stats.every((item) => item.value === null)) return null;
-
-  const items = stats.map(
-    (item) =>
-      item.value && (
-        <>
-          {mode === StatsMode.Blocks && (
-            <Statistic header={item.name} size={size}>
-              {item.value}
-            </Statistic>
-          )}
-
-          {mode === StatsMode.Table && (
-            <tr>
-              <th>{item.name}</th>
-              <td>{item.value}</td>
-            </tr>
-          )}
-        </>
-      )
-  );
-
-  return (
-    <article>
-      {header && <p className={styles["stats-header"]}>{header}</p>}
-
-      {mode === StatsMode.Blocks && (
-        <div className={styles["stats-blocks"]}>{items}</div>
-      )}
-
-      {mode === StatsMode.Table && (
-        <table className={styles["stats-table"]}>{items}</table>
-      )}
-    </article>
-  );
 };
 
 export const ColumnCard: FC<ColumnCardProps> = ({
@@ -118,7 +64,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
             { name: "distinct", value: column.distinct },
             { name: "count", value: column.count },
           ]}
-          size="big"
+          size="lg"
         />
         <StatsBlock
           mode={mode}
@@ -126,7 +72,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
             { name: "avg", value: column.avg },
             { name: "std", value: column.STD },
           ]}
-          size="big"
+          size="lg"
         />
       </div>
       <Collapse isOpened={showDetails}>
@@ -157,7 +103,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
   );
 
   return (
-    <article className={styles.card}>
+    <Paper className={styles.card}>
       {header}
 
       {content}
@@ -170,6 +116,6 @@ export const ColumnCard: FC<ColumnCardProps> = ({
       >
         {!showDetails ? "Show details" : "Hide details"}
       </Button>
-    </article>
+    </Paper>
   );
 };
