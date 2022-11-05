@@ -6,4 +6,10 @@
   & > :first-child {
     flex: 0.5;
   }
+
+  @media (max-width: 960px) {
+    & > :first-child {
+      flex: 1;
+    }
+  }
 }
