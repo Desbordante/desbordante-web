@@ -78,11 +78,12 @@
 button.details-button {
   padding: 8px 16px;
   margin-left: auto;
-  display: flex;
+
+  /* display: flex;
 
   & > :first-child {
     display: flex;
-  }
+  } */
 }
 
 .wrapper :global(.ReactCollapse--collapse) {
