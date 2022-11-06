@@ -1,7 +1,13 @@
 @import "styles/common";
 
 .button {
-  display: inline-block;
+
+  /* display: inline-block; */
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   margin: 0;
   outline: none;
   border: none;
@@ -18,16 +24,18 @@
 }
 
 .icon {
-  vertical-align: middle;
+  display: flex;
+
+  /* vertical-align: middle; */
   margin-right: 8px;
 
-  & > span {
+  /* & > span {
     vertical-align: middle;
   }
 
   img {
     vertical-align: middle;
-  }
+  } */
 }
 
 .sm {
