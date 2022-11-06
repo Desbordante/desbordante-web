@@ -37,8 +37,7 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./grafana-users:/etc/nginx/grafana_passw
     depends_on:
-      - "postgres"
-      - "server"
+      - server
     networks:
       - network
     restart: always
@@ -76,6 +75,7 @@ services:
     depends_on:
       - postgres
       - kafka
+      - python-consumer
     volumes:
       - uploads:/server/uploads/
       - datasets:/server/build/target/inputData/
@@ -125,6 +125,7 @@ services:
       KAFKA_OPTS: '-javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.15.0.jar=1234:/opt/prometheus/kafka_broker.yml'
     depends_on:
       - zookeeper
+      - prometheus
     networks:
       - network
     restart: always
