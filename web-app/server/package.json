@@ -71,7 +71,7 @@
     "@types/validator": "^13.7.1",
     "@typescript-eslint/eslint-plugin": "^5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
-    "eslint": "^8.9.0",
+    "eslint": "8.20.0",
     "graphql-upload": "^13.0.0",
     "http-errors": "^1.8.1",
     "nodemon": "^2.0.12",

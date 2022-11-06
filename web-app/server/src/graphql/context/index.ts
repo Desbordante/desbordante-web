@@ -6,6 +6,7 @@ import { IncomingHttpHeaders } from "http";
 import { InvalidHeaderError } from "../types/errorTypes";
 import { ModelsType } from "../../db/models";
 import config from "../../config";
+import { mock } from "./mock";
 import getTokenPayloadIfValid from "./tokenValidator";
 import { sequelize } from "../../db/sequelize";
 
@@ -38,14 +39,22 @@ const compareDevices = async (
 };
 
 export const createContext = async (headers: IncomingHttpHeaders): Promise<Context> => {
-    const requestID = headers["x-request-id"];
+    let requestID = headers["x-request-id"];
     if (typeof requestID !== "string") {
-        throw new InvalidHeaderError("requestID wasn't provided");
+        if (config.isDevelopment) {
+            requestID = "MockRequestID";
+        } else {
+            throw new InvalidHeaderError("requestID wasn't provided");
+        }
     }
 
-    const deviceInfoBase64 = headers["x-device"];
+    let deviceInfoBase64 = headers["x-device"];
     if (typeof deviceInfoBase64 !== "string") {
-        throw new InvalidHeaderError("Device info wasn't provided");
+        if (config.isDevelopment) {
+            deviceInfoBase64 = mock.deviceInfoBase64;
+        } else {
+            throw new InvalidHeaderError("Device info wasn't provided");
+        }
     }
 
     const deviceInfo: DeviceInfoInstance = JSON.parse(
@@ -59,8 +68,6 @@ export const createContext = async (headers: IncomingHttpHeaders): Promise<Conte
     });
     if (created) {
         console.log(`New device object ${device.deviceID} was created`);
-    } else {
-        // debug(`Device with ID = ${device.deviceID} already exists`);
     }
     const sessionInfo = getTokenPayloadIfValid(headers, config.keys.secretKey);
     if (sessionInfo) {
