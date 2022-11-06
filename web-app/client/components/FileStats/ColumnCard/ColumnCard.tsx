@@ -14,10 +14,12 @@ import { useToggle } from "@components/FileStats/hooks";
 
 type ColumnCardProps = {
   column: getFileStats_fileStats;
+  compact?: boolean;
 };
 
 export const ColumnCard: FC<ColumnCardProps> = ({
   column,
+  compact,
 }: ColumnCardProps) => {
   const [showDetails, toggleDetails] = useReducer(
     (showDetails: boolean) => !showDetails,
@@ -92,7 +94,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
   );
 
   return (
-    <Paper className={styles.card}>
+    <Paper className={classNames(styles.wrapper, compact && styles.compact)}>
       {header}
 
       {content}
