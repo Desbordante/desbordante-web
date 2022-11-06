@@ -1,6 +1,6 @@
 @import "styles/common";
 
-.card {
+.wrapper {
   display: flex;
   gap: 24px;
   flex-direction: column;
@@ -50,18 +50,28 @@
   flex-wrap: wrap;
 }
 
+@mixin compact-more-stats {
+  flex-direction: column;
+  flex-wrap: initial;
+
+  & > article > div {
+    justify-content: space-between;
+  }
+}
+
 .more-stats {
   & > * {
     flex: 1;
   }
 
   @media (max-width: 960px) {
-    flex-direction: column;
-    flex-wrap: initial;
+    @include compact-more-stats;
+  }
+}
 
-    & > article > div {
-      justify-content: space-between;
-    }
+.compact {
+  .more-stats {
+    @include compact-more-stats;
   }
 }
 
@@ -75,7 +85,7 @@ button.details-button {
   }
 }
 
-.card :global(.ReactCollapse--collapse) {
+.wrapper :global(.ReactCollapse--collapse) {
   transition: height 0.3s;
 }
 
@@ -86,10 +96,8 @@ button.details-button {
     * {
       flex: 1;
     }
-  }
 
-  @media (max-width: 960px) {
-    .basic-stats {
+    @media (max-width: 960px) {
       flex-direction: column;
     }
   }
@@ -99,6 +107,18 @@ button.details-button {
       & > :first-child {
         border-right: 1px solid $black-50;
       }
+    }
+  }
+}
+
+.compact > .table-mode {
+  .basic-stats {
+    flex-direction: column;
+  }
+
+  .basic-stats, .more-stats {
+    & > :first-child {
+      border-right: none;
     }
   }
 }
