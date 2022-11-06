@@ -7,4 +7,8 @@ cd ..
 unzip datasets/datasets.zip -d volumes/datasets/
 cp tests/inputData/* volumes/datasets/
 docker-compose build
-cp -n .env.example .env
+if ! [[ -f ".env" ]]
+then
+    cp .env.example .env
+    echo "PWD=$PWD" >> .env
+fi
