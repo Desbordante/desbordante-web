@@ -2,7 +2,7 @@ FROM debian:bullseye-slim as stage1
 RUN apt-get update && apt-get -y install python3 make g++ npm curl
 RUN npm install --global yarn
 RUN npm install -g n
-RUN n stable
+RUN n 16.14.2
 COPY client/package.json client/package.json
 COPY client/yarn.lock client/yarn.lock
 WORKDIR /client/
