@@ -33,8 +33,6 @@ export type SpecificTaskInfoModel = PartialBy<
     "fileID"
 > & { prefix: SpecificPrimitiveType };
 
-export type AbstractTaskDataModel = TaskInfoModel;
-export type SpecificTaskDataModel = SpecificTaskInfoModel;
 export type TaskStateAnswerModel = TaskState;
 export type TaskStateModel = TaskState;
 export type InternalServerTaskErrorModel = {
@@ -65,16 +63,12 @@ export type SpecificTaskResultModel = {
     state: TaskState;
 } & SpecificTaskInfoModel;
 
-type InfoForSpecificCluster = {
-    squashed: "true";
-    clusterID: number;
-    state: TaskState;
-};
-
 export type SpecificClusterOrStateModel =
-    | { state: TaskState }
-    | { errorMsg: string }
-    | ({ clusterID: number; rows: Map<number, string[]> } & {
+    | TaskState
+    | ({
+          clusterID: number;
+          rows: Map<number, string[]>;
+      } & {
           clusterInfo:
               | {
                     squashed: "false";
@@ -83,10 +77,7 @@ export type SpecificClusterOrStateModel =
                 }
               | {
                     squashed: "true";
-                    rowIndicesWithAmount: {
-                        rowIndex: number;
-                        amount: number;
-                    }[];
+                    rowIndicesWithAmount: { rowIndex: number; amount: number }[];
                 };
       });
 export type ClusterModel = {
@@ -134,4 +125,3 @@ export type SpecificTypoClusterTaskResultModel = PrimitiveTaskResultModel;
 export type FilteredDepsBaseModel = Awaited<
     ReturnType<typeof AbstractFilter.prototype.getFilteredTransformedDeps>
 > & { prefix: MainPrimitiveType };
-export type PrimitiveTypeModel = PrimitiveType;

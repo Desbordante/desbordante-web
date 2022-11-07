@@ -292,7 +292,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
                 maxRows: sortedIndices[sortedIndices.length - 1] - curRowNum + 1,
             });
 
-            fs.createReadStream(`/home/vs9lh/s/Desbordante/${path}`)
+            fs.createReadStream(`${path}`)
                 .pipe(parser)
                 .on("error", (e) => {
                     throw new ApolloError(`ERROR WHILE READING FILE:\n\r${e.message}`);
