@@ -41,13 +41,25 @@ TaskConfig::TaskConfig(std::shared_ptr<DesbordanteDbManager> db_manager, std::st
     LOG(INFO) << "Insert info from specific config table";
     InsertParamsFromTable(GetSpecificMapKey(SpecificTablesType::config));
     LOG(INFO) << "Inserted info from specific table";
-    if (GetPreciseMiningType() == +TaskMiningType::TypoCluster) {
+    if (GetPreciseMiningType() == +TaskMiningType::SpecificTypoCluster) {
+        LOG(INFO) << "Insert info for typo cluster";
+        TaskConfig temp_config{GetParam("typo_cluster_task_id")};
+        LOG(INFO) << "Temp config created";
+        InsertAllParamsFromTable(std::make_pair(SpecificTablesType::config,
+                                                TaskMiningType::TypoCluster),
+                                 db_manager_, temp_config);
+        InsertAllParamsFromTable(std::make_pair(SpecificTablesType::result,
+                                                TaskMiningType::TypoCluster),
+                                 db_manager_, temp_config);
+        this->params_intersection_.merge(temp_config.GetParamsIntersection());
+    }
+    if (GetPreciseMiningType() == +TaskMiningType::TypoCluster ||
+        GetPreciseMiningType() == +TaskMiningType::SpecificTypoCluster) {
         LOG(INFO) << "Insert info for typo cluster";
         TaskConfig temp_config{GetParam("typo_task_id")};
         LOG(INFO) << "Temp config created";
-        InsertAllParamsFromTable(
-            std::make_pair(SpecificTablesType::config, TaskMiningType::TypoFD), db_manager_,
-            temp_config);
+        InsertAllParamsFromTable(std::make_pair(SpecificTablesType::config, TaskMiningType::TypoFD),
+                                 db_manager_, temp_config);
         LOG(INFO) << "Inserted params from typo cluster config";
         this->params_intersection_.merge(temp_config.GetParamsIntersection());
     }

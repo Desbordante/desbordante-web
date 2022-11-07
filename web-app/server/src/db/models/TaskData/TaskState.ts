@@ -181,7 +181,7 @@ export class TaskState extends Model implements TaskInfoModelMethods {
         return value;
     };
 
-    getResultFieldAsString = async (prefix: PrimitiveType, attribute: string) => {
+    getResultFieldAsString = async (prefix: DBTaskPrimitiveType, attribute: string) => {
         const result = (await this.$get(`${prefix}Result`, {
             attributes: [[attribute, "value"]],
             raw: true,

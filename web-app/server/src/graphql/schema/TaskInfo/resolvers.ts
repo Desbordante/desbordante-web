@@ -9,6 +9,7 @@ import {
 } from "../../../db/models/TaskData/configs/GeneralTaskConfig";
 import { Resolvers, TaskProcessStatusType } from "../../types/types";
 import { applyPagination, resolverCannotBeCalled, returnParent } from "../../util";
+import { TaskCreatorFactory } from "../TaskCreating/Creator/AbstractCreator";
 import { AbstractFilter } from "./DependencyFilters/AbstractFilter";
 import { AuthenticationError } from "apollo-server-express";
 import { CompactData } from "./DependencyFilters/CompactData";
@@ -181,7 +182,7 @@ export const TaskInfoResolvers: Resolvers = {
     },
     ClusterBase: {
         __resolveType: ({ clusterInfo }) => {
-            return clusterInfo.squashed ? "SquashedCluster" : "Cluster";
+            return clusterInfo.squashed === "true" ? "SquashedCluster" : "Cluster";
         },
         clusterID: ({ clusterID }) => clusterID,
         itemsAmount: ({ clusterInfo }) => {
@@ -224,14 +225,17 @@ export const TaskInfoResolvers: Resolvers = {
     },
     SpecificClusterOrState: {
         __resolveType: (parent) => {
-            if ("state" in parent) {
-                return "TaskState";
-            } else if ("errorMsg" in parent) {
-                return "InternalServerTaskError";
-            } else {
-                const { squashed } = parent.clusterInfo;
-                return `${squashed ? "Squashed" : ""}Cluster`;
+            if ("status" in parent) {
+                switch (parent.status) {
+                    case "RESOURCE_LIMIT_IS_REACHED":
+                    case "INTERNAL_SERVER_ERROR":
+                        return "InternalServerTaskError";
+                    default:
+                        return "TaskState";
+                }
             }
+            const { squashed } = parent.clusterInfo;
+            return `${squashed == "true" ? "Squashed" : ""}Cluster`;
         },
     },
     TypoClusterTaskResult: {
@@ -292,134 +296,85 @@ export const TaskInfoResolvers: Resolvers = {
                 rows,
             }));
         },
-        specificCluster: async (
-            { state: parentState, prefix, fileID },
-            { props },
-            { models }
-        ) => {
-            throw new ApolloError("Not implemented yet");
-            // if (!parentState.isExecuted) {
-            //     throw new UserInputError("Parent task isn't executed yet");
-            // }
-            // const { clusterID, sort, squash } = props;
-            // create if not exists
+        specificCluster: async ({ state: parentState, fileID }, { props }, context) => {
+            const prefix = "SpecificTypoCluster" as const;
+            const { clusterID, sort, squash } = props;
+            const file = await context.models.FileInfo.findByPk(fileID);
+            if (!file) {
+                throw new ApolloError("File not found");
+            }
+            const state = await TaskCreatorFactory.build(
+                "SpecificTypoCluster",
+                context,
+                {
+                    type: prefix,
+                    parentTaskID: parentState.taskID,
+                    clusterID,
+                    algorithmName: "Typo Miner",
+                },
+                file,
+                false
+            );
+            if (!state.isExecuted || state.status !== "COMPLETED") {
+                return state;
+            }
+            const { models } = context;
 
-            // if on executing --> return state
-            // const errorStatuses = ["INTERNAL_SERVER_ERROR", "RESOURCE_LIMIT_IS_REACHED"];
-            // if (!state.isExecuted) {
-            //     return { state };
-            // } else if (errorStatuses.includes(state.status)) {
-            //     const { errorMsg } = state;
-            //     return { errorMsg: errorMsg || "" };
-            // }
-            // const clusterAttrName = `${squash ? "" : "not"}Squashed${
-            //     sort ? "" : "Not"
-            // }SortedCluster` as const;
-            //
-            // if (!squash) {
-            //     const [suspiciousIndicesStr, rowIndicesStr] =
-            //         await state.getResultFieldsAsString("SpecificTypoCluster", [
-            //             "suspiciousIndices",
-            //             clusterAttrName,
-            //         ]);
-            //     const rowIndices = rowIndicesStr.split(",").map(Number);
-            //     const [clusterIDStr, typoClusterTaskID] =
-            //         await state.getResultFieldsAsString(prefix, [
-            //             "clusterID",
-            //             "typoClusterTaskID",
-            //         ]);
-            //     const suspiciousIndices = suspiciousIndicesStr
-            //         .split(";")
-            //         .map((data) => new Set(data.split(",").map(Number)))[clusterID];
-            //     if (fileID === undefined) {
-            //         const typoClusterConfig = await models.TypoClusterConfig.findByPk(
-            //             typoClusterTaskID,
-            //             { attributes: ["typoTaskID"] }
-            //         );
-            //         if (!typoClusterConfig) {
-            //             throw new ApolloError("Parent task config not found");
-            //         }
-            //         const { parentTaskID } = typoClusterConfig;
-            //         const typoTaskConfig = await models.GeneralTaskConfig.findByPk(
-            //             parentTaskID,
-            //             { attributes: ["fileID"] }
-            //         );
-            //         if (!typoTaskConfig) {
-            //             throw new ApolloError("Parent task config not found");
-            //         }
-            //         fileID = typoTaskConfig.fileID;
-            //     }
-            //
-            //     const file = await models.FileInfo.findByPk(fileID, {
-            //         attributes: ["path", "delimiter", "hasHeader"],
-            //     });
-            //     if (!file) {
-            //         throw new ApolloError("File not found");
-            //     }
-            //     const rows = await models.FileInfo.GetRowsByIndices(
-            //         file,
-            //         Array.from(rowIndices)
-            //     );
-            //     return {
-            //         clusterID,
-            //         rows,
-            //         clusterInfo: {
-            //             squashed: "false",
-            //             suspiciousIndices,
-            //             rowIndices,
-            //         },
-            //     };
-            // } else {
-            //     const squashedCluster = await state.getResultFieldAsString(
-            //         prefix,
-            //         `squashed${sort ? "" : "Not"}SortedCluster`
-            //     );
-            //     const rowIndicesWithAmount = squashedCluster
-            //         .split(";")
-            //         .map((squashedItem) => squashedItem.split(",").map(Number))
-            //         .map(([rowIndex, amount]) => ({ rowIndex, amount }));
-            //
-            //     const [clusterIDStr, typoClusterTaskID] =
-            //         await state.getResultFieldsAsString(prefix, [
-            //             "clusterID",
-            //             "typoClusterTaskID",
-            //         ]);
-            //     const clusterID = Number(clusterIDStr);
-            //     if (fileID == undefined) {
-            //         const typoClusterConfig = await models.TypoClusterConfig.findByPk(
-            //             typoClusterTaskID,
-            //             { attributes: ["typoTaskID"] }
-            //         );
-            //         if (!typoClusterConfig) {
-            //             throw new ApolloError("Parent task config not found");
-            //         }
-            //         const { parentTaskID } = typoClusterConfig;
-            //         const typoTaskConfig = await models.GeneralTaskConfig.findByPk(
-            //             parentTaskID,
-            //             { attributes: ["fileID"] }
-            //         );
-            //         if (!typoTaskConfig) {
-            //             throw new ApolloError("Parent task config not found");
-            //         }
-            //         fileID = typoTaskConfig.fileID;
-            //     }
-            //
-            //     const file = await models.FileInfo.findByPk(fileID, {
-            //         attributes: ["path", "delimiter", "hasHeader"],
-            //     });
-            //     if (!file) {
-            //         throw new ApolloError("File not found");
-            //     }
-            //     const rows = await models.FileInfo.GetRowsByIndices(
-            //         file,
-            //         rowIndicesWithAmount.map(({ rowIndex }) => rowIndex)
-            //     );
-            //     return {
-            //         clusterID,
-            //         rows,
-            //         clusterInfo: { squashed: "true", rowIndicesWithAmount },
-            //     };
-            // }
+            const clusterAttrName = `${squash ? "s" : "notS"}quashed${
+                sort ? "" : "Not"
+            }SortedCluster` as const;
+
+            const processNonSquashed = async () => {
+                const [data, suspiciousIndicesStr] = await state.getResultFieldsAsString(
+                    prefix,
+                    [clusterAttrName, "suspiciousIndices"]
+                );
+
+                const rowIndices = data.split(",").map(Number);
+
+                const suspiciousIndices = suspiciousIndicesStr
+                    .split(";")
+                    .map((data) => new Set(data.split(",").map(Number)))[clusterID];
+
+                const rows = await models.FileInfo.GetRowsByIndices(
+                    file,
+                    Array.from(rowIndices)
+                );
+                return {
+                    clusterID,
+                    rows,
+                    clusterInfo: {
+                        squashed: "false" as const,
+                        suspiciousIndices,
+                        rowIndices,
+                    },
+                };
+            };
+
+            const processSquashed = async () => {
+                const [data] = await state.getResultFieldsAsString(prefix, [
+                    clusterAttrName,
+                ]);
+                const rowIndicesWithAmount = data
+                    .split(";")
+                    .map((squashedItem) => squashedItem.split(",").map(Number))
+                    .map(([rowIndex, amount]) => ({ rowIndex, amount }));
+
+                const rows = await models.FileInfo.GetRowsByIndices(
+                    file,
+                    rowIndicesWithAmount.map(({ rowIndex }) => rowIndex)
+                );
+                return {
+                    clusterID,
+                    rows,
+                    clusterInfo: { squashed: "true" as const, rowIndicesWithAmount },
+                };
+            };
+
+            if (squash) {
+                return await processSquashed();
+            }
+            return await processNonSquashed();
         },
         clustersCount: async ({ prefix, state }) =>
             await state.getResultField(prefix, "clustersCount"),

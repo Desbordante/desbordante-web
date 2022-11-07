@@ -1,6 +1,7 @@
 import { ApolloError, UserInputError } from "apollo-server-core";
 import {
     DBTaskPrimitiveType,
+    GeneralTaskConfig,
     SpecificPrimitiveType,
     isMainPrimitiveType,
     isSpecificPrimitiveType,
@@ -27,20 +28,29 @@ import { TaskStatusType } from "../../../../db/models/TaskData/TaskState";
 import { allowedAlgorithms } from "../../AppConfiguration/resolvers";
 import { produce } from "../../../../producer";
 
-export type TransformedSpecificClusterTaskProps = SpecificClusterTaskProps & {
+export type ParentSpecificClusterTaskProps = Omit<
+    SpecificClusterTaskProps,
+    "squash" | "sort"
+> & {
     type: "SpecificTypoCluster";
     parentTaskID: string;
+    algorithmName: string;
 };
 
 export type RawPropsType =
     | IntersectionMainTaskProps
     | IntersectionSpecificTaskProps
-    | TransformedSpecificClusterTaskProps;
+    | ParentSpecificClusterTaskProps;
 
 export type TransformedIntersectionSpecificTaskProps = Omit<
     IntersectionSpecificTaskProps,
     "typoFD"
 > & { typoFD?: InputMaybe<Scalars["String"]> };
+
+export type TransformedSpecificClusterTaskProps = Omit<
+    ParentSpecificClusterTaskProps,
+    "squash" | "sort"
+>;
 
 export type PropsType =
     | IntersectionMainTaskProps
@@ -119,30 +129,25 @@ export abstract class AbstractCreator<
     };
 
     private findSimilarTask = async () => {
-        const SpecificConfigModelName = `${this.type}TaskConfig` as const;
+        const SpecificConfigModelName = `${this.type}Config` as const;
         const { algorithmName, type, ...rest } = this.props;
         const props = {
             ...rest,
         };
         // @ts-ignore
-        const specificConfigs = await this.models()[SpecificConfigModelName].findAll({
-            where: { ...props },
+        const specificConfigs = await this.models().TaskState.findAll({
+            include: [
+                { association: SpecificConfigModelName, where: { ...props } },
+                {
+                    model: GeneralTaskConfig,
+                    where: { algorithmName, fileID: this.fileInfo.fileID },
+                },
+            ],
         });
         if (specificConfigs.length === 0) {
             return null;
         }
-        for await (const config of specificConfigs) {
-            const { taskID } = config;
-            const generalConfig = await this.models().GeneralTaskConfig.findByPk(taskID);
-            if (generalConfig?.algorithmName !== algorithmName) {
-                continue;
-            }
-            const state = await this.models().TaskState.getTaskState(taskID);
-            if (state.isExecuted) {
-                return config;
-            }
-        }
-        return null;
+        return specificConfigs[0];
     };
 
     private saveToDB = async () => {
@@ -232,6 +237,19 @@ class SpecificClusterCreator extends AbstractCreator<
     TransformedSpecificClusterTaskProps,
     "SpecificTypoCluster"
 > {
+    public beforeValidation = async () => {
+        const { clusterID, parentTaskID } = this.props;
+        const parentSpecificConfig =
+            await this.models().SpecificTypoClusterTaskConfig.findOne({
+                where: {
+                    parentTaskID,
+                    clusterID,
+                },
+            });
+        if (!parentSpecificConfig) {
+            return;
+        }
+    };
     getSchema(): SchemaType<TransformedSpecificClusterTaskProps, "SpecificTypoCluster"> {
         return getSpecificClusterTaskSchema();
     }
@@ -265,7 +283,7 @@ export class TaskCreatorFactory {
                 }
             }
         }
-        throw new Error("Not implemented yet");
+        throw new ApolloError("Unreachable code");
     };
 
     public static transformRawProps = (props: RawPropsType): PropsType => {
@@ -291,12 +309,12 @@ export class TaskCreatorFactory {
         const creatorInstance = await (async () => {
             if (isIntersectionMainTaskProps(props)) {
                 return new MainPrimitiveCreator(props, ...otherProps);
+            } else if (isSpecificClusterTaskProps(props)) {
+                return new SpecificClusterCreator(props, ...otherProps);
             } else if (isIntersectionSpecificTaskProps(props)) {
                 const TaskCreatorConstructor =
                     this.getSpecificPrimitiveConstructor(props);
                 return new TaskCreatorConstructor(props, ...otherProps);
-            } else if (isSpecificClusterTaskProps(props)) {
-                return new SpecificClusterCreator(props, ...otherProps);
             }
             throw new ApolloError("Unreachable code");
         })();

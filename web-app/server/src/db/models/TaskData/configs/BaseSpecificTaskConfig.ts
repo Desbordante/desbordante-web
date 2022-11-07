@@ -3,6 +3,7 @@ import {
     IntersectionMainTaskProps,
     IntersectionSpecificTaskProps,
 } from "../../../../graphql/types/types";
+import { GeneralTaskConfig } from "./GeneralTaskConfig";
 import { TaskState } from "../TaskState";
 import { UUID } from "sequelize";
 
@@ -20,4 +21,7 @@ export class BaseSpecificTaskConfig extends Model {
 
     @BelongsTo(() => TaskState)
     taskState!: TaskState;
+
+    @BelongsTo(() => TaskState)
+    generalTaskConfig!: GeneralTaskConfig;
 }
