@@ -237,19 +237,6 @@ class SpecificClusterCreator extends AbstractCreator<
     TransformedSpecificClusterTaskProps,
     "SpecificTypoCluster"
 > {
-    public beforeValidation = async () => {
-        const { clusterID, parentTaskID } = this.props;
-        const parentSpecificConfig =
-            await this.models().SpecificTypoClusterTaskConfig.findOne({
-                where: {
-                    parentTaskID,
-                    clusterID,
-                },
-            });
-        if (!parentSpecificConfig) {
-            return;
-        }
-    };
     getSchema(): SchemaType<TransformedSpecificClusterTaskProps, "SpecificTypoCluster"> {
         return getSpecificClusterTaskSchema();
     }
