@@ -115,11 +115,14 @@ public:
         LOG(INFO) << "Get algo name";
         const auto& algo_name = algo_name_resolution.at(task_->GetParam<std::string>("algo_name"));
         LOG(INFO) << "Get algo " << algo_name._to_string();
-        algo_ = (algo_name == +Algo::typominer)
-                    ? TypoMiner::CreateFrom<Pyro>(
-                          details::CreateFDAlgorithmConfigFromMap(task_->GetParamsIntersection()))
-                    : algos::CreateAlgorithmInstance(algo_mining_type, algo_name,
-                                                     task_->GetParamsIntersection());
+
+        if (algo_name == +Algo::typominer) {
+            algo_ = TypoMiner::CreateFrom<Pyro>(
+                    details::CreateFDAlgorithmConfigFromMap(task_->GetParamsIntersection()));
+        } else {
+            algo_ = algos::CreateAlgorithmInstance(algo_mining_type, algo_name,
+                                                   task_->GetParamsIntersection());
+        }
         LOG(INFO) << "Set algo has progress";
         algo_has_progress_ = !algo_->GetPhaseNames().empty();
         LOG(INFO) << "Phase name init";

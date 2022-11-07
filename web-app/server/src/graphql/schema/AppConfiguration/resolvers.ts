@@ -98,6 +98,7 @@ export const allowedAlgorithms = new Map([
     ["AR", { algorithms: [...allowedARAlgorithms] }],
     ["TypoFD", { algorithms: [...allowedTypoMinerAlgorithms] }],
     ["TypoCluster", { algorithms: [...allowedTypoMinerAlgorithms] }],
+    ["SpecificTypoCluster", { algorithms: [...allowedTypoMinerAlgorithms] }],
 ]);
 
 const applicationConfig = {

@@ -499,12 +499,6 @@ const typeDefs = gql`
         specificCluster(props: SpecificClusterTaskProps!): SpecificClusterOrState!
         clustersCount: Int!
     }
-    #
-    #    type SpecificTypoClusterTaskResult {
-    #        taskID: String!
-    #        cluster(sort: Boolean! = true): Cluster!
-    #        squashedCluster(sort: Boolean! = true): SquashedCluster!
-    #    }
 
     interface AbstractTaskData {
         baseConfig: BaseTaskConfig!
@@ -830,7 +824,7 @@ const typeDefs = gql`
         """
         Specific tasks are similar to creating MainTask.
         But you don't need to upload/choose file.
-        Also task if similar task was executed before, you will receive previous result.
+        Also if similar task was executed before, you will receive previous result.
         When you create main task with dataset choosing you can change behaviour by changing
         argument forceCreate.
         """
@@ -849,11 +843,6 @@ const typeDefs = gql`
             datasetProps: FileProps!
             table: Upload!
         ): TaskState!
-
-        #        """
-        #        This query allows admin with permission "MANAGE_APP_CONFIG" change dataset property "isBuiltIn".
-        #        """
-        #        setDatasetBuiltInStatus(fileID: String!, isBuiltIn: Boolean!): DatasetInfo!
 
         """
         Soft delete. Users can delete own tasks. Administrators can delete task of any user.
