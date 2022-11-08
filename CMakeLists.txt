@@ -36,6 +36,7 @@ include_directories(
     "src/algorithms/association_rules"
     "src/algorithms/depminer"
     "src/algorithms/statistics"
+    "src/algorithms/c_tane"
     "src/model"
     "src/model/types"
     "src/util"

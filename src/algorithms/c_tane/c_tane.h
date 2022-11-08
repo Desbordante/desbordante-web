@@ -2,12 +2,12 @@
 
 #include <string>
 
-#include "CSVParser.h"
-#include "../CFDAlgorithm.h"
-#include "PositionListIndex.h"
-#include "RelationData.h"
-#include "CLatticeVertex.h"
-#include "CLatticeLevel.h"
+#include "csv_parser.h"
+#include "../cfd_algorithm.h"
+#include "position_list_index.h"
+#include "relation_data.h"
+#include "c_lattice_vertex.h"
+#include "c_lattice_level.h"
 
 namespace algos {
 

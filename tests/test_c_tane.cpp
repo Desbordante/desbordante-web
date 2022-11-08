@@ -2,8 +2,8 @@
 
 #include "gtest/gtest.h"
 
-#include "CTane.h"
-#include "Datasets.h"
+#include "c_tane.h"
+#include "datasets.h"
 
 namespace fs = std::filesystem;
 
@@ -69,7 +69,7 @@ void CheckCFDsListsEquality(
 }
 
 TEST_F(CFDAlgorithmTest, ExactCFDsEmployee) {
-    auto const path = fs::current_path() / "inputData" / "EmployeeSmall.csv";
+    auto const path = fs::current_path() / "input_data" / "EmployeeSmall.csv";
     auto algorithm = CreateAlgorithmInstance(2, 3, 1, path, ',', true);
     algorithm->Execute();
     auto const deps = algorithm->CFDListString();

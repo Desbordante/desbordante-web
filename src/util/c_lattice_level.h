@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 
-#include "CLatticeVertex.h"
+#include "c_lattice_vertex.h"
 
 namespace util {
 

@@ -1,13 +1,13 @@
-#include "CTane.h"
+#include "c_tane.h"
 
 #include <chrono>
 #include <list>
 #include <memory>
 #include <easylogging++.h>
 
-#include "RelationalSchema.h"
-#include "CLatticeLevel.h"
-#include "CLatticeVertex.h"
+#include "relational_schema.h"
+#include "c_lattice_level.h"
+#include "c_lattice_vertex.h"
 
 using namespace util;
 using namespace model;
@@ -17,7 +17,7 @@ namespace algos {
 void CTane::Initialize() {
     if (item_names_.empty() || relation_ == nullptr) {
         std::tie(item_names_, relation_) = ColumnLayoutPartialRelationData::CreateFrom(
-            input_generator_, config_.is_null_equal_null, min_sup_);
+            *input_generator_, config_.is_null_equal_null, min_sup_);
     }
     if (relation_->GetColumnData().empty()) {
         throw std::runtime_error("Got an empty .csv file: CFD mining is meaningless.");

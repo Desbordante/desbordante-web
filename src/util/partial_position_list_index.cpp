@@ -7,10 +7,10 @@
 #include <easylogging++.h>
 #include <boost/dynamic_bitset.hpp>
 
-#include "ColumnLayoutRelationData.h"
-#include "ColumnLayoutPartialRelationData.h"
-#include "PartialPositionListIndex.h"
-#include "Vertical.h"
+#include "column_layout_relation_data.h"
+#include "column_layout_partial_relation_data.h"
+#include "partial_position_list_index.h"
+#include "vertical.h"
 
 namespace util {
 

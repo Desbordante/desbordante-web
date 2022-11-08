@@ -1,4 +1,4 @@
-#include "CLatticeVertex.h"
+#include "c_lattice_vertex.h"
 
 namespace util {
 

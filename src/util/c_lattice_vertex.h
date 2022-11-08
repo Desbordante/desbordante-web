@@ -7,11 +7,11 @@
 
 #include <boost/dynamic_bitset.hpp>
 
-#include "ColumnLayoutPartialRelationData.h"
-#include "PartialPositionListIndex.h"
-#include "RelationalSchema.h"
-#include "Vertical.h"
-#include "TuplePattern.h"
+#include "column_layout_partial_relation_data.h"
+#include "partial_position_list_index.h"
+#include "relational_schema.h"
+#include "vertical.h"
+#include "tuple_pattern.h"
 
 namespace util {
 

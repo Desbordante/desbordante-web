@@ -1,4 +1,4 @@
-#include "CFDAlgorithm.h"
+#include "cfd_algorithm.h"
 
 namespace algos {
 

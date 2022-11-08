@@ -3,14 +3,14 @@
 #include <memory>
 #include <utility>
 
-#include "ColumnLayoutPartialRelationData.h"
+#include "column_layout_partial_relation_data.h"
 #include "easylogging++.h"
 
 namespace model {
 
 std::pair<ColumnLayoutPartialRelationData::ItemNames,
           std::unique_ptr<ColumnLayoutPartialRelationData>>
-ColumnLayoutPartialRelationData::CreateFrom(CSVParser& file_input, bool is_null_eq_null,
+ColumnLayoutPartialRelationData::CreateFrom(model::IDatasetStream& file_input, bool is_null_eq_null,
                                             unsigned int support, int max_cols, long max_rows) {
     auto schema = std::make_unique<RelationalSchema>(file_input.GetRelationName(), is_null_eq_null);
     std::unordered_map<std::string, int> item_names;
@@ -23,8 +23,8 @@ ColumnLayoutPartialRelationData::CreateFrom(CSVParser& file_input, bool is_null_
     std::vector<std::string> row;
     ItemNames item_universe { "_" };
 
-    while (file_input.GetHasNext()) {
-        row = file_input.ParseNext();
+    while (file_input.HasNextRow()) {
+        row = file_input.GetNextRow();
 
         if (row.empty() && num_columns == 1) {
             row.emplace_back("");

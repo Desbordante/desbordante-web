@@ -2,9 +2,9 @@
 
 #include <utility>
 
-#include "CFD.h"
-#include "FDAlgorithm.h"
-#include "ColumnLayoutPartialRelationData.h"
+#include "cfd.h"
+#include "fd_algorithm.h"
+#include "column_layout_partial_relation_data.h"
 
 namespace util {
 class AgreeSetFactory;

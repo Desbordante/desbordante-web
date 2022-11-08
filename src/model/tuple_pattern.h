@@ -4,7 +4,7 @@
 #include <boost/dynamic_bitset.hpp>
 #include <utility>
 
-#include "ColumnLayoutPartialRelationData.h"
+#include "column_layout_partial_relation_data.h"
 
 namespace model {
 

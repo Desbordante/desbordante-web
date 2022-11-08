@@ -5,8 +5,8 @@
 #include <boost/dynamic_bitset.hpp>
 #include <utility>
 
-#include "FD.h"
-#include "TuplePattern.h"
+#include "fd.h"
+#include "tuple_pattern.h"
 
 namespace model {
 

@@ -155,9 +155,9 @@ int main(int argc, char const* argv[]) {
 
     po::options_description ar_options("AR options");
     ar_options.add_options()
-        (posr::kMinimumSupport, po::value<double>(&minsup),
+        (posr::kMinimumSupport, po::value<double>(&min_sup),
             "minimum support value (between 0 and 1)")
-        (posr::kMinimumConfidence, po::value<double>(&minconf),
+        (posr::kMinimumConfidence, po::value<double>(&min_conf),
             "minimum confidence value (between 0 and 1)")
         (posr::kInputFormat, po::value<string>(&ar_input_format),
          "format of the input dataset. [singular|tabular] for AR mining")

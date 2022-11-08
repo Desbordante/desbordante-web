@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <chrono>
 
-#include "CLatticeLevel.h"
+#include "c_lattice_level.h"
 
 using boost::dynamic_bitset;
 

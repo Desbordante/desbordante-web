@@ -2,9 +2,9 @@
 
 #include <vector>
 
-#include "Column.h"
-#include "AbstractColumnData.h"
-#include "PartialPositionListIndex.h"
+#include "column.h"
+#include "abstract_column_data.h"
+#include "partial_position_list_index.h"
 
 namespace model {
 
