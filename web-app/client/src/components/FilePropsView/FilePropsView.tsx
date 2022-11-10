@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useReducer, useState } from "react";
 import {
   useForm,
   SubmitHandler,
@@ -14,6 +14,7 @@ import Tooltip from "@components/Tooltip";
 import styles from "./FilePropsView.module.scss";
 import { Alert } from "@components/FileStats/Alert";
 import NumberSlider from "@components/Inputs/NumberSlider/NumberSlider";
+import { Progress } from "@components/FileStats/Progress";
 
 type Props = {
   data: FileProps;
@@ -167,24 +168,57 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
 
 const StatsTab: FC = () => {
   const [threadCount, setThreadCount] = useState(1);
+  const [stage, nextStage] = useReducer((stage) => stage + 1, 0);
+
+  const startProcessing = (
+    <>
+      <Alert>
+        Statistics have not been processed yet.
+        <br />
+        Would you like to start processing?
+      </Alert>
+      <NumberSlider
+        sliderProps={{ min: 1, max: 9, step: 1 }}
+        label="Thread count"
+        value={threadCount}
+        onChange={(e) => setThreadCount(e)}
+      />
+    </>
+  );
+
+  const processing = (
+    <>
+      <div className={styles.processing}>
+        <div className={styles["processing-label"]}>
+          <span>Discovering statistics</span>
+          <span>50%</span>
+        </div>
+        <Progress value={50} />
+      </div>
+    </>
+  );
+
+  const columns = <></>;
 
   return (
     <>
       <div className={styles.stats}>
-        <Alert>
-          Statistics have not been processed yet.
-          <br />
-          Would you like to start processing?
-        </Alert>
-        <NumberSlider
-          sliderProps={{ min: 1, max: 9, step: 1 }}
-          label="Thread count"
-          value={threadCount}
-          onChange={(e) => setThreadCount(e)}
-        />
+        {stage === 0 && startProcessing}
+        {stage === 1 && processing}
+        {stage === 2 && columns}
       </div>
       <div className={styles.buttonsRow}>
-        <Button>Start Processing</Button>
+        {stage < 2 && (
+          <Button
+            disabled={stage !== 0}
+            onClick={() => {
+              nextStage();
+              setTimeout(nextStage, 2000);
+            }}
+          >
+            Start Processing
+          </Button>
+        )}
       </div>
     </>
   );
