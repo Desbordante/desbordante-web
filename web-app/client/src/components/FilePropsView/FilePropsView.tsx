@@ -1,17 +1,19 @@
-import { FC, useState } from 'react';
+import { FC, useState } from "react";
 import {
   useForm,
   SubmitHandler,
   FieldValues,
   Controller,
-} from 'react-hook-form';
-import _ from 'lodash';
-import Button from '@components/Button';
-import { Checkbox, Select, Text } from '@components/Inputs';
-import { Tab, TabView } from '@components/TabView/TabView';
-import { FileProps } from 'types/globalTypes';
-import Tooltip from '@components/Tooltip';
-import styles from './FilePropsView.module.scss';
+} from "react-hook-form";
+import _ from "lodash";
+import Button from "@components/Button";
+import { Checkbox, Select, Text } from "@components/Inputs";
+import { Tab, TabView } from "@components/TabView/TabView";
+import { FileProps } from "types/globalTypes";
+import Tooltip from "@components/Tooltip";
+import styles from "./FilePropsView.module.scss";
+import { Alert } from "@components/FileStats/Alert";
+import NumberSlider from "@components/Inputs/NumberSlider/NumberSlider";
 
 type Props = {
   data: FileProps;
@@ -29,9 +31,9 @@ const FilePropsList: FC<Props & FormProps> = ({
   switchEdit,
 }) => {
   const separators = {
-    ',': 'Comma ","',
-    ';': 'semicolon ";"',
-    '|': 'Pipe "|"',
+    ",": 'Comma ","',
+    ";": 'semicolon ";"',
+    "|": 'Pipe "|"',
   };
   return (
     <>
@@ -44,7 +46,7 @@ const FilePropsList: FC<Props & FormProps> = ({
               eiusmod tempor incididunt ut labore et dolore magna aliqua
             </Tooltip>
           </p>
-          <p>{data.fileType || 'CSV'}</p>
+          <p>{data.fileType || "CSV"}</p>
         </div>
         <div>
           <p>Separator</p>
@@ -52,10 +54,10 @@ const FilePropsList: FC<Props & FormProps> = ({
         </div>
         <div>
           <p>Has header row</p>
-          <p>{data.hasHeader ? 'Yes' : 'No'}</p>
+          <p>{data.hasHeader ? "Yes" : "No"}</p>
         </div>
 
-        {data.fileType === 'Itemset' && (
+        {data.fileType === "Itemset" && (
           <>
             <div>
               <p>
@@ -103,13 +105,13 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Controller
-        name={'fileType'}
+        name={"fileType"}
         control={control}
         render={({ field }) => (
           <Select
             {...field}
             label="File type"
-            options={[{ value: 'CSV', label: 'CSV' }]}
+            options={[{ value: "CSV", label: "CSV" }]}
           />
         )}
       />
@@ -120,12 +122,12 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
           <Select
             {...field}
             label="Separator"
-            options={[{ value: ',', label: 'Comma (",")' }]}
+            options={[{ value: ",", label: 'Comma (",")' }]}
           />
         )}
       />
-      <Checkbox label="Has header row" {...register('hasHeader')} />
-      {data.fileType === 'Itemset' && (
+      <Checkbox label="Has header row" {...register("hasHeader")} />
+      {data.fileType === "Itemset" && (
         <>
           <Controller
             name="inputFormat"
@@ -135,17 +137,17 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
                 {...field}
                 label="Itemset format"
                 options={[
-                  { value: 'SINGULAR', label: 'Singular' },
-                  { value: 'TABULAR', label: 'Tabular' },
+                  { value: "SINGULAR", label: "Singular" },
+                  { value: "TABULAR", label: "Tabular" },
                 ]}
               />
             )}
           />
           <div className={styles.fieldsRow}>
-            <Text label="ID column index" {...register('tidColumnIndex')} />
+            <Text label="ID column index" {...register("tidColumnIndex")} />
             <Text
               label="Itemset column index"
-              {...register('itemColumnIndex')}
+              {...register("itemColumnIndex")}
             />
           </div>
         </>
@@ -162,6 +164,32 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
     </form>
   );
 };
+
+const StatsTab: FC = () => {
+  const [threadCount, setThreadCount] = useState(1);
+
+  return (
+    <>
+      <div className={styles.stats}>
+        <Alert>
+          Statistics have not been processed yet.
+          <br />
+          Would you like to start processing?
+        </Alert>
+        <NumberSlider
+          sliderProps={{ min: 1, max: 9, step: 1 }}
+          label="Thread count"
+          value={threadCount}
+          onChange={(e) => setThreadCount(e)}
+        />
+      </div>
+      <div className={styles.buttonsRow}>
+        <Button>Start Processing</Button>
+      </div>
+    </>
+  );
+};
+
 const FilePropsView: FC<Props> = ({ data, onClose }) => {
   const [isEdited, setIsEdited] = useState(false);
   const switchEdit = () => setIsEdited((isEdited) => !isEdited);
@@ -180,9 +208,7 @@ const FilePropsView: FC<Props> = ({ data, onClose }) => {
           {isEdited && <FilePropsForm switchEdit={switchEdit} data={data} />}
         </Tab>
         <Tab name="Statistics">
-          <div className={styles.stats}>
-            <p>Statistics are not available yet</p>
-          </div>
+          <StatsTab />
         </Tab>
       </TabView>
     </div>
