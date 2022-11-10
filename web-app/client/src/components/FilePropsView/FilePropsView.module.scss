@@ -63,5 +63,18 @@
   flex-direction: column;
   align-items: center;
   gap: 24px;
+
+  .processing {
+    width: 100%;
+    padding: 64px;
+
+    .processing-label {
+      @include paragraph;
+
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+  }
 }
 
