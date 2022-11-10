@@ -15,7 +15,7 @@ import 'rc-slider/assets/index.css';
 import styles from './NumberSlider.module.scss';
 
 type Props = InputPropsBase &
-  HTMLProps<HTMLInputElement> & {
+  Omit<HTMLProps<HTMLInputElement>, "onChange"> & {
     tooltip?: ReactNode;
     sliderProps?: SliderProps;
     onChange: (value: number) => void;

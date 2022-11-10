@@ -1,0 +1,10 @@
+@import "styles/common";
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  padding: 24px;
+  gap: 16px;
+  background: rgba($info, 0.1);
+  border-radius: 8px;
+}
