@@ -66,7 +66,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
           size="lg"
         />
       </div>
-      <Collapse isOpened={showDetails}>
+      <Collapse isOpened={showDetails || !!compact}>
         <div className={styles["more-stats"]}>
           <StatsBlock
             tableMode={tableMode}
@@ -99,14 +99,16 @@ export const ColumnCard: FC<ColumnCardProps> = ({
 
       {content}
 
-      <Button
-        variant="secondary"
-        icon={!showDetails ? chevronDown : chevronUp}
-        className={styles["details-button"]}
-        onClick={toggleDetails}
-      >
-        {!showDetails ? "Show details" : "Hide details"}
-      </Button>
+      {!compact && (
+        <Button
+          variant="secondary"
+          icon={!showDetails ? chevronDown : chevronUp}
+          className={styles["details-button"]}
+          onClick={toggleDetails}
+        >
+          {!showDetails ? "Show details" : "Hide details"}
+        </Button>
+      )}
     </Paper>
   );
 };

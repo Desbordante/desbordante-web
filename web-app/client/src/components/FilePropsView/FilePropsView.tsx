@@ -15,6 +15,10 @@ import styles from "./FilePropsView.module.scss";
 import { Alert } from "@components/FileStats/Alert";
 import NumberSlider from "@components/Inputs/NumberSlider/NumberSlider";
 import { Progress } from "@components/FileStats/Progress";
+import { Table } from "@components/FileStats/Table";
+import { ColumnCard } from "@components/FileStats/ColumnCard";
+import { useRouter } from "next/router";
+import { OnChangeValue } from "react-select/dist/declarations/src/types";
 
 type Props = {
   data: FileProps;
@@ -166,9 +170,18 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
   );
 };
 
+type Option = { value: number; label: string };
+
 const StatsTab: FC = () => {
+  const router = useRouter();
+
   const [threadCount, setThreadCount] = useState(1);
   const [stage, nextStage] = useReducer((stage) => stage + 1, 0);
+
+  const [selectedColumn, setSelectedColumn] = useState<Option>({
+    value: -1,
+    label: "Overview",
+  });
 
   const startProcessing = (
     <>
@@ -181,7 +194,7 @@ const StatsTab: FC = () => {
         sliderProps={{ min: 1, max: 9, step: 1 }}
         label="Thread count"
         value={threadCount}
-        onChange={(e) => setThreadCount(e)}
+        onChange={(value) => setThreadCount(value)}
       />
     </>
   );
@@ -198,7 +211,62 @@ const StatsTab: FC = () => {
     </>
   );
 
-  const columns = <></>;
+  const overview = (
+    <Table>
+      {[
+        { name: "Number of columns", value: 12 },
+        { name: "Numeric", value: 5 },
+        { name: "Categorical", value: 7 },
+      ].map((item) => (
+        <tr key={item.name}>
+          <th>{item.name}</th>
+          <td>{item.value}</td>
+        </tr>
+      ))}
+    </Table>
+  );
+
+  const columns = (
+    <>
+      <div className={styles["header-with-select"]}>
+        <h5>Columns</h5>
+        <Select
+          value={selectedColumn}
+          onChange={(e) => setSelectedColumn(e as Option)}
+          options={[
+            { value: -1, label: "Overview" },
+            { value: 0, label: "Column A" },
+          ]}
+        />
+      </div>
+
+      {selectedColumn.value === -1 && overview}
+      {selectedColumn.value !== -1 && (
+        <ColumnCard
+          column={{
+            __typename: "FileStats",
+            fileID: "test",
+            columnIndex: 0,
+            columnName: "Column A",
+            distinct: 256,
+            isCategorical: true,
+            count: 1281731,
+            avg: "9706.470388",
+            STD: "7451.165309",
+            skewness: "0.637135",
+            kurtosis: "2.329082",
+            min: "0",
+            max: "28565",
+            sum: "12441083997",
+            quantile25: "3318",
+            quantile50: "7993",
+            quantile75: "14948",
+          }}
+          compact
+        />
+      )}
+    </>
+  );
 
   return (
     <>
@@ -217,6 +285,11 @@ const StatsTab: FC = () => {
             }}
           >
             Start Processing
+          </Button>
+        )}
+        {stage === 2 && (
+          <Button onClick={() => router.push("/create-task/file-stats")}>
+            Show More
           </Button>
         )}
       </div>

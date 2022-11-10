@@ -76,5 +76,15 @@
       margin-bottom: 16px;
     }
   }
+
+  .header-with-select {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    h5 {
+      margin-top: 8px;
+    }
+  }
 }
 
