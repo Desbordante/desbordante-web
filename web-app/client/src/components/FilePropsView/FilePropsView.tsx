@@ -179,7 +179,7 @@ const StatsTab: FC = () => {
   const [stage, nextStage] = useReducer((stage) => stage + 1, 0);
 
   const [selectedColumn, setSelectedColumn] = useState<Option>({
-    value: -1,
+    value: 0,
     label: "Overview",
   });
 
@@ -242,28 +242,30 @@ const StatsTab: FC = () => {
 
       {selectedColumn.value === -1 && overview}
       {selectedColumn.value !== -1 && (
-        <ColumnCard
-          column={{
-            __typename: "FileStats",
-            fileID: "test",
-            columnIndex: 0,
-            columnName: "Column A",
-            distinct: 256,
-            isCategorical: true,
-            count: 1281731,
-            avg: "9706.470388",
-            STD: "7451.165309",
-            skewness: "0.637135",
-            kurtosis: "2.329082",
-            min: "0",
-            max: "28565",
-            sum: "12441083997",
-            quantile25: "3318",
-            quantile50: "7993",
-            quantile75: "14948",
-          }}
-          compact
-        />
+        <div>
+          <ColumnCard
+            column={{
+              __typename: "FileStats",
+              fileID: "test",
+              columnIndex: 0,
+              columnName: "Column A",
+              distinct: 256,
+              isCategorical: true,
+              count: 1281731,
+              avg: "9706.470388",
+              STD: "7451.165309",
+              skewness: "0.637135",
+              kurtosis: "2.329082",
+              min: "0",
+              max: "28565",
+              sum: "12441083997",
+              quantile25: "3318",
+              quantile50: "7993",
+              quantile75: "14948",
+            }}
+            compact
+          />
+        </div>
       )}
     </>
   );
