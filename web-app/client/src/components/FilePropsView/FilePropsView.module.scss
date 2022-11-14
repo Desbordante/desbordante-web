@@ -87,11 +87,29 @@
     justify-content: space-between;
     width: 100%;
 
-    overflow-x: clip;
+    /* overflow-x: clip; */
 
     h5 {
       margin-top: 8px;
     }
   }
+}
+
+.option {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  max-width: 30vw;
+  flex-wrap: wrap;
+}
+
+.menu {
+  position: fixed;
+  background: $white;
+  border-radius: 5px;
+  border: 1px solid rgba($black, 0.2);
+  box-shadow: 0 0 4px 0 $black-10;
+  margin-top: 8px;
+  z-index: 9999;
 }
 
