@@ -1,13 +1,13 @@
-import { forwardRef, ForwardRefRenderFunction, ReactNode } from 'react';
-import cn from 'classnames';
+import { forwardRef, ForwardRefRenderFunction, ReactNode } from "react";
+import cn from "classnames";
 import ReactSelect, {
   Props as ReactSelectProps,
   PropsValue,
-} from 'react-select';
-import { InputPropsBase } from '@components/Inputs';
-import Tooltip from '@components/Tooltip';
-import customComponents from './customComponents';
-import styles from './Select.module.scss';
+} from "react-select";
+import { InputPropsBase } from "@components/Inputs";
+import Tooltip from "@components/Tooltip";
+import customComponents from "./customComponents";
+import styles from "./Select.module.scss";
 
 export type Props = InputPropsBase &
   ReactSelectProps & {
@@ -15,7 +15,7 @@ export type Props = InputPropsBase &
   };
 
 const Select: ForwardRefRenderFunction<any, Props> = (
-  { label, error, tooltip, className, id, ...props },
+  { label, error, tooltip, className, id, components, ...props },
   ref
 ) => {
   return (
@@ -39,7 +39,7 @@ const Select: ForwardRefRenderFunction<any, Props> = (
         classNamePrefix={styles.selectContainer}
         {...props}
         ref={ref}
-        components={customComponents}
+        components={{ ...customComponents, ...components }}
       />
       {error && <p className={styles.error}>{error}</p>}
     </div>

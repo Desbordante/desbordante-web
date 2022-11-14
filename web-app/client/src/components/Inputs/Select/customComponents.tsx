@@ -88,7 +88,7 @@ const IndicatorsContainer: ComponentType<
   </div>
 );
 
-const Option: ComponentType<OptionProps & InputPropsBase> = ({
+export const Option: ComponentType<OptionProps & InputPropsBase> = ({
   innerProps,
   innerRef,
   children,
