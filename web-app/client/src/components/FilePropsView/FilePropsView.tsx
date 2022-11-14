@@ -290,7 +290,9 @@ const StatsTab: FC = () => {
           </Button>
         )}
         {stage === 2 && (
-          <Button onClick={() => router.push("/create-task/file-stats")}>
+          <Button
+            onClick={() => router.push("/create-task/file-stats?fileId=12345")}
+          >
             Show More
           </Button>
         )}
