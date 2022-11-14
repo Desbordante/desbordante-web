@@ -16,6 +16,8 @@ import { useRouter } from "next/router";
 import { Option as CustomOption } from "@components/Inputs/Select/customComponents";
 import { MenuProps, OptionProps } from "react-select";
 import { Badge } from "@components/FileStats/Badge";
+import { OptionWithBadge } from "@components/FilePropsView/OptionWithBadge";
+import { Menu } from "@components/FilePropsView/Menu";
 
 type Props = {
   data: FileProps;
@@ -167,38 +169,11 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
   );
 };
 
-type Option = {
+export type ColumnOption = {
   value: number;
   label: string;
   type?: string;
   categorical?: boolean;
-};
-
-const OptionWithBadge: ComponentType<OptionProps & InputPropsBase> = ({
-  children,
-  ...props
-}) => {
-  const option = props.data as Option;
-
-  return (
-    <CustomOption {...props}>
-      <div className={styles.option}>
-        {children}
-        {option.type && <Badge mode="secondary">{option.type}</Badge>}
-        {option.categorical && <Badge>Categorical</Badge>}
-      </div>
-    </CustomOption>
-  );
-};
-
-const Menu: ComponentType<MenuProps & InputPropsBase> = ({
-  innerProps,
-  innerRef,
-  ...props
-}) => {
-  return (
-    <div {...innerProps} ref={innerRef} {...props} className={styles.menu} />
-  );
 };
 
 const StatsTab: FC = () => {
@@ -252,7 +227,7 @@ const StatsTab: FC = () => {
     </Table>
   );
 
-  const options: Option[] = [
+  const options: ColumnOption[] = [
     { value: -1, label: "Overview" },
     { value: 0, label: "Column A", type: "Integer", categorical: true },
   ];
@@ -264,7 +239,7 @@ const StatsTab: FC = () => {
         <Select
           isSearchable={false}
           value={options.find((option) => option.value === selectedColumn)}
-          onChange={(e) => setSelectedColumn((e as Option).value)}
+          onChange={(e) => setSelectedColumn((e as ColumnOption).value)}
           options={options}
           components={{ Option: OptionWithBadge, Menu }}
         />
