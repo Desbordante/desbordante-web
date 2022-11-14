@@ -1,13 +1,8 @@
-import { FC, useReducer, useState } from "react";
-import {
-  useForm,
-  SubmitHandler,
-  FieldValues,
-  Controller,
-} from "react-hook-form";
+import { ComponentType, FC, useReducer, useState } from "react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import _ from "lodash";
 import Button from "@components/Button";
-import { Checkbox, Select, Text } from "@components/Inputs";
+import { Checkbox, InputPropsBase, Select, Text } from "@components/Inputs";
 import { Tab, TabView } from "@components/TabView/TabView";
 import { FileProps } from "types/globalTypes";
 import Tooltip from "@components/Tooltip";
@@ -18,7 +13,9 @@ import { Progress } from "@components/FileStats/Progress";
 import { Table } from "@components/FileStats/Table";
 import { ColumnCard } from "@components/FileStats/ColumnCard";
 import { useRouter } from "next/router";
-import { OnChangeValue } from "react-select/dist/declarations/src/types";
+import { Option as CustomOption } from "@components/Inputs/Select/customComponents";
+import { MenuProps, OptionProps } from "react-select";
+import { Badge } from "@components/FileStats/Badge";
 
 type Props = {
   data: FileProps;
@@ -170,7 +167,39 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
   );
 };
 
-type Option = { value: number; label: string };
+type Option = {
+  value: number;
+  label: string;
+  type?: string;
+  categorical?: boolean;
+};
+
+const OptionWithBadge: ComponentType<OptionProps & InputPropsBase> = ({
+  children,
+  ...props
+}) => {
+  const option = props.data as Option;
+
+  return (
+    <CustomOption {...props}>
+      <div className={styles.option}>
+        {children}
+        {option.type && <Badge mode="secondary">{option.type}</Badge>}
+        {option.categorical && <Badge>Categorical</Badge>}
+      </div>
+    </CustomOption>
+  );
+};
+
+const Menu: ComponentType<MenuProps & InputPropsBase> = ({
+  innerProps,
+  innerRef,
+  ...props
+}) => {
+  return (
+    <div {...innerProps} ref={innerRef} {...props} className={styles.menu} />
+  );
+};
 
 const StatsTab: FC = () => {
   const router = useRouter();
@@ -178,10 +207,7 @@ const StatsTab: FC = () => {
   const [threadCount, setThreadCount] = useState(1);
   const [stage, nextStage] = useReducer((stage) => stage + 1, 0);
 
-  const [selectedColumn, setSelectedColumn] = useState<Option>({
-    value: 0,
-    label: "Overview",
-  });
+  const [selectedColumn, setSelectedColumn] = useState(-1);
 
   const startProcessing = (
     <>
@@ -226,22 +252,26 @@ const StatsTab: FC = () => {
     </Table>
   );
 
+  const options: Option[] = [
+    { value: -1, label: "Overview" },
+    { value: 0, label: "Column A", type: "Integer", categorical: true },
+  ];
+
   const columns = (
     <>
       <div className={styles["header-with-select"]}>
         <h5>Columns</h5>
         <Select
-          value={selectedColumn}
-          onChange={(e) => setSelectedColumn(e as Option)}
-          options={[
-            { value: -1, label: "Overview" },
-            { value: 0, label: "Column A" },
-          ]}
+          isSearchable={false}
+          value={options.find((option) => option.value === selectedColumn)}
+          onChange={(e) => setSelectedColumn((e as Option).value)}
+          options={options}
+          components={{ Option: OptionWithBadge, Menu }}
         />
       </div>
 
-      {selectedColumn.value === -1 && overview}
-      {selectedColumn.value !== -1 && (
+      {selectedColumn === -1 && overview}
+      {selectedColumn !== -1 && (
         <div>
           <ColumnCard
             column={{
