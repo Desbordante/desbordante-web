@@ -1,15 +1,22 @@
-import type { GetServerSideProps, NextPage } from "next";
-import { WizardLayout } from "@components/WizardLayout/WizardLayout";
-import styles from "@styles/FileStats.module.scss";
-import { ColumnCard } from "@components/FileStats/ColumnCard";
-import { OverviewCard } from "@components/FileStats/OverviewCard";
-import { Group } from "@components/FileStats/Group";
-import { StatType } from "types/fileStats";
-import { getFileStats_fileStats } from "@graphql/operations/queries/__generated__/getFileStats";
+import type { GetServerSideProps, NextPage } from 'next';
+import { WizardLayout } from '@components/WizardLayout/WizardLayout';
+import styles from '@styles/FileStats.module.scss';
+import { ColumnCard } from '@components/FileStats/ColumnCard';
+import { OverviewCard } from '@components/FileStats/OverviewCard';
+import { Group } from '@components/FileStats/Group';
+import { StatType } from 'types/fileStats';
+import {
+  getFileStats,
+  getFileStats_datasetInfo,
+  getFileStats_datasetInfo_stats as FileStats,
+  getFileStatsVariables,
+} from '@graphql/operations/queries/__generated__/getFileStats';
+import client from '@graphql/client';
+import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
 
 type FileStatsProps = {
   overview: StatType[];
-  columns: getFileStats_fileStats[];
+  columns: FileStats[];
   name: string;
 };
 
@@ -21,37 +28,35 @@ export const getServerSideProps: GetServerSideProps<
   FileStatsProps,
   FileStatsQuery
 > = async (context) => {
+  const { data } = await client.query<getFileStats, getFileStatsVariables>({
+    query: GET_FILE_STATS,
+    variables: {
+      fileID: (context.query as FileStatsQuery).fileId,
+    },
+  });
+
+  const file = data?.datasetInfo;
+
+  if (!file)
+    return {
+      notFound: true,
+    };
+
   const overview: StatType[] = [
-    { name: "Number of columns", value: 12 },
-    { name: "Numeric", value: 5 },
-    { name: "Categorical", value: 7 },
+    { name: 'Number of columns', value: file.countOfColumns },
+    { name: 'Categoricals', value: file.overview?.categoricals },
+    { name: 'Integers', value: file.overview?.integers },
+    { name: 'Strings', value: file.overview?.strings },
+    { name: 'Floats', value: file.overview?.floats },
   ];
 
-  const columns: getFileStats_fileStats[] = [...Array(10)].map((_, index) => ({
-    __typename: "FileStats",
-    fileID: "test",
-    columnIndex: index,
-    columnName: "Column A",
-    distinct: 256,
-    isCategorical: true,
-    count: 1281731,
-    avg: "9706.470388",
-    STD: "7451.165309",
-    skewness: "0.637135",
-    kurtosis: "2.329082",
-    min: "0",
-    max: "28565",
-    sum: "12441083997",
-    quantile25: "3318",
-    quantile50: "7993",
-    quantile75: "14948",
-  }));
+  const columns: FileStats[] = file.stats;
 
   return {
     props: {
       overview,
       columns,
-      name: `EpicMeds.csv ${(context.query as FileStatsQuery).fileId}`,
+      name: file.fileName,
     },
   };
 };
