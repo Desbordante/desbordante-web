@@ -2,7 +2,7 @@ import { FC, HTMLProps } from "react";
 import styles from "./StatsBlock.module.scss";
 import { Statistic, StatisticSize } from "@components/FileStats/Statistic";
 import { Table } from "@components/FileStats/Table";
-import { StatType } from "@/types/fileStats";
+import { StatType } from "types/fileStats";
 
 type StatsBlockProps = {
   stats: StatType[];

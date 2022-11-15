@@ -1,7 +1,7 @@
 import { FC, HTMLProps } from "react";
 import styles from "./Alert.module.scss";
 import classNames from "classnames";
-import info from "@/assets/icons/info-blue.svg";
+import info from "@assets/icons/info-blue.svg";
 import Image from "next/image";
 
 export const Alert: FC<HTMLProps<HTMLDivElement>> = ({
