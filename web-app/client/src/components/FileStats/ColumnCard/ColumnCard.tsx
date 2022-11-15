@@ -1,19 +1,19 @@
-import { FC, useReducer } from "react";
-import styles from "./ColumnCard.module.scss";
-import { Badge } from "@components/FileStats/Badge";
-import { getFileStats_fileStats } from "@graphql/operations/queries/__generated__/getFileStats";
-import Button from "@components/Button";
-import chevronDown from "@assets/icons/chevron-down.svg";
-import chevronUp from "@assets/icons/chevron-up.svg";
-import { Collapse } from "react-collapse";
-import classNames from "classnames";
-import { Paper } from "@components/FileStats/Paper";
-import { StatsBlock } from "@components/FileStats/StatsBlock";
-import { ModeButton } from "@components/FileStats/ModeButton";
-import { useToggle } from "@components/FileStats/hooks";
+import { FC, useReducer } from 'react';
+import styles from './ColumnCard.module.scss';
+import { Badge } from '@components/FileStats/Badge';
+import { getFileStats_datasetInfo_stats as FileStats } from '@graphql/operations/queries/__generated__/getFileStats';
+import Button from '@components/Button';
+import chevronDown from '@assets/icons/chevron-down.svg';
+import chevronUp from '@assets/icons/chevron-up.svg';
+import { Collapse } from 'react-collapse';
+import classNames from 'classnames';
+import { Paper } from '@components/FileStats/Paper';
+import { StatsBlock } from '@components/FileStats/StatsBlock';
+import { ModeButton } from '@components/FileStats/ModeButton';
+import { useToggle } from '@components/FileStats/hooks';
 
 type ColumnCardProps = {
-  column: getFileStats_fileStats;
+  column: FileStats;
   compact?: boolean;
 };
 
@@ -30,13 +30,13 @@ export const ColumnCard: FC<ColumnCardProps> = ({
 
   const header = (
     <div className={styles.header}>
-      <div className={styles["name-with-badges"]}>
+      <div className={styles['name-with-badges']}>
         <div className={styles.name}>
           <span>#{column.columnIndex + 1}</span>
           <h6>{column.columnName}</h6>
         </div>
         <div className={styles.badges}>
-          <Badge mode="secondary">Integer</Badge>
+          <Badge mode="secondary">{column.type}</Badge>
           {column.isCategorical && <Badge>Categorical</Badge>}
         </div>
       </div>
@@ -46,45 +46,45 @@ export const ColumnCard: FC<ColumnCardProps> = ({
 
   const content = (
     <div
-      className={classNames(styles.content, tableMode && styles["table-mode"])}
+      className={classNames(styles.content, tableMode && styles['table-mode'])}
     >
-      <div className={styles["basic-stats"]}>
+      <div className={styles['basic-stats']}>
         <StatsBlock
           tableMode={tableMode}
           stats={[
-            { name: "Distinct", value: column.distinct },
-            { name: "Count", value: column.count },
+            { name: 'Distinct', value: column.distinct },
+            { name: 'Count', value: column.count },
           ]}
           size="lg"
         />
         <StatsBlock
           tableMode={tableMode}
           stats={[
-            { name: "Avg", value: column.avg },
-            { name: "Std", value: column.STD },
+            { name: 'Avg', value: column.avg },
+            { name: 'Std', value: column.STD },
           ]}
           size="lg"
         />
       </div>
       <Collapse isOpened={showDetails || !!compact}>
-        <div className={styles["more-stats"]}>
+        <div className={styles['more-stats']}>
           <StatsBlock
             tableMode={tableMode}
             stats={[
-              { name: "Min", value: column.min },
-              { name: "Max", value: column.max },
-              { name: "Quantile 25", value: column.quantile25 },
-              { name: "Quantile 50", value: column.quantile50 },
-              { name: "Quantile 75", value: column.quantile75 },
+              { name: 'Min', value: column.min },
+              { name: 'Max', value: column.max },
+              { name: 'Quantile 25', value: column.quantile25 },
+              { name: 'Quantile 50', value: column.quantile50 },
+              { name: 'Quantile 75', value: column.quantile75 },
             ]}
             header="Quantile stats"
           />
           <StatsBlock
             tableMode={tableMode}
             stats={[
-              { name: "Skewness", value: column.skewness },
-              { name: "Kurtosis", value: column.kurtosis },
-              { name: "Sum", value: column.sum },
+              { name: 'Skewness', value: column.skewness },
+              { name: 'Kurtosis', value: column.kurtosis },
+              { name: 'Sum', value: column.sum },
             ]}
             header="Descriptive stats"
           />
@@ -103,10 +103,10 @@ export const ColumnCard: FC<ColumnCardProps> = ({
         <Button
           variant="secondary"
           icon={!showDetails ? chevronDown : chevronUp}
-          className={styles["details-button"]}
+          className={styles['details-button']}
           onClick={toggleDetails}
         >
-          {!showDetails ? "Show details" : "Hide details"}
+          {!showDetails ? 'Show details' : 'Hide details'}
         </Button>
       )}
     </Paper>

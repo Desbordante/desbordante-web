@@ -1,1 +1,4 @@
-export type StatType = { name: string; value: number | string | null };
+export type StatType = {
+  name: string;
+  value: number | string | null | undefined;
+};

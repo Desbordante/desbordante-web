@@ -1,23 +1,20 @@
-import { ComponentType, FC, useReducer, useState } from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import _ from "lodash";
-import Button from "@components/Button";
-import { Checkbox, InputPropsBase, Select, Text } from "@components/Inputs";
-import { Tab, TabView } from "@components/TabView/TabView";
-import { FileProps } from "types/globalTypes";
-import Tooltip from "@components/Tooltip";
-import styles from "./FilePropsView.module.scss";
-import { Alert } from "@components/FileStats/Alert";
-import NumberSlider from "@components/Inputs/NumberSlider/NumberSlider";
-import { Progress } from "@components/FileStats/Progress";
-import { Table } from "@components/FileStats/Table";
-import { ColumnCard } from "@components/FileStats/ColumnCard";
-import { useRouter } from "next/router";
-import { Option as CustomOption } from "@components/Inputs/Select/customComponents";
-import { MenuProps, OptionProps } from "react-select";
-import { Badge } from "@components/FileStats/Badge";
-import { OptionWithBadge } from "@components/FilePropsView/OptionWithBadge";
-import { Menu } from "@components/FilePropsView/Menu";
+import { FC, useReducer, useState } from 'react';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import _ from 'lodash';
+import Button from '@components/Button';
+import { Checkbox, Select, Text } from '@components/Inputs';
+import { Tab, TabView } from '@components/TabView/TabView';
+import { FileProps } from 'types/globalTypes';
+import Tooltip from '@components/Tooltip';
+import styles from './FilePropsView.module.scss';
+import { Alert } from '@components/FileStats/Alert';
+import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
+import { Progress } from '@components/FileStats/Progress';
+import { Table } from '@components/FileStats/Table';
+import { ColumnCard } from '@components/FileStats/ColumnCard';
+import { useRouter } from 'next/router';
+import { OptionWithBadge } from '@components/FilePropsView/OptionWithBadge';
+import { Menu } from '@components/FilePropsView/Menu';
 
 type Props = {
   data: FileProps;
@@ -35,9 +32,9 @@ const FilePropsList: FC<Props & FormProps> = ({
   switchEdit,
 }) => {
   const separators = {
-    ",": 'Comma ","',
-    ";": 'semicolon ";"',
-    "|": 'Pipe "|"',
+    ',': 'Comma ","',
+    ';': 'semicolon ";"',
+    '|': 'Pipe "|"',
   };
   return (
     <>
@@ -50,7 +47,7 @@ const FilePropsList: FC<Props & FormProps> = ({
               eiusmod tempor incididunt ut labore et dolore magna aliqua
             </Tooltip>
           </p>
-          <p>{data.fileType || "CSV"}</p>
+          <p>{data.fileType || 'CSV'}</p>
         </div>
         <div>
           <p>Separator</p>
@@ -58,10 +55,10 @@ const FilePropsList: FC<Props & FormProps> = ({
         </div>
         <div>
           <p>Has header row</p>
-          <p>{data.hasHeader ? "Yes" : "No"}</p>
+          <p>{data.hasHeader ? 'Yes' : 'No'}</p>
         </div>
 
-        {data.fileType === "Itemset" && (
+        {data.fileType === 'Itemset' && (
           <>
             <div>
               <p>
@@ -109,13 +106,13 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Controller
-        name={"fileType"}
+        name={'fileType'}
         control={control}
         render={({ field }) => (
           <Select
             {...field}
             label="File type"
-            options={[{ value: "CSV", label: "CSV" }]}
+            options={[{ value: 'CSV', label: 'CSV' }]}
           />
         )}
       />
@@ -126,12 +123,12 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
           <Select
             {...field}
             label="Separator"
-            options={[{ value: ",", label: 'Comma (",")' }]}
+            options={[{ value: ',', label: 'Comma (",")' }]}
           />
         )}
       />
-      <Checkbox label="Has header row" {...register("hasHeader")} />
-      {data.fileType === "Itemset" && (
+      <Checkbox label="Has header row" {...register('hasHeader')} />
+      {data.fileType === 'Itemset' && (
         <>
           <Controller
             name="inputFormat"
@@ -141,17 +138,17 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
                 {...field}
                 label="Itemset format"
                 options={[
-                  { value: "SINGULAR", label: "Singular" },
-                  { value: "TABULAR", label: "Tabular" },
+                  { value: 'SINGULAR', label: 'Singular' },
+                  { value: 'TABULAR', label: 'Tabular' },
                 ]}
               />
             )}
           />
           <div className={styles.fieldsRow}>
-            <Text label="ID column index" {...register("tidColumnIndex")} />
+            <Text label="ID column index" {...register('tidColumnIndex')} />
             <Text
               label="Itemset column index"
-              {...register("itemColumnIndex")}
+              {...register('itemColumnIndex')}
             />
           </div>
         </>
@@ -203,7 +200,7 @@ const StatsTab: FC = () => {
   const processing = (
     <>
       <div className={styles.processing}>
-        <div className={styles["processing-label"]}>
+        <div className={styles['processing-label']}>
           <span>Discovering statistics</span>
           <span>50%</span>
         </div>
@@ -215,9 +212,9 @@ const StatsTab: FC = () => {
   const overview = (
     <Table>
       {[
-        { name: "Number of columns", value: 12 },
-        { name: "Numeric", value: 5 },
-        { name: "Categorical", value: 7 },
+        { name: 'Number of columns', value: 12 },
+        { name: 'Numeric', value: 5 },
+        { name: 'Categorical', value: 7 },
       ].map((item) => (
         <tr key={item.name}>
           <th>{item.name}</th>
@@ -228,13 +225,13 @@ const StatsTab: FC = () => {
   );
 
   const options: ColumnOption[] = [
-    { value: -1, label: "Overview" },
-    { value: 0, label: "Column A", type: "Integer", categorical: true },
+    { value: -1, label: 'Overview' },
+    { value: 0, label: 'Column A', type: 'Integer', categorical: true },
   ];
 
   const columns = (
     <>
-      <div className={styles["header-with-select"]}>
+      <div className={styles['header-with-select']}>
         <h5>Columns</h5>
         <Select
           isSearchable={false}
@@ -250,23 +247,23 @@ const StatsTab: FC = () => {
         <div>
           <ColumnCard
             column={{
-              __typename: "FileStats",
-              fileID: "test",
+              __typename: 'FileStats',
+              fileID: 'test',
               columnIndex: 0,
-              columnName: "Column A",
+              columnName: 'Column A',
               distinct: 256,
               isCategorical: true,
               count: 1281731,
-              avg: "9706.470388",
-              STD: "7451.165309",
-              skewness: "0.637135",
-              kurtosis: "2.329082",
-              min: "0",
-              max: "28565",
-              sum: "12441083997",
-              quantile25: "3318",
-              quantile50: "7993",
-              quantile75: "14948",
+              avg: '9706.470388',
+              STD: '7451.165309',
+              skewness: '0.637135',
+              kurtosis: '2.329082',
+              min: '0',
+              max: '28565',
+              sum: '12441083997',
+              quantile25: '3318',
+              quantile50: '7993',
+              quantile75: '14948',
             }}
             compact
           />
@@ -296,7 +293,11 @@ const StatsTab: FC = () => {
         )}
         {stage === 2 && (
           <Button
-            onClick={() => router.push("/create-task/file-stats?fileId=12345")}
+            onClick={() =>
+              router.push(
+                '/create-task/file-stats?fileId=a1cf11d8-09cc-4332-87cd-d296554e8532'
+              )
+            }
           >
             Show More
           </Button>
