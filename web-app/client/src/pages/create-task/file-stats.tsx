@@ -4,7 +4,7 @@ import styles from "@styles/FileStats.module.scss";
 import { ColumnCard } from "@components/FileStats/ColumnCard";
 import { OverviewCard } from "@components/FileStats/OverviewCard";
 import { Group } from "@components/FileStats/Group";
-import { StatType } from "@/types/fileStats";
+import { StatType } from "types/fileStats";
 import { getFileStats_fileStats } from "@graphql/operations/queries/__generated__/getFileStats";
 
 type FileStatsProps = {
