@@ -28,11 +28,15 @@ export const getServerSideProps: GetServerSideProps<
   FileStatsProps,
   FileStatsQuery
 > = async (context) => {
-  const { data } = await client.query<getFileStats, getFileStatsVariables>({
+  const { data, error } = await client.query<
+    getFileStats,
+    getFileStatsVariables
+  >({
     query: GET_FILE_STATS,
     variables: {
       fileID: (context.query as FileStatsQuery).fileId,
     },
+    errorPolicy: 'all',
   });
 
   const file = data?.datasetInfo;

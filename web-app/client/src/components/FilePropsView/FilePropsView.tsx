@@ -211,16 +211,18 @@ const StatsTab: FC = () => {
 
   const overview = (
     <Table>
-      {[
-        { name: 'Number of columns', value: 12 },
-        { name: 'Numeric', value: 5 },
-        { name: 'Categorical', value: 7 },
-      ].map((item) => (
-        <tr key={item.name}>
-          <th>{item.name}</th>
-          <td>{item.value}</td>
-        </tr>
-      ))}
+      <tbody>
+        {[
+          { name: 'Number of columns', value: 12 },
+          { name: 'Numeric', value: 5 },
+          { name: 'Categorical', value: 7 },
+        ].map((item) => (
+          <tr key={item.name}>
+            <th>{item.name}</th>
+            <td>{item.value}</td>
+          </tr>
+        ))}
+      </tbody>
     </Table>
   );
 
