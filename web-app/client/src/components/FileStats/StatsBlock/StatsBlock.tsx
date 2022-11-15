@@ -21,23 +21,18 @@ export const StatsBlock: FC<StatsBlockProps> = ({
   if (stats.every((item) => item.value === null)) return null;
 
   const items = stats.map(
-    (item) =>
-      item.value && (
-        <>
-          {!tableMode && (
-            <Statistic header={item.name} size={size}>
-              {item.value}
-            </Statistic>
-          )}
-
-          {tableMode && (
-            <tr>
-              <th>{item.name}</th>
-              <td>{item.value}</td>
-            </tr>
-          )}
-        </>
-      )
+    (item, index) =>
+      item.value &&
+      (tableMode ? (
+        <tr key={index}>
+          <th>{item.name}</th>
+          <td>{item.value}</td>
+        </tr>
+      ) : (
+        <Statistic header={item.name} size={size} key={index}>
+          {item.value}
+        </Statistic>
+      ))
   );
 
   return (
