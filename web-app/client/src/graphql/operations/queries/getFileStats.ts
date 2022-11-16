@@ -7,6 +7,7 @@ export const GET_FILE_STATS = gql`
       fileName
       hasStats
       countOfColumns
+      statsProgress
       overview {
         categoricals
         integers

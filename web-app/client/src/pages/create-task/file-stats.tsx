@@ -7,12 +7,12 @@ import { Group } from '@components/FileStats/Group';
 import { StatType } from 'types/fileStats';
 import {
   getFileStats,
-  getFileStats_datasetInfo,
   getFileStats_datasetInfo_stats as FileStats,
   getFileStatsVariables,
 } from '@graphql/operations/queries/__generated__/getFileStats';
 import client from '@graphql/client';
 import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
+import { getOverview } from '@utils/fileStats';
 
 type FileStatsProps = {
   overview: StatType[];
@@ -28,10 +28,7 @@ export const getServerSideProps: GetServerSideProps<
   FileStatsProps,
   FileStatsQuery
 > = async (context) => {
-  const { data, error } = await client.query<
-    getFileStats,
-    getFileStatsVariables
-  >({
+  const { data } = await client.query<getFileStats, getFileStatsVariables>({
     query: GET_FILE_STATS,
     variables: {
       fileID: (context.query as FileStatsQuery).fileId,
@@ -46,13 +43,7 @@ export const getServerSideProps: GetServerSideProps<
       notFound: true,
     };
 
-  const overview: StatType[] = [
-    { name: 'Number of columns', value: file.countOfColumns },
-    { name: 'Categoricals', value: file.overview?.categoricals },
-    { name: 'Integers', value: file.overview?.integers },
-    { name: 'Strings', value: file.overview?.strings },
-    { name: 'Floats', value: file.overview?.floats },
-  ];
+  const overview: StatType[] = getOverview(file);
 
   const columns: FileStats[] = file.stats;
 
