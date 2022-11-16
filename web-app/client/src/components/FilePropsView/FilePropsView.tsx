@@ -1,4 +1,4 @@
-import { FC, useReducer, useState } from 'react';
+import { FC, useEffect, useReducer, useState } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import _ from 'lodash';
 import Button from '@components/Button';
@@ -15,6 +15,19 @@ import { ColumnCard } from '@components/FileStats/ColumnCard';
 import { useRouter } from 'next/router';
 import { OptionWithBadge } from '@components/FilePropsView/OptionWithBadge';
 import { Menu } from '@components/FilePropsView/Menu';
+import { useMutation, useQuery } from '@apollo/client';
+import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
+import {
+  getFileStats,
+  getFileStatsVariables,
+} from '@graphql/operations/queries/__generated__/getFileStats';
+import { getOverview } from '@utils/fileStats';
+import { START_PROCESSING_STATS } from '@graphql/operations/mutations/startProcessingStats';
+import {
+  startProcessingStats,
+  startProcessingStatsVariables,
+} from '@graphql/operations/mutations/__generated__/startProcessingStats';
+import classNames from 'classnames';
 
 type Props = {
   data: FileProps;
@@ -173,13 +186,63 @@ export type ColumnOption = {
   categorical?: boolean;
 };
 
-const StatsTab: FC = () => {
+enum Stage {
+  Start,
+  Processing,
+  Show,
+}
+
+type StatsTabProps = {
+  fileId: string;
+};
+
+const StatsTab: FC<StatsTabProps> = ({ fileId }: StatsTabProps) => {
   const router = useRouter();
-
-  const [threadCount, setThreadCount] = useState(1);
-  const [stage, nextStage] = useReducer((stage) => stage + 1, 0);
-
+  const [threadsCount, setThreadsCount] = useState(1);
+  const [stage, setStage] = useState<Stage | null>(null);
   const [selectedColumn, setSelectedColumn] = useState(-1);
+
+  const {
+    data: fileStats,
+    startPolling,
+    stopPolling,
+  } = useQuery<getFileStats, getFileStatsVariables>(GET_FILE_STATS, {
+    variables: {
+      fileID: fileId,
+    },
+    onCompleted: (fileStats) => {
+      const file = fileStats?.datasetInfo;
+      if (!file) return;
+
+      if (!file.hasStats) return setStage(Stage.Start);
+
+      if (file.statsProgress !== 100) return setStage(Stage.Processing);
+
+      return setStage(Stage.Show);
+    },
+  });
+
+  const [startProcessingStats] = useMutation<
+    startProcessingStats,
+    startProcessingStatsVariables
+  >(START_PROCESSING_STATS, {
+    onCompleted: () => setStage(Stage.Processing),
+  });
+
+  useEffect(() => {
+    if (stage === Stage.Processing) startPolling?.(1000);
+
+    if (stage === Stage.Show) stopPolling?.();
+  }, [stage]);
+
+  const file = fileStats?.datasetInfo;
+
+  if (!file)
+    return (
+      <div className={styles.loading}>
+        <h5>Loading...</h5>
+      </div>
+    );
 
   const startProcessing = (
     <>
@@ -191,8 +254,8 @@ const StatsTab: FC = () => {
       <NumberSlider
         sliderProps={{ min: 1, max: 9, step: 1 }}
         label="Thread count"
-        value={threadCount}
-        onChange={(value) => setThreadCount(value)}
+        value={threadsCount}
+        onChange={(value) => setThreadsCount(Math.round(value))}
       />
     </>
   );
@@ -202,9 +265,9 @@ const StatsTab: FC = () => {
       <div className={styles.processing}>
         <div className={styles['processing-label']}>
           <span>Discovering statistics</span>
-          <span>50%</span>
+          <span>{file.statsProgress}%</span>
         </div>
-        <Progress value={50} />
+        <Progress value={file.statsProgress} />
       </div>
     </>
   );
@@ -212,11 +275,7 @@ const StatsTab: FC = () => {
   const overview = (
     <Table>
       <tbody>
-        {[
-          { name: 'Number of columns', value: 12 },
-          { name: 'Numeric', value: 5 },
-          { name: 'Categorical', value: 7 },
-        ].map((item) => (
+        {getOverview(file).map((item) => (
           <tr key={item.name}>
             <th>{item.name}</th>
             <td>{item.value}</td>
@@ -228,7 +287,12 @@ const StatsTab: FC = () => {
 
   const options: ColumnOption[] = [
     { value: -1, label: 'Overview' },
-    { value: 0, label: 'Column A', type: 'Integer', categorical: true },
+    ...file.stats.map((column) => ({
+      value: column.columnIndex,
+      label: column.columnName ?? '',
+      type: column.type ?? '',
+      categorical: !!column.isCategorical,
+    })),
   ];
 
   const columns = (
@@ -246,30 +310,12 @@ const StatsTab: FC = () => {
 
       {selectedColumn === -1 && overview}
       {selectedColumn !== -1 && (
-        <div>
-          <ColumnCard
-            column={{
-              __typename: 'FileStats',
-              fileID: 'test',
-              columnIndex: 0,
-              columnName: 'Column A',
-              distinct: 256,
-              isCategorical: true,
-              count: 1281731,
-              avg: '9706.470388',
-              STD: '7451.165309',
-              skewness: '0.637135',
-              kurtosis: '2.329082',
-              min: '0',
-              max: '28565',
-              sum: '12441083997',
-              quantile25: '3318',
-              quantile50: '7993',
-              quantile75: '14948',
-            }}
-            compact
-          />
-        </div>
+        <ColumnCard
+          column={
+            file.stats.find((column) => column.columnIndex === selectedColumn)!
+          }
+          compact
+        />
       )}
     </>
   );
@@ -277,28 +323,27 @@ const StatsTab: FC = () => {
   return (
     <>
       <div className={styles.stats}>
-        {stage === 0 && startProcessing}
-        {stage === 1 && processing}
-        {stage === 2 && columns}
+        {stage === Stage.Start && startProcessing}
+        {stage === Stage.Processing && processing}
+        {stage === Stage.Show && columns}
       </div>
       <div className={styles.buttonsRow}>
-        {stage < 2 && (
+        {stage !== Stage.Show && (
           <Button
-            disabled={stage !== 0}
-            onClick={() => {
-              nextStage();
-              setTimeout(nextStage, 2000);
-            }}
+            disabled={stage !== Stage.Start}
+            onClick={() =>
+              startProcessingStats({
+                variables: { fileID: fileId, threadsCount },
+              })
+            }
           >
             Start Processing
           </Button>
         )}
-        {stage === 2 && (
+        {stage === Stage.Show && (
           <Button
             onClick={() =>
-              router.push(
-                '/create-task/file-stats?fileId=a1cf11d8-09cc-4332-87cd-d296554e8532'
-              )
+              router.push(`/create-task/file-stats?fileId=${fileId}`)
             }
           >
             Show More
@@ -309,7 +354,11 @@ const StatsTab: FC = () => {
   );
 };
 
-const FilePropsView: FC<Props> = ({ data, onClose }) => {
+const FilePropsView: FC<Props & { fileId: string }> = ({
+  fileId,
+  data,
+  onClose,
+}) => {
   const [isEdited, setIsEdited] = useState(false);
   const switchEdit = () => setIsEdited((isEdited) => !isEdited);
   return (
@@ -327,7 +376,7 @@ const FilePropsView: FC<Props> = ({ data, onClose }) => {
           {isEdited && <FilePropsForm switchEdit={switchEdit} data={data} />}
         </Tab>
         <Tab name="Statistics">
-          <StatsTab />
+          <StatsTab fileId={fileId} />
         </Tab>
       </TabView>
     </div>
