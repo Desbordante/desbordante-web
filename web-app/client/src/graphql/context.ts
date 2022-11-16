@@ -11,6 +11,7 @@ import {
 } from '@utils/tokens';
 import { TokenPair } from 'types/auth';
 import { graphQLEndpoint } from '@constants/endpoints';
+import { showError } from '@utils/toasts';
 
 const generateServerSideInfo = () => {
   return Buffer.from(JSON.stringify(SSR_DEVICE_INFO)).toString('base64');
@@ -127,6 +128,8 @@ export const errorLink = onError(
             }
 
             return forward$.flatMap(() => forward(operation));
+          default:
+            showError(err.extensions.code, `Error: ${err.message}`);
         }
       }
     }
