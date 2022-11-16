@@ -8,6 +8,8 @@ import { AuthContextProvider } from '@components/AuthContext';
 import { ErrorContextProvider } from '@components/ErrorContext';
 import '@styles/globals.scss';
 import { AppPropsWithLayout } from 'types/pageWithLayout';
+import { ToastContainer } from '@components/Toast';
+import 'react-toastify/dist/ReactToastify.css';
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);
@@ -18,10 +20,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         <ErrorContextProvider>
           <AuthContextProvider>
             <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
+            <ToastContainer />
           </AuthContextProvider>
         </ErrorContextProvider>
       </ClientOnly>
-
       {environment === 'production' && <GoogleAnalytics />}
     </ApolloProvider>
   );
