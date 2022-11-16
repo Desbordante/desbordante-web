@@ -14,6 +14,26 @@ module.exports = {
   },
   webpack: (config) => {
     config.plugins.push(new StylelintPlugin());
+
+    config.module.rules.push(
+      {
+        test: /\.svg$/i,
+        type: 'asset',
+        resourceQuery: { not: [/component/] },
+      },
+      {
+        test: /\.svg$/i,
+        issuer: /\.[jt]sx?$/,
+        resourceQuery: /component/,
+        use: [
+          {
+            loader: '@svgr/webpack',
+            options: { icon: true, typescript: true, expandProps: 'start' },
+          },
+        ],
+      }
+    );
+
     return config;
   },
 };
