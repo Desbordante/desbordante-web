@@ -1,0 +1,72 @@
+@import "styles/common";
+
+
+.wrapper {
+  &:global(.Toastify__toast-container) {
+    padding: 0;
+    width: initial;
+    max-width: 50vw;
+  }
+
+  &:global(.Toastify__toast-container--bottom-right) {
+    right: 64px;
+    bottom: 64px;
+  }
+
+  :global(.Toastify__toast) {
+    margin-bottom: 24px;
+    padding: 16px;
+    border-radius: 8px;
+    margin-left: auto;
+    width: fit-content;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    * {
+      color: $white;
+    }
+  }
+
+  :global(.Toastify__toast--error) {
+    background: $error;
+  }
+
+  :global(.Toastify__toast--success) {
+    background: $success;
+  }
+
+  :global(.Toastify__toast-body) {
+    margin: 0;
+    padding: 0;
+    @include paragraph-small;
+
+    & > div {
+      padding: 8px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+    }
+  }
+
+  :global(.Toastify__progress-bar) {
+    background: $black-05;
+    height: 100%;
+  }
+}
+
+.close {
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  cursor: pointer;
+  height: fit-content;
+
+  :hover {
+    opacity: 0.9;
+  }
+}
