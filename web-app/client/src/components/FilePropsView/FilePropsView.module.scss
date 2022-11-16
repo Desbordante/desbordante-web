@@ -95,12 +95,19 @@
   }
 }
 
+.loading {
+  padding: 128px;
+  width: 100%;
+  text-align: center;
+}
+
 .option {
   display: flex;
   gap: 8px;
   align-items: baseline;
   max-width: 30vw;
   flex-wrap: wrap;
+  cursor: pointer;
 }
 
 .menu {
