@@ -2,9 +2,40 @@
 
 .wrapper {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 24px;
   gap: 16px;
-  background: rgba($info, 0.1);
   border-radius: 8px;
+}
+
+.header {
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+@mixin template($color) {
+  background: rgba($color, 0.1);
+
+  .header {
+    color: $color;
+  }
+
+  p {
+    /* stylelint-disable */
+    color: darken($color, 50%);
+    /* stylelint-enable */
+  }
+}
+
+.info {
+  @include template($info);
+}
+
+.error {
+  @include template($error);
+}
+
+.success {
+  @include template($success);
 }

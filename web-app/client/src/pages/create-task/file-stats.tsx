@@ -21,7 +21,7 @@ type FileStatsProps = {
 };
 
 type FileStatsQuery = {
-  fileId: string;
+  fileID: string;
 };
 
 export const getServerSideProps: GetServerSideProps<
@@ -31,7 +31,7 @@ export const getServerSideProps: GetServerSideProps<
   const { data } = await client.query<getFileStats, getFileStatsVariables>({
     query: GET_FILE_STATS,
     variables: {
-      fileID: (context.query as FileStatsQuery).fileId,
+      fileID: (context.query as FileStatsQuery).fileID,
     },
     errorPolicy: 'all',
   });

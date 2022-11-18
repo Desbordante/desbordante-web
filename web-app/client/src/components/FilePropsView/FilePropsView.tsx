@@ -159,8 +159,8 @@ const FilePropsForm: FC<Props & FormProps> = ({ data, switchEdit }) => {
   );
 };
 
-const FilePropsView: FC<Props & { fileId: string }> = ({
-  fileId,
+const FilePropsView: FC<Props & { fileID: string }> = ({
+  fileID,
   data,
   onClose,
 }) => {
@@ -181,7 +181,7 @@ const FilePropsView: FC<Props & { fileId: string }> = ({
           {isEdited && <FilePropsForm switchEdit={switchEdit} data={data} />}
         </Tab>
         <Tab name="Statistics">
-          <StatsTab fileId={fileId} />
+          <StatsTab fileID={fileID} />
         </Tab>
       </TabView>
     </div>

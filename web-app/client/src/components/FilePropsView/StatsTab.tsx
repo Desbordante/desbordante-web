@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useId, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client';
 import {
@@ -31,7 +31,7 @@ type ColumnOption = {
 };
 
 type StatsTabProps = {
-  fileId: string;
+  fileID: string;
 };
 
 enum Stage {
@@ -40,24 +40,25 @@ enum Stage {
   Show,
 }
 
-export const StatsTab: FC<StatsTabProps> = ({ fileId }: StatsTabProps) => {
+export const StatsTab: FC<StatsTabProps> = ({ fileID }: StatsTabProps) => {
   const router = useRouter();
   const [threadsCount, setThreadsCount] = useState(1);
   const [stage, setStage] = useState<Stage | null>(null);
   const [selectedColumn, setSelectedColumn] = useState(-1);
+  const progressId = useId();
 
   const {
     data: fileStats,
     startPolling,
     stopPolling,
     loading,
+    error,
   } = useQuery<getFileStats, getFileStatsVariables>(GET_FILE_STATS, {
     variables: {
-      fileID: fileId,
+      fileID,
     },
     onCompleted: (fileStats) => {
-      const file = fileStats?.datasetInfo;
-      if (!file) return;
+      const file = fileStats.datasetInfo!;
 
       if (!file.hasStats) return setStage(Stage.Start);
 
@@ -80,8 +81,6 @@ export const StatsTab: FC<StatsTabProps> = ({ fileId }: StatsTabProps) => {
     if (stage === Stage.Show) stopPolling?.();
   }, [stage]);
 
-  const file = fileStats?.datasetInfo;
-
   if (loading)
     return (
       <div className={styles.loading}>
@@ -89,7 +88,14 @@ export const StatsTab: FC<StatsTabProps> = ({ fileId }: StatsTabProps) => {
       </div>
     );
 
-  if (!file) return null;
+  const file = fileStats?.datasetInfo;
+
+  if (error || !file)
+    return (
+      <Alert header="Error" variant="error" className={styles.error}>
+        {error?.message || 'An unknown error has occurred'}
+      </Alert>
+    );
 
   const start = (
     <>
@@ -111,10 +117,10 @@ export const StatsTab: FC<StatsTabProps> = ({ fileId }: StatsTabProps) => {
     <>
       <div className={styles.processing}>
         <div className={styles['processing-label']}>
-          <span>Discovering statistics</span>
-          <span>{file.statsProgress}%</span>
+          <label htmlFor={progressId}>Discovering statistics</label>
+          {`${file.statsProgress}%`}
         </div>
-        <Progress value={file.statsProgress} />
+        <Progress value={file.statsProgress} id={progressId} />
       </div>
     </>
   );
@@ -136,8 +142,8 @@ export const StatsTab: FC<StatsTabProps> = ({ fileId }: StatsTabProps) => {
     { value: -1, label: 'Overview' },
     ...file.stats.map((column) => ({
       value: column.columnIndex,
-      label: column.columnName ?? '',
-      type: column.type ?? '',
+      label: column.columnName!,
+      type: column.type!,
       categorical: !!column.isCategorical,
     })),
   ];
@@ -158,6 +164,7 @@ export const StatsTab: FC<StatsTabProps> = ({ fileId }: StatsTabProps) => {
       {selectedColumn === -1 && overview}
       {selectedColumn !== -1 && (
         <ColumnCard
+          data-testid="column-card"
           column={
             file.stats.find((column) => column.columnIndex === selectedColumn)!
           }
@@ -180,7 +187,7 @@ export const StatsTab: FC<StatsTabProps> = ({ fileId }: StatsTabProps) => {
             disabled={stage !== Stage.Start}
             onClick={() =>
               startProcessing({
-                variables: { fileID: fileId, threadsCount },
+                variables: { fileID: fileID, threadsCount },
               })
             }
           >
@@ -190,7 +197,7 @@ export const StatsTab: FC<StatsTabProps> = ({ fileId }: StatsTabProps) => {
         {stage === Stage.Show && (
           <Button
             onClick={() =>
-              router.push(`/create-task/file-stats?fileId=${fileId}`)
+              router.push(`/create-task/file-stats?fileID=${fileID}`)
             }
           >
             Show More
