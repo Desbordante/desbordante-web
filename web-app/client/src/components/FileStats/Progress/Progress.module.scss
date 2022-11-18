@@ -5,6 +5,13 @@
   background: $black-10;
   border-radius: 4px;
   overflow: hidden;
+
+  progress {
+    width: 0;
+    height: 0;
+    opacity: 0;
+    display: block;
+  }
 }
 
 .bar {
