@@ -55,7 +55,7 @@ export const StatsTab: FC<StatsTabProps> = ({ fileID }: StatsTabProps) => {
     error,
   } = useQuery<getFileStats, getFileStatsVariables>(GET_FILE_STATS, {
     variables: {
-      fileID,
+      fileID: fileID,
     },
     onCompleted: (fileStats) => {
       const file = fileStats.datasetInfo!;

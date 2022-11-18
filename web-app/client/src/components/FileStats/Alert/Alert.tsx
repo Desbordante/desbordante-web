@@ -1,10 +1,9 @@
 import { FC, HTMLProps, ReactNode } from 'react';
 import styles from './Alert.module.scss';
 import classNames from 'classnames';
-import info from '@assets/icons/info-blue.svg';
-import error from '@assets/icons/error-red.svg';
-import success from '@assets/icons/success-green.svg';
-import Image, { StaticImageData } from 'next/image';
+import InfoIcon from '@assets/icons/info-blue.svg?component';
+import ErrorIcon from '@assets/icons/error-red.svg?component';
+import SuccessIcon from '@assets/icons/success-green.svg?component';
 
 type AlertVariant = 'info' | 'error' | 'success';
 
@@ -13,10 +12,10 @@ type AlertProps = {
   header?: ReactNode;
 } & HTMLProps<HTMLDivElement>;
 
-const alertIcons: Record<AlertVariant, StaticImageData> = {
-  info: info,
-  error: error,
-  success: success,
+const alertIcons: Record<AlertVariant, ReactNode> = {
+  info: <InfoIcon />,
+  error: <ErrorIcon />,
+  success: <SuccessIcon />,
 };
 
 export const Alert: FC<AlertProps> = ({
@@ -31,7 +30,7 @@ export const Alert: FC<AlertProps> = ({
     className={classNames(className, styles.wrapper, styles[variant])}
     {...props}
   >
-    <Image src={alertIcons[variant]} alt={variant} />
+    {alertIcons[variant]}
     <div>
       {header && <p className={styles.header}>{header}</p>}
       <p>{children}</p>
