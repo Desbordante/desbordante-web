@@ -36,7 +36,7 @@ export const StatsBlock: FC<StatsBlockProps> = ({
   );
 
   return (
-    <article {...props}>
+    <article {...props} data-testid="stats-block">
       {header && <p className={styles.header}>{header}</p>}
 
       {!tableMode && <div className={styles.blocks}>{items}</div>}

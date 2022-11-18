@@ -1,4 +1,4 @@
-import { FC, useReducer } from 'react';
+import { FC, HTMLProps, useReducer } from 'react';
 import styles from './ColumnCard.module.scss';
 import { Badge } from '@components/FileStats/Badge';
 import { getFileStats_datasetInfo_stats as FileStats } from '@graphql/operations/queries/__generated__/getFileStats';
@@ -15,11 +15,13 @@ import { useToggle } from '@components/FileStats/hooks';
 type ColumnCardProps = {
   column: FileStats;
   compact?: boolean;
-};
+} & HTMLProps<HTMLDivElement>;
 
 export const ColumnCard: FC<ColumnCardProps> = ({
+  className,
   column,
   compact,
+  ...props
 }: ColumnCardProps) => {
   const [showDetails, toggleDetails] = useReducer(
     (showDetails: boolean) => !showDetails,
@@ -94,7 +96,14 @@ export const ColumnCard: FC<ColumnCardProps> = ({
   );
 
   return (
-    <Paper className={classNames(styles.wrapper, compact && styles.compact)}>
+    <Paper
+      className={classNames(
+        className,
+        styles.wrapper,
+        compact && styles.compact
+      )}
+      {...props}
+    >
       {header}
 
       {content}
@@ -105,6 +114,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
           icon={!showDetails ? chevronDown : chevronUp}
           className={styles['details-button']}
           onClick={toggleDetails}
+          aria-label={!showDetails ? 'Show details' : 'Hide details'}
         >
           {!showDetails ? 'Show details' : 'Hide details'}
         </Button>
