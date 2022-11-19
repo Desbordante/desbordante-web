@@ -52,7 +52,7 @@ export const convertDependencies: (
   }
 
   if (primitive === PrimitiveType.TypoFD) {
-    return deps.TypoFDs.map(({ rhs, lhs }) => ({
+    return deps.FDs.map(({ rhs, lhs }) => ({
       rhs: [{ column: rhs }],
       lhs: lhs.map((column) => ({ column })),
     }));

@@ -13,9 +13,10 @@ import styles from './Loader.module.scss';
 
 type Props = {
   taskID: string;
+  onComplete: () => void;
 };
 
-const Loader: FC<Props> = ({ taskID }) => {
+const Loader: FC<Props> = ({ taskID, onComplete }) => {
   const { data, error, startPolling } = useQuery<
     getTaskInfo,
     getTaskInfoVariables
@@ -32,16 +33,7 @@ const Loader: FC<Props> = ({ taskID }) => {
       'processStatus' in state &&
       state.processStatus === 'COMPLETED'
     ) {
-      setTimeout(
-        () =>
-          router.push({
-            pathname: 'reports/dependencies',
-            query: {
-              taskID,
-            },
-          }),
-        500
-      );
+      setTimeout(onComplete, 500);
     }
   }, [data?.taskInfo.state]);
 
