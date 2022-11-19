@@ -23,6 +23,13 @@ const menuStatistics = {
   pathname: '/reports/charts',
   icon: chartIcon,
 };
+
+const menuClusters = {
+  label: 'Clusters',
+  pathname: '/reports/clusters',
+  icon: chartIcon,
+};
+
 const menuPrimitiveList = {
   label: 'Primitive list',
   pathname: '/reports/dependencies',
@@ -59,8 +66,8 @@ export const reportsTabs: Record<
   ],
   [PrimitiveType.TypoFD]: [
     menuOverview,
-    menuStatistics,
     menuPrimitiveList,
+    menuClusters,
     menuDatasetSnippet,
   ],
 };

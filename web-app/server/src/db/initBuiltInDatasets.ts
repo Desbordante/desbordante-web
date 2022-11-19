@@ -44,7 +44,7 @@ export const builtInDatasets: BuiltInDatasetInfoType[] = [
     {
         fileName: "Workshop.csv",
         datasetProps: { delimiter: ",", hasHeader: true },
-        supportedPrimitives: ["FD", "CFD"],
+        supportedPrimitives: ["FD", "CFD", "TypoFD"],
     },
     {
         fileName: "breast_cancer.csv",

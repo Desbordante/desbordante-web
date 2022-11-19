@@ -4,6 +4,7 @@ import { FC, ReactElement, useState } from 'react';
 import LongArrowIcon from '@assets/icons/long-arrow.svg?component';
 import { GeneralColumn } from '@utils/convertDependencies';
 import styles from './DependencyList.module.scss';
+import { useTaskContext } from '@components/TaskContext';
 
 type Props = {
   deps: {
@@ -35,25 +36,29 @@ const makeSide: (
 };
 
 const DependencyList: FC<Props> = ({ deps, infoVisible }) => {
-  const [selectedRow, setSelectedRow] = useState<number | undefined>();
+  const { selectedDependency, selectDependency } = useTaskContext();
 
   return (
     <div>
-      {_.map(deps, (row, i) => (
-        <div
-          key={i}
-          className={classNames(
-            styles.row,
-            selectedRow === i && styles.selectedRow
-          )}
-          onClick={() => setSelectedRow(i)}
-        >
-          {makeSide(row.lhs, infoVisible)}
-          <LongArrowIcon />
-          {typeof row.confidence !== 'undefined' && <p>{row.confidence}</p>}
-          {makeSide(row.rhs, infoVisible)}
-        </div>
-      ))}
+      {_.map(deps, (row, i) => {
+        const fullDependency = row.lhs.concat(row.rhs);
+        return (
+          <div
+            key={i}
+            className={classNames(
+              styles.row,
+              JSON.stringify(selectedDependency) ===
+                JSON.stringify(fullDependency) && styles.selectedRow
+            )}
+            onClick={() => selectDependency(fullDependency)}
+          >
+            {makeSide(row.lhs, infoVisible)}
+            <LongArrowIcon />
+            {typeof row.confidence !== 'undefined' && <p>{row.confidence}</p>}
+            {makeSide(row.rhs, infoVisible)}
+          </div>
+        );
+      })}
     </div>
   );
 };

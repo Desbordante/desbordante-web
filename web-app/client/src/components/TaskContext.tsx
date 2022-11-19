@@ -1,4 +1,16 @@
-import { useQuery } from '@apollo/client';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { Column } from '@graphql/operations/fragments/__generated__/Column';
+import { CREATE_SPECIFIC_TASK } from '@graphql/operations/mutations/createSpecificTask';
+import {
+  createSpecificTask,
+  createSpecificTaskVariables,
+} from '@graphql/operations/mutations/__generated__/createSpecificTask';
+import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
+import {
+  getTaskInfo,
+  getTaskInfoVariables,
+} from '@graphql/operations/queries/__generated__/getTaskInfo';
+import { GeneralColumn } from '@utils/convertDependencies';
 import { useRouter } from 'next/router';
 import {
   createContext,
@@ -6,14 +18,10 @@ import {
   PropsWithChildren,
   SetStateAction,
   useContext,
+  useEffect,
   useState,
 } from 'react';
-import { Column } from '@graphql/operations/fragments/__generated__/Column';
-import {
-  getTaskInfo,
-  getTaskInfoVariables,
-} from '@graphql/operations/queries/__generated__/getTaskInfo';
-import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
+import { PrimitiveType, SpecificTaskType } from 'types/globalTypes';
 
 export type DepAttribute = {
   column: Column;
@@ -25,6 +33,9 @@ export type TaskContentType = {
   taskID: string;
   dependenciesFilter: DependencyFilter;
   setDependenciesFilter: Dispatch<SetStateAction<DependencyFilter>>;
+  selectedDependency: GeneralColumn[];
+  selectDependency: Dispatch<SetStateAction<GeneralColumn[]>>;
+  specificTaskID: string | undefined;
 };
 
 export const TaskContext = createContext<TaskContentType | null>(null);
@@ -37,6 +48,8 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
       rhs: [],
       lhs: [],
     });
+  const [selectedDependency, selectDependency] = useState<GeneralColumn[]>([]);
+  const [specificTaskID, setSpecificTaskID] = useState<string | undefined>();
   const router = useRouter();
   const taskID = router.query.taskID as string;
   const { data: taskInfo } = useQuery<getTaskInfo, getTaskInfoVariables>(
@@ -46,9 +59,46 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
     }
   );
 
+  const [createSpecificTask] = useMutation<
+    createSpecificTask,
+    createSpecificTaskVariables
+  >(CREATE_SPECIFIC_TASK);
+
+  useEffect(() => {
+    if (taskInfo?.taskInfo.data.baseConfig.type !== PrimitiveType.TypoFD) {
+      return;
+    }
+    if (typeof specificTaskID !== 'undefined') {
+      return;
+    }
+    if (selectedDependency.length === 0) {
+      return;
+    }
+    createSpecificTask({
+      variables: {
+        props: {
+          algorithmName: 'Typo Miner',
+          type: SpecificTaskType.TypoCluster,
+          parentTaskID: taskID,
+          typoFD: selectedDependency.map((e) => e.column.index),
+        },
+      },
+    }).then((res) => {
+      setSpecificTaskID(res.data?.createSpecificTask.taskID);
+    });
+  }, [selectedDependency]);
+
   return (
     <TaskContext.Provider
-      value={{ taskInfo, taskID, dependenciesFilter, setDependenciesFilter }}
+      value={{
+        taskInfo,
+        taskID,
+        dependenciesFilter,
+        setDependenciesFilter,
+        selectedDependency,
+        selectDependency,
+        specificTaskID,
+      }}
     >
       {children}
     </TaskContext.Provider>
