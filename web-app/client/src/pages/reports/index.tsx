@@ -6,11 +6,23 @@ import styles from '@styles/Reports.module.scss';
 
 const ReportsHome: NextPage = () => {
   const router = useRouter();
-
+  const taskID = router.query.taskID;
   return (
     <div className={styles.container}>
-      {router.query.taskID && <Loader taskID={router.query.taskID as string} />}
-      {!router.query.taskID && <p>You haven't selected a task</p>}
+      {taskID && (
+        <Loader
+          onComplete={() =>
+            router.push({
+              pathname: 'reports/dependencies',
+              query: {
+                taskID,
+              },
+            })
+          }
+          taskID={taskID as string}
+        />
+      )}
+      {!taskID && <p>You haven't selected a task</p>}
     </div>
   );
 };

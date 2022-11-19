@@ -1,0 +1,19 @@
+@import "styles/common";
+
+.container {
+  border: 2px solid $black-25;
+  border-radius: 8px;
+}
+.table {
+  thead {
+    background-color: $primary-10;
+    border-bottom: 2px solid $black-25;
+  }
+  td,
+  th {
+    padding: 8px 24px;
+  }
+  tr:nth-child(even) {
+    background-color: $black-05;
+  }
+}
