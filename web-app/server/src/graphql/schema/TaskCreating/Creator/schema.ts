@@ -193,7 +193,7 @@ const specificTaskSchema: SchemaItemType<
             expected: "Decimal greater 0 (or -1 equal infinity)",
         },
         isValid: ({ radius }) =>
-            typeof radius === "number" && (radius > 0 || radius !== -1),
+            typeof radius === "number" && (radius > 0 || radius == -1),
     },
     {
         supportedPrimitives: ["TypoCluster"],

@@ -290,9 +290,10 @@ export const TaskInfoResolvers: Resolvers = {
                 throw new ApolloError("File not found");
             }
             const rows = await models.FileInfo.GetRowsByIndices(file, indices);
-            return clustersData.map((clusterData, clusterID) => ({
+            const offset = pagination.offset * pagination.limit;
+            return clustersData.map((clusterData, id) => ({
                 clusterInfo: { squashed: "false", ...clusterData },
-                clusterID,
+                clusterID: id + offset,
                 rows,
             }));
         },
