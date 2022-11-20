@@ -1,0 +1,35 @@
+@import "styles/common";
+
+.container {
+  border: 2px solid $black-25;
+  border-radius: 8px;
+  max-height: 360px;
+  height: 360px;
+  overflow-y: scroll;
+  margin-bottom: 24px;
+}
+
+.table {
+  thead {
+    position: sticky;
+    top: 0;
+    background-color: $primary-10;
+    border-bottom: 2px solid $black-25;
+  }
+
+  td,
+  th {
+    padding: 8px 24px;
+  }
+  tbody {
+    tr:nth-child(even) {
+      background-color: $black-05;
+    }
+  }
+}
+.disabled .table tbody {
+  td {
+    color: $black-10;
+    pointer-events: none;
+  }
+}
