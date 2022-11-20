@@ -3,10 +3,14 @@ import { forwardRef, ForwardRefRenderFunction, HTMLProps } from 'react';
 import { InputPropsBase } from '@components/Inputs';
 import styles from './Checkbox.module.scss';
 
-type Props = InputPropsBase & HTMLProps<HTMLInputElement>;
+type CheckboxProps = {
+  variant?: 'outline' | 'simple';
+};
+
+type Props = CheckboxProps & InputPropsBase & HTMLProps<HTMLInputElement>;
 
 const Checkbox: ForwardRefRenderFunction<HTMLInputElement, Props> = (
-  { id, label, error, className, ...props },
+  { id, label, error, className, variant = 'simple', ...props },
   ref
 ) => {
   return (
@@ -22,7 +26,10 @@ const Checkbox: ForwardRefRenderFunction<HTMLInputElement, Props> = (
           type="checkbox"
           id={id}
           ref={ref}
-          className={cn(error && styles.checkboxError)}
+          className={cn(
+            error && styles.checkboxError,
+            variant === 'simple' && styles.simple
+          )}
           {...props}
         />
         {label && <label htmlFor={id}>{label}</label>}
