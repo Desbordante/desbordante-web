@@ -5,7 +5,12 @@ import {
   createSpecificTask,
   createSpecificTaskVariables,
 } from '@graphql/operations/mutations/__generated__/createSpecificTask';
+import { GET_DATASET } from '@graphql/operations/queries/getDataset';
 import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
+import {
+  getDataset,
+  getDatasetVariables,
+} from '@graphql/operations/queries/__generated__/getDataset';
 import {
   getTaskInfo,
   getTaskInfoVariables,
@@ -35,7 +40,8 @@ export type TaskContentType = {
   setDependenciesFilter: Dispatch<SetStateAction<DependencyFilter>>;
   selectedDependency: GeneralColumn[];
   selectDependency: Dispatch<SetStateAction<GeneralColumn[]>>;
-  specificTaskID: string | undefined;
+  specificTaskID?: string;
+  datasetHeader?: string[];
 };
 
 export const TaskContext = createContext<TaskContentType | null>(null);
@@ -59,19 +65,26 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
     }
   );
 
-  const [createSpecificTask] = useMutation<
+  const { data: datasetInfo } = useQuery<getDataset, getDatasetVariables>(
+    GET_DATASET,
+    {
+      variables: { taskID, pagination: { offset: 0, limit: 1 } },
+    }
+  );
+
+  const datasetHeader = datasetInfo?.taskInfo.dataset?.snippet.header;
+
+  const [createSpecificTask, { data: clusterTaskResponse }] = useMutation<
     createSpecificTask,
     createSpecificTaskVariables
   >(CREATE_SPECIFIC_TASK);
 
   useEffect(() => {
-    if (taskInfo?.taskInfo.data.baseConfig.type !== PrimitiveType.TypoFD) {
-      return;
-    }
-    if (typeof specificTaskID !== 'undefined') {
-      return;
-    }
-    if (selectedDependency.length === 0) {
+    if (
+      selectedDependency.length === 0 ||
+      typeof specificTaskID !== 'undefined' ||
+      taskInfo?.taskInfo.data.baseConfig.type !== PrimitiveType.TypoFD
+    ) {
       return;
     }
     createSpecificTask({
@@ -83,10 +96,14 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
           typoFD: selectedDependency.map((e) => e.column.index),
         },
       },
-    }).then((res) => {
-      setSpecificTaskID(res.data?.createSpecificTask.taskID);
     });
   }, [selectedDependency]);
+
+  useEffect(() => {
+    if (clusterTaskResponse) {
+      setSpecificTaskID(clusterTaskResponse.createSpecificTask.taskID);
+    }
+  }, [clusterTaskResponse]);
 
   return (
     <TaskContext.Provider
@@ -98,6 +115,7 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
         selectedDependency,
         selectDependency,
         specificTaskID,
+        datasetHeader: datasetHeader || undefined,
       }}
     >
       {children}
