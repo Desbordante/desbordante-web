@@ -43,12 +43,12 @@ In the second case, to build the project, you also need to have dependencies tha
   #### Launching the binaries
   The script generates the following file structure in `/path/to/Desbordante/build/target`:
   ```bash
-  ├───inputData
+  ├───input_data
   │   └───some-sample-csvs.csv
   ├───Desbordante_test
   ├───Desbordante_run
   ```
-  The `inputData` directory contains several .csv files that may be used by `Desbordante_test`. Run `Desbordante_test` to perform unit testing:
+  The `input_data` directory contains several .csv files that may be used by `Desbordante_test`. Run `Desbordante_test` to perform unit testing:
   ```
   cd build/target
   ./Desbordante_test
@@ -85,12 +85,12 @@ In the second case, to build the project, you also need to have dependencies tha
   #### Launching the binaries
   The script generates the following file structure in `\path\to\Desbordante\build\target`:
   ```bash
-  ├───inputData
+  ├───input_data
   │   └───some-sample-csv's.csv
   ├───Desbordante_test.exe
   ├───Desbordante_run.exe
   ```
-  The `inputData` directory contains several .csv files that may be used by `Desbordante_test`. Run `Desbordante_test` to perform unit testing:
+  The `input_data` directory contains several .csv files that may be used by `Desbordante_test`. Run `Desbordante_test` to perform unit testing:
   ```
   cd build\target
   Desbordante_test.exe

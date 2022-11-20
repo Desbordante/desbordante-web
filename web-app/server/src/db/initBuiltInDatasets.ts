@@ -14,7 +14,7 @@ export const getPathToBuiltInDataset = (fileName: string) => {
     rootPath.pop(); // remove folder 'web-app'
     rootPath.push("build"); // add folder 'build'
     rootPath.push("target"); // add folder 'target'
-    rootPath.push("inputData"); // add folder 'inputData'
+    rootPath.push("input_data"); // add folder 'input_data'
     rootPath.push(fileName); // add file '*.csv'
     return rootPath.join("/");
 };

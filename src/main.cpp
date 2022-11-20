@@ -239,7 +239,7 @@ int main(int argc, char const* argv[]) {
     }
 
     auto& data = vm.at("data").value();
-    data = std::filesystem::current_path() / "inputData" / dataset;
+    data = std::filesystem::current_path() / "input_data" / dataset;
 
     /* Remove options that are not related to the algorithm configuration */
     vm.erase("task");

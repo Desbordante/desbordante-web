@@ -78,7 +78,7 @@ services:
       - python-consumer
     volumes:
       - uploads:/server/uploads/
-      - datasets:/server/build/target/inputData/
+      - datasets:/server/build/target/input_data/
     networks:
       - network
     restart: always
@@ -100,8 +100,8 @@ services:
       - network
     restart: always
     volumes:
-       - ./volumes/logs/zk/:/var/lib/zookeeper/log
-       - ./volumes/data/zk/:/var/lib/zookeeper/data
+      - ./volumes/logs/zk/:/var/lib/zookeeper/log
+      - ./volumes/data/zk/:/var/lib/zookeeper/data
     logging:
       driver: 'json-file'
       options:

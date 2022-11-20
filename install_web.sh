@@ -12,7 +12,7 @@ cd volumes/
 mkdir -m777 -p data/kafka data/zk data/grafana logs/kafka logs/zk uploads postgres-data datasets
 cd ..
 unzip datasets/datasets.zip -d volumes/datasets/
-cp tests/inputData/* volumes/datasets/
+cp tests/input_data/* volumes/datasets/
 docker-compose build
 if ! [[ -f ".env" ]]
 then

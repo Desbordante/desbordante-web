@@ -118,7 +118,7 @@ def create_container(taskID):
                                         command=taskID,
                                         volumes=[
                                             'desbordante_uploads:/server/uploads/',
-                                            'desbordante_datasets:/build/target/inputData/'],
+                                            'desbordante_datasets:/build/target/input_data/'],
                                         detach=True,
                                         mem_limit=f'{MAX_RAM}m',
                                         environment=env_variables,
