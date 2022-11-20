@@ -66,6 +66,7 @@ export const reportsTabs: Record<
   ],
   [PrimitiveType.TypoFD]: [
     menuOverview,
+    menuStatistics,
     menuPrimitiveList,
     menuClusters,
     menuDatasetSnippet,
