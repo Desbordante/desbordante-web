@@ -14,7 +14,7 @@ import Image from 'next/image';
 import { InputPropsBase } from '@components/Inputs';
 import styles from './Select.module.scss';
 
-import chevronDownIcon from '@assets/icons/arrow-down.svg';
+import ChevronDownIcon from '@assets/icons/arrow-down.svg?component';
 
 const Control: ComponentType<ControlProps & InputPropsBase> = ({
   children,
@@ -84,7 +84,7 @@ const IndicatorsContainer: ComponentType<
   IndicatorsContainerProps & InputPropsBase
 > = ({ innerProps }) => (
   <div className={styles.indicatorsContainer} {...innerProps}>
-    <Image src={chevronDownIcon} alt="arrow-down" />
+    <ChevronDownIcon />
   </div>
 );
 
