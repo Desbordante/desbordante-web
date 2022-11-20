@@ -28,7 +28,16 @@ module.exports = {
         use: [
           {
             loader: '@svgr/webpack',
-            options: { typescript: true, expandProps: 'end' },
+            options: {
+              typescript: true,
+              expandProps: 'end',
+              svgoConfig: {
+                plugins: [{
+                  name: 'removeViewBox',
+                  active: false
+                }],
+              },
+            },
           },
         ],
       }
