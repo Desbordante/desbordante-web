@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import React, { FC, PropsWithChildren } from 'react';
 import chartIcon from '@assets/icons/chart.svg';
 import datatableIcon from '@assets/icons/datatable.svg';
+import clusterIcon from '@assets/icons/cluster.svg';
 import dropDownIcon from '@assets/icons/list-dropdown.svg';
 import settingsIcon from '@assets/icons/settings-black.svg';
 import { useTaskContext } from '@components/TaskContext';
@@ -27,7 +28,7 @@ const menuStatistics = {
 const menuClusters = {
   label: 'Clusters',
   pathname: '/reports/clusters',
-  icon: chartIcon,
+  icon: clusterIcon,
 };
 
 const menuPrimitiveList = {
