@@ -2,8 +2,7 @@ import { GeneralColumn } from '@utils/convertDependencies';
 import { FC, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
-import Image from 'next/image';
-import longArrowIcon from '@assets/icons/long-arrow.svg';
+import LongArrowIcon from '@assets/icons/long-arrow.svg?component';
 import styles from './DependencyList.module.scss';
 
 type Props = {
@@ -50,7 +49,7 @@ const DependencyList: FC<Props> = ({ deps, infoVisible }) => {
           onClick={() => setSelectedRow(i)}
         >
           {makeSide(row.lhs, infoVisible)}
-          <Image src={longArrowIcon} />
+          <LongArrowIcon />
           {typeof row.confidence !== 'undefined' && <p>{row.confidence}</p>}
           {makeSide(row.rhs, infoVisible)}
         </div>
