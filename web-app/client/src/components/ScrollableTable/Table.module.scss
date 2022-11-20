@@ -2,6 +2,7 @@
 
 .container {
   border: 2px solid $black-25;
+  border-top: none;
   border-radius: 8px;
   max-height: 360px;
   height: 360px;
@@ -13,8 +14,8 @@
   thead {
     position: sticky;
     top: 0;
-    background-color: $primary-10;
-    border-bottom: 2px solid $black-25;
+    background-color: $primary-no-alpha-10;
+    box-shadow: inset 0px 1px $black-25, 0 1px $black-25;
   }
 
   td,
