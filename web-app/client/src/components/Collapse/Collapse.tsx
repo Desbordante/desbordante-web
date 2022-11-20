@@ -1,7 +1,6 @@
 import { BaseHTMLAttributes, FC, PropsWithChildren, ReactElement, useState } from "react"
-import Image from "next/image";
 import classNames from "classnames";
-import arrowDown from '@assets/icons/arrow-down.svg';
+import ArrowDown from '@assets/icons/arrow-down.svg?component';
 import styles from './Collapse.module.scss'
 
 interface Props extends PropsWithChildren {
@@ -12,7 +11,7 @@ interface Props extends PropsWithChildren {
 export const Collapse: FC<Props> = ({title, titleProps, children}) => {
     const [isShown, setIsShown] = useState(true)
     return <>
-        <div className={classNames(!isShown && styles.collapsed, styles.title)} onClick={() => setIsShown(isShown => !isShown)}><h5 {...titleProps}>{title} <Image height={20} src={arrowDown.src} width={20} /></h5></div>
+        <div className={classNames(!isShown && styles.collapsed, styles.title)} onClick={() => setIsShown(isShown => !isShown)}><h5 {...titleProps}>{title} <ArrowDown height={20} width={20} /></h5></div>
         {isShown && <div>{children}</div>}
     </>
 }

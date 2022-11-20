@@ -4,9 +4,8 @@ import '@formatjs/intl-numberformat/polyfill'
 import '@formatjs/intl-numberformat/locale-data/en'
 import { formatDistance, subMinutes } from 'date-fns'
 import { AllowedDataset } from "types/algorithms"
-import threeDots from '@assets/icons/three-dots.svg';
+import ThreeDotsIcon from '@assets/icons/three-dots.svg?component';
 import styles from './DatasetCard.module.scss';
-import Image from "next/image";
 import FilePropsView from "@components/FilePropsView/FilePropsView";
 import PopupWindowContainer from "@components/PopupWindowContainer/PopupWindowContainer";
 
@@ -28,7 +27,7 @@ const getFileDescription = (file: AllowedDataset) => {
     const range = formatDistance(subMinutes(new Date(), 15), new Date(), { addSuffix: true })
     return [
         `${rowsCount} rows, ${countOfColumns} columns`,
-        `Updated ${range}` 
+        `Updated ${range}`
     ]
 }
 
@@ -43,7 +42,7 @@ export const DatasetCard: FC<DatasetCardProps> = ({file, ...rest}) => {
             <FilePropsView data={file} onClose={() => setFilePropsShown(false)} />
         </PopupWindowContainer>}
         <BaseCard {...rest}>
-            <div className={styles.card_title}><p>{fileName}</p><Image onClick={() => setFilePropsShown(true)} src={threeDots.src} width={20} height={20} /></div>
+            <div className={styles.card_title}><p>{fileName}</p><ThreeDotsIcon onClick={() => setFilePropsShown(true)} width={20} height={20} /></div>
             <div className={styles.card_description}>
                 <span>{descriptionList.join("\n")}</span>
             </div>
