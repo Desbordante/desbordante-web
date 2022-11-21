@@ -1,10 +1,10 @@
-import { FC } from "react";
-import styles from "./OverviewCard.module.scss";
-import { Paper } from "@components/FileStats/Paper";
-import { StatsBlock } from "@components/FileStats/StatsBlock";
-import { StatType } from "types/fileStats";
-import { useToggle } from "@components/FileStats/hooks";
-import { ModeButton } from "@components/FileStats/ModeButton";
+import { FC } from 'react';
+import { useToggle } from '@components/FileStats/hooks';
+import { ModeButton } from '@components/FileStats/ModeButton';
+import { Paper } from '@components/FileStats/Paper';
+import { StatsBlock } from '@components/FileStats/StatsBlock';
+import { StatType } from 'types/fileStats';
+import styles from './OverviewCard.module.scss';
 
 type OverflowCardProps = {
   stats: StatType[];
@@ -21,7 +21,7 @@ export const OverviewCard: FC<OverflowCardProps> = ({
       <ModeButton
         tableMode={tableMode}
         onClick={toggleMode}
-        className={styles["mode-button"]}
+        className={styles['mode-button']}
       />
     </Paper>
   );

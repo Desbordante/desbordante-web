@@ -1,11 +1,10 @@
-import { useState } from 'react';
-import Image from 'next/image';
 import cn from 'classnames';
+import Image from 'next/image';
+import { useState } from 'react';
+import infoIcon from '@assets/icons/info.svg';
 import { FCWithChildren } from 'types/react';
 
 import styles from './Tooltip.module.scss';
-
-import infoIcon from '@assets/icons/info.svg';
 
 interface Props {
   position?: 'top' | 'right' | 'bottom' | 'left';

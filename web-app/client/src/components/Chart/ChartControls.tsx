@@ -1,8 +1,8 @@
+import { FC } from 'react';
+import collapseChartIcon from '@assets/icons/collapse-chart.svg';
 import Button from '@components/Button';
 import { Text } from '@components/Inputs';
-import { FC } from 'react';
 import styles from './ChartControls.module.scss';
-import collapseChartIcon from '@assets/icons/collapse-chart.svg';
 
 type Props = {
   depth: number;

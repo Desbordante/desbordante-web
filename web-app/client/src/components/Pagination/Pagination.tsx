@@ -1,10 +1,10 @@
-import * as React from 'react';
-import Image from 'next/image';
-import { FC } from 'react';
 import _ from 'lodash';
+import Image from 'next/image';
+import * as React from 'react';
+import { FC } from 'react';
 import ReactPaginate from 'react-paginate';
-import styles from './Pagination.module.scss';
 import arrowRight from '@assets/icons/arrow-right.svg';
+import styles from './Pagination.module.scss';
 
 type Props = {
   count: number;

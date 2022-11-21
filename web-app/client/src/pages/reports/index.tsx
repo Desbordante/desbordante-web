@@ -1,6 +1,6 @@
+import _ from 'lodash';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import _ from 'lodash';
 import Loader from '@components/Loader/Loader';
 import styles from '@styles/Reports.module.scss';
 

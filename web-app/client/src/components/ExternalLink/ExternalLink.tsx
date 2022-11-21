@@ -1,9 +1,8 @@
-import { FC, HTMLProps } from 'react';
 import cn from 'classnames';
 import Image from 'next/image';
-import styles from './ExternalLink.module.scss';
-
+import { FC, HTMLProps } from 'react';
 import externalLinkIcon from '@assets/icons/external-link.svg';
+import styles from './ExternalLink.module.scss';
 
 const ExternalLink: FC<HTMLProps<HTMLAnchorElement>> = ({
   className,

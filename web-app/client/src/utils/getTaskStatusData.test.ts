@@ -1,5 +1,5 @@
-import getTaskStatusData from '@utils/getTaskStatusData';
 import { ApolloError } from '@apollo/client';
+import getTaskStatusData from '@utils/getTaskStatusData';
 
 describe('getTaskStatusData Utility Function', () => {
   it('Should return correct data for queued task', () => {

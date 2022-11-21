@@ -1,10 +1,4 @@
 import { useQuery } from '@apollo/client';
-import { Column } from '@graphql/operations/fragments/__generated__/Column';
-import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
-import {
-  getTaskInfo,
-  getTaskInfoVariables,
-} from '@graphql/operations/queries/__generated__/getTaskInfo';
 import { useRouter } from 'next/router';
 import {
   createContext,
@@ -14,6 +8,12 @@ import {
   useContext,
   useState,
 } from 'react';
+import { Column } from '@graphql/operations/fragments/__generated__/Column';
+import {
+  getTaskInfo,
+  getTaskInfoVariables,
+} from '@graphql/operations/queries/__generated__/getTaskInfo';
+import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 
 export type DepAttribute = {
   column: Column;

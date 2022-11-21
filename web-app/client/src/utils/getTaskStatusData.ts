@@ -1,8 +1,8 @@
-import serverError from '@assets/icons/server-error.svg';
-import usersQueue from '@assets/icons/users-queue.svg';
+import { ApolloError } from '@apollo/client';
 import checkFill from '@assets/icons/check-fill.svg';
 import resourcesLimit from '@assets/icons/resources-limit.svg';
-import { ApolloError } from '@apollo/client';
+import serverError from '@assets/icons/server-error.svg';
+import usersQueue from '@assets/icons/users-queue.svg';
 import { getTaskInfo } from '@graphql/operations/queries/__generated__/getTaskInfo';
 
 const getTaskStatusData = (

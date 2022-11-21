@@ -1,10 +1,10 @@
 import { ComponentType } from 'react';
 import { OptionProps } from 'react-select';
-import { InputPropsBase } from '@components/Inputs';
-import { Option as CustomOption } from '@components/Inputs/Select/customComponents';
+import { ColumnOption } from '@components/FilePropsView/FilePropsView';
 import styles from '@components/FilePropsView/FilePropsView.module.scss';
 import { Badge } from '@components/FileStats/Badge';
-import { ColumnOption } from '@components/FilePropsView/FilePropsView';
+import { InputPropsBase } from '@components/Inputs';
+import { Option as CustomOption } from '@components/Inputs/Select/customComponents';
 
 export const OptionWithBadge: ComponentType<OptionProps & InputPropsBase> = ({
   children,

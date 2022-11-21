@@ -1,12 +1,12 @@
-import { Column } from '@graphql/operations/fragments/__generated__/Column';
+import { Chart as ChartJs, ArcElement } from 'chart.js';
+import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { animated } from 'react-spring';
-import classNames from 'classnames';
-import { Chart as ChartJs, ArcElement } from 'chart.js';
+import { DepAttribute } from '@components/TaskContext';
+import { Column } from '@graphql/operations/fragments/__generated__/Column';
 import { ChartControls } from './ChartControls';
 import styles from './LayeredChart.module.scss';
-import { DepAttribute } from '@components/TaskContext';
 ChartJs.register(ArcElement);
 
 /* eslint-disable no-unused-vars */

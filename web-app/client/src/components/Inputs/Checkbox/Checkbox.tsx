@@ -1,9 +1,5 @@
-import {
-  forwardRef,
-  ForwardRefRenderFunction,
-  HTMLProps,
-} from 'react';
 import cn from 'classnames';
+import { forwardRef, ForwardRefRenderFunction, HTMLProps } from 'react';
 import { InputPropsBase } from '@components/Inputs';
 import styles from './Checkbox.module.scss';
 

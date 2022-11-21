@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import {
   forwardRef,
   ForwardRefRenderFunction,
@@ -6,9 +7,8 @@ import {
   useId,
   useState,
 } from 'react';
-import cn from 'classnames';
-import Tooltip from '@components/Tooltip';
 import { InputPropsBase } from '@components/Inputs';
+import Tooltip from '@components/Tooltip';
 import styles from './Text.module.scss';
 
 type Props = InputPropsBase &

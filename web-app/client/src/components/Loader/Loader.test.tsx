@@ -1,8 +1,6 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import Loader from './Loader';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/router';
-import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 import { getTaskInfo } from '@graphql/operations/queries/__generated__/getTaskInfo';
 import {
   completedTaskIdMock,
@@ -10,6 +8,8 @@ import {
   inProgressTaskIdMock,
   inProgressTaskInfoMock,
 } from '@graphql/operations/queries/__mocks__/getTaskInfo';
+import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
+import Loader from './Loader';
 
 describe('Loader Component', () => {
   const responseMock: MockedResponse<getTaskInfo>[] = [

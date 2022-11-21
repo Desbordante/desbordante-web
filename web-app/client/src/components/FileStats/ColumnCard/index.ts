@@ -1,1 +1,1 @@
-export * from "./ColumnCard";
+export * from './ColumnCard';

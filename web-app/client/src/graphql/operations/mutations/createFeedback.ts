@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const CREATE_FEEDBACK = gql`
   mutation createFeedback($rating: Int!, $subject: String, $text: String!) {

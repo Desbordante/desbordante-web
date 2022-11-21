@@ -1,18 +1,18 @@
 import type { GetServerSideProps, NextPage } from 'next';
-import { WizardLayout } from '@components/WizardLayout/WizardLayout';
-import styles from '@styles/FileStats.module.scss';
 import { ColumnCard } from '@components/FileStats/ColumnCard';
-import { OverviewCard } from '@components/FileStats/OverviewCard';
 import { Group } from '@components/FileStats/Group';
-import { StatType } from 'types/fileStats';
+import { OverviewCard } from '@components/FileStats/OverviewCard';
+import { WizardLayout } from '@components/WizardLayout/WizardLayout';
+import client from '@graphql/client';
 import {
   getFileStats,
   getFileStats_datasetInfo_stats as FileStats,
   getFileStatsVariables,
 } from '@graphql/operations/queries/__generated__/getFileStats';
-import client from '@graphql/client';
 import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
+import styles from '@styles/FileStats.module.scss';
 import { getOverview } from '@utils/fileStats';
+import { StatType } from 'types/fileStats';
 
 type FileStatsProps = {
   overview: StatType[];

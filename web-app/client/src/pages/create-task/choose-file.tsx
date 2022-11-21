@@ -1,31 +1,31 @@
-import type { GetServerSideProps, NextPage } from 'next';
-import { useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { AuthContext } from '@components/AuthContext';
 import { useLazyQuery, useQuery } from '@apollo/client';
-import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
-import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithmsConfig';
-import { ErrorContext } from '@components/ErrorContext';
-import { AllowedDataset } from 'types/algorithms';
 import _ from 'lodash';
-import { DatasetCard } from '@components/DatasetCard';
-import { MainPrimitiveType } from 'types/globalTypes';
-import { Collapse } from '@components/Collapse';
-import Button from '@components/Button';
-import styles from '@styles/ChooseFile.module.scss';
+import type { GetServerSideProps, NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useContext, useEffect, useState } from 'react';
 import settingsIcon from '@assets/icons/settings.svg';
-import WizardLayout from '@components/WizardLayout';
+import { AuthContext } from '@components/AuthContext';
+import Button from '@components/Button';
+import { Collapse } from '@components/Collapse';
+import { DatasetCard } from '@components/DatasetCard';
 import { DatasetUploader } from '@components/DatasetUploader';
+import { ErrorContext } from '@components/ErrorContext';
+import WizardLayout from '@components/WizardLayout';
+import client from '@graphql/client';
+import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
 import {
   getUser,
   getUserVariables,
   getUser_user_datasets,
 } from '@graphql/operations/queries/__generated__/getUser';
+import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithmsConfig';
 import { GET_USER } from '@graphql/operations/queries/getUser';
-import client from '@graphql/client';
-import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import { useAuthContext, useUserDatasets } from '@hooks/useAuthContext';
 import { useErrorContext } from '@hooks/useErrorContext';
+import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
+import styles from '@styles/ChooseFile.module.scss';
+import { AllowedDataset } from 'types/algorithms';
+import { MainPrimitiveType } from 'types/globalTypes';
 
 type Props = {
   defaultAlgorithmConfig: getAlgorithmsConfig | null;

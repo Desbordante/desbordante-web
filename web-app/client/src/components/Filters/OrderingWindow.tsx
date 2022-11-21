@@ -1,11 +1,11 @@
-import Button from '@components/Button';
-import PopupWindowContainer from '@components/PopupWindowContainer';
-import React, { FC } from 'react';
 import _ from 'lodash';
-import { OrderBy, PrimitiveType } from 'types/globalTypes';
-import { OrderingTitles } from '@constants/titles';
+import React, { FC } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
+import Button from '@components/Button';
 import { ControlledSelect } from '@components/Inputs/Select';
+import PopupWindowContainer from '@components/PopupWindowContainer';
+import { OrderingTitles } from '@constants/titles';
+import { OrderBy, PrimitiveType } from 'types/globalTypes';
 import { FiltersFields } from './Filters';
 import styles from './Filters.module.scss';
 

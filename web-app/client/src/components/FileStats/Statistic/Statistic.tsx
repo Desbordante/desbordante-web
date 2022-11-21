@@ -1,13 +1,13 @@
-import { FC, HTMLProps } from "react";
-import styles from "./Statistic.module.scss";
-import classNames from "classnames";
+import classNames from 'classnames';
+import { FC, HTMLProps } from 'react';
+import styles from './Statistic.module.scss';
 
-export type StatisticSize = "sm" | "md" | "lg" | "xl";
+export type StatisticSize = 'sm' | 'md' | 'lg' | 'xl';
 
 type StatisticProps = {
   size?: StatisticSize;
   header?: string;
-} & Omit<HTMLProps<HTMLDivElement>, "size">;
+} & Omit<HTMLProps<HTMLDivElement>, 'size'>;
 
 export const Statistic: FC<StatisticProps> = ({
   size,

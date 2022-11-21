@@ -1,6 +1,6 @@
-import { FC, HTMLProps, ReactNode } from "react";
-import styles from "./Group.module.scss";
-import classNames from "classnames";
+import classNames from 'classnames';
+import { FC, HTMLProps, ReactNode } from 'react';
+import styles from './Group.module.scss';
 
 type GroupProps = {
   header?: ReactNode;
