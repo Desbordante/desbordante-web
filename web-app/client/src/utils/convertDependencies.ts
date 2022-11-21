@@ -1,10 +1,10 @@
-import { GetMainTaskDeps } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
 import _ from 'lodash';
-import { Column } from '@graphql/operations/fragments/__generated__/Column';
-import { PrimitiveType } from 'types/globalTypes';
-import { FD } from '@graphql/operations/fragments/__generated__/FD';
-import { CFD } from '@graphql/operations/fragments/__generated__/CFD';
 import { AR } from '@graphql/operations/fragments/__generated__/AR';
+import { CFD } from '@graphql/operations/fragments/__generated__/CFD';
+import { Column } from '@graphql/operations/fragments/__generated__/Column';
+import { FD } from '@graphql/operations/fragments/__generated__/FD';
+import { GetMainTaskDeps } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
+import { PrimitiveType } from 'types/globalTypes';
 
 export type GeneralColumn = {
   column: Column;

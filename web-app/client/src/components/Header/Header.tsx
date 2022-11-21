@@ -1,11 +1,11 @@
-import { useContext, useEffect, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import classNames from 'classnames';
-import Button from '@components/Button';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '@components/AuthContext';
-import styles from './Header.module.scss';
+import Button from '@components/Button';
 import logo from '@public/logo.svg';
+import styles from './Header.module.scss';
 
 const Header = () => {
   const { user, setIsSignUpShown, setIsLogInShown, signOut } =

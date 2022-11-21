@@ -1,7 +1,7 @@
-import { ComponentType } from "react";
-import { MenuProps } from "react-select";
-import { InputPropsBase } from "@components/Inputs";
-import styles from "@components/FilePropsView/FilePropsView.module.scss";
+import { ComponentType } from 'react';
+import { MenuProps } from 'react-select';
+import styles from '@components/FilePropsView/FilePropsView.module.scss';
+import { InputPropsBase } from '@components/Inputs';
 
 export const Menu: ComponentType<MenuProps & InputPropsBase> = ({
   innerProps,

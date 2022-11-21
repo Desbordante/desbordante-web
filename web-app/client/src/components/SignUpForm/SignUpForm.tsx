@@ -1,42 +1,42 @@
-import React, { useContext, useState } from "react";
-import { Formik, FormikHelpers } from "formik";
-import { Form, Button, InputGroup } from "react-bootstrap";
-import { countries } from "countries-list";
-import { passwordStrength } from "check-password-strength";
-import { useMutation } from "@apollo/client";
-import * as Yup from "yup";
+import { useMutation } from '@apollo/client';
+import { passwordStrength } from 'check-password-strength';
+import { countries } from 'countries-list';
+import { Formik, FormikHelpers } from 'formik';
+import React, { useContext, useState } from 'react';
+import { Form, Button, InputGroup } from 'react-bootstrap';
+import * as Yup from 'yup';
 
-import { SignUpFormProps } from "types/auth";
-import { CREATE_USER } from "@graphql/operations/mutations/createUser";
+import { AuthContext } from '@components/AuthContext';
 import {
   createUser,
   createUserVariables,
-} from "@graphql/operations/mutations/__generated__/createUser";
-import hashPassword from "@utils/hashPassword";
-import { AuthContext } from "@components/AuthContext";
+} from '@graphql/operations/mutations/__generated__/createUser';
+import { CREATE_USER } from '@graphql/operations/mutations/createUser';
+import hashPassword from '@utils/hashPassword';
+import { SignUpFormProps } from 'types/auth';
 
 const countryNames = Object.entries(countries).map(([_, country]) => country);
 
 const SignupSchema = Yup.object().shape({
   fullName: Yup.string()
-    .min(2, "Too short!")
-    .max(30, "Too long!")
-    .required("Required"),
-  email: Yup.string().email("Invalid email").required("Required"),
+    .min(2, 'Too short!')
+    .max(30, 'Too long!')
+    .required('Required'),
+  email: Yup.string().email('Invalid email').required('Required'),
   password: Yup.string()
-    .test("strong-enough", "Too weak!", (value?: string) =>
+    .test('strong-enough', 'Too weak!', (value?: string) =>
       Boolean(value && passwordStrength(value).id !== 0)
     )
-    .required("Required"),
-  country: Yup.string().required("Required"),
+    .required('Required'),
+  country: Yup.string().required('Required'),
   company: Yup.string()
-    .min(2, "Too short!")
-    .max(40, "Too long!")
-    .required("Required"),
+    .min(2, 'Too short!')
+    .max(40, 'Too long!')
+    .required('Required'),
   occupation: Yup.string()
-    .min(2, "Too short!")
-    .max(40, "Too long!")
-    .required("Required"),
+    .min(2, 'Too short!')
+    .max(40, 'Too long!')
+    .required('Required'),
 });
 
 interface Props {
@@ -50,12 +50,12 @@ const StageOne: React.FC<Props> = ({ onSuccess }) => {
   const switchIsPasswordShown = () => setIsPasswordShown((prev) => !prev);
 
   const initialValues: SignUpFormProps = {
-    fullName: "",
-    email: "",
-    password: "",
-    country: "",
-    company: "",
-    occupation: "",
+    fullName: '',
+    email: '',
+    password: '',
+    country: '',
+    company: '',
+    occupation: '',
   };
 
   const [createUser] = useMutation<createUser, createUserVariables>(
@@ -85,7 +85,7 @@ const StageOne: React.FC<Props> = ({ onSuccess }) => {
         onSuccess();
       }
     } catch (error) {
-      formikHelpers.setErrors({ email: "This email is already used" });
+      formikHelpers.setErrors({ email: 'This email is already used' });
     }
   };
 
@@ -143,7 +143,7 @@ const StageOne: React.FC<Props> = ({ onSuccess }) => {
                 <Form.Control
                   placeholder="admin1234"
                   name="password"
-                  type={isPasswordShown ? "text" : "password"}
+                  type={isPasswordShown ? 'text' : 'password'}
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}

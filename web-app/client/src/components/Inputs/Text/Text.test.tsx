@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import Text from './Text';
 import userEvent from '@testing-library/user-event';
+import Text from './Text';
 
 const user = userEvent.setup();
 

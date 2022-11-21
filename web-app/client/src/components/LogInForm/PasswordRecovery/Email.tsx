@@ -1,18 +1,18 @@
-import React from "react";
-import { Formik, FormikHelpers } from "formik";
-import { Form, Button } from "react-bootstrap";
-import { passwordStrength } from "check-password-strength";
-import { useMutation } from "@apollo/client";
-import * as Yup from "yup";
+import { useMutation } from '@apollo/client';
+import { passwordStrength } from 'check-password-strength';
+import { Formik, FormikHelpers } from 'formik';
+import React from 'react';
+import { Form, Button } from 'react-bootstrap';
+import * as Yup from 'yup';
 
-import { ISSUE_CODE_FOR_PASSWORD_RECOVERY } from "../../../graphql/operations/mutations/issueCodeForPasswordRecovery";
 import {
   issueCodeForPasswordRecovery,
   issueCodeForPasswordRecoveryVariables,
-} from "../../../graphql/operations/mutations/__generated__/issueCodeForPasswordRecovery";
+} from '../../../graphql/operations/mutations/__generated__/issueCodeForPasswordRecovery';
+import { ISSUE_CODE_FOR_PASSWORD_RECOVERY } from '../../../graphql/operations/mutations/issueCodeForPasswordRecovery';
 
 const logInSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Required"),
+  email: Yup.string().email('Invalid email').required('Required'),
 });
 
 interface Props {
@@ -48,7 +48,7 @@ const Email: React.FC<Props> = ({ onSuccess, email, setEmail }) => {
       }
     } catch (error) {
       formikHelpers.setErrors({
-        email: "Incorrect data",
+        email: 'Incorrect data',
       });
     }
   };

@@ -1,5 +1,6 @@
-import { ComponentType } from 'react';
 import cn from 'classnames';
+import Image from 'next/image';
+import { ComponentType } from 'react';
 import {
   ControlProps,
   IndicatorsContainerProps,
@@ -10,11 +11,9 @@ import {
   ValueContainerProps,
   NoticeProps,
 } from 'react-select';
-import Image from 'next/image';
+import ChevronDownIcon from '@assets/icons/arrow-down.svg?component';
 import { InputPropsBase } from '@components/Inputs';
 import styles from './Select.module.scss';
-
-import ChevronDownIcon from '@assets/icons/arrow-down.svg?component';
 
 const Control: ComponentType<ControlProps & InputPropsBase> = ({
   children,

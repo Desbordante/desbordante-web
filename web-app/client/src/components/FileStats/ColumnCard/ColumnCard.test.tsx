@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { completedFileStatsMock } from '@graphql/operations/queries/__mocks__/getFileStats';
-import { ColumnCard } from '@components/FileStats/ColumnCard/ColumnCard';
 import userEvent from '@testing-library/user-event';
+import { ColumnCard } from '@components/FileStats/ColumnCard/ColumnCard';
+import { completedFileStatsMock } from '@graphql/operations/queries/__mocks__/getFileStats';
 
 const user = userEvent.setup();
 

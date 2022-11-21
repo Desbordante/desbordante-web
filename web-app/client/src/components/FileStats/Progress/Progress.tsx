@@ -1,6 +1,6 @@
+import classNames from 'classnames';
 import { FC, HTMLProps } from 'react';
 import styles from './Progress.module.scss';
-import classNames from 'classnames';
 
 type ProgressProps = {
   value: number;

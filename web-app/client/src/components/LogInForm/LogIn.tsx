@@ -1,25 +1,25 @@
-import React, { useContext } from "react";
-import { Formik, FormikHelpers } from "formik";
-import { Form, Button } from "react-bootstrap";
-import { passwordStrength } from "check-password-strength";
-import { useMutation } from "@apollo/client";
-import * as Yup from "yup";
+import { useMutation } from '@apollo/client';
+import { passwordStrength } from 'check-password-strength';
+import { Formik, FormikHelpers } from 'formik';
+import React, { useContext } from 'react';
+import { Form, Button } from 'react-bootstrap';
+import * as Yup from 'yup';
 
+import { AuthContext } from '@components/AuthContext';
 import {
   logIn,
   logInVariables,
-} from "@graphql/operations/mutations/__generated__/logIn";
-import { LOG_IN } from "@graphql/operations/mutations/logIn";
-import hashPassword from "@utils/hashPassword";
-import { AuthContext } from "@components/AuthContext";
+} from '@graphql/operations/mutations/__generated__/logIn';
+import { LOG_IN } from '@graphql/operations/mutations/logIn';
+import hashPassword from '@utils/hashPassword';
 
 const logInSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Required"),
+  email: Yup.string().email('Invalid email').required('Required'),
   password: Yup.string()
-    .test("strong-enough", "Too weak!", (value?: string) =>
+    .test('strong-enough', 'Too weak!', (value?: string) =>
       Boolean(value && passwordStrength(value).id !== 0)
     )
-    .required("Required"),
+    .required('Required'),
 });
 
 interface Props {
@@ -31,8 +31,8 @@ const LogIn: React.FC<Props> = ({ onSuccess, onRecovery }) => {
   const { applyTokens } = useContext(AuthContext)!;
 
   const initialValues = {
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   };
 
   const [logIn] = useMutation<logIn, logInVariables>(LOG_IN);
@@ -55,8 +55,8 @@ const LogIn: React.FC<Props> = ({ onSuccess, onRecovery }) => {
       }
     } catch (error) {
       formikHelpers.setErrors({
-        email: "Incorrect data",
-        password: "Incorrect data",
+        email: 'Incorrect data',
+        password: 'Incorrect data',
       });
     }
   };

@@ -1,22 +1,22 @@
-import React, { useContext, useEffect } from "react";
-import { Formik, FormikHelpers } from "formik";
-import { Form, Button } from "react-bootstrap";
-import { useMutation } from "@apollo/client";
-import * as Yup from "yup";
+import { useMutation } from '@apollo/client';
+import { Formik, FormikHelpers } from 'formik';
+import React, { useContext, useEffect } from 'react';
+import { Form, Button } from 'react-bootstrap';
+import * as Yup from 'yup';
 
+import { AuthContext } from '@components/AuthContext';
 import {
   approveUserEmail,
   approveUserEmailVariables,
-} from "@graphql/operations/mutations/__generated__/approveUserEmail";
-import { APPROVE_USER_EMAIL } from "@graphql/operations/mutations/approveUserEmail";
-import { AuthContext } from "@components/AuthContext";
-import { issueVerificationCode } from "@graphql/operations/mutations/__generated__/issueVerificationCode";
-import { ISSUE_VERIFICATION_CODE } from "@graphql/operations/mutations/issueVerificationCode";
+} from '@graphql/operations/mutations/__generated__/approveUserEmail';
+import { issueVerificationCode } from '@graphql/operations/mutations/__generated__/issueVerificationCode';
+import { APPROVE_USER_EMAIL } from '@graphql/operations/mutations/approveUserEmail';
+import { ISSUE_VERIFICATION_CODE } from '@graphql/operations/mutations/issueVerificationCode';
 
 const codeSchema = Yup.object().shape({
   code: Yup.string()
-    .length(4, "Must be four characters long")
-    .required("Required"),
+    .length(4, 'Must be four characters long')
+    .required('Required'),
 });
 
 interface Props {
@@ -27,7 +27,7 @@ const StageTwo: React.FC<Props> = ({ onSuccess }) => {
   const { user, applyTokens } = useContext(AuthContext)!;
 
   const initialValues = {
-    code: "",
+    code: '',
   };
 
   const [verifyEmail] = useMutation<
@@ -56,7 +56,7 @@ const StageTwo: React.FC<Props> = ({ onSuccess }) => {
     } catch (error) {
       issueCode();
       formikHelpers.setErrors({
-        code: "Incorrect code. We have sent you another one.",
+        code: 'Incorrect code. We have sent you another one.',
       });
     }
   };
@@ -69,7 +69,7 @@ const StageTwo: React.FC<Props> = ({ onSuccess }) => {
     <>
       <h1 className="text-center fw-bold mb-4">Email Verification</h1>
       <p className="mb-4">
-        We have sent the verification code to{" "}
+        We have sent the verification code to{' '}
         <span className="fw-bold">{user?.email}</span>
       </p>
       <Formik

@@ -1,13 +1,13 @@
+import _ from 'lodash';
 import { FC, useState } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import _ from 'lodash';
 import Button from '@components/Button';
+import { StatsTab } from '@components/FilePropsView/StatsTab';
 import { Checkbox, Select, Text } from '@components/Inputs';
 import { Tab, TabView } from '@components/TabView/TabView';
-import { FileProps } from 'types/globalTypes';
 import Tooltip from '@components/Tooltip';
+import { FileProps } from 'types/globalTypes';
 import styles from './FilePropsView.module.scss';
-import { StatsTab } from '@components/FilePropsView/StatsTab';
 
 type Props = {
   data: FileProps;

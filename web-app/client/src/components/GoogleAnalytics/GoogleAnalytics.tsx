@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Script from 'next/script';
-import { pageView } from '@utils/googleAnalytics';
+import { useEffect } from 'react';
 import { googleAnalyticsKey } from '@utils/env';
+import { pageView } from '@utils/googleAnalytics';
 
 const GoogleAnalytics = () => {
   const router = useRouter();

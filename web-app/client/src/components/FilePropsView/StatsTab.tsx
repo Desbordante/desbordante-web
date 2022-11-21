@@ -1,27 +1,27 @@
-import { FC, useEffect, useId, useState } from 'react';
-import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client';
-import {
-  getFileStats,
-  getFileStatsVariables,
-} from '@graphql/operations/queries/__generated__/getFileStats';
-import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
+import { useRouter } from 'next/router';
+import { FC, useEffect, useId, useState } from 'react';
+import Button from '@components/Button';
+import styles from '@components/FilePropsView/FilePropsView.module.scss';
+import { Menu } from '@components/FilePropsView/Menu';
+import { OptionWithBadge } from '@components/FilePropsView/OptionWithBadge';
+import { Alert } from '@components/FileStats/Alert';
+import { ColumnCard } from '@components/FileStats/ColumnCard';
+import { Progress } from '@components/FileStats/Progress';
+import { Table } from '@components/FileStats/Table';
+import { Select } from '@components/Inputs';
+import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
 import {
   startProcessingStats,
   startProcessingStatsVariables,
 } from '@graphql/operations/mutations/__generated__/startProcessingStats';
 import { START_PROCESSING_STATS } from '@graphql/operations/mutations/startProcessingStats';
-import styles from '@components/FilePropsView/FilePropsView.module.scss';
-import { Alert } from '@components/FileStats/Alert';
-import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
-import { Progress } from '@components/FileStats/Progress';
-import { Table } from '@components/FileStats/Table';
+import {
+  getFileStats,
+  getFileStatsVariables,
+} from '@graphql/operations/queries/__generated__/getFileStats';
+import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
 import { getOverview } from '@utils/fileStats';
-import { Select } from '@components/Inputs';
-import { OptionWithBadge } from '@components/FilePropsView/OptionWithBadge';
-import { Menu } from '@components/FilePropsView/Menu';
-import { ColumnCard } from '@components/FileStats/ColumnCard';
-import Button from '@components/Button';
 
 type ColumnOption = {
   value: number;

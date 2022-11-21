@@ -1,9 +1,9 @@
-import { FC, HTMLProps, ReactNode } from 'react';
-import styles from './Alert.module.scss';
 import classNames from 'classnames';
-import InfoIcon from '@assets/icons/info-blue.svg?component';
+import { FC, HTMLProps, ReactNode } from 'react';
 import ErrorIcon from '@assets/icons/error-red.svg?component';
+import InfoIcon from '@assets/icons/info-blue.svg?component';
 import SuccessIcon from '@assets/icons/success-green.svg?component';
+import styles from './Alert.module.scss';
 
 type AlertVariant = 'info' | 'error' | 'success';
 

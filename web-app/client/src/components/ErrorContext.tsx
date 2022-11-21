@@ -1,6 +1,11 @@
-import React, { createContext, PropsWithChildren, useCallback, useState } from "react";
+import React, {
+  createContext,
+  PropsWithChildren,
+  useCallback,
+  useState,
+} from 'react';
 
-import { Error } from "types/algorithms";
+import { Error } from 'types/algorithms';
 
 type ErrorContextType = {
   error: Error | undefined;
@@ -11,7 +16,9 @@ type ErrorContextType = {
 
 export const ErrorContext = createContext<ErrorContextType | null>(null);
 
-export const ErrorContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
+export const ErrorContextProvider: React.FC<PropsWithChildren> = ({
+  children,
+}) => {
   const [error, setError] = useState<Error>();
   const [isErrorShown, setIsErrorShown] = useState(false);
 

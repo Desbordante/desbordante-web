@@ -1,4 +1,4 @@
-import { AllowedDataset } from "./algorithms";
+import { AllowedDataset } from './algorithms';
 
 export type TokenPair = {
   accessToken: string;
@@ -40,5 +40,5 @@ export type User = {
   email?: string;
   isVerified?: boolean;
   permissions: UserPermissions;
-  datasets: AllowedDataset[]
+  datasets: AllowedDataset[];
 };

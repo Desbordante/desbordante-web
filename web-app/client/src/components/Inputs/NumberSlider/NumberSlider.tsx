@@ -1,3 +1,5 @@
+import classNames from 'classnames';
+import Slider, { SliderProps } from 'rc-slider';
 import {
   BaseHTMLAttributes,
   forwardRef,
@@ -7,15 +9,13 @@ import {
   useEffect,
   useState,
 } from 'react';
-import Slider, { SliderProps } from 'rc-slider';
-import classNames from 'classnames';
-import Tooltip from '@components/Tooltip';
 import { InputPropsBase, Text } from '@components/Inputs';
+import Tooltip from '@components/Tooltip';
 import 'rc-slider/assets/index.css';
 import styles from './NumberSlider.module.scss';
 
 type Props = InputPropsBase &
-  Omit<HTMLProps<HTMLInputElement>, "onChange"> & {
+  Omit<HTMLProps<HTMLInputElement>, 'onChange'> & {
     tooltip?: ReactNode;
     sliderProps?: SliderProps;
     onChange: (value: number) => void;

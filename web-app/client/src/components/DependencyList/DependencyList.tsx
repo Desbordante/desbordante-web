@@ -1,8 +1,8 @@
-import { GeneralColumn } from '@utils/convertDependencies';
-import { FC, ReactElement, useState } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
+import { FC, ReactElement, useState } from 'react';
 import LongArrowIcon from '@assets/icons/long-arrow.svg?component';
+import { GeneralColumn } from '@utils/convertDependencies';
 import styles from './DependencyList.module.scss';
 
 type Props = {

@@ -1,13 +1,13 @@
-import { forwardRef, ForwardRefRenderFunction, ReactNode } from "react";
-import cn from "classnames";
+import cn from 'classnames';
+import { forwardRef, ForwardRefRenderFunction, ReactNode } from 'react';
 import ReactSelect, {
   Props as ReactSelectProps,
   PropsValue,
-} from "react-select";
-import { InputPropsBase } from "@components/Inputs";
-import Tooltip from "@components/Tooltip";
-import customComponents from "./customComponents";
-import styles from "./Select.module.scss";
+} from 'react-select';
+import { InputPropsBase } from '@components/Inputs';
+import Tooltip from '@components/Tooltip';
+import customComponents from './customComponents';
+import styles from './Select.module.scss';
 
 export type Props = InputPropsBase &
   ReactSelectProps & {

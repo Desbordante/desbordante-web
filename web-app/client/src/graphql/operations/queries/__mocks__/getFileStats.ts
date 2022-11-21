@@ -1,8 +1,8 @@
+import { GraphQLError } from 'graphql';
 import {
   getFileStats,
   getFileStats_datasetInfo,
 } from '@graphql/operations/queries/__generated__/getFileStats';
-import { GraphQLError } from 'graphql';
 
 const fileStatsMock: getFileStats = {
   datasetInfo: {
