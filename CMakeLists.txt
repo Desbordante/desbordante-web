@@ -49,10 +49,9 @@ include_directories(
     "src/caching"
     "src/logging"
     "src"
-
-    "lib/easyloggingpp/src"
-    "lib/better-enums/"
     )
+
+include_directories(SYSTEM "lib/easyloggingpp/src" "lib/better-enums/")
 
 if (ENABLE_CONSUMER_COMPILE)
     add_subdirectory("cpp-consumer")
