@@ -1,23 +1,23 @@
-import React, { useContext } from "react";
-import { Formik, FormikHelpers } from "formik";
-import { Form, Button } from "react-bootstrap";
-import { passwordStrength } from "check-password-strength";
-import { useMutation } from "@apollo/client";
-import * as Yup from "yup";
+import { useMutation } from '@apollo/client';
+import { passwordStrength } from 'check-password-strength';
+import { Formik, FormikHelpers } from 'formik';
+import React, { useContext } from 'react';
+import { Form, Button } from 'react-bootstrap';
+import * as Yup from 'yup';
 
-import { CHANGE_PASSWORD } from "../../../graphql/operations/mutations/changePassword";
 import {
   changePassword,
   changePasswordVariables,
-} from "../../../graphql/operations/mutations/__generated__/changePassword";
-import { AuthContext } from "../../AuthContext";
+} from '../../../graphql/operations/mutations/__generated__/changePassword';
+import { CHANGE_PASSWORD } from '../../../graphql/operations/mutations/changePassword';
+import { AuthContext } from '../../AuthContext';
 
 const logInSchema = Yup.object().shape({
   password: Yup.string()
-    .test("strong-enough", "Too weak!", (value?: string) =>
+    .test('strong-enough', 'Too weak!', (value?: string) =>
       Boolean(value && passwordStrength(value).id !== 0)
     )
-    .required("Required"),
+    .required('Required'),
 });
 
 interface Props {
@@ -29,7 +29,7 @@ const Password: React.FC<Props> = ({ onSuccess, email }) => {
   const { applyTokens } = useContext(AuthContext)!;
 
   const initialValues = {
-    password: "",
+    password: '',
   };
 
   const [changePassword] = useMutation<changePassword, changePasswordVariables>(
@@ -49,7 +49,7 @@ const Password: React.FC<Props> = ({ onSuccess, email }) => {
       });
 
       // eslint-disable-next-line no-underscore-dangle
-      if (response.data?.changePassword.__typename === "TokenPair") {
+      if (response.data?.changePassword.__typename === 'TokenPair') {
         applyTokens(response.data?.changePassword);
         onSuccess();
       }

@@ -1,9 +1,9 @@
-import { ButtonHTMLAttributes, FC } from 'react';
-import styles from './ModeButton.module.scss';
 import classNames from 'classnames';
+import { ButtonHTMLAttributes, FC } from 'react';
 import grid from '@assets/icons/grid.svg';
 import list from '@assets/icons/list.svg';
 import Button from '@components/Button';
+import styles from './ModeButton.module.scss';
 
 type ModeButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   tableMode: boolean;

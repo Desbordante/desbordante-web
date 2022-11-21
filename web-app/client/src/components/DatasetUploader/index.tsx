@@ -1,3 +1,3 @@
-import DatasetUploader from "./DatasetUploader";
+import DatasetUploader from './DatasetUploader';
 
 export { DatasetUploader };

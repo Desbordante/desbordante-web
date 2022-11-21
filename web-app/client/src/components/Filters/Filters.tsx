@@ -1,5 +1,7 @@
-import { useEffect } from 'react';
 import _ from 'lodash';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { OrderingTitles } from '@constants/titles';
 import {
   FDSortBy,
   CFDSortBy,
@@ -7,8 +9,6 @@ import {
   OrderBy,
   PrimitiveType,
 } from 'types/globalTypes';
-import { OrderingTitles } from '@constants/titles';
-import { useForm } from 'react-hook-form';
 
 export type Sorting = FDSortBy | CFDSortBy | ARSortBy;
 

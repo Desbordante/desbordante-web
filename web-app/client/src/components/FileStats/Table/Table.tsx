@@ -1,6 +1,6 @@
-import { FC, HTMLProps } from "react";
-import styles from "./Table.module.scss";
-import classNames from "classnames";
+import classNames from 'classnames';
+import { FC, HTMLProps } from 'react';
+import styles from './Table.module.scss';
 
 export const Table: FC<HTMLProps<HTMLTableElement>> = ({
   className,

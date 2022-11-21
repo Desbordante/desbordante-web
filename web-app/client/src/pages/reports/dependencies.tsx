@@ -1,36 +1,35 @@
-import type { GetServerSideProps, NextPage } from 'next';
 import { useLazyQuery } from '@apollo/client';
-import { GET_MAIN_TASK_DEPS } from '@graphql/operations/queries/getDeps';
-import {
-  GetMainTaskDeps,
-  GetMainTaskDepsVariables,
-} from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
-import ReportsLayout from '@components/ReportsLayout';
-import { ReactElement, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Text } from '@components/Inputs';
-import Button from '@components/Button';
-import styles from '@styles/Dependencies.module.scss';
+import type { GetServerSideProps, NextPage } from 'next';
+import { ReactElement, useEffect, useState } from 'react';
+import { FormProvider } from 'react-hook-form';
+import eyeIcon from '@assets/icons/eye.svg';
 import filterIcon from '@assets/icons/filter.svg';
 import orderingIcon from '@assets/icons/ordering.svg';
-import eyeIcon from '@assets/icons/eye.svg';
+import Button from '@components/Button';
+import DependencyList from '@components/DependencyList/DependencyList';
 import {
   FilteringWindow,
   getSortingParams,
   OrderingWindow,
   useFilters,
 } from '@components/Filters';
+import { Text } from '@components/Inputs';
 import Pagination from '@components/Pagination/Pagination';
-import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
-import { getTaskInfo } from '@graphql/operations/queries/__generated__/getTaskInfo';
-import { OrderBy, PrimitiveType } from 'types/globalTypes';
-import client from '@graphql/client';
-import { convertDependencies } from '@utils/convertDependencies';
+import ReportsLayout from '@components/ReportsLayout';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
+import client from '@graphql/client';
+import {
+  GetMainTaskDeps,
+  GetMainTaskDepsVariables,
+} from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
+import { getTaskInfo } from '@graphql/operations/queries/__generated__/getTaskInfo';
+import { GET_MAIN_TASK_DEPS } from '@graphql/operations/queries/getDeps';
+import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
+import styles from '@styles/Dependencies.module.scss';
+import { convertDependencies } from '@utils/convertDependencies';
+import { OrderBy, PrimitiveType } from 'types/globalTypes';
 import { NextPageWithLayout } from 'types/pageWithLayout';
-
-import DependencyList from '@components/DependencyList/DependencyList';
-import { FormProvider } from 'react-hook-form';
 
 type Props = {
   defaultData?: GetMainTaskDeps;

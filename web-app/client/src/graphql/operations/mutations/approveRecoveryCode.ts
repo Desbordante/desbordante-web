@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const APPROVE_RECOVERY_CODE = gql`
   mutation approveRecoveryCode($email: String!, $codeValue: Int!) {

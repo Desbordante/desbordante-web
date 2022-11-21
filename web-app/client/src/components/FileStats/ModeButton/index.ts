@@ -1,1 +1,1 @@
-export * from "./ModeButton";
+export * from './ModeButton';

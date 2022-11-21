@@ -1,7 +1,9 @@
-import { onError } from 'apollo-link-error';
-import { fromPromise } from 'apollo-link';
 import { setContext } from '@apollo/client/link/context';
+import { fromPromise } from 'apollo-link';
+import { onError } from 'apollo-link-error';
 import { v4 as uuidv4 } from 'uuid';
+import { graphQLEndpoint } from '@constants/endpoints';
+import { showError } from '@utils/toasts';
 import {
   getAccessToken,
   getRefreshToken,
@@ -10,8 +12,6 @@ import {
   saveTokenPair,
 } from '@utils/tokens';
 import { TokenPair } from 'types/auth';
-import { graphQLEndpoint } from '@constants/endpoints';
-import { showError } from '@utils/toasts';
 
 const generateServerSideInfo = () => {
   return Buffer.from(JSON.stringify(SSR_DEVICE_INFO)).toString('base64');

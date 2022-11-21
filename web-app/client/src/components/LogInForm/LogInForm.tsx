@@ -1,19 +1,19 @@
-import React, { useContext, useState } from "react";
-import { Container } from "react-bootstrap";
+import React, { useContext, useState } from 'react';
+import { Container } from 'react-bootstrap';
 
-import PopupWindowContainer from "../PopupWindowContainer/PopupWindowContainer";
-import { AuthContext } from "../AuthContext";
-import LogIn from "./LogIn";
-import WelcomeMessage from "../SignUpForm/WelcomeMessage";
-import Email from "./PasswordRecovery/Email";
-import Code from "./PasswordRecovery/Code";
-import Password from "./PasswordRecovery/Password";
+import { AuthContext } from '../AuthContext';
+import PopupWindowContainer from '../PopupWindowContainer/PopupWindowContainer';
+import WelcomeMessage from '../SignUpForm/WelcomeMessage';
+import LogIn from './LogIn';
+import Code from './PasswordRecovery/Code';
+import Email from './PasswordRecovery/Email';
+import Password from './PasswordRecovery/Password';
 
 const LogInForm = () => {
   const { setIsLogInShown } = useContext(AuthContext)!;
 
   const [stage, setStage] = useState(1);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
 
   const goToNextStage = () => setStage((prev) => prev + 1);
   const goToWelcome = () => setStage(5);

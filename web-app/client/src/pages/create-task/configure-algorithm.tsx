@@ -1,14 +1,8 @@
-import type { NextPage } from 'next';
-import React, { FC, useCallback, useContext, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/router';
+import { useMutation } from '@apollo/client';
 import _ from 'lodash';
-import Button from '@components/Button';
-import ideaIcon from '@assets/icons/idea.svg';
-import WizardLayout from '@components/WizardLayout';
-import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
-import { Select } from '@components/Inputs';
-import styles from '@styles/ConfigureAlgorithm.module.scss';
-import { MainPrimitiveType } from 'types/globalTypes';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import React, { FC, useCallback, useContext, useEffect, useMemo } from 'react';
 import {
   Controller,
   ControllerFieldState,
@@ -16,6 +10,12 @@ import {
   useForm,
   UseFormStateReturn,
 } from 'react-hook-form';
+import ideaIcon from '@assets/icons/idea.svg';
+import Button from '@components/Button';
+import { ErrorContext } from '@components/ErrorContext';
+import { Select } from '@components/Inputs';
+import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
+import WizardLayout from '@components/WizardLayout';
 import {
   Algorithms,
   ApproxOptions,
@@ -25,14 +25,14 @@ import {
   optionsByAlgorithms,
   TypoOptions,
 } from '@constants/options';
-import { useMutation } from '@apollo/client';
 import {
   createTaskWithDatasetChoosing,
   createTaskWithDatasetChoosingVariables,
 } from '@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing';
 import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations/chooseTask';
-import { ErrorContext } from '@components/ErrorContext';
 import { useErrorContext } from '@hooks/useErrorContext';
+import styles from '@styles/ConfigureAlgorithm.module.scss';
+import { MainPrimitiveType } from 'types/globalTypes';
 
 type FDForm = {
   algorithmName: any;

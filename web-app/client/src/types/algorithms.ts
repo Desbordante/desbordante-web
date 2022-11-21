@@ -1,5 +1,4 @@
-
-import { getAlgorithmsConfig_algorithmsConfig_allowedDatasets } from "../graphql/operations/queries/__generated__/getAlgorithmsConfig";
+import { getAlgorithmsConfig_algorithmsConfig_allowedDatasets } from '../graphql/operations/queries/__generated__/getAlgorithmsConfig';
 
 export type Attribute = {
   column: { name: string; index?: number };
@@ -7,11 +6,11 @@ export type Attribute = {
 };
 
 export type TaskStatus =
-  | "UNSCHEDULED"
-  | "PROCESSING"
-  | "COMPLETED"
-  | "SERVER ERROR"
-  | "INCORRECT INPUT DATA";
+  | 'UNSCHEDULED'
+  | 'PROCESSING'
+  | 'COMPLETED'
+  | 'SERVER ERROR'
+  | 'INCORRECT INPUT DATA';
 export type Parameters = {
   algName: string;
   separator: string;
@@ -43,7 +42,7 @@ export type ARAlgorithm = {
   };
 };
 export type EDPAlgorithm = {
-  name: "Typo Miner";
+  name: 'Typo Miner';
   properties: {
     hasArityConstraint: boolean;
     hasErrorThreshold: boolean;
@@ -58,7 +57,6 @@ export type AllowedAlgorithms = {
   allowedCFDAlgorithms: CFDAlgorithm[];
   allowedARAlgorithms: ARAlgorithm[];
 };
-
 
 export type AllowedDataset =
   getAlgorithmsConfig_algorithmsConfig_allowedDatasets;

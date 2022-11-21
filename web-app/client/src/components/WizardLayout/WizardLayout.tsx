@@ -5,8 +5,8 @@ import React, {
   PropsWithChildren,
   ReactElement,
 } from 'react';
-import styles from './WizardLayout.module.scss';
 import bg from '@public/bg.jpg';
+import styles from './WizardLayout.module.scss';
 
 interface Props extends PropsWithChildren {
   header: ReactElement;

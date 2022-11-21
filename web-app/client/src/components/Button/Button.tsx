@@ -1,16 +1,21 @@
-import { FC, ButtonHTMLAttributes } from 'react';
 import classNames from 'classnames';
+import Image, { StaticImageData } from 'next/image';
+import { FC, ButtonHTMLAttributes } from 'react';
 import styles from './Button.module.scss';
-import Image, { StaticImageData } from 'next/image'
 
-type ButtonVariant = 'gradient' | 'primary' | 'secondary' | 'secondary-danger' | 'tertiary';
+type ButtonVariant =
+  | 'gradient'
+  | 'primary'
+  | 'secondary'
+  | 'secondary-danger'
+  | 'tertiary';
 type ButtonSize = 'sm' | 'lg' | 'md';
-type Icon = string | StaticImageData
+type Icon = string | StaticImageData;
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
-  icon?: Icon
+  icon?: Icon;
 }
 
 const Button: FC<Props> = ({
@@ -35,8 +40,16 @@ const Button: FC<Props> = ({
         defaultSizeClassName,
         defaultClassName,
         className
-      )} >
-      <>{icon && <span className={styles.icon}><Image src={icon} width={24} height={24} /></span>}{children}</>
+      )}
+    >
+      <>
+        {icon && (
+          <span className={styles.icon}>
+            <Image src={icon} width={24} height={24} />
+          </span>
+        )}
+        {children}
+      </>
     </button>
   );
 };

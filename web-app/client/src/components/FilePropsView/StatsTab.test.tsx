@@ -1,8 +1,12 @@
+import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
+import userEvent from '@testing-library/user-event';
+import { useRouter } from 'next/router';
 import { StatsTab } from '@components/FilePropsView/StatsTab';
-import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
+import { startProcessingStats } from '@graphql/operations/mutations/__generated__/startProcessingStats';
+import { START_PROCESSING_STATS } from '@graphql/operations/mutations/startProcessingStats';
+import { getFileStats } from '@graphql/operations/queries/__generated__/getFileStats';
 import {
   completedFileIdMock,
   completedFileStatsMock,
@@ -14,11 +18,7 @@ import {
   notProcessedFileIdMock,
   notProcessedFileStatsMock,
 } from '@graphql/operations/queries/__mocks__/getFileStats';
-import { getFileStats } from '@graphql/operations/queries/__generated__/getFileStats';
-import { startProcessingStats } from '@graphql/operations/mutations/__generated__/startProcessingStats';
-import { START_PROCESSING_STATS } from '@graphql/operations/mutations/startProcessingStats';
-import userEvent from '@testing-library/user-event';
-import { useRouter } from 'next/router';
+import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
 
 const user = userEvent.setup();
 

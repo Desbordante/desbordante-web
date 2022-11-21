@@ -1,5 +1,5 @@
-import { gql } from "@apollo/client";
-import { COLUMN } from "@graphql/operations/fragments";
+import { gql } from '@apollo/client';
+import { COLUMN } from '@graphql/operations/fragments';
 
 export const GET_PKS = gql`
   ${COLUMN}
@@ -7,10 +7,10 @@ export const GET_PKS = gql`
   query getPKs($taskID: ID!) {
     taskInfo(taskID: $taskID) {
       data {
-        ...on TaskWithDepsData {
+        ... on TaskWithDepsData {
           result {
             __typename
-            ...on ResultsWithPKs {
+            ... on ResultsWithPKs {
               PKs {
                 ...Column
               }

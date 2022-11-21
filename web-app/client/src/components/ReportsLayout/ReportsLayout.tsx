@@ -1,17 +1,17 @@
+import classNames from 'classnames';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
 import React, { FC, PropsWithChildren } from 'react';
-import styles from './ReportsLayout.module.scss';
-import bg from '@public/bg.jpg';
-import settingsIcon from '@assets/icons/settings-black.svg';
 import chartIcon from '@assets/icons/chart.svg';
 import datatableIcon from '@assets/icons/datatable.svg';
 import dropDownIcon from '@assets/icons/list-dropdown.svg';
-import Image from 'next/image';
-import { useRouter } from 'next/router';
-import { PrimitiveType } from 'types/globalTypes';
+import settingsIcon from '@assets/icons/settings-black.svg';
 import { useTaskContext } from '@components/TaskContext';
-import classNames from 'classnames';
+import bg from '@public/bg.jpg';
+import { PrimitiveType } from 'types/globalTypes';
+import styles from './ReportsLayout.module.scss';
 
-interface Props extends PropsWithChildren {}
+type Props = PropsWithChildren;
 
 const menuOverview = {
   label: 'Overview',

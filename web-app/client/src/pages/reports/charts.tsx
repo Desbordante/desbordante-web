@@ -1,15 +1,15 @@
-import { ReactElement, useContext, useState } from 'react';
 import { useQuery } from '@apollo/client';
+import { ReactElement, useContext, useState } from 'react';
+import styles from 'styles/Charts.module.scss';
+import LayeredChart from '@components/Chart/LayeredChart';
+import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
+import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
 import {
   getPieChartData,
   getPieChartDataVariables,
 } from '@graphql/operations/queries/__generated__/getPieChartData';
 import { GET_PIE_CHART_DATA } from '@graphql/operations/queries/getPieChartData';
-import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
-import LayeredChart from '@components/Chart/LayeredChart';
-import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
 import { NextPageWithLayout } from 'types/pageWithLayout';
-import styles from 'styles/Charts.module.scss';
 
 const getChartData = (data?: getPieChartData) => {
   if (

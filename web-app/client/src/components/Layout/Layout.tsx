@@ -1,12 +1,12 @@
-import { useContext } from 'react';
 import Head from 'next/head';
+import { useContext } from 'react';
 import { AuthContext } from '@components/AuthContext';
-import SignUpForm from '@components/SignUpForm';
+import { ErrorContext } from '@components/ErrorContext';
 import Header from '@components/Header';
+import LogInForm from '@components/LogInForm/LogInForm';
+import SignUpForm from '@components/SignUpForm';
 import { FCWithChildren } from 'types/react';
 import styles from './Layout.module.scss';
-import LogInForm from '@components/LogInForm/LogInForm';
-import { ErrorContext } from '@components/ErrorContext';
 
 const Layout: FCWithChildren = ({ children }) => {
   const { isSignUpShown, isFeedbackShown, isLogInShown } =

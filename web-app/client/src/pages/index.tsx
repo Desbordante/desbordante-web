@@ -1,9 +1,9 @@
 import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import plexus from '@public/plexus.jpg';
 import Button from '../components/Button';
 import ExternalLink from '../components/ExternalLink';
 import styles from '../styles/Home.module.scss';
-import plexus from '@public/plexus.jpg';
-import { useRouter } from 'next/router';
 
 const Home: NextPage = () => {
   const router = useRouter();

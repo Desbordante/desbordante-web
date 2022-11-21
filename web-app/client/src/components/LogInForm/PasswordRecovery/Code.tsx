@@ -1,24 +1,24 @@
-import React from "react";
-import { Formik, FormikHelpers } from "formik";
-import { Form, Button } from "react-bootstrap";
-import { useMutation } from "@apollo/client";
-import * as Yup from "yup";
+import { useMutation } from '@apollo/client';
+import { Formik, FormikHelpers } from 'formik';
+import React from 'react';
+import { Form, Button } from 'react-bootstrap';
+import * as Yup from 'yup';
 
-import { ISSUE_CODE_FOR_PASSWORD_RECOVERY } from "@graphql/operations/mutations/issueCodeForPasswordRecovery";
+import {
+  approveRecoveryCode,
+  approveRecoveryCodeVariables,
+} from '@graphql/operations/mutations/__generated__/approveRecoveryCode';
 import {
   issueCodeForPasswordRecovery,
   issueCodeForPasswordRecoveryVariables,
-} from "@graphql/operations/mutations/__generated__/issueCodeForPasswordRecovery";
-import { APPROVE_RECOVERY_CODE } from "@graphql/operations/mutations/approveRecoveryCode";
-import {
-  approveRecoveryCode, 
-  approveRecoveryCodeVariables,
-} from "@graphql/operations/mutations/__generated__/approveRecoveryCode";
+} from '@graphql/operations/mutations/__generated__/issueCodeForPasswordRecovery';
+import { APPROVE_RECOVERY_CODE } from '@graphql/operations/mutations/approveRecoveryCode';
+import { ISSUE_CODE_FOR_PASSWORD_RECOVERY } from '@graphql/operations/mutations/issueCodeForPasswordRecovery';
 
 const codeSchema = Yup.object().shape({
   code: Yup.string()
-    .length(4, "Must be four characters long")
-    .required("Required"),
+    .length(4, 'Must be four characters long')
+    .required('Required'),
 });
 
 interface Props {
@@ -37,7 +37,7 @@ const Code: React.FC<Props> = ({ onSuccess, email }) => {
   >(APPROVE_RECOVERY_CODE);
 
   const initialValues = {
-    code: "",
+    code: '',
   };
 
   const handleSubmit = async (
@@ -58,7 +58,7 @@ const Code: React.FC<Props> = ({ onSuccess, email }) => {
     } catch (error) {
       await issueCode({ variables: { email } });
       formikHelpers.setErrors({
-        code: "Incorrect code. We have sent you another one.",
+        code: 'Incorrect code. We have sent you another one.',
       });
     }
   };

@@ -1,11 +1,11 @@
+import Head from 'next/head';
 import React, { PropsWithChildren } from 'react';
 import { Container } from 'react-bootstrap';
+import OutsideClickHandler from 'react-outside-click-handler';
 import { useSpring, animated } from 'react-spring';
 //@ts-ignore @todo
-import OutsideClickHandler from 'react-outside-click-handler';
 
 import styles from './PopupWindowContainer.module.scss';
-import Head from 'next/head';
 
 interface Props {
   onOutsideClick: () => void;

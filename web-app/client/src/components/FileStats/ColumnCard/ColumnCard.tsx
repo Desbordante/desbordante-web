@@ -1,16 +1,16 @@
+import classNames from 'classnames';
 import { FC, HTMLProps, useReducer } from 'react';
-import styles from './ColumnCard.module.scss';
-import { Badge } from '@components/FileStats/Badge';
-import { getFileStats_datasetInfo_stats as FileStats } from '@graphql/operations/queries/__generated__/getFileStats';
-import Button from '@components/Button';
+import { Collapse } from 'react-collapse';
 import chevronDown from '@assets/icons/chevron-down.svg';
 import chevronUp from '@assets/icons/chevron-up.svg';
-import { Collapse } from 'react-collapse';
-import classNames from 'classnames';
+import Button from '@components/Button';
+import { Badge } from '@components/FileStats/Badge';
+import { useToggle } from '@components/FileStats/hooks';
+import { ModeButton } from '@components/FileStats/ModeButton';
 import { Paper } from '@components/FileStats/Paper';
 import { StatsBlock } from '@components/FileStats/StatsBlock';
-import { ModeButton } from '@components/FileStats/ModeButton';
-import { useToggle } from '@components/FileStats/hooks';
+import { getFileStats_datasetInfo_stats as FileStats } from '@graphql/operations/queries/__generated__/getFileStats';
+import styles from './ColumnCard.module.scss';
 
 type ColumnCardProps = {
   column: FileStats;

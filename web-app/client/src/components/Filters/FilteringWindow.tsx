@@ -1,8 +1,8 @@
-import React, { FC } from 'react';
 import _ from 'lodash';
+import React, { FC } from 'react';
 import { useFormContext } from 'react-hook-form';
-import PopupWindowContainer from '@components/PopupWindowContainer';
 import { Checkbox } from '@components/Inputs';
+import PopupWindowContainer from '@components/PopupWindowContainer';
 import styles from './Filters.module.scss';
 
 type FilteringProps = {

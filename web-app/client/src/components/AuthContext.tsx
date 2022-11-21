@@ -1,24 +1,30 @@
-import React, { createContext, useState, useEffect, useContext, PropsWithChildren } from "react";
-import { useLazyQuery, useMutation } from "@apollo/client";
-import jwtDecode from "jwt-decode";
+import { useLazyQuery, useMutation } from '@apollo/client';
+import jwtDecode from 'jwt-decode';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  PropsWithChildren,
+} from 'react';
 
-import { removeTokenPair, saveTokenPair } from "@utils/tokens";
-import parseUserPermissions from "@utils/parseUserPermissions";
-import setupDeviceInfo from "@utils/setupDeviceInfo";
-import { LOG_OUT } from "@graphql/operations/mutations/logOut";
 import {
   logOut,
   logOutVariables,
-} from "@graphql/operations/mutations/__generated__/logOut";
-import { GET_ANONYMOUS_PERMISSIONS } from "@graphql/operations/queries/getAnonymousPermissions";
-import { GET_USER } from "@graphql/operations/queries/getUser";
-import { getAnonymousPermissions } from "@graphql/operations/queries/__generated__/getAnonymousPermissions";
+} from '@graphql/operations/mutations/__generated__/logOut';
+import { LOG_OUT } from '@graphql/operations/mutations/logOut';
+import { getAnonymousPermissions } from '@graphql/operations/queries/__generated__/getAnonymousPermissions';
 import {
   getUser,
   getUserVariables,
-} from "@graphql/operations/queries/__generated__/getUser";
-import { DecodedToken, TokenPair, User } from "types/auth";
-import { ErrorContext } from "./ErrorContext";
+} from '@graphql/operations/queries/__generated__/getUser';
+import { GET_ANONYMOUS_PERMISSIONS } from '@graphql/operations/queries/getAnonymousPermissions';
+import { GET_USER } from '@graphql/operations/queries/getUser';
+import parseUserPermissions from '@utils/parseUserPermissions';
+import setupDeviceInfo from '@utils/setupDeviceInfo';
+import { removeTokenPair, saveTokenPair } from '@utils/tokens';
+import { DecodedToken, TokenPair, User } from 'types/auth';
+import { ErrorContext } from './ErrorContext';
 
 type AuthContextType = {
   user: User | undefined;
@@ -35,11 +41,13 @@ type AuthContextType = {
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
+export const AuthContextProvider: React.FC<PropsWithChildren> = ({
+  children,
+}) => {
   const { showError } = useContext(ErrorContext)!;
   const [user, setUser] = useState<User | undefined>(
-    localStorage.getItem("user")
-      ? JSON.parse(localStorage.getItem("user")!)
+    localStorage.getItem('user')
+      ? JSON.parse(localStorage.getItem('user')!)
       : undefined
   );
 
@@ -54,7 +62,7 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) =
   });
 
   const removeUser = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem('user');
     removeTokenPair();
     setUser(undefined);
   };
@@ -77,9 +85,9 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) =
       id: data.userID,
       name: data.fullName,
       email: data.email,
-      isVerified: data.accountStatus === "EMAIL_VERIFIED",
+      isVerified: data.accountStatus === 'EMAIL_VERIFIED',
       permissions: parseUserPermissions(data.permissions),
-      datasets: []
+      datasets: [],
     });
   };
 
@@ -92,20 +100,26 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) =
           },
         });
         if (response.data?.user) {
-          const { userID, fullName, email, accountStatus, permissions, datasets } =
-            response.data.user;
+          const {
+            userID,
+            fullName,
+            email,
+            accountStatus,
+            permissions,
+            datasets,
+          } = response.data.user;
           setUser({
             id: userID,
             name: fullName,
             email,
-            isVerified: accountStatus === "EMAIL_VERIFIED",
+            isVerified: accountStatus === 'EMAIL_VERIFIED',
             permissions: parseUserPermissions(permissions),
-            datasets: datasets || []
+            datasets: datasets || [],
           });
         } else {
           showError({
-            message: "Your authentication expired.",
-            suggestion: "Please, log in again.",
+            message: 'Your authentication expired.',
+            suggestion: 'Please, log in again.',
           });
           removeUser();
         }
@@ -126,7 +140,7 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) =
               permissions: parseUserPermissions(
                 anonymousPermissions.data!.getAnonymousPermissions
               ),
-              datasets: []
+              datasets: [],
             }));
           }
         })();
@@ -138,7 +152,7 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({ children }) =
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(user));
     }
   }, [user]);
 

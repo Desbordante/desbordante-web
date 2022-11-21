@@ -1,3 +1,5 @@
+import { DefaultContext, useMutation } from '@apollo/client';
+import classNames from 'classnames';
 import Image from 'next/image';
 import {
   FC,
@@ -7,22 +9,20 @@ import {
   useRef,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import { DefaultContext, useMutation } from '@apollo/client';
+import checkIcon from '@assets/icons/check.svg';
+import crossIcon from '@assets/icons/cross.svg';
+import dragIcon from '@assets/icons/drag.svg';
+import uploadIcon from '@assets/icons/upload.svg';
+import cardStyles from '@components/DatasetCard/DatasetCard.module.scss';
+import { ErrorContext } from '@components/ErrorContext';
+import ProgressBar, { Progress } from '@components/ProgressBar/ProgressBar';
 import {
   uploadDataset,
   uploadDatasetVariables,
 } from '@graphql/operations/mutations/__generated__/uploadDataset';
 import { UPLOAD_DATASET } from '@graphql/operations/mutations/uploadDataset';
 import { AllowedDataset } from 'types/algorithms';
-import { ErrorContext } from '@components/ErrorContext';
-import ProgressBar, { Progress } from '@components/ProgressBar/ProgressBar';
-import cardStyles from '@components/DatasetCard/DatasetCard.module.scss';
 import styles from './DatasetUploader.module.scss';
-import checkIcon from '@assets/icons/check.svg';
-import crossIcon from '@assets/icons/cross.svg';
-import uploadIcon from '@assets/icons/upload.svg';
-import dragIcon from '@assets/icons/drag.svg';
 
 type Props = {
   onUpload: (file: AllowedDataset) => void;

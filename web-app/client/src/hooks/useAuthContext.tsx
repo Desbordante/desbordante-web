@@ -1,11 +1,11 @@
 import { useLazyQuery } from '@apollo/client';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '@components/AuthContext';
-import { GET_USER } from '@graphql/operations/queries/getUser';
 import {
   getUser,
   getUserVariables,
 } from '@graphql/operations/queries/__generated__/getUser';
-import { useContext, useEffect, useState } from 'react';
+import { GET_USER } from '@graphql/operations/queries/getUser';
 
 export const useAuthContext = () => {
   const ctx = useContext(AuthContext);
