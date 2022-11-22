@@ -36,7 +36,8 @@ const makeSide: (
 };
 
 const DependencyList: FC<Props> = ({ deps, infoVisible }) => {
-  const { selectedDependency, selectDependency } = useTaskContext();
+  const { selectedDependency, selectDependency, clusterIsBeingProcessed } =
+    useTaskContext();
 
   return (
     <div>

@@ -15,6 +15,8 @@ import {
   getTaskInfo,
   getTaskInfoVariables,
 } from '@graphql/operations/queries/__generated__/getTaskInfo';
+import useClustersPreview from '@hooks/useClustersPreview';
+import { useErrorContext } from '@hooks/useErrorContext';
 import { GeneralColumn } from '@utils/convertDependencies';
 import { useRouter } from 'next/router';
 import {
@@ -42,6 +44,7 @@ export type TaskContentType = {
   selectDependency: Dispatch<SetStateAction<GeneralColumn[]>>;
   specificTaskID?: string;
   datasetHeader?: string[];
+  clusterIsBeingProcessed: boolean;
 };
 
 export const TaskContext = createContext<TaskContentType | null>(null);
@@ -58,6 +61,8 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
   const [specificTaskID, setSpecificTaskID] = useState<string | undefined>();
   const router = useRouter();
   const taskID = router.query.taskID as string;
+
+  const { showError } = useErrorContext();
   const { data: taskInfo } = useQuery<getTaskInfo, getTaskInfoVariables>(
     GET_TASK_INFO,
     {
@@ -74,15 +79,29 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
 
   const datasetHeader = datasetInfo?.taskInfo.dataset?.snippet.header;
 
-  const [createSpecificTask, { data: clusterTaskResponse }] = useMutation<
+  const {
+    miningCompleted,
+    data: clusterPreviewData,
+    loading: clusterPreviewLoading,
+    error: clusterPreviewError,
+  } = useClustersPreview(specificTaskID, 1);
+
+  const [
     createSpecificTask,
-    createSpecificTaskVariables
-  >(CREATE_SPECIFIC_TASK);
+    { data: clusterTaskResponse, loading: miningTaskLoading },
+  ] = useMutation<createSpecificTask, createSpecificTaskVariables>(
+    CREATE_SPECIFIC_TASK
+  );
+  const clusterIsBeingProcessed =
+    miningTaskLoading ||
+    clusterPreviewLoading ||
+    (!!clusterPreviewData && !miningCompleted && !clusterPreviewError);
+  // if we creating task, or loading preview or we loaded preview and there is no results and errors
 
   useEffect(() => {
     if (
       selectedDependency.length === 0 ||
-      typeof specificTaskID !== 'undefined' ||
+      clusterIsBeingProcessed ||
       taskInfo?.taskInfo.data.baseConfig.type !== PrimitiveType.TypoFD
     ) {
       return;
@@ -113,9 +132,18 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
         dependenciesFilter,
         setDependenciesFilter,
         selectedDependency,
-        selectDependency,
+        selectDependency: (e) => {
+          if (clusterIsBeingProcessed) {
+            showError({
+              message: 'Another discovering task is in progress',
+            });
+          } else {
+            selectDependency(e);
+          }
+        },
         specificTaskID,
         datasetHeader: datasetHeader || undefined,
+        clusterIsBeingProcessed,
       }}
     >
       {children}
