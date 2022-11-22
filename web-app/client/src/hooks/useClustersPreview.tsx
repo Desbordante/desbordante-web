@@ -4,7 +4,7 @@ import {
   getClustersPreview,
   getClustersPreviewVariables,
 } from '@graphql/operations/queries/EDP/__generated__/getClustersPreview';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useErrorContext } from './useErrorContext';
 
 type ClustersResult = {
@@ -13,6 +13,7 @@ type ClustersResult = {
   previousData?: getClustersPreview;
   loading: boolean;
   error?: ApolloError;
+  totalCount?: number;
 };
 
 const useClustersPreview: (
@@ -28,8 +29,8 @@ const useClustersPreview: (
       fetchPolicy: 'network-only',
     }
   );
-
   const { showError } = useErrorContext();
+  const [totalCount, setTotalCount] = useState<number | undefined>();
 
   const miningCompleted =
     data?.taskInfo.data &&
@@ -66,12 +67,25 @@ const useClustersPreview: (
     }
   }, [error]);
 
+  useEffect(() => {
+    const taskComplete = data?.taskInfo.data && 'result' in data?.taskInfo.data;
+    if (taskComplete) {
+      setTotalCount(
+        ('result' in data?.taskInfo.data &&
+          data?.taskInfo?.data?.result &&
+          data?.taskInfo?.data?.result.clustersCount) ||
+          0
+      );
+    }
+  }, [data]);
+
   return {
     miningCompleted: !!miningCompleted,
     error,
     loading,
     data,
     previousData,
+    totalCount,
   };
 };
 

@@ -41,6 +41,7 @@ export type TaskContentType = {
   dependenciesFilter: DependencyFilter;
   setDependenciesFilter: Dispatch<SetStateAction<DependencyFilter>>;
   selectedDependency: GeneralColumn[];
+  errorDependency: GeneralColumn[];
   selectDependency: Dispatch<SetStateAction<GeneralColumn[]>>;
   specificTaskID?: string;
   datasetHeader?: string[];
@@ -58,6 +59,7 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
       lhs: [],
     });
   const [selectedDependency, selectDependency] = useState<GeneralColumn[]>([]);
+  const [errorDependency, setErrorDependecy] = useState<GeneralColumn[]>([]);
   const [specificTaskID, setSpecificTaskID] = useState<string | undefined>();
   const router = useRouter();
   const taskID = router.query.taskID as string;
@@ -96,7 +98,7 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
     miningTaskLoading ||
     clusterPreviewLoading ||
     (!!clusterPreviewData && !miningCompleted && !clusterPreviewError);
-  // if we creating task, or loading preview or we loaded preview and there is no results and errors
+  // if we are creating task, or loading preview or we loaded preview and there is no results and errors
 
   useEffect(() => {
     if (
@@ -119,6 +121,13 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
   }, [selectedDependency]);
 
   useEffect(() => {
+    if (errorDependency) {
+      const timer = setTimeout(() => setErrorDependecy([]), 5000);
+      return () => clearInterval(timer);
+    }
+  }, [errorDependency]);
+
+  useEffect(() => {
     if (clusterTaskResponse) {
       setSpecificTaskID(clusterTaskResponse.createSpecificTask.taskID);
     }
@@ -131,12 +140,14 @@ export const TaskContextProvider: React.FC<PropsWithChildren> = ({
         taskID,
         dependenciesFilter,
         setDependenciesFilter,
+        errorDependency,
         selectedDependency,
         selectDependency: (e) => {
           if (clusterIsBeingProcessed) {
             showError({
               message: 'Another discovering task is in progress',
             });
+            setErrorDependecy(e);
           } else {
             selectDependency(e);
           }

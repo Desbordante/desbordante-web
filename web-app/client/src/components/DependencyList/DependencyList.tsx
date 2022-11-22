@@ -36,25 +36,30 @@ const makeSide: (
 };
 
 const DependencyList: FC<Props> = ({ deps, infoVisible }) => {
-  const { selectedDependency, selectDependency, clusterIsBeingProcessed } =
+  const { selectedDependency, selectDependency, errorDependency } =
     useTaskContext();
 
   return (
     <div>
       {_.map(deps, (row, i) => {
         const fullDependency = row.lhs.concat(row.rhs);
+        const isError =
+          JSON.stringify(errorDependency) === JSON.stringify(fullDependency);
+        const isSelected =
+          JSON.stringify(selectedDependency) === JSON.stringify(fullDependency);
+
         return (
           <div
             key={i}
             className={classNames(
               styles.row,
-              JSON.stringify(selectedDependency) ===
-                JSON.stringify(fullDependency) && styles.selectedRow
+              isSelected && styles.selectedRow,
+              isError && styles.errorRow
             )}
             onClick={() => selectDependency(fullDependency)}
           >
             {makeSide(row.lhs, infoVisible)}
-            <LongArrowIcon />
+            <LongArrowIcon fill={(isError && styles.errorColor) || undefined} />
             {typeof row.confidence !== 'undefined' && <p>{row.confidence}</p>}
             {makeSide(row.rhs, infoVisible)}
           </div>
