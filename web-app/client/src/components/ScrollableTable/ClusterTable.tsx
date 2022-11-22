@@ -13,6 +13,7 @@ import Table from './ScrollableTable';
 import styles from './Table.module.scss';
 import { Checkbox } from '@components/Inputs';
 import { useErrorContext } from '@hooks/useErrorContext';
+import { useTaskContext } from '@components/TaskContext';
 
 type ClusterTableProps = {
   data: string[][] | undefined;
@@ -35,6 +36,7 @@ const ClusterTable: FC<ClusterTableProps> = ({
   const [squash, setSquash] = useState(false);
   const [sort, setSort] = useState(false);
   const { showError } = useErrorContext();
+  const { selectedDependency } = useTaskContext();
   const [
     getSpecificCluster,
     { data: pageResult, error, loading, startPolling, stopPolling },
@@ -51,7 +53,10 @@ const ClusterTable: FC<ClusterTableProps> = ({
     'items' in pageResult?.taskInfo.data.result?.specificCluster;
 
   const parseItem = (e: any) => e.row;
-  const parseSquashItem = (e: any) => ['x' + e.amount].concat(e.row);
+  const parseSquashItem = (e: any) =>
+    ['x' + e.amount].concat(
+      selectedDependency.map((column) => e.row[column.column.index])
+    );
   const pageRows =
     pageCompleted &&
     // @ts-ignore
@@ -110,7 +115,13 @@ const ClusterTable: FC<ClusterTableProps> = ({
   return (
     <div className={styles.clusterContainer}>
       <Table
-        header={header && squash ? ['Rows count'].concat(header) : header}
+        header={
+          header && squash
+            ? ['Rows count'].concat(
+                selectedDependency.map((e) => e.column.name)
+              )
+            : header
+        }
         {...{ data, onScroll }}
         className={classNames(loading && styles.disabled)}
       />
