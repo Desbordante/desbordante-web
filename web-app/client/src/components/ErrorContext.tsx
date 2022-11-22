@@ -2,16 +2,15 @@ import React, {
   createContext,
   PropsWithChildren,
   useCallback,
+  useEffect,
   useState,
 } from 'react';
-
+import { showError as showErrorToast } from '@utils/toasts';
 import { Error } from 'types/algorithms';
 
 type ErrorContextType = {
   error: Error | undefined;
   showError: (error: Error) => void;
-  hideError: () => void;
-  isErrorShown: boolean;
 };
 
 export const ErrorContext = createContext<ErrorContextType | null>(null);
@@ -20,22 +19,18 @@ export const ErrorContextProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
   const [error, setError] = useState<Error>();
-  const [isErrorShown, setIsErrorShown] = useState(false);
 
   const showError = useCallback((err: Error) => {
     setError(err);
-    setIsErrorShown(true);
   }, []);
 
-  const hideError = useCallback(() => {
-    setIsErrorShown(false);
-  }, []);
+  useEffect(() => {
+    showErrorToast('Error', error?.message);
+  }, [error]);
 
   const outValue = {
     error,
     showError,
-    hideError,
-    isErrorShown,
   };
 
   return (
