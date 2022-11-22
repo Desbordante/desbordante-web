@@ -21,6 +21,7 @@ export const ToastContainer: FC<ToastContainerProps> = (props) => (
     closeOnClick={false}
     icon={false}
     closeButton={CloseButton}
+    autoClose={4000}
     {...props}
   />
 );
