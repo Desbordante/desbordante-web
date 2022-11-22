@@ -1,9 +1,6 @@
 @import "styles/common";
 
 .button {
-
-  /* display: inline-block; */
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -21,40 +18,49 @@
   &:disabled {
     cursor: default;
   }
+
+  &:has(.icon):not(:has(.inner)) {
+    min-width: initial;
+  }
+}
+
+.inner {
+  color: inherit;
+
+  .icon + & {
+    margin-left: 8px;
+  }
 }
 
 .icon {
   display: flex;
+}
 
-  /* vertical-align: middle; */
-  margin-right: 8px;
+@mixin padding($first, $second) {
+  padding: $first;
 
-  /* & > span {
-    vertical-align: middle;
+  &:has(.icon):has(.inner) {
+    padding: $first $second;
   }
-
-  img {
-    vertical-align: middle;
-  } */
 }
 
 .sm {
   @include paragraph;
+  @include padding(0.4rem, 0.8rem);
   min-width: 5.05rem;
-  padding: 0.4rem 0.8rem;
   box-shadow: none;
 }
 
 .md {
   @include paragraph;
+  @include padding(0.8rem, 1.6rem);
   min-width: 8.65rem;
-  padding: 0.8rem 1.6rem;
 }
 
 .lg {
   @include heading-6;
+  @include padding(1.2rem, 2.4rem);
   min-width: 10.05rem;
-  padding: 1.2rem 2.4rem;
 }
 
 .tertiary {
