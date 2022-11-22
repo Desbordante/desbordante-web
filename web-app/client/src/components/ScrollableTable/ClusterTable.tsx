@@ -145,6 +145,7 @@ const ClusterTable: FC<ClusterTableProps> = ({
             <Checkbox
               label="Sorted"
               checked={sort}
+              variant="simple"
               id="ClusterTableSortedCheckbox"
               onChange={() => setSort((sorted) => !sorted)}
             />
@@ -152,6 +153,7 @@ const ClusterTable: FC<ClusterTableProps> = ({
             <Checkbox
               label="Squashed"
               checked={squash}
+              variant="simple"
               id="ClusterTableSquashedCheckbox"
               onChange={() => setSquash((squashed) => !squashed)}
             />

@@ -10,7 +10,7 @@ type CheckboxProps = {
 type Props = CheckboxProps & InputPropsBase & HTMLProps<HTMLInputElement>;
 
 const Checkbox: ForwardRefRenderFunction<HTMLInputElement, Props> = (
-  { id, label, error, className, variant = 'simple', ...props },
+  { id, label, error, className, variant = 'outline', ...props },
   ref
 ) => {
   return (
