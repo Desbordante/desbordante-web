@@ -11,39 +11,24 @@ import Pagination from '@components/Pagination/Pagination';
 import Tooltip from '@components/Tooltip';
 import useClustersPreview from '@hooks/useClustersPreview';
 
+const getCluster = (response?: getClustersPreview) => {
+  if (
+    response &&
+    'result' in response?.taskInfo.data &&
+    response?.taskInfo?.data?.result
+  ) {
+    return response?.taskInfo.data.result.typoClusters[0];
+  }
+  return undefined;
+};
+
 const ReportsClusters: NextPageWithLayout = () => {
   const { selectedDependency, datasetHeader, specificTaskID } =
     useTaskContext();
   const [page, setPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
 
-  const { data, previousData, miningCompleted } = useClustersPreview(
-    specificTaskID,
-    page
-  );
-
-  const getCluster = (response?: getClustersPreview) => {
-    if (
-      response &&
-      'result' in response?.taskInfo.data &&
-      response?.taskInfo?.data?.result
-    ) {
-      return response?.taskInfo.data.result.typoClusters[0];
-    }
-    return undefined;
-  };
-
-  useEffect(() => {
-    const taskComplete = data?.taskInfo.data && 'result' in data?.taskInfo.data;
-    if (taskComplete) {
-      setTotalCount(
-        ('result' in data?.taskInfo.data &&
-          data?.taskInfo?.data?.result &&
-          data?.taskInfo?.data?.result.clustersCount) ||
-          0
-      );
-    }
-  }, [data]);
+  const { data, totalCount, previousData, miningCompleted } =
+    useClustersPreview(specificTaskID, page);
 
   const cluster = miningCompleted ? getCluster(data) : getCluster(previousData);
   return (
@@ -68,11 +53,13 @@ const ReportsClusters: NextPageWithLayout = () => {
             totalCount={cluster.itemsAmount}
             header={datasetHeader}
           />{' '}
-          <Pagination
-            count={totalCount}
-            current={page}
-            onChange={(page) => setPage(page)}
-          />
+          {totalCount && (
+            <Pagination
+              count={totalCount}
+              current={page}
+              onChange={(page) => setPage(page)}
+            />
+          )}
         </>
       )}
     </div>
