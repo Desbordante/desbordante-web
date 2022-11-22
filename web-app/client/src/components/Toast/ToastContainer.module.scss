@@ -54,6 +54,7 @@
   :global(.Toastify__progress-bar) {
     background: $black-05;
     height: 100%;
+    z-index: -1;
   }
 }
 
