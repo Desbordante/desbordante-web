@@ -23,11 +23,11 @@ import {
 import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
 import { getOverview } from '@utils/fileStats';
 
-type ColumnOption = {
+export type ColumnOption = {
   value: number;
   label: string;
   type?: string;
-  categorical?: boolean;
+  isCategorical?: boolean;
 };
 
 type StatsTabProps = {
@@ -116,7 +116,7 @@ export const StatsTab: FC<StatsTabProps> = ({ fileID }: StatsTabProps) => {
   const processing = (
     <>
       <div className={styles.processing}>
-        <div className={styles['processing-label']}>
+        <div className={styles.processingLabel}>
           <label htmlFor={progressId}>Discovering statistics</label>
           {`${file.statsProgress}%`}
         </div>
@@ -144,13 +144,13 @@ export const StatsTab: FC<StatsTabProps> = ({ fileID }: StatsTabProps) => {
       value: column.columnIndex,
       label: column.columnName!,
       type: column.type!,
-      categorical: !!column.isCategorical,
+      isCategorical: !!column.isCategorical,
     })),
   ];
 
   const columns = (
     <>
-      <div className={styles['header-with-select']}>
+      <div className={styles.headerWithSelect}>
         <h5>Columns</h5>
         <Select
           isSearchable={false}

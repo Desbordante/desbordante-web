@@ -18,11 +18,7 @@ export const OverviewCard: FC<OverflowCardProps> = ({
   return (
     <Paper className={styles.wrapper}>
       <StatsBlock stats={stats} tableMode={tableMode} size="xl" />
-      <ModeButton
-        tableMode={tableMode}
-        onClick={toggleMode}
-        className={styles['mode-button']}
-      />
+      <ModeButton tableMode={tableMode} onClick={toggleMode} />
     </Paper>
   );
 };

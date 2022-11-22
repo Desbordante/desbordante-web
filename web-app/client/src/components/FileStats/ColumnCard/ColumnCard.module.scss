@@ -33,7 +33,7 @@
   gap: 8px;
 }
 
-.name-with-badges {
+.nameWithBadges {
   display: flex;
   gap: 16px 24px;
   flex-wrap: wrap;
@@ -45,13 +45,13 @@
   gap: 16px;
 }
 
-.basic-stats, .more-stats {
+.basicStats, .moreStats {
   display: flex;
   gap: 16px 32px;
   flex-wrap: wrap;
 }
 
-@mixin compact-more-stats {
+@mixin compactMoreStats {
   flex-direction: column;
   flex-wrap: initial;
 
@@ -60,39 +60,33 @@
   }
 }
 
-.more-stats {
+.moreStats {
   & > * {
     flex: 1;
   }
 
   @media (max-width: 960px) {
-    @include compact-more-stats;
+    @include compactMoreStats;
   }
 }
 
 .compact {
-  .more-stats {
-    @include compact-more-stats;
+  .moreStats {
+    @include compactMoreStats;
   }
 }
 
-button.details-button {
+button.detailsButton {
   padding: 8px 16px;
   margin-left: auto;
-
-  /* display: flex;
-
-  & > :first-child {
-    display: flex;
-  } */
 }
 
 .wrapper :global(.ReactCollapse--collapse) {
   transition: height 0.3s;
 }
 
-.table-mode {
-  .basic-stats {
+.tableMode {
+  .basicStats {
     gap: 4px 32px;
 
     * {
@@ -105,7 +99,7 @@ button.details-button {
   }
 
   @media (min-width: 961px) {
-    .basic-stats, .more-stats {
+    .basicStats, .moreStats {
       & > :first-child {
         border-right: 1px solid $black-50;
       }
@@ -113,12 +107,12 @@ button.details-button {
   }
 }
 
-.compact > .table-mode {
-  .basic-stats {
+.compact > .tableMode {
+  .basicStats {
     flex-direction: column;
   }
 
-  .basic-stats, .more-stats {
+  .basicStats, .moreStats {
     & > :first-child {
       border-right: none;
     }
