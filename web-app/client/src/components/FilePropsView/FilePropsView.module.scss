@@ -73,7 +73,7 @@
     width: 100%;
     padding: 64px;
 
-    .processing-label {
+    .processingLabel {
       @include paragraph;
 
       display: flex;
@@ -82,12 +82,10 @@
     }
   }
 
-  .header-with-select {
+  .headerWithSelect {
     display: flex;
     justify-content: space-between;
     width: 100%;
-
-    /* overflow-x: clip; */
 
     h5 {
       margin-top: 8px;

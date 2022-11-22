@@ -48,7 +48,7 @@ const Button: FC<Props> = ({
             <Image src={icon} width={24} height={24} />
           </span>
         )}
-        {children}
+        {children && <span className={styles.inner}>{children}</span>}
       </>
     </button>
   );

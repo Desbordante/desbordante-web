@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { FC, HTMLProps, useReducer } from 'react';
+import { FC, HTMLProps } from 'react';
 import { Collapse } from 'react-collapse';
 import chevronDown from '@assets/icons/chevron-down.svg';
 import chevronUp from '@assets/icons/chevron-up.svg';
@@ -23,16 +23,13 @@ export const ColumnCard: FC<ColumnCardProps> = ({
   compact,
   ...props
 }: ColumnCardProps) => {
-  const [showDetails, toggleDetails] = useReducer(
-    (showDetails: boolean) => !showDetails,
-    false
-  );
+  const [showDetails, toggleDetails] = useToggle(false);
 
   const [tableMode, toggleMode] = useToggle(false);
 
   const header = (
     <div className={styles.header}>
-      <div className={styles['name-with-badges']}>
+      <div className={styles.nameWithBadges}>
         <div className={styles.name}>
           <span>#{column.columnIndex + 1}</span>
           <h6>{column.columnName}</h6>
@@ -47,10 +44,8 @@ export const ColumnCard: FC<ColumnCardProps> = ({
   );
 
   const content = (
-    <div
-      className={classNames(styles.content, tableMode && styles['table-mode'])}
-    >
-      <div className={styles['basic-stats']}>
+    <div className={classNames(styles.content, tableMode && styles.tableMode)}>
+      <div className={styles.basicStats}>
         <StatsBlock
           tableMode={tableMode}
           stats={[
@@ -69,7 +64,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
         />
       </div>
       <Collapse isOpened={showDetails || !!compact}>
-        <div className={styles['more-stats']}>
+        <div className={styles.moreStats}>
           <StatsBlock
             tableMode={tableMode}
             stats={[
@@ -112,7 +107,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
         <Button
           variant="secondary"
           icon={!showDetails ? chevronDown : chevronUp}
-          className={styles['details-button']}
+          className={styles.detailsButton}
           onClick={toggleDetails}
           aria-label={!showDetails ? 'Show details' : 'Hide details'}
         >
