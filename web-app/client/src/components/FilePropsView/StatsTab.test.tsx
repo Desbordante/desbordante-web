@@ -89,7 +89,7 @@ describe('StatsTab Component', () => {
     {
       request: {
         query: START_PROCESSING_STATS,
-        variables: { fileID: notProcessedFileIdMock, threadsCount: 5 },
+        variables: { fileID: notProcessedFileIdMock, threadsCount },
       },
       newData: jest.fn(() => ({
         data: {
@@ -132,8 +132,14 @@ describe('StatsTab Component', () => {
     expect(await screen.getByText('Thread count')).toBeInTheDocument();
 
     const input: HTMLInputElement = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: threadsCount } });
+
+    await user.type(input, threadsCount.toString(), {
+      initialSelectionStart: 0,
+      initialSelectionEnd: 1,
+    });
+
     expect(input).toHaveValue(threadsCount.toString());
+
     fireEvent.blur(input);
 
     // Start processing
