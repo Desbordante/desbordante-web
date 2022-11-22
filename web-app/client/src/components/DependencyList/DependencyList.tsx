@@ -23,7 +23,7 @@ const makeSide: (
     return (
       <>
         {data.map((e) => (
-          <span className={styles.attr}>
+          <span className={styles.attr} key={e.column.index}>
             {e.column.name}
             {infoVisible && e.pattern ? ' | ' + e.pattern : ''}
           </span>

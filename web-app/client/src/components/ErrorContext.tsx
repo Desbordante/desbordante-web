@@ -25,7 +25,9 @@ export const ErrorContextProvider: React.FC<PropsWithChildren> = ({
   }, []);
 
   useEffect(() => {
-    showErrorToast('Error', error?.message);
+    if (error) {
+      showErrorToast('Error', error?.message);
+    }
   }, [error]);
 
   const outValue = {

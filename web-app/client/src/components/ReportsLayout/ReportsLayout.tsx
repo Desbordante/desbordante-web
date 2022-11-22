@@ -16,7 +16,7 @@ type Props = PropsWithChildren;
 
 const menuOverview = {
   label: 'Overview',
-  pathname: '/',
+  pathname: '/overview',
   icon: settingsIcon,
 };
 const menuStatistics = {
@@ -38,7 +38,7 @@ const menuPrimitiveList = {
 };
 const menuDatasetSnippet = {
   label: 'Dataset snippet',
-  pathname: '/',
+  pathname: '/snippet',
   icon: datatableIcon,
 };
 
