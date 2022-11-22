@@ -12,6 +12,7 @@ import threeDots from '@assets/icons/three-dots.svg';
 import Table from './ScrollableTable';
 import styles from './Table.module.scss';
 import { Checkbox } from '@components/Inputs';
+import { useErrorContext } from '@hooks/useErrorContext';
 
 type ClusterTableProps = {
   data: string[][] | undefined;
@@ -31,10 +32,9 @@ const ClusterTable: FC<ClusterTableProps> = ({
   const [offset, setOffset] = useState(0);
   const [data, setData] = useState(defaultData || []);
   const [showOptions, setShowOptions] = useState(false);
-
   const [squash, setSquash] = useState(false);
   const [sort, setSort] = useState(false);
-
+  const { showError } = useErrorContext();
   const [
     getSpecificCluster,
     { data: pageResult, error, loading, startPolling, stopPolling },
@@ -100,6 +100,13 @@ const ClusterTable: FC<ClusterTableProps> = ({
     }
   }, [pageResult]);
 
+  useEffect(() => {
+    if (error) {
+      showError({
+        message: 'Error occurred while loading current cluster',
+      });
+    }
+  }, [error]);
   return (
     <div className={styles.clusterContainer}>
       <Table
