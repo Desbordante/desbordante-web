@@ -73,6 +73,15 @@
       display: block;
       @include paragraph;
       color: $black;
+      cursor: pointer;
+    }
+
+    .simple:not(:checked) ~ label {
+      color: $black-50;
+
+      &:hover {
+        color: $black;
+      }
     }
   }
 
