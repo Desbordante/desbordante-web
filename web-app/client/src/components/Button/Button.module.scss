@@ -4,6 +4,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
 
   margin: 0;
   outline: none;
@@ -19,16 +20,8 @@
     cursor: default;
   }
 
-  &:has(.icon):not(:has(.inner)) {
+  &.withoutText {
     min-width: initial;
-  }
-}
-
-.inner {
-  color: inherit;
-
-  .icon + & {
-    margin-left: 8px;
   }
 }
 
@@ -36,31 +29,28 @@
   display: flex;
 }
 
-@mixin padding($first, $second) {
-  padding: $first;
+@mixin button-size($min-width, $padding-y, $padding-x) {
+  @include paragraph;
+  min-width: $min-width;
+  padding: $padding-y $padding-x;
 
-  &:has(.icon):has(.inner) {
-    padding: $first $second;
+  &.withoutText {
+    padding: $padding-y;
   }
 }
 
 .sm {
-  @include paragraph;
-  @include padding(0.4rem, 0.8rem);
-  min-width: 5.05rem;
+  @include button-size(5.05rem, 0.4rem, 0.8rem);
   box-shadow: none;
 }
 
 .md {
-  @include paragraph;
-  @include padding(0.8rem, 1.6rem);
-  min-width: 8.65rem;
+  @include button-size(8.65rem, 0.8rem, 1.6rem);
 }
 
 .lg {
+  @include button-size(10.05rem, 1.2rem, 2.4rem);
   @include heading-6;
-  @include padding(1.2rem, 2.4rem);
-  min-width: 10.05rem;
 }
 
 .tertiary {

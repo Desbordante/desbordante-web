@@ -37,6 +37,7 @@ const Button: FC<Props> = ({
       onClick={onClick}
       className={classNames(
         styles.button,
+        !children && styles.withoutText,
         defaultSizeClassName,
         defaultClassName,
         className
@@ -48,7 +49,7 @@ const Button: FC<Props> = ({
             <Image src={icon} width={24} height={24} />
           </span>
         )}
-        {children && <span className={styles.inner}>{children}</span>}
+        {children}
       </>
     </button>
   );
