@@ -1,37 +1,25 @@
 import { FC, ReactElement, useEffect, useState } from 'react';
 import Image from 'next/image';
-
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
 import { NextPageWithLayout } from 'types/pageWithLayout';
 import styles from '@styles/Clusters.module.scss';
 import longArrowIcon from '@assets/icons/long-arrow.svg';
-import { useLazyQuery, useQuery } from '@apollo/client';
-import {
-  getClustersPreview,
-  getClustersPreviewVariables,
-} from '@graphql/operations/queries/EDP/__generated__/getClustersPreview';
-import { GET_CLUSTERS_PREVIEW } from '@graphql/operations/queries/EDP/getClustersPreview';
+import { getClustersPreview } from '@graphql/operations/queries/EDP/__generated__/getClustersPreview';
 import ClusterTable from '@components/ScrollableTable/ClusterTable';
 import Pagination from '@components/Pagination/Pagination';
 import Tooltip from '@components/Tooltip';
-import { useErrorContext } from '@hooks/useErrorContext';
+import useClustersPreview from '@hooks/useClustersPreview';
 
 const ReportsClusters: NextPageWithLayout = () => {
   const { selectedDependency, datasetHeader, specificTaskID } =
     useTaskContext();
-  const { showError } = useErrorContext();
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  const [
-    getClustersPreview,
-    { startPolling, stopPolling, data, previousData, error },
-  ] = useLazyQuery<getClustersPreview, getClustersPreviewVariables>(
-    GET_CLUSTERS_PREVIEW,
-    {
-      fetchPolicy: 'network-only',
-    }
+  const { data, previousData, miningCompleted } = useClustersPreview(
+    specificTaskID,
+    page
   );
 
   const getCluster = (response?: getClustersPreview) => {
@@ -45,33 +33,6 @@ const ReportsClusters: NextPageWithLayout = () => {
     return undefined;
   };
 
-  const miningCompleted =
-    data?.taskInfo.data &&
-    'result' in data?.taskInfo.data &&
-    data?.taskInfo.data.result;
-
-  useEffect(() => {
-    if (specificTaskID) {
-      getClustersPreview({
-        variables: {
-          taskId: specificTaskID,
-          clustersPagination: { offset: page - 1, limit: 1 },
-          itemsLimit: 20,
-        },
-      });
-    }
-  }, [page]);
-
-  useEffect(() => {
-    if (miningCompleted) {
-      // if we got the results, stop polling
-      stopPolling();
-    } else if (data) {
-      // do polling if there is a response but with no results
-      startPolling(2000);
-    }
-  }, [data]);
-
   useEffect(() => {
     const taskComplete = data?.taskInfo.data && 'result' in data?.taskInfo.data;
     if (taskComplete) {
@@ -83,14 +44,6 @@ const ReportsClusters: NextPageWithLayout = () => {
       );
     }
   }, [data]);
-
-  useEffect(() => {
-    if (error) {
-      showError({
-        message: 'Error occurred while loading clusters',
-      });
-    }
-  }, [error]);
 
   const cluster = miningCompleted ? getCluster(data) : getCluster(previousData);
   return (
