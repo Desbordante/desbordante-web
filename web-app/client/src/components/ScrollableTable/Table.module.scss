@@ -57,21 +57,23 @@
 .table {
   width: 55vw;
 
+  tbody {
+    td {
+      padding: 8px 24px;
+    }
+    tr:nth-child(even) {
+      background-color: $black-05;
+    }
+  }
+
   thead {
     position: sticky;
     top: 0;
     background-color: $primary-no-alpha-10;
     box-shadow: inset 0px 1px $black-25, 0 1px $black-25;
-  }
 
-  td,
-  th {
-    padding: 8px 24px;
-  }
-
-  tbody {
-    tr:nth-child(even) {
-      background-color: $black-05;
+    td {
+      padding: 12px 24px;
     }
   }
 }

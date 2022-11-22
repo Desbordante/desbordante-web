@@ -11,7 +11,6 @@ import styles from './Layout.module.scss';
 const Layout: FCWithChildren = ({ children }) => {
   const { isSignUpShown, isFeedbackShown, isLogInShown } =
     useContext(AuthContext)!;
-  const { error, isErrorShown, hideError } = useContext(ErrorContext)!;
   return (
     <>
       <Head>
@@ -19,12 +18,6 @@ const Layout: FCWithChildren = ({ children }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <Header />
-      {isErrorShown && (
-        <div className={styles.error}>
-          <p onClick={hideError}>{error?.message}</p>
-        </div>
-      )}
-
       {isSignUpShown && <SignUpForm />}
       {isLogInShown && <LogInForm />}
       <main className={styles.content}>{children}</main>

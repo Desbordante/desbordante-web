@@ -15,11 +15,12 @@ import { GET_CLUSTERS_PREVIEW } from '@graphql/operations/queries/EDP/getCluster
 import ClusterTable from '@components/ScrollableTable/ClusterTable';
 import Pagination from '@components/Pagination/Pagination';
 import Tooltip from '@components/Tooltip';
+import { useErrorContext } from '@hooks/useErrorContext';
 
 const ReportsClusters: NextPageWithLayout = () => {
   const { selectedDependency, datasetHeader, specificTaskID } =
     useTaskContext();
-
+  const { showError } = useErrorContext();
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
@@ -29,7 +30,6 @@ const ReportsClusters: NextPageWithLayout = () => {
   ] = useLazyQuery<getClustersPreview, getClustersPreviewVariables>(
     GET_CLUSTERS_PREVIEW,
     {
-      // skip: true, // todo: why cannot use skip: true?
       fetchPolicy: 'network-only',
     }
   );
@@ -83,6 +83,14 @@ const ReportsClusters: NextPageWithLayout = () => {
       );
     }
   }, [data]);
+
+  useEffect(() => {
+    if (error) {
+      showError({
+        message: 'Error occurred while loading clusters',
+      });
+    }
+  }, [error]);
 
   const cluster = miningCompleted ? getCluster(data) : getCluster(previousData);
   return (
