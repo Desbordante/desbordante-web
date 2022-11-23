@@ -1,26 +1,19 @@
 import { DefaultContext, useMutation } from '@apollo/client';
 import classNames from 'classnames';
 import Image from 'next/image';
-import {
-  FC,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import checkIcon from '@assets/icons/check.svg';
 import crossIcon from '@assets/icons/cross.svg';
 import dragIcon from '@assets/icons/drag.svg';
 import uploadIcon from '@assets/icons/upload.svg';
 import cardStyles from '@components/DatasetCard/DatasetCard.module.scss';
-import { ErrorContext } from '@components/ErrorContext';
 import ProgressBar, { Progress } from '@components/ProgressBar/ProgressBar';
 import {
   uploadDataset,
   uploadDatasetVariables,
 } from '@graphql/operations/mutations/__generated__/uploadDataset';
 import { UPLOAD_DATASET } from '@graphql/operations/mutations/uploadDataset';
+import { showError } from '@utils/toasts';
 import { AllowedDataset } from 'types/algorithms';
 import styles from './DatasetUploader.module.scss';
 
@@ -29,7 +22,6 @@ type Props = {
 };
 
 const DatasetUploader: FC<Props> = ({ onUpload }) => {
-  const { showError } = useContext(ErrorContext)!;
   const inputFile = useRef<HTMLInputElement>(null);
   const [isFileDragged, setIsFileDragged] = useState(false);
   const [isDraggedInside, setIsDraggedInside] = useState(false);
@@ -101,8 +93,7 @@ const DatasetUploader: FC<Props> = ({ onUpload }) => {
           onUpload(res.data?.uploadDataset as AllowedDataset);
           setFileUploadProgress({ state: 'complete' });
         })
-        .catch((error) => {
-          showError({ message: error.message });
+        .catch(() => {
           setFileUploadProgress({ state: 'fail' });
         });
     }

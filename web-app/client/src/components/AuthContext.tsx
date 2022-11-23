@@ -4,7 +4,6 @@ import React, {
   createContext,
   useState,
   useEffect,
-  useContext,
   PropsWithChildren,
 } from 'react';
 
@@ -22,9 +21,9 @@ import { GET_ANONYMOUS_PERMISSIONS } from '@graphql/operations/queries/getAnonym
 import { GET_USER } from '@graphql/operations/queries/getUser';
 import parseUserPermissions from '@utils/parseUserPermissions';
 import setupDeviceInfo from '@utils/setupDeviceInfo';
+import { showError } from '@utils/toasts';
 import { removeTokenPair, saveTokenPair } from '@utils/tokens';
 import { DecodedToken, TokenPair, User } from 'types/auth';
-import { ErrorContext } from './ErrorContext';
 
 type AuthContextType = {
   user: User | undefined;
@@ -44,7 +43,6 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthContextProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
-  const { showError } = useContext(ErrorContext)!;
   const [user, setUser] = useState<User | undefined>(
     localStorage.getItem('user')
       ? JSON.parse(localStorage.getItem('user')!)
@@ -68,13 +66,9 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({
   };
 
   const signOut = async () => {
-    try {
-      const response = await logOut();
-      if (response.data) {
-        removeUser();
-      }
-    } catch (error: any) {
-      showError({ message: error?.message });
+    const response = await logOut();
+    if (response.data) {
+      removeUser();
     }
   };
 
@@ -117,10 +111,7 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({
             datasets: datasets || [],
           });
         } else {
-          showError({
-            message: 'Your authentication expired.',
-            suggestion: 'Please, log in again.',
-          });
+          showError('Your authentication expired.', 'Please, log in again.');
           removeUser();
         }
       })();
@@ -144,8 +135,10 @@ export const AuthContextProvider: React.FC<PropsWithChildren> = ({
             }));
           }
         })();
-      } catch (error: any) {
-        showError({ message: error.message });
+      } catch (error) {
+        if (error instanceof Error) {
+          showError(error.message);
+        }
       }
     }
   }, []);

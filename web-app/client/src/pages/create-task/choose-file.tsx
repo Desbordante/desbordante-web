@@ -24,6 +24,7 @@ import { useAuthContext, useUserDatasets } from '@hooks/useAuthContext';
 import { useErrorContext } from '@hooks/useErrorContext';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ChooseFile.module.scss';
+import { showError } from '@utils/toasts';
 import { AllowedDataset } from 'types/algorithms';
 import { MainPrimitiveType } from 'types/globalTypes';
 
@@ -37,7 +38,6 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
   const { primitive, fileID } = useTaskUrlParams();
 
   const { user } = useAuthContext();
-  const { showError } = useErrorContext();
   const { data, error } = useQuery<getAlgorithmsConfig>(GET_ALGORITHMS_CONFIG);
   const allowedDatasets = (
     (data || defaultAlgorithmConfig)?.algorithmsConfig?.allowedDatasets || []
@@ -53,10 +53,7 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
 
   useEffect(() => {
     if (error) {
-      showError({
-        message: error.message,
-        suggestion: 'Please, try reloading the page.',
-      });
+      showError(error.message, 'Please, try reloading the page.');
     }
   }, []);
 
