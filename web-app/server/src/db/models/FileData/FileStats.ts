@@ -1,9 +1,9 @@
 import { BOOLEAN, INTEGER, STRING, UUID } from "sequelize";
 import {
-    ForeignKey, 
-    IsUUID,
     BelongsTo,
     Column,
+    ForeignKey,
+    IsUUID,
     Model,
     Table,
 } from "sequelize-typescript";
