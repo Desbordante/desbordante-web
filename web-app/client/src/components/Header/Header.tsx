@@ -1,15 +1,17 @@
 import classNames from 'classnames';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '@components/AuthContext';
+import { useEffect, useState } from 'react';
 import Button from '@components/Button';
+import { useAuthContext } from '@hooks/useAuthContext';
+import useModal from '@hooks/useModal';
 import logo from '@public/logo.svg';
 import styles from './Header.module.scss';
 
 const Header = () => {
-  const { user, setIsSignUpShown, setIsLogInShown, signOut } =
-    useContext(AuthContext)!;
+  const { user, signOut } = useAuthContext();
+  const { open: openLogInModal } = useModal('AUTH.LOG_IN');
+  const { open: openSignUpModal } = useModal('AUTH.SIGN_UP');
 
   const [headerBackground, setHeaderBackground] = useState(false);
 
@@ -47,23 +49,23 @@ const Header = () => {
         {user?.name ? (
           <>
             <p>Welcome, {user.name}</p>
-            <Button variant="tertiary" size="sm" onClick={signOut}>
+            <Button variant="secondary-danger" size="sm" onClick={signOut}>
               Log Out
             </Button>
           </>
         ) : (
           <>
             <Button
-              variant="tertiary"
+              variant="secondary"
               size="sm"
-              onClick={() => setIsLogInShown(true)}
+              onClick={() => openLogInModal({})}
             >
               Log In
             </Button>
             <Button
               variant="gradient"
               size="sm"
-              onClick={() => setIsSignUpShown(true)}
+              onClick={() => openSignUpModal({})}
             >
               Sign Up
             </Button>

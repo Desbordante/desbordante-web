@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { PropsWithChildren } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import { Container } from 'react-bootstrap';
 import OutsideClickHandler from 'react-outside-click-handler';
 import { useSpring, animated } from 'react-spring';
@@ -11,7 +11,7 @@ interface Props {
   onOutsideClick: () => void;
 }
 
-const PopupWindowContainer: React.FC<PropsWithChildren<any>> = ({
+const PopupWindowContainer: FC<PropsWithChildren<any>> = ({
   children,
   onOutsideClick,
 }) => {

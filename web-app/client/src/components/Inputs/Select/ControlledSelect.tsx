@@ -1,18 +1,26 @@
-import { Control, Controller } from 'react-hook-form';
-import Select, { Props } from './Select';
+import { ComponentProps } from 'react';
+import { Control, Controller, FieldValues, Path } from 'react-hook-form';
+import Select, { Props as SelectProps } from './Select';
 
-type ControlProps = {
-  controlName: string;
-  control: Control;
+type ControlRules<T extends FieldValues> = ComponentProps<
+  typeof Controller<T>
+>['rules'];
+
+type ControlProps<T extends FieldValues> = {
+  controlName: Path<T>;
+  control: Control<T>;
+  rules?: ControlRules<T>;
 };
-const ControlledSelect = ({
+const ControlledSelect = <T extends FieldValues>({
   controlName,
   control,
+  rules,
   ...rest
-}: Props & ControlProps) => (
+}: SelectProps & ControlProps<T>) => (
   <Controller
     name={controlName}
     control={control}
+    rules={rules}
     render={({ field }) => (
       <Select
         {...field}

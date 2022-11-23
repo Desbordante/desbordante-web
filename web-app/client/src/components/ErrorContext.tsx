@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  FC,
   PropsWithChildren,
   useCallback,
   useEffect,
@@ -15,9 +16,7 @@ type ErrorContextType = {
 
 export const ErrorContext = createContext<ErrorContextType | null>(null);
 
-export const ErrorContextProvider: React.FC<PropsWithChildren> = ({
-  children,
-}) => {
+export const ErrorContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [error, setError] = useState<Error>();
 
   const showError = useCallback((err: Error) => {

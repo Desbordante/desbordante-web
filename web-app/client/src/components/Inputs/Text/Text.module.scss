@@ -1,7 +1,6 @@
 @import "styles/common";
 
 .inputText {
-
   .top {
     display: flex;
     align-items: center;
@@ -15,36 +14,30 @@
     }
   }
 
-  .inputContainer {
+  input {
+    @include paragraph;
+    width: 100%;
     padding: 16px;
+    color: $black;
+    background: transparent;
     border: 1px solid $black-25;
     border-radius: 8px;
 
-    &.focused {
+    &:focus {
+      outline: none;
       border: 1px solid $primary-0;
+    }
+
+    &::placeholder {
+      color: $black-50;
     }
 
     &.error {
       border: 2px solid $error;
     }
-
-    input {
-      @include paragraph;
-      color: $black;
-      border: none;
-      background: transparent;
-
-      &:focus {
-        outline: none;
-      }
-
-      &::placeholder {
-        color: $black-50;
-      }
-    }
   }
 
-  .error {
+  .errorMessage {
     @include paragraph-small;
     margin: 8px 0 0;
     color: $error;

@@ -1,16 +1,13 @@
+import { useAtom } from 'jotai';
 import Head from 'next/head';
-import { useContext } from 'react';
-import { AuthContext } from '@components/AuthContext';
-import { ErrorContext } from '@components/ErrorContext';
+import visibleModalsAtom from '@atoms/visibleModalsAtom';
 import Header from '@components/Header';
-import LogInForm from '@components/LogInForm/LogInForm';
-import SignUpForm from '@components/SignUpForm';
 import { FCWithChildren } from 'types/react';
 import styles from './Layout.module.scss';
 
 const Layout: FCWithChildren = ({ children }) => {
-  const { isSignUpShown, isFeedbackShown, isLogInShown } =
-    useContext(AuthContext)!;
+  const [visibleModals] = useAtom(visibleModalsAtom);
+
   return (
     <>
       <Head>
@@ -18,8 +15,7 @@ const Layout: FCWithChildren = ({ children }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <Header />
-      {isSignUpShown && <SignUpForm />}
-      {isLogInShown && <LogInForm />}
+      {visibleModals.map((modal) => modal.node)}
       <main className={styles.content}>{children}</main>
     </>
   );
