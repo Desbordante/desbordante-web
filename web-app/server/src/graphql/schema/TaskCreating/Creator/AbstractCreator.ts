@@ -23,9 +23,9 @@ import {
     getSpecificClusterTaskSchema,
     getSpecificTaskSchema,
 } from "./schema";
+import { StatsLiteral, StatsType, TaskStatusType } from "../../../../db/models/TaskData/TaskState";
 import { Context } from "../../../types/context";
 import { FileInfo } from "../../../../db/models/FileData/FileInfo";
-import { TaskStatusType } from "../../../../db/models/TaskData/TaskState";
 import { allowedAlgorithms } from "../../AppConfiguration/resolvers";
 import { produce } from "../../../../producer";
 
@@ -37,10 +37,8 @@ export type ParentSpecificClusterTaskProps = Omit<
     parentTaskID: string;
     algorithmName: string;
 };
-// вынести отсюда
-type StatsLiteral = "Stats";
 
-export type StatsProps = { type: StatsLiteral; fileID: string; threadsCount: number };
+export type StatsProps = { type: StatsType; fileID: string; threadsCount: number };
 
 export type RawPropsType =
     | StatsProps
@@ -149,7 +147,7 @@ export abstract class AbstractCreator<
             model: GeneralTaskConfig,
             where: { algorithmName, fileID: this.fileInfo.fileID },
         };
-        const include = type !== "Stats" ?
+        const include = type !== StatsLiteral ?
             [ { association: SpecificConfigModelName, where: { ...props } },
                 generalInclude] : [generalInclude];
         // @ts-ignore
@@ -288,7 +286,7 @@ export class TaskCreatorFactory {
         if (props.type === "TypoCluster") {
             const { typoFD, ...rest } = props;
             transformedProps = { ...rest, typoFD: typoFD?.join(",") };
-        } else if (props.type === "Stats") {
+        } else if (props.type === StatsLiteral) {
             transformedProps = { ...props, algorithmName: "Stats" };
         } else {
             transformedProps = { ...props };
