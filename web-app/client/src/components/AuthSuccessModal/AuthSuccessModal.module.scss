@@ -1,0 +1,14 @@
+@import "styles/common";
+
+.title {
+  margin: 0 0 32px;
+  text-align: center;
+
+  .userName {
+    color: $primary-0;
+  }
+}
+
+.subtitle {
+  margin: 0 0 32px;
+}

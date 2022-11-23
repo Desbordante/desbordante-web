@@ -1,6 +1,6 @@
 import { Chart as ChartJs, ArcElement } from 'chart.js';
 import classNames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { animated } from 'react-spring';
 import { DepAttribute } from '@components/TaskContext';
@@ -34,7 +34,7 @@ const AnimatedDoughnut = animated(Doughnut);
 
 /* eslint-enable no-unused-vars */
 
-const Chart: React.FC<Props> = ({
+const Chart: FC<Props> = ({
   attributes,
   selectedAttributeIndices,
   setSelectedAttributeIndices,

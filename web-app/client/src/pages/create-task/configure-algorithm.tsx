@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client';
 import _ from 'lodash';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { FC, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { FC, useCallback, useEffect, useMemo } from 'react';
 import {
   Controller,
   ControllerFieldState,
@@ -12,7 +12,6 @@ import {
 } from 'react-hook-form';
 import ideaIcon from '@assets/icons/idea.svg';
 import Button from '@components/Button';
-import { ErrorContext } from '@components/ErrorContext';
 import { Select } from '@components/Inputs';
 import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
 import WizardLayout from '@components/WizardLayout';
@@ -33,6 +32,7 @@ import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations
 import { useErrorContext } from '@hooks/useErrorContext';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
 import { MainPrimitiveType } from 'types/globalTypes';
+import { showError } from '@utils/toasts';
 
 type FDForm = {
   algorithmName: any;
@@ -139,7 +139,6 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   formParams,
 }) => {
   const router = useRouter();
-  const { showError } = useErrorContext();
   const {
     handleSubmit,
     reset,
@@ -174,16 +173,21 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           forceCreate: false,
         },
       })
-        .then((resp) => {
+        .then((resp) =>
           router.push({
             pathname: '/reports',
             query: {
               taskID: resp.data?.createMainTaskWithDatasetChoosing.taskID,
             },
-          });
-        })
-        .catch(() => {
-          showError({ message: 'Internal error ocurred. Please try later.' });
+          })
+        )
+        .catch((error) => {
+          if (error instanceof Error) {
+            showError(
+              error.message,
+              'Internal error occurred. Please try later.'
+            );
+          }
         });
     }),
     [primitive]

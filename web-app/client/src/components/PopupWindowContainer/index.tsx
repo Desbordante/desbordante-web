@@ -1,3 +1,1 @@
-import PopupWindowContainer from './PopupWindowContainer';
-
-export default PopupWindowContainer;
+export { default } from './PopupWindowContainer';

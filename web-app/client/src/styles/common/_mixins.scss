@@ -58,3 +58,11 @@
   @include paragraph;
   font-size: 15px;
 }
+
+@mixin toast-shadow {
+  box-shadow: 0 81px 80px rgba(0, 0, 0, 0.08), 0 33.8399px 33.4221px rgba(0, 0, 0, 0.0575083), 0 18.0924px 17.869px rgba(0, 0, 0, 0.0476886), 0 10.1425px 10.0172px rgba(0, 0, 0, 0.04), 0 5.38658px 5.32008px rgba(0, 0, 0, 0.0323114), 0 2.24148px 2.21381px rgba(0, 0, 0, 0.0224916);
+}
+
+@mixin dropdown-shadow {
+  box-shadow: 0 51px 48px rgba(0, 0, 0, 0.06), 0 21.3066px 20.0533px rgba(0, 0, 0, 0.0431313), 0 11.3915px 10.7214px rgba(0, 0, 0, 0.0357664), 0 6.38599px 6.01034px rgba(0, 0, 0, 0.03), 0 3.39155px 3.19205px rgba(0, 0, 0, 0.0242336), 0 1.4113px 1.32828px rgba(0, 0, 0, 0.0168687);
+}

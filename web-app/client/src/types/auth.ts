@@ -5,15 +5,6 @@ export type TokenPair = {
   refreshToken: string;
 };
 
-export type SignUpFormProps = {
-  fullName: string;
-  email: string;
-  password: string;
-  country: string;
-  company: string;
-  occupation: string;
-};
-
 export type DecodedToken = {
   deviceID: string;
   exp: number;
