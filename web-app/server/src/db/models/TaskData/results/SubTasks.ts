@@ -38,3 +38,6 @@ export class SpecificTypoClusterResult extends BaseSpecificTaskResult {
     @Column({ type: TEXT, allowNull: true })
     notSquashedSortedCluster!: string | null;
 }
+
+@Table(getResultTableOptions("Stats"))
+export class StatsResult extends BaseSpecificTaskResult {}

@@ -12,7 +12,7 @@
 
 namespace consumer {
 
-BETTER_ENUM(TaskMiningType, char, AR, CFD, FD, SpecificTypoCluster, TypoCluster, TypoFD)
+BETTER_ENUM(TaskMiningType, char, AR, CFD, FD, SpecificTypoCluster, TypoCluster, TypoFD, Stats)
 
 BETTER_ENUM(BaseTablesType, char, state, config, fileinfo, fileformat)
 BETTER_ENUM(SpecificTablesType, char, config, result)
@@ -70,6 +70,8 @@ public:
 
     std::pair<SpecificTablesType, TaskMiningType> GetSpecificMapKey(
         SpecificTablesType table_type) const;
+
+    friend class TaskProcessor;
 };
 
 }

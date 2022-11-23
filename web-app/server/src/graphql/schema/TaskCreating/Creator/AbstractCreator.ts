@@ -2,6 +2,7 @@ import { ApolloError, UserInputError } from "apollo-server-core";
 import {
     DBTaskPrimitiveType,
     GeneralTaskConfig,
+    InnerMainPrimitiveType,
     SpecificPrimitiveType,
     isMainPrimitiveType,
     isSpecificPrimitiveType,
@@ -36,11 +37,21 @@ export type ParentSpecificClusterTaskProps = Omit<
     parentTaskID: string;
     algorithmName: string;
 };
+// вынести отсюда
+type StatsLiteral = "Stats";
+
+export type StatsProps = { type: StatsLiteral; fileID: string; threadsCount: number };
 
 export type RawPropsType =
+    | StatsProps
     | IntersectionMainTaskProps
     | IntersectionSpecificTaskProps
     | ParentSpecificClusterTaskProps;
+
+export type TransformedIntersectionMainTaskProps = Omit<
+    IntersectionMainTaskProps,
+    "type"
+> & { type: InnerMainPrimitiveType };
 
 export type TransformedIntersectionSpecificTaskProps = Omit<
     IntersectionSpecificTaskProps,
@@ -53,7 +64,7 @@ export type TransformedSpecificClusterTaskProps = Omit<
 >;
 
 export type PropsType =
-    | IntersectionMainTaskProps
+    | TransformedIntersectionMainTaskProps
     | TransformedIntersectionSpecificTaskProps
     | TransformedSpecificClusterTaskProps;
 
@@ -134,16 +145,15 @@ export abstract class AbstractCreator<
         const props = {
             ...rest,
         };
+        const generalInclude = {
+            model: GeneralTaskConfig,
+            where: { algorithmName, fileID: this.fileInfo.fileID },
+        };
+        const include = type !== "Stats" ?
+            [ { association: SpecificConfigModelName, where: { ...props } },
+                generalInclude] : [generalInclude];
         // @ts-ignore
-        const specificConfigs = await this.models().TaskState.findAll({
-            include: [
-                { association: SpecificConfigModelName, where: { ...props } },
-                {
-                    model: GeneralTaskConfig,
-                    where: { algorithmName, fileID: this.fileInfo.fileID },
-                },
-            ],
-        });
+        const specificConfigs = await this.models().TaskState.findAll({ include });
         if (specificConfigs.length === 0) {
             return null;
         }
@@ -278,6 +288,8 @@ export class TaskCreatorFactory {
         if (props.type === "TypoCluster") {
             const { typoFD, ...rest } = props;
             transformedProps = { ...rest, typoFD: typoFD?.join(",") };
+        } else if (props.type === "Stats") {
+            transformedProps = { ...props, algorithmName: "Stats" };
         } else {
             transformedProps = { ...props };
         }

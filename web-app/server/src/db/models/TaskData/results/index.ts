@@ -4,7 +4,8 @@ import {
     FDTaskResult,
     TypoFDTaskResult,
 } from "./TasksWithDeps";
-import { SpecificTypoClusterResult, TypoClusterResult } from "./SubTasks";
+
+import { SpecificTypoClusterResult, StatsResult, TypoClusterResult } from "./SubTasks";
 
 export const taskResults = {
     FDTaskResult,
@@ -12,6 +13,7 @@ export const taskResults = {
     ARTaskResult,
     TypoFDTaskResult,
     SpecificTypoClusterResult,
+    StatsResult,
     TypoClusterResult,
 } as const;
 

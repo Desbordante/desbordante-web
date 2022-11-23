@@ -3,6 +3,7 @@ import {
     CFDTaskConfig,
     FDTaskConfig,
     SpecificTypoClusterTaskConfig,
+    StatsTaskConfig,
     TypoClusterTaskConfig,
     TypoFDTaskConfig,
 } from "./configs/SpecificConfigs";
@@ -27,7 +28,7 @@ import {
     GeneralTaskConfig,
     PrimitiveType,
 } from "./configs/GeneralTaskConfig";
-import { SpecificTypoClusterResult, TypoClusterResult } from "./results/SubTasks";
+import { SpecificTypoClusterResult, StatsResult, TypoClusterResult } from "./results/SubTasks";
 import { ApolloError } from "apollo-server-core";
 import { User } from "../UserData/User";
 import _ from "lodash";
@@ -120,6 +121,9 @@ export class TaskState extends Model implements TaskInfoModelMethods {
     @HasOne(() => SpecificTypoClusterTaskConfig)
     SpecificTypoClusterConfig?: SpecificTypoClusterTaskConfig;
 
+    @HasOne(() => StatsTaskConfig)
+    StatsConfig?: StatsTaskConfig;
+
     ///
 
     @HasOne(() => ARTaskResult)
@@ -139,6 +143,9 @@ export class TaskState extends Model implements TaskInfoModelMethods {
 
     @HasOne(() => SpecificTypoClusterResult)
     SpecificTypoClusterResult?: SpecificTypoClusterResult;
+
+    @HasOne(() => StatsResult)
+    StatsResult?: StatsResult;
 
     ///
 

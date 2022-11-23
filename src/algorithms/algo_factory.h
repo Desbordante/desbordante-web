@@ -145,6 +145,17 @@ FDAlgorithm::Config CreateFDAlgorithmConfigFromMap(ParamsMap params) {
 }
 
 template <typename ParamsMap>
+FDAlgorithm::Config CreateStatsConfigFromMap(ParamsMap params) {
+    FDAlgorithm::Config c;
+    c.data = ExtractParamFromMap<std::filesystem::path>(params, "data");
+    c.separator = ExtractParamFromMap<char>(params, "separator");
+    c.has_header = ExtractParamFromMap<bool>(params, "has_header");
+    c.is_null_equal_null = ExtractParamFromMap<bool>(params, "is_null_equal_null");
+    c.parallelism = ExtractParamFromMap<ushort>(params, "threads");
+    return c;
+}
+
+template <typename ParamsMap>
 ARAlgorithm::Config CreateArAlgorithmConfigFromMap(ParamsMap params) {
     ARAlgorithm::Config c;
 
@@ -263,7 +274,7 @@ std::unique_ptr<Primitive> CreateMetricVerifierInstance(ParamsMap&& params) {
 template <typename ParamsMap>
 std::unique_ptr<Primitive> CreateCsvStatsInstance(ParamsMap&& params) {
     FDAlgorithm::Config const config =
-        CreateFDAlgorithmConfigFromMap(std::forward<ParamsMap>(params));
+        CreateStatsConfigFromMap(std::forward<ParamsMap>(params));
     return std::make_unique<CsvStats>(config);
 }
 

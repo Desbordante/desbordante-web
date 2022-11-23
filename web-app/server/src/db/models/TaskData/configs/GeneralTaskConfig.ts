@@ -19,16 +19,21 @@ const ALL_PRIMITIVES = [
     "TypoFD",
     "TypoCluster",
     "SpecificTypoCluster",
+    "Stats",
 ] as const;
 
 export type DBTaskPrimitiveType = typeof ALL_PRIMITIVES[number];
-export type PrimitiveType = Exclude<DBTaskPrimitiveType, "SpecificTypoCluster">;
+export type PrimitiveType = Exclude<DBTaskPrimitiveType, "SpecificTypoCluster" | "Stats">;
 export type MainPrimitiveType = Exclude<
     DBTaskPrimitiveType,
-    "TypoCluster" | "SpecificTypoCluster"
+    "TypoCluster" | "SpecificTypoCluster" | "Stats"
 >;
+export type InnerMainPrimitiveType = MainPrimitiveType | "Stats";
 type OtherPrimitiveType = Exclude<DBTaskPrimitiveType, MainPrimitiveType>;
-export type SpecificPrimitiveType = Exclude<OtherPrimitiveType, "SpecificTypoCluster">;
+export type SpecificPrimitiveType = Exclude<
+    OtherPrimitiveType,
+    "SpecificTypoCluster" | "Stats"
+>;
 export const SPECIFIC_TASKS: DBTaskPrimitiveType[] = [
     "TypoCluster",
     "SpecificTypoCluster",

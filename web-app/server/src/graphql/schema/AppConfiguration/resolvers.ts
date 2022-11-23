@@ -90,6 +90,13 @@ export const allowedTypoMinerAlgorithms = [
     },
 ];
 
+export const allowedStatsAlgorithms = [
+    {
+        name: "Stats",
+        properties: { isMultiThreaded: true },
+    },
+];
+
 const { appConfig } = config;
 
 export const allowedAlgorithms = new Map([
@@ -99,6 +106,7 @@ export const allowedAlgorithms = new Map([
     ["TypoFD", { algorithms: [...allowedTypoMinerAlgorithms] }],
     ["TypoCluster", { algorithms: [...allowedTypoMinerAlgorithms] }],
     ["SpecificTypoCluster", { algorithms: [...allowedTypoMinerAlgorithms] }],
+    ["Stats", { algorithms: [...allowedStatsAlgorithms] }],
 ]);
 
 const applicationConfig = {
