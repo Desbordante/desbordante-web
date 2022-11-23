@@ -110,6 +110,27 @@ void TaskProcessor::SaveTypoFdTaskResult() const {
                          {"deps_amount", std::to_string(typo_fds.size())}});
 }
 
+void TaskProcessor::SaveStatsResult() const {
+    auto algo = GetAlgoAs<CsvStats>();
+    const auto& stats = algo->GetAllStats();
+    for(unsigned i = 0; i < stats.size(); ++i) {
+        LOG(INFO) << "Update params for stats result";
+        const std::string file_id = task_->GetParam("fileID");
+        std::vector<std::string> set_attributes;
+        for (const auto& [key, value] : stats[i].ToKeyValueMap()) {
+            set_attributes.emplace_back(std::string("\"" + key + "\" = \'" + value + "\'"));
+        }
+        std::string stats_query = boost::join(set_attributes, ",");
+        std::string query_update_stats = "UPDATE \"Statistic\" SET " + stats_query + " WHERE \"fileID\" = '"
+            + file_id + "' AND \"columnIndex\" = '" + std::to_string(i) + "'";
+        std::string query_update_file_info = "UPDATE \"FilesInfo\" SET \"hasStats\" = 'true' WHERE \"fileID\" = '"
+            + file_id + "'";
+        task_->db_manager_->SendBaseQuery(query_update_stats, "Update table Statistic " + query_update_stats);
+        task_->db_manager_->SendBaseQuery(query_update_file_info, "Update table FileInfo " + query_update_file_info);
+    }
+    LOG(INFO) << "Stats was successfully calculated, results saved\n";
+}
+
 void TaskProcessor::SaveResults() const {
     switch (task_->GetPreciseMiningType()) {
     case TaskMiningType::AR:
@@ -126,6 +147,9 @@ void TaskProcessor::SaveResults() const {
         break;
     case TaskMiningType::TypoCluster:
     case TaskMiningType::SpecificTypoCluster:
+        break;
+    case TaskMiningType::Stats:
+        SaveStatsResult();
         break;
     default:
         throw std::runtime_error("Not implemented yet");

@@ -134,6 +134,7 @@ const typeDefs = gql`
         AR
         TypoFD
         TypoCluster
+        Stats
     }
 
     enum MainPrimitiveType {
@@ -581,10 +582,32 @@ const typeDefs = gql`
         delimiter: String!
         rowsCount: Int!
         countOfColumns: Int
+        hasStats: Boolean!
         fileFormat: FileFormat
         snippet: Snippet!
         supportedPrimitives: [MainPrimitiveType!]!
         tasks(filter: TasksInfoFilter!): [TaskInfo!]
+        stats: [FileStats!]!
+    }
+    type FileStats {
+        columnIndex: Int!
+        fileID: String!
+        type: String!
+        columnName: String
+        distinct: Int
+        isCategorical: Boolean
+        count: Int
+        avg: String
+        STD: String
+        skewness: String
+        kurtosis: String
+        min: String
+        max: String
+        sum: String
+        quantile25: String
+        quantile50: String
+        quantile75: String
+        fileInfo: DatasetInfo!
     }
 
     type Query {
@@ -612,6 +635,10 @@ const typeDefs = gql`
         Users with permission "VIEW_ADMIN_INFO" can see all dataset
         """
         datasetInfo(fileID: ID!): DatasetInfo
+        """
+        All user can see dataset statistics by it's fileID
+        """
+        fileStats(fileID: ID!): [FileStats!]!
         """
         User can see results if one of the conditions is met:
         1) Task was created by anonymous
@@ -820,6 +847,8 @@ const typeDefs = gql`
             fileID: ID!
             forceCreate: Boolean! = false
         ): TaskState!
+
+        calculateStats(fileID: ID!, threadsCount: Int! = 1): TaskState
 
         """
         Specific tasks are similar to creating MainTask.

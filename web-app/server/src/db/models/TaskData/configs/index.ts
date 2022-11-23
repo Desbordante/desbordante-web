@@ -3,6 +3,7 @@ import {
     CFDTaskConfig,
     FDTaskConfig,
     SpecificTypoClusterTaskConfig,
+    StatsTaskConfig,
     TypoClusterTaskConfig,
     TypoFDTaskConfig,
 } from "./SpecificConfigs";
@@ -15,6 +16,7 @@ export const taskConfigs = {
     TypoFDTaskConfig,
     TypoClusterTaskConfig,
     SpecificTypoClusterTaskConfig,
+    StatsTaskConfig,
     GeneralTaskConfig,
 } as const;
 

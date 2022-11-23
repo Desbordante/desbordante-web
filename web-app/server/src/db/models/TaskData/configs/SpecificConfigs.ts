@@ -76,8 +76,7 @@ interface TypoClusterModelMethods {
 @Table(getConfigTableOptions("TypoCluster"))
 export class TypoClusterTaskConfig
     extends BaseSpecificTaskConfig
-    implements TypoClusterModelMethods
-{
+    implements TypoClusterModelMethods {
     @Column({ type: STRING, allowNull: false })
     typoFD!: string;
 
@@ -110,8 +109,7 @@ interface SpecificTypoCluster {
 @Table(getConfigTableOptions("SpecificTypoCluster"))
 export class SpecificTypoClusterTaskConfig
     extends BaseSpecificTaskConfig
-    implements SpecificTypoCluster
-{
+    implements SpecificTypoCluster {
     @ForeignKey(() => TypoClusterTaskConfig)
     @IsUUID(4)
     @Column({ type: UUID, allowNull: false })
@@ -143,4 +141,10 @@ export class SpecificTypoClusterTaskConfig
         }
         return specificConfig;
     };
+}
+
+@Table(getConfigTableOptions("Stats"))
+export class StatsTaskConfig extends BaseSpecificTaskConfig {
+    @Column({ type: INTEGER, allowNull: false })
+    threadsCount!: number;
 }

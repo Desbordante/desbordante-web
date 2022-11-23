@@ -16,13 +16,14 @@ const static std::map<consumer::TaskMiningType, AlgoMiningType> mining_type_reso
     {TaskMiningType::SpecificTypoCluster, AlgoMiningType::typos},
     {TaskMiningType::TypoCluster, AlgoMiningType::typos},
     {TaskMiningType::TypoFD, AlgoMiningType::typos},
+    {TaskMiningType::Stats, AlgoMiningType::stats}
 };
 
 const static std::map<std::string, Algo> algo_name_resolution{
     {"Pyro", Algo::pyro},       {"Dep Miner", Algo::depminer}, {"TaneX", Algo::tane},
     {"FastFDs", Algo::fastfds}, {"FD mine", Algo::fdmine},     {"DFD", Algo::dfd},
     {"FDep", Algo::fdep},       {"Apriori", Algo::apriori},    {"Typo Miner", Algo::typominer},
-    {"CTane", Algo::ctane},     {"FUN", Algo::fun}
+    {"CTane", Algo::ctane},     {"FUN", Algo::fun}, {"Stats", Algo::stats}
 };
 
 class TaskProcessor {
@@ -100,6 +101,7 @@ class TaskProcessor {
     void SaveCfdTaskResult() const;
     void SaveArTaskResult() const;
     void SaveTypoFdTaskResult() const;
+    void SaveStatsResult() const;
 
     void SaveResults() const;
     void UpdateProgress();

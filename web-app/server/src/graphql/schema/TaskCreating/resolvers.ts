@@ -71,6 +71,19 @@ export const TaskCreatingResolvers: Resolvers = {
                 );
             }
         },
+        calculateStats: async (parent, { fileID, threadsCount }, context) => {
+            const file = await context.models.FileInfo.findByPk(fileID);
+            if (!file) {
+                return null;
+            }
+            const state = await TaskCreatorFactory.build(
+                "Stats",
+                context,
+                { type: "Stats", fileID, threadsCount },
+                file
+            );
+            return state;
+        },
         uploadDataset: async (
             parent,
             { datasetProps, table },

@@ -509,6 +509,14 @@ export const TaskInfoResolvers: Resolvers = {
                 prefix: MainPrimitiveType;
             })[];
         },
+        stats: async ({ fileID }, _,  { models }) => {
+            return await models.FileStats.findAll({
+                where: {
+                    fileID,
+                },
+                order: [ ["columnIndex", "ASC"]],
+            });
+        },
         supportedPrimitives: async ({ fileID, isBuiltIn, fileName }, obj, { models }) => {
             if (isBuiltIn) {
                 const dataset = builtInDatasets.find(
@@ -543,6 +551,14 @@ export const TaskInfoResolvers: Resolvers = {
         },
     },
     Query: {
+        fileStats: async (parent, { fileID }, { models }) => {
+            return await models.FileStats.findAll({
+                where: {
+                    fileID,
+                },
+                order: [ ["columnIndex", "ASC"]],
+            });
+        },
         datasetInfo: async (parent, { fileID }, { models, sessionInfo }) => {
             if (!isUUID(fileID, 4)) {
                 throw new UserInputError("Invalid fileID was provided");

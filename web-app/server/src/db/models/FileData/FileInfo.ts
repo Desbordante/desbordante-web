@@ -1,4 +1,4 @@
-import { BOOLEAN, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
+import { BOOLEAN, FLOAT, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
 import {
     BelongsTo,
     Column,
@@ -24,6 +24,7 @@ import {
 import { ApolloError } from "apollo-server-core";
 import { FileFormat } from "./FileFormat";
 import { FileProps } from "../../../graphql/types/types";
+import { FileStats } from "./FileStats";
 import { GeneralTaskConfig } from "../TaskData/configs/GeneralTaskConfig";
 import { Row } from "@fast-csv/parse";
 import { User } from "../UserData/User";
@@ -102,6 +103,9 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     @Column({ type: STRING, unique: true })
     path!: string;
 
+    @Column({ type: BOOLEAN, allowNull: false })
+    hasStats!: boolean;
+
     static getPathToUploadedDataset = (fileName: string) => {
         if (!require.main) {
             throw Error("FATAL SERVER ERROR");
@@ -156,6 +160,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
                 isBuiltIn: true,
                 hasHeader,
                 delimiter,
+                hasStats: false,
             },
         });
         if (created) {
@@ -166,6 +171,15 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         }
         const counters = await findRowsAndColumnsNumber(path, delimiter);
         await file.update(counters);
+
+        const countOfColumns = counters.countOfColumns == null ? 0 : counters.countOfColumns;
+        const columnNames = file.getColumnNames();
+        for(let i = 0; i < countOfColumns; ++i) {
+            await FileStats.findOrCreate({
+                where: { fileID: file.fileID, columnIndex: i },
+                defaults: { columnName: columnNames[i], type: "Undefined" },
+            });
+        }
 
         if (withFileFormat) {
             await FileFormat.createFileFormatIfPropsValid(file, datasetProps);
@@ -194,6 +208,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
             originalFileName,
             userID,
             isValid: false,
+            hasStats: false,
         });
 
         const { fileID } = file;

@@ -1,6 +1,7 @@
 import { IntersectionMainTaskProps, MainPrimitiveType } from "../../../types/types";
 import {
     InvalidUserInput,
+    TransformedIntersectionMainTaskProps,
     TransformedIntersectionSpecificTaskProps,
     TransformedSpecificClusterTaskProps,
 } from "./AbstractCreator";
@@ -32,7 +33,10 @@ export type SchemaType<PropsType, PrimitiveType> = Omit<
     "supportedPrimitives"
 >[];
 
-const mainTaskSchema: SchemaItemType<IntersectionMainTaskProps, MainPrimitiveType>[] = [
+const mainTaskSchema: SchemaItemType<
+    TransformedIntersectionMainTaskProps,
+    MainPrimitiveType | "Stats"
+>[] = [
     {
         supportedPrimitives: ["FD"],
         info: {
@@ -63,7 +67,7 @@ const mainTaskSchema: SchemaItemType<IntersectionMainTaskProps, MainPrimitiveTyp
             typeof maxLHS === "number" && (maxLHS >= 0 || maxLHS === -1),
     },
     {
-        supportedPrimitives: ["FD", "TypoFD"],
+        supportedPrimitives: ["FD", "TypoFD", "Stats"],
         info: {
             property: "threadsCount",
             expected: `Integer between [1..${maxThreadsCount}]`,
@@ -193,7 +197,7 @@ const specificTaskSchema: SchemaItemType<
             expected: "Decimal greater 0 (or -1 equal infinity)",
         },
         isValid: ({ radius }) =>
-            typeof radius === "number" && (radius > 0 || radius !== -1),
+            typeof radius === "number" && (radius > 0 || radius == -1),
     },
     {
         supportedPrimitives: ["TypoCluster"],
