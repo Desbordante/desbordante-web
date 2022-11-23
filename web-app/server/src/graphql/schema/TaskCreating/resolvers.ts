@@ -2,6 +2,7 @@ import { ForbiddenError, UserInputError } from "apollo-server-core";
 import { AuthenticationError } from "apollo-server-express";
 import { Permission } from "../../../db/models/UserData/Permission";
 import { Resolvers } from "../../types/types";
+import { StatsLiteral } from "../../../db/models/TaskData/TaskState";
 import { TaskCreatorFactory } from "./Creator/AbstractCreator";
 
 export const TaskCreatingResolvers: Resolvers = {
@@ -77,9 +78,9 @@ export const TaskCreatingResolvers: Resolvers = {
                 return null;
             }
             const state = await TaskCreatorFactory.build(
-                "Stats",
+                StatsLiteral,
                 context,
-                { type: "Stats", fileID, threadsCount },
+                { type: StatsLiteral, fileID, threadsCount },
                 file
             );
             return state;

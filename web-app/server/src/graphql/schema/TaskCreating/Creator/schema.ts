@@ -1,4 +1,3 @@
-import { IntersectionMainTaskProps, MainPrimitiveType } from "../../../types/types";
 import {
     InvalidUserInput,
     TransformedIntersectionMainTaskProps,
@@ -8,7 +7,9 @@ import {
 import { ApolloError } from "apollo-server-core";
 import { Context } from "../../../types/context";
 import { FileInfo } from "../../../../db/models/FileData/FileInfo";
+import { MainPrimitiveType } from "../../../types/types";
 import { SpecificPrimitiveType } from "../../../../db/models/TaskData/configs/GeneralTaskConfig";
+import { StatsType } from "../../../../db/models/TaskData/TaskState";
 import { allowedFDAlgorithms } from "../../AppConfiguration/resolvers";
 import config from "../../../../config";
 import validator from "validator";
@@ -35,7 +36,7 @@ export type SchemaType<PropsType, PrimitiveType> = Omit<
 
 const mainTaskSchema: SchemaItemType<
     TransformedIntersectionMainTaskProps,
-    MainPrimitiveType | "Stats"
+    MainPrimitiveType | StatsType
 >[] = [
     {
         supportedPrimitives: ["FD"],
