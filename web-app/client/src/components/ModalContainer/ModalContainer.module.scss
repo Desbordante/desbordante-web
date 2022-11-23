@@ -16,11 +16,12 @@
     @include dropdown-shadow;
     position: relative;
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
-    width: 560px;
+    max-width: 560px;
+    width: 100%;
+    max-height: calc(100% - 64px);
     padding: 48px;
+    overflow-y: auto;
     border-radius: 16px;
     background: $white;
 

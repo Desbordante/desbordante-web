@@ -1,4 +1,5 @@
 import { useMutation } from '@apollo/client';
+import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import isStrongPassword from 'validator/lib/isStrongPassword';
 import Button from '@components/Button';
@@ -24,7 +25,7 @@ interface Props {
   onSuccess: () => void;
 }
 
-const Password: React.FC<Props> = ({ onSuccess, email }) => {
+const Password: FC<Props> = ({ onSuccess, email }) => {
   const { applyTokens } = useAuthContext();
   const [changePassword] = useMutation<changePassword, changePasswordVariables>(
     CHANGE_PASSWORD

@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import React, { useState } from 'react';
+import { FC, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import isEmail from 'validator/lib/isEmail';
 import isStrongPassword from 'validator/lib/isStrongPassword';
@@ -29,7 +29,7 @@ interface Props {
   onRecovery: () => void;
 }
 
-const LogIn: React.FC<Props> = ({ onSuccess, onRecovery }) => {
+const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
   const { applyTokens } = useAuthContext();
   const {
     register,

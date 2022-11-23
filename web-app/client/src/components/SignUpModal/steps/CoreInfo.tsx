@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { countries } from 'countries-list';
-import React from 'react';
+import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import isEmail from 'validator/lib/isEmail';
 import isStrongPassword from 'validator/lib/isStrongPassword';
@@ -40,7 +40,7 @@ interface Props {
   onSuccess: () => void;
 }
 
-const CoreInfo: React.FC<Props> = ({ onSuccess }) => {
+const CoreInfo: FC<Props> = ({ onSuccess }) => {
   const { applyTokens } = useAuthContext();
 
   const [createUser] = useMutation<createUser, createUserVariables>(

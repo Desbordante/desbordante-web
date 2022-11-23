@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import React, { useEffect } from 'react';
+import { FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Button from '@components/Button';
 import { Text } from '@components/Inputs';
@@ -25,7 +25,7 @@ interface Props {
   onSuccess: () => void;
 }
 
-const EmailVerification: React.FC<Props> = ({ onSuccess }) => {
+const EmailVerification: FC<Props> = ({ onSuccess }) => {
   const { user, applyTokens } = useAuthContext();
 
   const {

@@ -5,6 +5,7 @@ import React, {
   useState,
   useEffect,
   PropsWithChildren,
+  FC,
 } from 'react';
 
 import {
@@ -40,9 +41,7 @@ type AuthContextType = {
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthContextProvider: React.FC<PropsWithChildren> = ({
-  children,
-}) => {
+export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<User | undefined>(
     localStorage.getItem('user')
       ? JSON.parse(localStorage.getItem('user')!)

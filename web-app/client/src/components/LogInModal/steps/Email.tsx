@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { useEffect } from 'react';
+import { Dispatch, FC, SetStateAction, useEffect } from 'react';
 
 import { useForm } from 'react-hook-form';
 import isEmail from 'validator/lib/isEmail';
@@ -23,10 +23,10 @@ const defaultValues: Inputs = {
 interface Props {
   onSuccess: () => void;
   email: string;
-  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  setEmail: Dispatch<SetStateAction<string>>;
 }
 
-const Email: React.FC<Props> = ({ onSuccess, email, setEmail }) => {
+const Email: FC<Props> = ({ onSuccess, email, setEmail }) => {
   const [issueCode] = useMutation<
     issueCodeForPasswordRecovery,
     issueCodeForPasswordRecoveryVariables

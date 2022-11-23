@@ -1,5 +1,17 @@
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Column } from '@graphql/operations/fragments/__generated__/Column';
+import { useRouter } from 'next/router';
+import {
+  createContext,
+  Dispatch,
+  FC,
+  PropsWithChildren,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import { PrimitiveType, SpecificTaskType } from 'types/globalTypes';
 import { CREATE_SPECIFIC_TASK } from '@graphql/operations/mutations/createSpecificTask';
 import {
   createSpecificTask,
@@ -18,17 +30,6 @@ import {
 import useClustersPreview from '@hooks/useClustersPreview';
 import { useErrorContext } from '@hooks/useErrorContext';
 import { GeneralColumn } from '@utils/convertDependencies';
-import { useRouter } from 'next/router';
-import {
-  createContext,
-  Dispatch,
-  PropsWithChildren,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
-import { PrimitiveType, SpecificTaskType } from 'types/globalTypes';
 
 export type DepAttribute = {
   column: Column;
@@ -50,9 +51,7 @@ export type TaskContentType = {
 
 export const TaskContext = createContext<TaskContentType | null>(null);
 
-export const TaskContextProvider: React.FC<PropsWithChildren> = ({
-  children,
-}) => {
+export const TaskContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [dependenciesFilter, setDependenciesFilter] =
     useState<DependencyFilter>({
       rhs: [],

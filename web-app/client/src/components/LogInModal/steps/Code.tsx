@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import React from 'react';
+import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import Button from '@components/Button';
 import { Text } from '@components/Inputs';
@@ -28,7 +28,7 @@ interface Props {
   onSuccess: () => void;
 }
 
-const Code: React.FC<Props> = ({ onSuccess, email }) => {
+const Code: FC<Props> = ({ onSuccess, email }) => {
   const [issueCode] = useMutation<
     issueCodeForPasswordRecovery,
     issueCodeForPasswordRecoveryVariables
