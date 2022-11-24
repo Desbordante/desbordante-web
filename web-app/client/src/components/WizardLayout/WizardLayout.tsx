@@ -1,11 +1,5 @@
-import React, {
-  DragEvent,
-  DragEventHandler,
-  FC,
-  PropsWithChildren,
-  ReactElement,
-} from 'react';
-import bg from '@public/bg.jpg';
+import { FC, PropsWithChildren, ReactElement } from 'react';
+import bg from '@assets/backgrounds/reports.jpg';
 import styles from './WizardLayout.module.scss';
 
 interface Props extends PropsWithChildren {

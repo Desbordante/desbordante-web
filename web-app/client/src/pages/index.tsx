@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
-import homeBackground from '@assets/images/backgrounds/home.jpg';
+import { useEffect } from 'react';
+import HomeBackground from '@assets/backgrounds/home.svg?component';
 import Button from '../components/Button';
 import ExternalLink from '../components/ExternalLink';
 import styles from '../styles/Home.module.scss';
@@ -9,16 +9,22 @@ import styles from '../styles/Home.module.scss';
 const Home: NextPage = () => {
   const router = useRouter();
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
+
   return (
     <div className={styles.root}>
-      <div className={styles.background}>
-        <Image
-          src={homeBackground}
-          alt="background"
-          layout="fill"
-          objectFit="cover"
-        />
-      </div>
+      <HomeBackground
+        className={styles.background}
+        width="100%"
+        height="100%"
+        preserveAspectRatio="xMidYMid slice"
+      />
 
       <div className={styles.hero}>
         <div className={styles.content}>
