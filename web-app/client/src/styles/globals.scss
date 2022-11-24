@@ -1,6 +1,10 @@
 @import "common";
 @import "reset";
 
+html, body, #__next {
+  height: 100%;
+}
+
 * {
   color: $black;
 }
