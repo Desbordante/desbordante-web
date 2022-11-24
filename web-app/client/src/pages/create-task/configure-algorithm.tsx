@@ -13,7 +13,8 @@ import {
 import IdeaIcon from '@assets/icons/idea.svg?component';
 import Button from '@components/Button';
 import { Select } from '@components/Inputs';
-import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
+import NumberSlider from '@components/Inputs/NumberSlider';
+import NumberInput from '@components/Inputs/NumberInput';
 import WizardLayout from '@components/WizardLayout';
 import {
   Algorithms,
@@ -23,6 +24,14 @@ import {
   FDoptions,
   optionsByAlgorithms,
   TypoOptions,
+  MFDColumnTypes,
+  MFDAlgoOptions,
+  MFDMetricOptions,
+  MFDColumnTypeOptions,
+  MFDDistancesOptions,
+  optionsByMetrics,
+  optionsByColumnTypes,
+
 } from '@constants/options';
 import {
   createTaskWithDatasetChoosing,
@@ -67,9 +76,18 @@ type TypoFDForm = {
   defaultRatio: number;
   metric: any;
 };
-
-type AlgorithmConfig = FDForm | CFDForm | ARForm | TypoFDForm;
-type AlgorithmProps = FDForm & CFDForm & ARForm & TypoFDForm;
+type MFDForm = {
+  lhs: number[];
+  rhs: number[];
+  rhsColumnType: any;
+  metric: any;
+  algorithmName: any;
+  parameter: number; //toleranceParameter
+  qgramLength: number;
+  distanceToNullIsInfinity: any;
+}
+type AlgorithmConfig = FDForm | CFDForm | ARForm | TypoFDForm | MFDForm;
+type AlgorithmProps = FDForm & CFDForm & ARForm & TypoFDForm & MFDForm;
 type FormInput = (props: {
   field: ControllerRenderProps<AlgorithmConfig, keyof AlgorithmProps>;
   fieldState: ControllerFieldState;
@@ -106,6 +124,16 @@ const defaultValuesByPrimitive = {
     defaultRatio: 1,
     metric: 'MODULUS_OF_DIFFERENCE',
   } as TypoFDForm,
+  [MainPrimitiveType.MetricVerification]: {
+    lhs: [1],
+    rhs: [1],
+    rhsColumnType: 'NUMERIC',
+    metric: 'EUCLIDIAN',
+    algorithmName: 'Brute',
+    parameter: 1.0, //toleranceParameter
+    qgramLength: 0.1,
+    distanceToNullIsInfinity: true,
+  } as MFDForm,
 };
 
 type QueryProps = {
@@ -217,6 +245,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   }, [formParams]);
 
   const watchAlgorithm = watch('algorithmName', 'Pyro') || 'Pyro';
+  const watchColumnType = watch('rhsColumnType', 'NUMERIC') || 'NUMERIC';
 
   const header = (
     <>
@@ -337,7 +366,6 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           />
         ),
       },
-
       [MainPrimitiveType.AR]: {
         algorithmName: ({ field: { onChange, value, ...field } }) => (
           <Select
@@ -425,8 +453,83 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           />
         ),
       },
+      [MainPrimitiveType.MetricVerification]: {
+        lhs: ({ field: { onChange, value, ...field } }) => (
+          <Select
+            {...field}
+            value={getSelectOption(value)}
+            onChange={(e) => onChange(getSelectValue(e))}
+            label="LHS Columns"
+            options={[{ label: '1', value: '1' }, { label: '2', value: '2' }, { label: '3', value: '3' }]}
+          />
+        ),
+        rhs: ({ field: { onChange, value, ...field } }) => (
+          <Select
+            {...field}
+            value={getSelectOption(value)}
+            onChange={(e) => onChange(getSelectValue(e))}
+            label="RHS Columns"
+            options={[{ label: '1', value: '1' }, { label: '2', value: '2' }, { label: '3', value: '3' }]}
+          />
+        ),
+        rhsColumnType: ({ field: { onChange, value, ...field } }) => (
+          <Select
+            {...field}
+            value={MFDColumnTypeOptions.find(option => option.value === value)}
+            onChange={(e) => onChange(getSelectValue(e))}
+            label="RHS column type"
+            options={MFDColumnTypeOptions}
+          />
+        ),
+        metric: ({ field: { onChange, value, ...field } }) => (
+          <Select
+            {...field}
+            value={MFDMetricOptions.find(option => option.value === value)}
+            onChange={(e) => onChange(getSelectValue(e))}
+            label="Metric"
+            options={MFDMetricOptions}
+          />
+        ),
+        algorithmName: ({ field: { onChange, value, ...field } }) => (
+          <Select
+            {...field}
+            value={getSelectOption(value)}
+            onChange={(e) => onChange(getSelectValue(e))}
+            label="Algorithm"
+            options={MFDAlgoOptions}
+          />
+        ),
+        parameter: ({ field }) => (
+          <NumberInput
+            {...field}
+            numberProps={{ defaultNum: 1.0, min: 0}}
+            label="Tolerance parameter"
+          />
+        ),
+        qgramLength: ({ field }) => (
+          <NumberInput
+            {...field}
+            disabled={
+              !optionsByColumnTypes[watchColumnType as MFDColumnTypes].includes(
+                'qgram'
+              )
+            }
+            numberProps={{ defaultNum: 0.1, min: 0, includingMin: false}}
+            label="Q-gram length"
+          />
+        ),
+        distanceToNullIsInfinity: ({ field: { onChange, value, ...field } }) => (
+          <Select
+            {...field}
+            value={MFDDistancesOptions.find(option => option.value===value)}
+            onChange={(e) => onChange(getSelectValue(e))}
+            label="Distance to null"
+            options={MFDDistancesOptions}
+          />
+        ),
+      },
     }),
-    [watchAlgorithm]
+    [watchAlgorithm, watchColumnType]
   );
 
   const InputsForm = _.map(
