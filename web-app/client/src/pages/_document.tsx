@@ -19,10 +19,7 @@ const MyDocument = () => {
           property="og:description"
           content="Open-source data profiling tool"
         />
-        <meta
-          property="og:image"
-          content="https://i.ibb.co/7YNwtk1/desbordante-og-thumbnail.jpg"
-        />
+        <meta property="og:image" content="/og-image.jpg" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta
@@ -38,10 +35,7 @@ const MyDocument = () => {
           name="twitter:description"
           content="Open-source data profiling tool"
         />
-        <meta
-          name="twitter:image"
-          content="https://i.ibb.co/7YNwtk1/desbordante-og-thumbnail.jpg"
-        />
+        <meta name="twitter:image" content="/og-image.jpg" />
 
         {/*Fonts*/}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
