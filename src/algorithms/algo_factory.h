@@ -20,7 +20,8 @@ BETTER_ENUM(AlgoMiningType, char,
     clusters,
     ar,
     metric,
-    stats
+    stats,
+    ac
 #else
     fd = 0, /* Functional dependency mining */
     cfd,    /* Conditional functional dependency mining */
@@ -28,7 +29,8 @@ BETTER_ENUM(AlgoMiningType, char,
     key,    /* Key mining */
     typos,  /* Typo mining */
     metric, /* Metric functional dependency verifying */
-    stats   /* Statistic mining */
+    stats,   /* Statistic mining */
+    ac      /* Algebraic constraints mining */
 #endif
 );
 
@@ -63,7 +65,10 @@ BETTER_ENUM(Algo, char,
     stats,
 
     /* TypoMiner algorithm */
-    typominer
+    typominer,
+
+    /* Algebraic constraints mining algorithm */
+    bumphunter
 );
 
 using StdParamsMap = std::unordered_map<std::string, boost::any>;
@@ -197,8 +202,7 @@ MetricVerifier::Config CreateMetricVerifierConfigFromMap(ParamsMap params) {
     if (c.q <= 0) {
         throw std::invalid_argument("Q-gram length should be greater than zero.");
     }
-    c.data = std::filesystem::current_path() / "input_data" /
-        ExtractParamFromMap<std::string>(params, posr::kData);
+    c.data = ExtractParamFromMap<std::filesystem::path>(params, posr::kData);
     c.separator = ExtractParamFromMap<char>(params, posr::kSeparatorConfig);
     c.has_header = ExtractParamFromMap<bool>(params, posr::kHasHeader);
     c.is_null_equal_null = ExtractParamFromMap<bool>(params, posr::kEqualNulls);
@@ -221,11 +225,35 @@ MetricVerifier::Config CreateMetricVerifierConfigFromMap(ParamsMap params) {
 }
 
 template <typename ParamsMap>
-std::unique_ptr<Primitive> CreateFDAlgorithmInstance(Algo const algo, ParamsMap&& params) {
-    FDAlgorithm::Config const config =
-        CreateFDAlgorithmConfigFromMap(std::forward<ParamsMap>(params));
+ACAlgorithm::Config CreateAcAlgorithmConfigFromMap(ParamsMap params) {
+    ACAlgorithm::Config c;
 
-    return details::CreatePrimitiveInstanceImpl(algo, config);
+    c.data = ExtractParamFromMap<std::filesystem::path>(params, posr::kData);
+    c.separator = ExtractParamFromMap<char>(params, posr::kSeparatorConfig);
+    c.has_header = ExtractParamFromMap<bool>(params, posr::kHasHeader);
+    c.bin_operation = ExtractParamFromMap<char>(params, posr::kBinaryOperation);
+    c.fuzziness = ExtractParamFromMap<double>(params, posr::kFuzziness);
+    if (c.fuzziness <= 0 || c.fuzziness > 1) {
+        throw std::invalid_argument(
+            "Fuzziness value must belong to the interval: (0, 1]");
+    }
+    c.p_fuzz = ExtractParamFromMap<double>(params, posr::kFuzzinessProbability);
+    if (c.p_fuzz <= 0 || c.p_fuzz > 1) {
+        throw std::invalid_argument(
+            "FuzzinessProbability value must belong to the interval: (0, 1]");
+    }
+    c.weight = ExtractParamFromMap<double>(params, posr::kWeight);
+    if (c.weight <= 0 || c.weight > 1) {
+        throw std::invalid_argument("Weight value must belong to the interval: (0, 1]");
+    }
+    c.bumps_limit = ExtractParamFromMap<size_t>(params, posr::kBumpsLimit);
+    c.iterations_limit = ExtractParamFromMap<size_t>(params, posr::kIterationsLimit);
+    if (c.iterations_limit < 1) {
+        throw std::invalid_argument("IterationsLimit value should not be less than one");
+    }
+    c.pairing_rule = ExtractParamFromMap<std::string>(params, posr::kPairingRule);
+    
+    return c;
 }
 
 template <typename ParamsMap>
@@ -235,6 +263,14 @@ std::unique_ptr<Primitive> CreateCFDAlgorithmInstance(Algo const algo, ParamsMap
     assert(algo == +Algo::ctane);
 
     return std::make_unique<CTane>(config);
+}
+
+template <typename ParamsMap>
+std::unique_ptr<Primitive> CreateFDAlgorithmInstance(Algo const algo, ParamsMap&& params) {
+    FDAlgorithm::Config const config =
+        CreateFDAlgorithmConfigFromMap(std::forward<ParamsMap>(params));
+
+    return details::CreatePrimitiveInstanceImpl(algo, config);
 }
 
 template <typename ParamsMap>
@@ -272,6 +308,13 @@ std::unique_ptr<Primitive> CreateMetricVerifierInstance(ParamsMap&& params) {
 }
 
 template <typename ParamsMap>
+std::unique_ptr<Primitive> CreateAcAlgorithmInstance(ParamsMap&& params) {
+    ACAlgorithm::Config const config =
+        CreateAcAlgorithmConfigFromMap(std::forward<ParamsMap>(params));
+    return std::make_unique<ACAlgorithm>(config);
+}
+
+template <typename ParamsMap>
 std::unique_ptr<Primitive> CreateCsvStatsInstance(ParamsMap&& params) {
     FDAlgorithm::Config const config =
         CreateStatsConfigFromMap(std::forward<ParamsMap>(params));
@@ -296,6 +339,8 @@ std::unique_ptr<Primitive> CreateAlgorithmInstance(AlgoMiningType const task, Al
         return details::CreateMetricVerifierInstance(std::forward<ParamsMap>(params));
     case AlgoMiningType::stats:
         return details::CreateCsvStatsInstance(std::forward<ParamsMap>(params));
+    case AlgoMiningType::ac:
+        return details::CreateAcAlgorithmInstance(std::forward<ParamsMap>(params));
     default:
         throw std::logic_error(task._to_string() + std::string(" task type is not supported yet."));
     }

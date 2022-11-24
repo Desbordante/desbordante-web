@@ -93,11 +93,9 @@ int main(int argc, char const* argv[]) {
     ushort threads = 0;
     bool is_null_equal_null = true;
 
-    /*Options for AR mining and CFD mining algorithms*/
-    double min_sup = 0.0;
-    double min_conf = 0.0;
-
-    /*Options for association rule mining algorithms*/
+    /*Options for association rule and CFD mining algorithms*/
+    double minsup = 0.0;
+    double minconf = 0.0;
     std::string ar_input_format;
     unsigned tid_column_index = 0;
     unsigned item_column_index = 1;
@@ -112,7 +110,17 @@ int main(int argc, char const* argv[]) {
     unsigned int q = 2;
     bool dist_to_null_infinity = false;
 
-    std::string const algo_desc = "algorithm to use. Available algorithms:\n" + EnumToAvailableValues<algos::Algo>() +
+    /*Options for algebraic constraints algorithm*/
+    char bin_operation = '+';
+    double fuzziness = 0.15; 
+    double p_fuzz = 0.9;
+    double weight = 0.05;
+    size_t bumps_limit = 5;
+    size_t iterations_limit = 10; 
+    std::string pairing_rule = "trivial";
+
+    std::string const algo_desc = "algorithm to use. Available algorithms:\n" +
+                                  EnumToAvailableValues<algos::Algo>() +
                                   " for FD mining.";
     std::string const task_desc = "type of dependency to mine. Available tasks:\n" +
                                   EnumToAvailableValues<algos::AlgoMiningType>();
@@ -155,9 +163,9 @@ int main(int argc, char const* argv[]) {
 
     po::options_description ar_options("AR options");
     ar_options.add_options()
-        (posr::kMinimumSupport, po::value<double>(&min_sup),
+        (posr::kMinimumSupport, po::value<double>(&minsup),
             "minimum support value (between 0 and 1)")
-        (posr::kMinimumConfidence, po::value<double>(&min_conf),
+        (posr::kMinimumConfidence, po::value<double>(&minconf),
             "minimum confidence value (between 0 and 1)")
         (posr::kInputFormat, po::value<string>(&ar_input_format),
          "format of the input dataset. [singular|tabular] for AR mining")
@@ -200,9 +208,29 @@ int main(int argc, char const* argv[]) {
 
     mfd_options.add(cosine_options);
 
+    po::options_description ac_options("AC options");
+    ac_options.add_options()
+        (posr::kBinaryOperation, po::value<char>(&bin_operation)->default_value(bin_operation),
+         "one of availible operations: /, *, +, - ")
+        (posr::kFuzziness, po::value<double>(&fuzziness)->default_value(0.15),
+         "fraction of exceptional records")
+        (posr::kFuzzinessProbability, po::value<double>(&p_fuzz)->default_value(p_fuzz),
+         "probability, the fraction of exceptional records that lie outside the "
+         "bump intervals is at most Fuzziness")
+        (posr::kWeight, po::value<double>(&weight)->default_value(weight),
+         "value between 0 and 1. Closer to 0 - many short intervals. "
+         "Closer to 1 - small number of long intervals")
+        (posr::kBumpsLimit, po::value<size_t>(&bumps_limit)->default_value(bumps_limit),
+         "max considered intervals amount. Pass 0 to remove limit")
+        (posr::kIterationsLimit, po::value<size_t>(&iterations_limit)->default_value(iterations_limit),
+         "limit for iterations of sampling")
+        (posr::kPairingRule, po::value<std::string>(&pairing_rule)->default_value(pairing_rule),
+         "one of available pairing rules: trivial")
+        ;
+
     po::options_description all_options("Allowed options");
     all_options.add(info_options).add(general_options).add(typos_fd_options)
-        .add(mfd_options).add(ar_options);
+        .add(mfd_options).add(ar_options).add(ac_options);
 
     po::variables_map vm;
     try {
@@ -238,12 +266,10 @@ int main(int argc, char const* argv[]) {
         vm.at("lhs_indices").value() = lhs_indices;
     }
 
-    auto& data = vm.at("data").value();
-    data = std::filesystem::current_path() / "input_data" / dataset;
-
-    /* Remove options that are not related to the algorithm configuration */
-    vm.erase("task");
-    vm.erase("algo");
+    if (!CheckOptions(task, algo, metric, metric_algo, rhs_indices.size(), error)) {
+        std::cout << all_options << std::endl;
+        return 1;
+    }
 
     if (task == "fd" || task == "typos") {
         std::cout << "Input: algorithm \"" << algo
@@ -255,9 +281,10 @@ int main(int argc, char const* argv[]) {
                   << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
     } else if (task == "ar" || task == "cfd") {
         std::cout << "Input: algorithm \"" << algo
-                  << "\" with min. support threshold \"" << std::to_string(min_sup)
-                  << "\", min. confidence threshold \"" << std::to_string(min_conf)
+                  << "\" with min. support threshold \"" << std::to_string(minsup)
+                  << "\", min. confidence threshold \"" << std::to_string(minconf)
                   << "\" and dataset \"" << dataset
+                  << "\". Input type is \"" << ar_input_format
                   << "\" with separator \'" << separator
                   << "\'. Header is " << (has_header ? "" : "not ") << "present. ";
         if (task == "ar") {
@@ -283,9 +310,22 @@ int main(int argc, char const* argv[]) {
                   << "\" and dataset \"" << dataset
                   << "\" with separator \'" << separator
                   << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
+    } else if (task == "ac") {
+        std::cout << "Input: algorithm \"" << algo
+                  << "\" with binary operation \"" << bin_operation
+                  << "\", fuzziness \"" << std::to_string(fuzziness)
+                  << "\", fuzziness probability \"" << std::to_string(p_fuzz)
+                  << "\", weight \"" << std::to_string(weight)
+                  << "\", bumps limit \"" << std::to_string(bumps_limit)
+                  << "\", iterations limit \"" << std::to_string(iterations_limit)
+                  << "\", pairing rule \"" << pairing_rule
+                  << "\" and dataset \"" << dataset
+                  << "\" with separator \'" << separator
+                  << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
     }
 
-    std::unique_ptr<algos::Primitive> algorithm_instance = algos::CreateAlgorithmInstance(task, algo, vm);
+    std::unique_ptr<algos::Primitive> algorithm_instance =
+        algos::CreateAlgorithmInstance(task, algo, vm);
 
     try {
         unsigned long long elapsed_time = algorithm_instance->Execute();
