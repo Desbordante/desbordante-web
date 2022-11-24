@@ -39,7 +39,7 @@ const getTaskStatusData = (
 
     if (state.processStatus === 'ADDING_TO_DB') {
       return {
-        icon: '/animated_logo.webm',
+        icon: '/logo-animation.webm',
         isAnimated: true,
         label: 'In Progress',
         className: 'progress',
@@ -48,7 +48,7 @@ const getTaskStatusData = (
     }
     if (state.processStatus === 'IN_PROCESS') {
       return {
-        icon: '/animated_logo.webm',
+        icon: '/logo-animation.webm',
         isAnimated: true,
         label: 'In Progress',
         className: 'progress',
@@ -74,7 +74,7 @@ const getTaskStatusData = (
   }
 
   return {
-    icon: '/animated_logo.webm',
+    icon: '/logo-animation.webm',
     isAnimated: true,
     label: 'In Progress',
     className: 'progress',

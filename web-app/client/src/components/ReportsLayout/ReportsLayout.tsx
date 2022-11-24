@@ -2,14 +2,14 @@ import classNames from 'classnames';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import React, { FC, PropsWithChildren } from 'react';
+import { PrimitiveType } from 'types/globalTypes';
+import bg from '@assets/backgrounds/reports.jpg';
 import chartIcon from '@assets/icons/chart.svg';
-import datatableIcon from '@assets/icons/datatable.svg';
 import clusterIcon from '@assets/icons/cluster.svg';
+import datatableIcon from '@assets/icons/datatable.svg';
 import dropDownIcon from '@assets/icons/list-dropdown.svg';
 import settingsIcon from '@assets/icons/settings-black.svg';
 import { useTaskContext } from '@components/TaskContext';
-import bg from '@public/bg.jpg';
-import { PrimitiveType } from 'types/globalTypes';
 import styles from './ReportsLayout.module.scss';
 
 type Props = PropsWithChildren;

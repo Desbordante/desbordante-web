@@ -1,15 +1,15 @@
-import { FC, ReactElement, useEffect, useState } from 'react';
 import Image from 'next/image';
-import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
-import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
-import { NextPageWithLayout } from 'types/pageWithLayout';
-import styles from '@styles/Clusters.module.scss';
+import { FC, ReactElement, useState } from 'react';
 import longArrowIcon from '@assets/icons/long-arrow.svg';
-import { getClustersPreview } from '@graphql/operations/queries/EDP/__generated__/getClustersPreview';
-import ClusterTable from '@components/ScrollableTable/ClusterTable';
 import Pagination from '@components/Pagination/Pagination';
+import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
+import ClusterTable from '@components/ScrollableTable/ClusterTable';
+import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
 import Tooltip from '@components/Tooltip';
+import { getClustersPreview } from '@graphql/operations/queries/EDP/__generated__/getClustersPreview';
 import useClustersPreview from '@hooks/useClustersPreview';
+import styles from '@styles/Clusters.module.scss';
+import { NextPageWithLayout } from 'types/pageWithLayout';
 
 const getCluster = (response?: getClustersPreview) => {
   if (
@@ -81,7 +81,7 @@ const Loader: FC<LoaderProps> = ({ lhs, rhs }) => {
         height={76}
         data-testid="animated-icon"
       >
-        <source src="/animated_logo.webm" type="video/webm" />
+        <source src="/logo-animation.webm" type="video/webm" />
       </video>
       <div className={styles.content}>
         <h6>Discovering clusters for dependency</h6>
