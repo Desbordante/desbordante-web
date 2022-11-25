@@ -142,6 +142,7 @@ const typeDefs = gql`
         CFD
         AR
         TypoFD
+        Stats
     }
 
     enum SpecificTaskType {
@@ -568,6 +569,25 @@ const typeDefs = gql`
         includeTasksWithoutError: Boolean! = true
     }
 
+    type ColumnStats {
+        fileID: String!
+        column: Column!
+        type: String!
+        distinct: Int
+        isCategorical: Boolean
+        count: Int
+        avg: String
+        STD: String
+        skewness: String
+        kurtosis: String
+        min: String
+        max: String
+        sum: String
+        quantile25: String
+        quantile50: String
+        quantile75: String
+    }
+
     type DatasetInfo {
         fileID: String!
         userID: ID
@@ -582,32 +602,14 @@ const typeDefs = gql`
         delimiter: String!
         rowsCount: Int!
         countOfColumns: Int
-        hasStats: Boolean!
         fileFormat: FileFormat
         snippet: Snippet!
         supportedPrimitives: [MainPrimitiveType!]!
         tasks(filter: TasksInfoFilter!): [TaskInfo!]
-        stats: [FileStats!]!
-    }
-    type FileStats {
-        columnIndex: Int!
-        fileID: String!
-        type: String!
-        columnName: String
-        distinct: Int
-        isCategorical: Boolean
-        count: Int
-        avg: String
-        STD: String
-        skewness: String
-        kurtosis: String
-        min: String
-        max: String
-        sum: String
-        quantile25: String
-        quantile50: String
-        quantile75: String
-        fileInfo: DatasetInfo!
+        "Set true when stats start mining for the first time"
+        statsMiningStarted: Boolean!
+        "Returns an empty array if statistics have not yet been calculated"
+        stats(pagination: Pagination! = { offset: 0, limit: 100 }): [ColumnStats!]!
     }
 
     type Query {
@@ -635,10 +637,6 @@ const typeDefs = gql`
         Users with permission "VIEW_ADMIN_INFO" can see all dataset
         """
         datasetInfo(fileID: ID!): DatasetInfo
-        """
-        All user can see dataset statistics by it's fileID
-        """
-        fileStats(fileID: ID!): [FileStats!]!
         """
         User can see results if one of the conditions is met:
         1) Task was created by anonymous
@@ -715,13 +713,13 @@ const typeDefs = gql`
 
     input IntersectionMainTaskProps {
         algorithmName: String!
-        "AR, FD, CFD, TypoFD"
+        "AR, FD, CFD, TypoFD, Stats"
         type: MainPrimitiveType!
         "FD, TypoFD"
         errorThreshold: Float
         "FD, TypoFD, CFD"
         maxLHS: Int
-        "FD, TypoFD"
+        "FD, TypoFD, Stats"
         threadsCount: Int
         "CFD"
         minSupportCFD: Int
@@ -841,14 +839,13 @@ const typeDefs = gql`
         3) Administrators (with permission "USE_USERS_DATASETS") can use all datasets
         ***
         By default, the result of the algorithm is visible for all users.
+        forceCreate is irrelevant for stats algorithm
         """
         createMainTaskWithDatasetChoosing(
             props: IntersectionMainTaskProps!
             fileID: ID!
             forceCreate: Boolean! = false
         ): TaskState!
-
-        calculateStats(fileID: ID!, threadsCount: Int! = 1): TaskState
 
         """
         Specific tasks are similar to creating MainTask.

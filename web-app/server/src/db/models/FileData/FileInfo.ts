@@ -15,6 +15,7 @@ import {
     getPathToBuiltInDataset,
 } from "../../initBuiltInDatasets";
 import { CsvParserStream, parse } from "fast-csv";
+import { FileProps, Column as SchemaColumn } from "../../../graphql/types/types";
 import {
     SingularFileFormatProps,
     TabularFileFormatProps,
@@ -23,8 +24,6 @@ import {
 } from "../../../graphql/schema/TaskCreating/csvValidator";
 import { ApolloError } from "apollo-server-core";
 import { FileFormat } from "./FileFormat";
-import { FileProps } from "../../../graphql/types/types";
-import { FileStats } from "./FileStats";
 import { GeneralTaskConfig } from "../TaskData/configs/GeneralTaskConfig";
 import { Row } from "@fast-csv/parse";
 import { User } from "../UserData/User";
@@ -37,6 +36,7 @@ import isUUID = validator.isUUID;
 
 interface FileInfoModelMethods {
     getColumnNames: () => string[];
+    getColumns: () => SchemaColumn[];
 }
 
 @Table({
@@ -103,8 +103,8 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     @Column({ type: STRING, unique: true })
     path!: string;
 
-    @Column({ type: BOOLEAN, allowNull: false })
-    hasStats!: boolean;
+    @Column({ type: BOOLEAN, allowNull: false, defaultValue: false })
+    statsMiningStarted!: boolean;
 
     static getPathToUploadedDataset = (fileName: string) => {
         if (!require.main) {
@@ -128,6 +128,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     };
 
     getColumnNames = () => JSON.parse(this.renamedHeader) as string[];
+    getColumns = () => this.getColumnNames().map((name, index) => ({ name, index }));
 
     static getColumnNamesForFile = async (fileID: string) => {
         if (!isUUID(fileID, 4)) {
@@ -160,7 +161,6 @@ export class FileInfo extends Model implements FileInfoModelMethods {
                 isBuiltIn: true,
                 hasHeader,
                 delimiter,
-                hasStats: false,
             },
         });
         if (created) {
@@ -171,15 +171,6 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         }
         const counters = await findRowsAndColumnsNumber(path, delimiter);
         await file.update(counters);
-
-        const countOfColumns = counters.countOfColumns == null ? 0 : counters.countOfColumns;
-        const columnNames = file.getColumnNames();
-        for(let i = 0; i < countOfColumns; ++i) {
-            await FileStats.findOrCreate({
-                where: { fileID: file.fileID, columnIndex: i },
-                defaults: { columnName: columnNames[i], type: "Undefined" },
-            });
-        }
 
         if (withFileFormat) {
             await FileFormat.createFileFormatIfPropsValid(file, datasetProps);
@@ -208,7 +199,6 @@ export class FileInfo extends Model implements FileInfoModelMethods {
             originalFileName,
             userID,
             isValid: false,
-            hasStats: false,
         });
 
         const { fileID } = file;

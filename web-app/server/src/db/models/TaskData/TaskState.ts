@@ -43,7 +43,6 @@ const ALL_TASK_STATUSES = [
 ] as const;
 export type TaskStatusType = typeof ALL_TASK_STATUSES[number];
 export type StatsType = "Stats";
-export const StatsLiteral = "Stats";
 
 interface TaskInfoModelMethods {
     fullDestroy: (paranoid: boolean) => Promise<void>;

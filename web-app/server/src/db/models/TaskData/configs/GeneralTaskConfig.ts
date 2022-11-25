@@ -8,8 +8,8 @@ import {
     Table,
 } from "sequelize-typescript";
 import { STRING, UUID } from "sequelize";
+import { StatsType, TaskState } from "../TaskState";
 import { FileInfo } from "../../FileData/FileInfo";
-import { TaskState } from "../TaskState";
 import { getConfigTableOptions } from "../tableOptions";
 
 const ALL_PRIMITIVES = [
@@ -23,16 +23,16 @@ const ALL_PRIMITIVES = [
 ] as const;
 
 export type DBTaskPrimitiveType = typeof ALL_PRIMITIVES[number];
-export type PrimitiveType = Exclude<DBTaskPrimitiveType, "SpecificTypoCluster" | "Stats">;
+export type PrimitiveType = Exclude<DBTaskPrimitiveType, "SpecificTypoCluster" | StatsType>;
 export type MainPrimitiveType = Exclude<
     DBTaskPrimitiveType,
-    "TypoCluster" | "SpecificTypoCluster" | "Stats"
+    "TypoCluster" | "SpecificTypoCluster" | StatsType
 >;
-export type InnerMainPrimitiveType = MainPrimitiveType | "Stats";
+export type InnerMainPrimitiveType = MainPrimitiveType | StatsType;
 type OtherPrimitiveType = Exclude<DBTaskPrimitiveType, MainPrimitiveType>;
 export type SpecificPrimitiveType = Exclude<
     OtherPrimitiveType,
-    "SpecificTypoCluster" | "Stats"
+    "SpecificTypoCluster" | StatsType
 >;
 export const SPECIFIC_TASKS: DBTaskPrimitiveType[] = [
     "TypoCluster",

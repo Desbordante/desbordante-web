@@ -9,12 +9,12 @@ import {
 } from "../../../db/models/TaskData/configs/GeneralTaskConfig";
 import { Resolvers, TaskProcessStatusType } from "../../types/types";
 import { applyPagination, resolverCannotBeCalled, returnParent } from "../../util";
-import { TaskCreatorFactory } from "../TaskCreating/Creator/AbstractCreator";
 import { AbstractFilter } from "./DependencyFilters/AbstractFilter";
 import { AuthenticationError } from "apollo-server-express";
 import { CompactData } from "./DependencyFilters/CompactData";
 import { FDFilter } from "./DependencyFilters/FDFilter";
 import { Row } from "@fast-csv/parse";
+import { TaskCreatorFactory } from "../TaskCreating/Creator/AbstractCreator";
 import { builtInDatasets } from "../../../db/initBuiltInDatasets";
 import fs from "fs";
 import { getSpecificFilter } from "./DependencyFilters";
@@ -509,12 +509,28 @@ export const TaskInfoResolvers: Resolvers = {
                 prefix: MainPrimitiveType;
             })[];
         },
-        stats: async ({ fileID }, _,  { models }) => {
-            return await models.FileStats.findAll({
+        stats: async ({ fileID }, { pagination }, { models }) => {
+            const fileInfo = await models.FileInfo.findByPk(fileID);
+            if (!fileInfo) {
+                throw new UserInputError(`Incorrect fileID = '${fileID}' was provided`);
+            }
+            if(!fileInfo.statsMiningStarted){
+                return [];
+            }
+            const columnStats =  await models.ColumnStats.findAll({
+                ...pagination, raw: true,
                 where: {
                     fileID,
                 },
                 order: [ ["columnIndex", "ASC"]],
+            });
+            if(!columnStats || columnStats.length === 0) {
+                return [];
+            }
+            const columnNames = fileInfo.getColumns();
+            return columnStats.map((stats) => {
+                const index = stats.columnIndex;
+                return { ...stats, column: columnNames[index] };
             });
         },
         supportedPrimitives: async ({ fileID, isBuiltIn, fileName }, obj, { models }) => {
@@ -551,14 +567,6 @@ export const TaskInfoResolvers: Resolvers = {
         },
     },
     Query: {
-        fileStats: async (parent, { fileID }, { models }) => {
-            return await models.FileStats.findAll({
-                where: {
-                    fileID,
-                },
-                order: [ ["columnIndex", "ASC"]],
-            });
-        },
         datasetInfo: async (parent, { fileID }, { models, sessionInfo }) => {
             if (!isUUID(fileID, 4)) {
                 throw new UserInputError("Invalid fileID was provided");

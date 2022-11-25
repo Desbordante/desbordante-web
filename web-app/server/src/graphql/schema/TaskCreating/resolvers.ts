@@ -2,7 +2,6 @@ import { ForbiddenError, UserInputError } from "apollo-server-core";
 import { AuthenticationError } from "apollo-server-express";
 import { Permission } from "../../../db/models/UserData/Permission";
 import { Resolvers } from "../../types/types";
-import { StatsLiteral } from "../../../db/models/TaskData/TaskState";
 import { TaskCreatorFactory } from "./Creator/AbstractCreator";
 
 export const TaskCreatingResolvers: Resolvers = {
@@ -71,19 +70,6 @@ export const TaskCreatingResolvers: Resolvers = {
                     "User hasn't permission for creating task with this dataset"
                 );
             }
-        },
-        calculateStats: async (parent, { fileID, threadsCount }, context) => {
-            const file = await context.models.FileInfo.findByPk(fileID);
-            if (!file) {
-                return null;
-            }
-            const state = await TaskCreatorFactory.build(
-                StatsLiteral,
-                context,
-                { type: StatsLiteral, fileID, threadsCount },
-                file
-            );
-            return state;
         },
         uploadDataset: async (
             parent,
