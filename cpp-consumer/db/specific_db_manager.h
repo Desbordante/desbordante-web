@@ -63,6 +63,20 @@ public:
         }
     }
 
+    pqxx::result SendInsertQuery(const std::unordered_map<std::string, std::string> insertions, 
+                                 const std::string& table_name) const {
+        std::vector<std::string> keys;
+        std::vector<std::string> values;
+        for (const auto& [key, value] : insertions) {
+            keys.emplace_back("\"" + key + "\"");
+            values.emplace_back("\'" + value + "\'");
+        }
+        std::string query = "INSERT INTO \"" + table_name + "\" (" + boost::join(keys, ",") +
+            ") VALUES (" + boost::join(values, ",") + ")";
+        LOG(INFO) << "Inserting:" << query;
+        return SendBaseQuery(query, "Insert into table " + table_name + ": \'" + query + "\'");
+    }
+
     const TableInfo& GetTableInfo(BaseTableKey search_key) const {
         return base_tables_.at(search_key);
     }

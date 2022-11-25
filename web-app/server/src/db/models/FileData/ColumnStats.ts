@@ -15,29 +15,26 @@ import { FileInfo } from "./FileInfo";
     createdAt: false,
     tableName: "Statistic",
 })
-export class FileStats extends Model {
-    @Column({ type: INTEGER })
-    columnIndex!: number;
-
+export class ColumnStats extends Model {
     @IsUUID(4)
     @ForeignKey(() => FileInfo)
-    @Column({ type: UUID })
+    @Column({ type: UUID, primaryKey: true })
     fileID!: string;
 
-    @Column({ type: STRING, allowNull: false })
+    @Column({ type: INTEGER, primaryKey: true })
+    columnIndex!: number;
+
+    @Column({ type: STRING, allowNull: false, defaultValue: "" })
     type!: string;
 
-    @Column({ type: STRING, allowNull: true })
-    columnName: string;
-
     @Column({ type: INTEGER, allowNull: true })
-    distinct!: number;
+    distinct: number;
 
     @Column({ type: BOOLEAN, allowNull: true })
-    isCategorical!: boolean;
+    isCategorical: boolean;
 
     @Column({ type: INTEGER, allowNull: true })
-    count!: number;
+    count: number;
 
     @Column({ type: STRING, allowNull: true })
     avg: string;

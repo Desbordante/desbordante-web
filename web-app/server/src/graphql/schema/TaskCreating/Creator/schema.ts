@@ -1,15 +1,13 @@
+import { IntersectionMainTaskProps, MainPrimitiveType } from "../../../types/types";
 import {
     InvalidUserInput,
-    TransformedIntersectionMainTaskProps,
     TransformedIntersectionSpecificTaskProps,
     TransformedSpecificClusterTaskProps,
 } from "./AbstractCreator";
 import { ApolloError } from "apollo-server-core";
 import { Context } from "../../../types/context";
 import { FileInfo } from "../../../../db/models/FileData/FileInfo";
-import { MainPrimitiveType } from "../../../types/types";
 import { SpecificPrimitiveType } from "../../../../db/models/TaskData/configs/GeneralTaskConfig";
-import { StatsType } from "../../../../db/models/TaskData/TaskState";
 import { allowedFDAlgorithms } from "../../AppConfiguration/resolvers";
 import config from "../../../../config";
 import validator from "validator";
@@ -35,8 +33,8 @@ export type SchemaType<PropsType, PrimitiveType> = Omit<
 >[];
 
 const mainTaskSchema: SchemaItemType<
-    TransformedIntersectionMainTaskProps,
-    MainPrimitiveType | StatsType
+    IntersectionMainTaskProps,
+    MainPrimitiveType
 >[] = [
     {
         supportedPrimitives: ["FD"],
@@ -71,7 +69,7 @@ const mainTaskSchema: SchemaItemType<
         supportedPrimitives: ["FD", "TypoFD", "Stats"],
         info: {
             property: "threadsCount",
-            expected: `Integer between [1..${maxThreadsCount}]`,
+            expected: `Integer between [1..${maxThreadsCount}] (or 0 equal maximum) `,
         },
         isValid: ({ threadsCount: count }) =>
             typeof count === "number" && count >= 0 && count <= maxThreadsCount,

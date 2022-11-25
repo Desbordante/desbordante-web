@@ -23,9 +23,9 @@ import {
     getSpecificClusterTaskSchema,
     getSpecificTaskSchema,
 } from "./schema";
-import { StatsLiteral, StatsType, TaskStatusType } from "../../../../db/models/TaskData/TaskState";
 import { Context } from "../../../types/context";
 import { FileInfo } from "../../../../db/models/FileData/FileInfo";
+import { TaskStatusType } from "../../../../db/models/TaskData/TaskState";
 import { allowedAlgorithms } from "../../AppConfiguration/resolvers";
 import { produce } from "../../../../producer";
 
@@ -38,18 +38,10 @@ export type ParentSpecificClusterTaskProps = Omit<
     algorithmName: string;
 };
 
-export type StatsProps = { type: StatsType; fileID: string; threadsCount: number };
-
 export type RawPropsType =
-    | StatsProps
     | IntersectionMainTaskProps
     | IntersectionSpecificTaskProps
     | ParentSpecificClusterTaskProps;
-
-export type TransformedIntersectionMainTaskProps = Omit<
-    IntersectionMainTaskProps,
-    "type"
-> & { type: InnerMainPrimitiveType };
 
 export type TransformedIntersectionSpecificTaskProps = Omit<
     IntersectionSpecificTaskProps,
@@ -62,7 +54,7 @@ export type TransformedSpecificClusterTaskProps = Omit<
 >;
 
 export type PropsType =
-    | TransformedIntersectionMainTaskProps
+    | IntersectionMainTaskProps
     | TransformedIntersectionSpecificTaskProps
     | TransformedSpecificClusterTaskProps;
 
@@ -147,7 +139,7 @@ export abstract class AbstractCreator<
             model: GeneralTaskConfig,
             where: { algorithmName, fileID: this.fileInfo.fileID },
         };
-        const include = type !== StatsLiteral ?
+        const include = type !== "Stats" ?
             [ { association: SpecificConfigModelName, where: { ...props } },
                 generalInclude] : [generalInclude];
         // @ts-ignore
@@ -172,10 +164,20 @@ export abstract class AbstractCreator<
         });
         await taskState.$create(`${this.type}Config`, { ...this.props });
         await taskState.$create(`${this.type}Result`, {});
+        if(this.type === "Stats") {
+            this.fileInfo.update({ statsMiningStarted: true });
+        }
         return taskState;
     };
 
     private createTask = async () => {
+        // TODO: Refactor this later...
+        if(this.type === "Stats") {
+            const fileFormat = await this.fileInfo.$get("fileFormat");
+            if(fileFormat) {
+                throw new UserInputError("Incorrect file format for mining statistics!");
+            }
+        }
         if (!this.forceCreate) {
             const similarTask = await this.findSimilarTask();
             if (similarTask) {
@@ -286,8 +288,6 @@ export class TaskCreatorFactory {
         if (props.type === "TypoCluster") {
             const { typoFD, ...rest } = props;
             transformedProps = { ...rest, typoFD: typoFD?.join(",") };
-        } else if (props.type === StatsLiteral) {
-            transformedProps = { ...props, algorithmName: "Stats" };
         } else {
             transformedProps = { ...props };
         }
@@ -301,6 +301,9 @@ export class TaskCreatorFactory {
         fileInfo: FileInfo,
         forceCreate = false
     ) => {
+        if (type === "Stats") {
+            forceCreate = false;
+        }
         const props = this.transformRawProps(rawProps);
         const otherProps = [type, context, forceCreate, fileInfo] as const;
         const creatorInstance = await (async () => {
