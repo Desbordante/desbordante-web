@@ -1,11 +1,11 @@
 import { CsvParserStream, parse } from "fast-csv";
-import { ApolloError } from "apollo-server-core";
+import { GraphQLError } from "graphql";
 import { Row } from "@fast-csv/parse";
 import fs from "fs";
 
 const getFirstRow = (path: string, delimiter: string): Promise<string[]> => {
-    return new Promise(resolve => {
-        const parser: CsvParserStream<Row, Row> = parse({ delimiter, maxRows: 1 }) ;
+    return new Promise((resolve) => {
+        const parser: CsvParserStream<Row, Row> = parse({ delimiter, maxRows: 1 });
         let firstRow: string[];
         fs.createReadStream(path)
             .pipe(parser)
@@ -30,13 +30,17 @@ const findIndexInRange = <T>(arr: T[], obj: T, from: number, to: number) => {
     return to;
 };
 
-export const generateHeaderByPath = async (path: string, hasHeader: boolean, delimiter: string) => {
+export const generateHeaderByPath = async (
+    path: string,
+    hasHeader: boolean,
+    delimiter: string
+) => {
     try {
         const row = await getFirstRow(path, delimiter);
         let header: string[] = [];
 
         if (!hasHeader) {
-            header = [...Array(row.length).keys()].map(i => `Attr ${i}`);
+            header = [...Array(row.length).keys()].map((i) => `Attr ${i}`);
         } else {
             const occurrences: number[] = [...Array(row.length).fill(0)];
             for (let i = 0; i != row.length; ++i) {
@@ -52,6 +56,6 @@ export const generateHeaderByPath = async (path: string, hasHeader: boolean, del
         }
         return header;
     } catch (e) {
-        throw new ApolloError(`Problem with generating new header: ${e}`);
+        throw new GraphQLError(`Problem with generating new header: ${e}`);
     }
 };

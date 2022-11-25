@@ -1,4 +1,5 @@
-import { ApolloServer } from "apollo-server-express";
+import { ApolloServer } from "@apollo/server";
+import { Context } from "../graphql/types/context";
 import { GraphQLFileLoader } from "@graphql-tools/graphql-file-loader";
 import { getContext } from "./context";
 import { loadDocumentsSync } from "@graphql-tools/load";
@@ -6,7 +7,7 @@ import path from "path";
 import { schema } from "../graphql/schema";
 
 export const getTestServer = async (context = getContext) => ({
-    server: new ApolloServer({ schema, context }),
+    server: new ApolloServer<Context>({ schema }),
     context: await getContext(),
 });
 

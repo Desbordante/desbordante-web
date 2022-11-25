@@ -4,9 +4,9 @@ import {
     TransformedIntersectionSpecificTaskProps,
     TransformedSpecificClusterTaskProps,
 } from "./AbstractCreator";
-import { ApolloError } from "apollo-server-core";
 import { Context } from "../../../types/context";
 import { FileInfo } from "../../../../db/models/FileData/FileInfo";
+import { GraphQLError } from "graphql";
 import { SpecificPrimitiveType } from "../../../../db/models/TaskData/configs/GeneralTaskConfig";
 import { allowedFDAlgorithms } from "../../AppConfiguration/resolvers";
 import config from "../../../../config";
@@ -32,10 +32,7 @@ export type SchemaType<PropsType, PrimitiveType> = Omit<
     "supportedPrimitives"
 >[];
 
-const mainTaskSchema: SchemaItemType<
-    IntersectionMainTaskProps,
-    MainPrimitiveType
->[] = [
+const mainTaskSchema: SchemaItemType<IntersectionMainTaskProps, MainPrimitiveType>[] = [
     {
         supportedPrimitives: ["FD"],
         info: {
@@ -180,11 +177,11 @@ const specificTaskSchema: SchemaItemType<
                 }
             );
             if (!mainTaskResult) {
-                throw new ApolloError("Results for parent task not found");
+                throw new GraphQLError("Results for parent task not found");
             }
             const { deps } = mainTaskResult;
             if (typeof deps !== "string") {
-                throw new ApolloError("Main task wasn't processed yet");
+                throw new GraphQLError("Main task wasn't processed yet");
             }
             return deps.split(";").includes(typoFD);
         },

@@ -1,4 +1,3 @@
-import { ApolloError, UserInputError } from "apollo-server-core";
 import {
     BelongsTo,
     Column,
@@ -10,6 +9,7 @@ import {
 import { STRING, UUID } from "sequelize";
 import { StatsType, TaskState } from "../TaskState";
 import { FileInfo } from "../../FileData/FileInfo";
+import { GraphQLError } from "graphql";
 import { getConfigTableOptions } from "../tableOptions";
 
 const ALL_PRIMITIVES = [
@@ -23,7 +23,10 @@ const ALL_PRIMITIVES = [
 ] as const;
 
 export type DBTaskPrimitiveType = typeof ALL_PRIMITIVES[number];
-export type PrimitiveType = Exclude<DBTaskPrimitiveType, "SpecificTypoCluster" | StatsType>;
+export type PrimitiveType = Exclude<
+    DBTaskPrimitiveType,
+    "SpecificTypoCluster" | StatsType
+>;
 export type MainPrimitiveType = Exclude<
     DBTaskPrimitiveType,
     "TypoCluster" | "SpecificTypoCluster" | StatsType
@@ -76,7 +79,9 @@ export class GeneralTaskConfig extends Model {
     static getTaskConfig = async (taskID: string) => {
         const config = await GeneralTaskConfig.findByPk(taskID);
         if (!config) {
-            throw new UserInputError(`Task with ID = '${taskID}' not found`);
+            throw new GraphQLError(`Task with ID = '${taskID}' not found`, {
+                extensions: { code: "UserInputError" },
+            });
         }
         return config;
     };
@@ -85,7 +90,7 @@ export class GeneralTaskConfig extends Model {
         const config = await GeneralTaskConfig.getTaskConfig(taskID);
         const file = await config.$get("file");
         if (!file) {
-            throw new ApolloError("File not found");
+            throw new GraphQLError("File not found");
         }
         return file;
     };

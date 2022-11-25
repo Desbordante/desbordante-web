@@ -1,5 +1,4 @@
-import { ForbiddenError, UserInputError } from "apollo-server-core";
-import { AuthenticationError } from "apollo-server-express";
+import { GraphQLError } from "graphql";
 import { Permission } from "../../../db/models/UserData/Permission";
 import { Resolvers } from "../../types/types";
 import { TaskCreatorFactory } from "./Creator/AbstractCreator";
@@ -22,8 +21,11 @@ export const TaskCreatingResolvers: Resolvers = {
                     forceCreate
                 );
             } else {
-                throw new ForbiddenError(
-                    "User hasn't permission for creating task with this dataset"
+                throw new GraphQLError(
+                    "User hasn't permission for creating task with this dataset",
+                    {
+                        extensions: { code: "ForbiddenError" },
+                    }
                 );
             }
         },
@@ -40,14 +42,16 @@ export const TaskCreatingResolvers: Resolvers = {
                 },
             });
             if (!file) {
-                throw new UserInputError("File not found", { fileID });
+                throw new GraphQLError("File not found", {
+                    extensions: { code: "UserInputError", fileID },
+                });
             }
             if (props.type === "AR") {
                 const fileFormat = await file.$get("fileFormat");
                 if (!fileFormat) {
-                    throw new UserInputError(
-                        "This dataset doesn't support AR algorithms"
-                    );
+                    throw new GraphQLError("This dataset doesn't support AR algorithms", {
+                        extensions: { code: "UserInputError", fileID },
+                    });
                 }
             }
             const permissions = Permission.getPermissionsBySessionInfo(sessionInfo);
@@ -66,8 +70,11 @@ export const TaskCreatingResolvers: Resolvers = {
                     forceCreate
                 );
             } else {
-                throw new ForbiddenError(
-                    "User hasn't permission for creating task with this dataset"
+                throw new GraphQLError(
+                    "User hasn't permission for creating task with this dataset",
+                    {
+                        extensions: { code: "ForbiddenError" },
+                    }
                 );
             }
         },
@@ -77,8 +84,11 @@ export const TaskCreatingResolvers: Resolvers = {
             { models, sessionInfo }
         ) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
-                throw new AuthenticationError(
-                    "User must be logged in and have permission USE_OWN_DATASETS"
+                throw new GraphQLError(
+                    "User must be logged in and have permission USE_OWN_DATASETS",
+                    {
+                        extensions: { code: "AuthenticationError" },
+                    }
                 );
             }
             return await models.FileInfo.uploadDataset(
@@ -87,36 +97,21 @@ export const TaskCreatingResolvers: Resolvers = {
                 sessionInfo.userID
             );
         },
-        createMainTaskWithDatasetUploading: async (
-            parent,
-            { props, datasetProps, table },
-            context
-        ) => {
-            const { models, sessionInfo } = context;
-            if (!sessionInfo || !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
-                throw new AuthenticationError(
-                    "User must be authorized and has permission USE_OWN_DATASETS"
-                );
-            }
-            const file = await models.FileInfo.uploadDataset(
-                datasetProps,
-                table,
-                sessionInfo.userID,
-                props.type === "AR"
-            );
-            return await TaskCreatorFactory.build(props.type, context, props, file, true);
-        },
         deleteTask: async (
             parent,
             { taskID, safeDelete },
             { models, logger, sessionInfo }
         ) => {
             if (!sessionInfo) {
-                throw new AuthenticationError("User must be authorized");
+                throw new GraphQLError("User must be authorized", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             const taskInfo = await models.TaskState.findByPk(taskID);
             if (!taskInfo) {
-                throw new UserInputError("Task not found");
+                throw new GraphQLError("Task not found", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             if (
                 sessionInfo.permissions.includes("MANAGE_USERS_SESSIONS") ||
@@ -133,9 +128,9 @@ export const TaskCreatingResolvers: Resolvers = {
                 `User ${sessionInfo.userID} tries to delete ` +
                     `task someone else's task ${taskInfo.userID}`
             );
-            throw new AuthenticationError(
-                "User doesn't have permission to delete this task"
-            );
+            throw new GraphQLError("User doesn't have permission to delete this task", {
+                extensions: { code: "AuthenticationError" },
+            });
         },
     },
 };

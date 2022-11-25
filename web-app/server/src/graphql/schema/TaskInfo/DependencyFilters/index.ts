@@ -1,8 +1,8 @@
 import { ARFilter } from "./ARFilter";
 import { AbstractFilter } from "./AbstractFilter";
-import { ApolloError } from "apollo-server-core";
 import { CFDFilter } from "./CFDFilter";
 import { FDFilter } from "./FDFilter";
+import { GraphQLError } from "graphql";
 import { MainPrimitiveType } from "../../../../db/models/TaskData/configs/GeneralTaskConfig";
 
 const getSpecificFilterConstructor = (type: MainPrimitiveType) => {
@@ -15,7 +15,7 @@ const getSpecificFilterConstructor = (type: MainPrimitiveType) => {
         case "CFD":
             return CFDFilter;
     }
-    throw new ApolloError("Received incorrect type");
+    throw new GraphQLError("Received incorrect type");
 };
 
 export const getSpecificFilter = async (

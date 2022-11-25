@@ -1,16 +1,19 @@
-import { AuthenticationError } from "apollo-server-express";
 import { FindOptions } from "sequelize";
-import { ForbiddenError } from "apollo-server-core";
+import { GraphQLError } from "graphql";
 import { Resolvers } from "../../types/types";
 
 export const MetaInfoResolvers: Resolvers = {
     Query: {
         datasets: async (parent, { props }, { models, sessionInfo }) => {
             if (!sessionInfo) {
-                throw new AuthenticationError("User must be authorized");
+                throw new GraphQLError("User must be authorized", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             if (!sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
-                throw new ForbiddenError("User doesn't have permissions");
+                throw new GraphQLError("User doesn't have permissions", {
+                    extensions: { code: "ForbiddenError" },
+                });
             }
 
             const { includeBuiltInDatasets, includeDeletedDatasets, pagination } = props;

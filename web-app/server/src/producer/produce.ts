@@ -1,6 +1,6 @@
 import { Kafka, Partitioners } from "kafkajs";
-import { ApolloError } from "apollo-server-core";
 import { config } from "../config";
+import { GraphQLError } from "graphql";
 
 const { clientId, brokers } = config.producer;
 
@@ -31,7 +31,7 @@ export const produce = async (message: { taskID: string }, topic: string) => {
             ],
         });
     } catch (err) {
-        throw new ApolloError(
+        throw new GraphQLError(
             `Couldn't write message '${JSON.stringify(message)}' to topic '${topic}'`
         );
     }

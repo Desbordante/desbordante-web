@@ -1,5 +1,5 @@
 import { Code, CodeType } from "../../../db/models/UserData/Code";
-import { ApolloError } from "apollo-server-core";
+import { GraphQLError } from "graphql";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
@@ -25,7 +25,7 @@ export const sendVerificationCode = async (
     } else if (type === "PASSWORD_RECOVERY_PENDING") {
         text = `Your code for password recovery if : ${code}`;
     } else {
-        throw new ApolloError("INTERNAL SERVER ERROR");
+        throw new GraphQLError("INTERNAL SERVER ERROR");
     }
 
     return await transporter.sendMail({
@@ -49,7 +49,7 @@ export const createAndSendVerificationCode = async (
             await sendVerificationCode(code.value, userEmail, type);
         } catch (e) {
             logger && logger("Problem while sending verification code", e);
-            throw new ApolloError("INTERNAL SERVER ERROR");
+            throw new GraphQLError("INTERNAL SERVER ERROR");
         }
         logger && logger("Code was sent to email");
     } else {

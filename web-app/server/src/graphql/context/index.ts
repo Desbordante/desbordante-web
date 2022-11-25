@@ -1,13 +1,13 @@
 import { Device, DeviceInfoInstance } from "../../db/models/UserData/Device";
 import { AccessTokenInstance } from "../../db/models/UserData/Session";
-import { AuthenticationError } from "apollo-server-express";
 import { Context } from "../types/context";
+import { GraphQLError } from "graphql";
 import { IncomingHttpHeaders } from "http";
 import { InvalidHeaderError } from "../types/errorTypes";
 import { ModelsType } from "../../db/models";
 import config from "../../config";
-import { mock } from "./mock";
 import getTokenPayloadIfValid from "./tokenValidator";
+import { mock } from "./mock";
 import { sequelize } from "../../db/sequelize";
 
 const compareDevices = async (
@@ -17,24 +17,35 @@ const compareDevices = async (
 ) => {
     const { userID, deviceID, sessionID } = sessionInfo;
     if (deviceID !== device.deviceID) {
-        throw new AuthenticationError(
+        throw new GraphQLError(
             `Got incorrect deviceID (In access token = ${deviceID}` +
-                `and in device-info header = ${device.deviceID})`
+                `and in device-info header = ${device.deviceID})`,
+            {
+                extensions: { code: "UserInputError" },
+            }
         );
     }
     const session = await models.Session.findByPk(sessionID);
     if (!session) {
-        throw new AuthenticationError("Session not found");
+        throw new GraphQLError("Session not found", {
+            extensions: { code: "AuthenticationError" },
+        });
     }
     if (session.deviceID !== deviceID) {
         await session.update({ status: "INVALID" });
-        throw new AuthenticationError("Session has another deviceID");
+        throw new GraphQLError("Session has another deviceID", {
+            extensions: { code: "AuthenticationError" },
+        });
     }
     if (session.userID !== userID) {
-        throw new AuthenticationError("Received incorrect userID");
+        throw new GraphQLError("Received incorrect userID", {
+            extensions: { code: "AuthenticationError" },
+        });
     }
     if (session.status === "INVALID") {
-        throw new AuthenticationError("Session is INVALID");
+        throw new GraphQLError("Session is invalid", {
+            extensions: { code: "AuthenticationError" },
+        });
     }
 };
 

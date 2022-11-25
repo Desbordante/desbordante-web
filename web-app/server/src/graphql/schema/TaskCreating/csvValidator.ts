@@ -1,4 +1,4 @@
-import { UserInputError } from "apollo-server-core";
+import { GraphQLError } from "graphql";
 import config from "../../../config";
 import fs from "fs";
 import readline from "readline";
@@ -16,7 +16,9 @@ function csvLinetoArray(line: string, sep: string) {
     );
 
     if (!re_valid.test(line)) {
-        throw new UserInputError("Invalid csv string was provided", { line });
+        throw new GraphQLError("Invalid csv string was provided", {
+            extensions: { code: "UserInputError", line },
+        });
     }
     const a = [];
     line.replace(re_value, (m0, m1, m2, m3) => {
@@ -116,12 +118,17 @@ export const findRowsAndColumnsNumber = async (
             if (sep) {
                 errorMessage += ` Maybe you want to provide delimiter '${sep}'`;
             }
-            throw new UserInputError(errorMessage);
+            throw new GraphQLError(errorMessage, {
+                extensions: { code: "UserInputError" },
+            });
         }
         if (!fileFormat && ~countOfColumns && countOfColumns !== curColsNumber) {
-            throw new UserInputError(
+            throw new GraphQLError(
                 `Row ${rowsCount} has ${curColsNumber} columns, ` +
-                    `but row ${rowsCount - 1} has ${countOfColumns} columns.`
+                    `but row ${rowsCount - 1} has ${countOfColumns} columns.`,
+                {
+                    extensions: { code: "UserInputError" },
+                }
             );
         } else if (
             fileFormat &&
@@ -130,9 +137,12 @@ export const findRowsAndColumnsNumber = async (
             countOfColumns <
                 Math.max(fileFormat.tidColumnIndex, fileFormat.itemColumnIndex)
         ) {
-            throw new UserInputError(
+            throw new GraphQLError(
                 `Row ${rowsCount} has ${curColsNumber} cols, ` +
-                    "but it must be less, than Tid column index and Item column index"
+                    "but it must be less, than Tid column index and Item column index",
+                {
+                    extensions: { code: "UserInputError" },
+                }
             );
         } else if (
             fileFormat &&
@@ -142,14 +152,20 @@ export const findRowsAndColumnsNumber = async (
             (countOfColumns < 2 || Number.isNaN(Number.parseInt(cols[0], 10)))
         ) {
             if (countOfColumns < 2) {
-                throw new UserInputError(
+                throw new GraphQLError(
                     `Row ${rowsCount} has ${curColsNumber} cols, ` +
-                        "but it must have more, than 1 columns (tid and items columns)"
+                        "but it must have more, than 1 columns (tid and items columns)",
+                    {
+                        extensions: { code: "UserInputError" },
+                    }
                 );
             } else {
-                throw new UserInputError(
+                throw new GraphQLError(
                     `Expected, that ${cols[0]} is integer ` +
-                        ` (Transaction column id is ${1})`
+                        ` (Transaction column id is ${1})`,
+                    {
+                        extensions: { code: "UserInputError" },
+                    }
                 );
             }
         } else {
@@ -182,9 +198,12 @@ export const createTabularFileFromSingular = async (
         const columns = csvLinetoArray(line, sep);
         const tid = parseInt(columns[tidColumnIndex - 1], 10);
         if (Number.isNaN(tid)) {
-            throw new UserInputError(
+            throw new GraphQLError(
                 `Incorrect line ${line}.` +
-                    ` Expected, that ${columns[tidColumnIndex - 1]} is integer value`
+                    ` Expected, that ${columns[tidColumnIndex - 1]} is integer value`,
+                {
+                    extensions: { code: "UserInputError" },
+                }
             );
         }
         const item = columns[itemColumnIndex - 1];
@@ -202,9 +221,12 @@ export const createTabularFileFromSingular = async (
             currentTid = tid;
             currentItemset.push(item);
         } else {
-            throw new UserInputError(
+            throw new GraphQLError(
                 "It was expected that all records for a " +
-                    `transaction with tid '${currentTid}' would go sequentially`
+                    `transaction with tid '${currentTid}' would go sequentially`,
+                {
+                    extensions: { code: "UserInputError" },
+                }
             );
         }
     }
@@ -212,9 +234,12 @@ export const createTabularFileFromSingular = async (
         usedTids.add(currentTid);
         writeFileStream.write(`${currentTid},${currentItemset.join(",")}\n`);
     } else {
-        throw new UserInputError(
+        throw new GraphQLError(
             "It was expected that all records for a transaction" +
-                `with tid '${currentTid}' would go sequentially`
+                `with tid '${currentTid}' would go sequentially`,
+            {
+                extensions: { code: "UserInputError" },
+            }
         );
     }
     return newPath;

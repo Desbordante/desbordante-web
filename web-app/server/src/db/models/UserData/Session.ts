@@ -1,5 +1,4 @@
-import { ApolloError } from "apollo-server-core";
-import jwt from "jsonwebtoken";
+import { AccountStatusType, User } from "./User";
 import {
     BelongsTo,
     Column,
@@ -9,11 +8,12 @@ import {
     Table,
 } from "sequelize-typescript";
 import { INTEGER, STRING, UUID, UUIDV4 } from "sequelize";
-import config from "../../../config";
-import { TokenPair } from "../../../graphql/types/types";
 import { Device } from "./Device";
+import { GraphQLError } from "graphql";
 import { PermissionType } from "./Permission";
-import { AccountStatusType, User } from "./User";
+import { TokenPair } from "../../../graphql/types/types";
+import config from "../../../config";
+import jwt from "jsonwebtoken";
 
 export interface RefreshTokenInstance extends jwt.JwtPayload {
     userID: string;
@@ -89,11 +89,11 @@ export class Session extends Model implements SessionModelMethods {
     issueAccessToken = async (expiresIn = "15m") => {
         const user: User | null = await this.$get("user");
         if (!user) {
-            throw new ApolloError("User not found");
+            throw new GraphQLError("User not found");
         }
         const device: Device | null = await this.$get("device");
         if (!device) {
-            throw new ApolloError("Device not found");
+            throw new GraphQLError("Device not found");
         }
 
         const payload: AccessTokenInstance = {
@@ -118,11 +118,11 @@ export class Session extends Model implements SessionModelMethods {
     issueRefreshToken = async () => {
         const user: User | null = await this.$get("user");
         if (!user) {
-            throw new ApolloError("User not found");
+            throw new GraphQLError("User not found");
         }
         const device: Device | null = await this.$get("device");
         if (!device) {
-            throw new ApolloError("Device not found");
+            throw new GraphQLError("Device not found");
         }
 
         const payload: RefreshTokenInstance = {

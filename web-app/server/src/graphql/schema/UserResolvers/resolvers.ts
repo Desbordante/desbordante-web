@@ -1,4 +1,3 @@
-import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core";
 import { Code, CodeType } from "../../../db/models/UserData/Code";
 import {
     GeneralTaskConfig,
@@ -10,8 +9,8 @@ import {
     SessionStatusType,
 } from "../../../db/models/UserData/Session";
 import { AccountStatusType } from "../../../db/models/UserData/User";
-import { AuthenticationError } from "apollo-server-express";
 import { FindOptions } from "sequelize";
+import { GraphQLError } from "graphql";
 import { Permission } from "../../../db/models/UserData/Permission";
 import { Role } from "../../../db/models/UserData/Role";
 import config from "../../../config";
@@ -29,7 +28,7 @@ export const UserResolvers: Resolvers = {
         user: async ({ userID }, _, { models }) => {
             const user = await models.User.findByPk(userID);
             if (!user) {
-                throw new ApolloError("User not found");
+                throw new GraphQLError("User not found");
             }
             return user;
         },
@@ -37,29 +36,29 @@ export const UserResolvers: Resolvers = {
     User: {
         permissions: async ({ userID }, _, { models }) => {
             if (!userID) {
-                throw new ApolloError("UserID is undefined");
+                throw new GraphQLError("UserID is undefined");
             }
             const user = await models.User.findByPk(userID);
             if (!user) {
-                throw new ApolloError("User not found");
+                throw new GraphQLError("User not found");
             }
             return (await user.getPermissions()) as PermissionType[];
         },
         roles: async ({ userID }, _, { models }) => {
             if (!userID) {
-                throw new ApolloError("UserID is undefined");
+                throw new GraphQLError("UserID is undefined");
             }
             return models.Role.findAll({ where: { userID } });
         },
         feedbacks: async ({ userID }, _, { models }) => {
             if (!userID) {
-                throw new ApolloError("UserID is undefined");
+                throw new GraphQLError("UserID is undefined");
             }
             return await models.Feedback.findAll({ where: { userID } });
         },
         tasks: async ({ userID }, _, { models }) => {
             if (!userID) {
-                throw new ApolloError("UserID is undefined");
+                throw new GraphQLError("UserID is undefined");
             }
             const configs = await models.GeneralTaskConfig.findAll({
                 where: { userID },
@@ -72,7 +71,7 @@ export const UserResolvers: Resolvers = {
         },
         datasets: async ({ userID }, _, { models }) => {
             if (!userID) {
-                throw new ApolloError("UserID is undefined");
+                throw new GraphQLError("UserID is undefined");
             }
             return await models.FileInfo.findAll({
                 where: {
@@ -85,7 +84,7 @@ export const UserResolvers: Resolvers = {
     Feedback: {
         user: async ({ userID }, _, { models }) => {
             if (!userID) {
-                throw new ApolloError("UserID is undefined");
+                throw new GraphQLError("UserID is undefined");
             }
             return await models.User.findByPk(userID);
         },
@@ -98,10 +97,14 @@ export const UserResolvers: Resolvers = {
     Query: {
         feedbacks: async (parent, args, { models, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
-                throw new ForbiddenError("User must have permission");
+                throw new GraphQLError("User must have permission", {
+                    extensions: { code: "ForbiddenError" },
+                });
             }
             if (args.offset < 0 || args.limit <= 0 || args.limit > 100) {
-                throw new UserInputError("Incorrect offset or limit", args);
+                throw new GraphQLError("Incorrect offset or limit", {
+                    extensions: { code: "UserInputError", args },
+                });
             }
             return await models.Feedback.findAll(args);
         },
@@ -110,7 +113,9 @@ export const UserResolvers: Resolvers = {
         },
         user: async (parent, { userID }, { models, sessionInfo }) => {
             if (!sessionInfo) {
-                throw new AuthenticationError("User must be authorized");
+                throw new GraphQLError("User must be authorized", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             if (!userID) {
                 userID = sessionInfo.userID;
@@ -121,25 +126,35 @@ export const UserResolvers: Resolvers = {
             ) {
                 const user = await models.User.findOne({ where: { userID } });
                 if (!user) {
-                    throw new UserInputError("User not found");
+                    throw new GraphQLError("User not found", {
+                        extensions: { code: "UserInputError" },
+                    });
                 }
                 return user;
             }
-            throw new ForbiddenError("User doesn't have permissions");
+            throw new GraphQLError("User doesn't have permissions", {
+                extensions: { code: "ForbiddenError" },
+            });
         },
         users: async (parent, { pagination }, { models, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
-                throw new ForbiddenError("User don't have permission");
+                throw new GraphQLError("User don't have permission", {
+                    extensions: { code: "ForbiddenError" },
+                });
             }
             return await models.User.findAll(pagination);
         },
         sessions: async (parent, { pagination, onlyValid }, { models, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
-                throw new ForbiddenError("User don't have permission");
+                throw new GraphQLError("User don't have permission", {
+                    extensions: { code: "ForbiddenError" },
+                });
             }
             const { limit, offset } = pagination;
             if (limit < 1 || limit > 100 || offset < 0) {
-                throw new UserInputError("Incorrect limit or offset");
+                throw new GraphQLError("Incorrect limit or offset", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             let options: FindOptions = { ...pagination };
             if (onlyValid) {
@@ -156,20 +171,26 @@ export const UserResolvers: Resolvers = {
         },
         logIn: async (parent, { email, pwdHash }, { models, device, sessionInfo }) => {
             if (sessionInfo) {
-                throw new AuthenticationError("You are already logged");
+                throw new GraphQLError("You are already logged", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             const user = await models.User.findOne({
                 where: { email, pwdHash },
             });
             if (!user) {
-                throw new UserInputError("Incorrect login or password");
+                throw new GraphQLError("Incorrect login or password", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             const session = await user.createSession(device.deviceID);
             return await session.issueTokenPair();
         },
         logOut: async (parent, { allSessions }, { models, sessionInfo }) => {
             if (!sessionInfo) {
-                throw new UserInputError("Session information wasn't provided");
+                throw new GraphQLError("Session information wasn't provided", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             const status: SessionStatusType = "INVALID";
             const options = allSessions
@@ -179,7 +200,7 @@ export const UserResolvers: Resolvers = {
             if (affectedRows >= 1) {
                 return `Successfully updated ${affectedRows} sessions`;
             } else {
-                throw new ApolloError("Session wasn't updated");
+                throw new GraphQLError("Session wasn't updated");
             }
         },
         issueVerificationCode: async (
@@ -188,16 +209,22 @@ export const UserResolvers: Resolvers = {
             { models, logger, device, sessionInfo }
         ) => {
             if (!sessionInfo) {
-                throw new AuthenticationError("User must be logged in");
+                throw new GraphQLError("User must be logged in", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             const { userID } = sessionInfo;
             const user = await models.User.findByPk(userID);
 
             if (!user) {
-                throw new UserInputError("Incorrect userID was provided");
+                throw new GraphQLError("Incorrect userID was provided", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             if (user.accountStatus !== "EMAIL_VERIFICATION") {
-                throw new UserInputError("User has incorrect account status");
+                throw new GraphQLError("User has incorrect account status", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             const type: CodeType = "EMAIL_VERIFICATION";
             const options = { where: { userID, type } };
@@ -220,14 +247,18 @@ export const UserResolvers: Resolvers = {
             { models, sessionInfo, device, logger }
         ) => {
             if (sessionInfo) {
-                throw new UserInputError("User must be logged out");
+                throw new GraphQLError("User must be logged out", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             const user = await models.User.findOne({
                 where: { email },
                 attributes: ["email", "userID"],
             });
             if (!user) {
-                throw new UserInputError(`Email ${email} not found`, { email });
+                throw new GraphQLError(`Email ${email} not found`, {
+                    extensions: { code: "UserInputError", email },
+                });
             }
             const type: CodeType = "PASSWORD_RECOVERY_PENDING";
             let options = {
@@ -265,14 +296,18 @@ export const UserResolvers: Resolvers = {
             if (!sessionInfo) {
                 const { deviceID } = device;
                 if (!email) {
-                    throw new UserInputError("Email is undefined");
+                    throw new GraphQLError("Email is undefined", {
+                        extensions: { code: "UserInputError", email },
+                    });
                 }
                 const user = await models.User.findOne({
                     where: { email },
                     attributes: ["email", "userID"],
                 });
                 if (!user) {
-                    throw new UserInputError("Incorrect email was provided");
+                    throw new GraphQLError("Incorrect email was provided", {
+                        extensions: { code: "UserInputError", email },
+                    });
                 }
                 const code = await models.Code.findAndDestroyCodeIfNotValid(
                     user.userID,
@@ -285,22 +320,28 @@ export const UserResolvers: Resolvers = {
                     const session = await user.createSession(device.deviceID);
                     return await session.issueTokenPair();
                 } catch (e) {
-                    throw new ApolloError("INTERNAL SERVER ERROR");
+                    throw new GraphQLError("INTERNAL SERVER ERROR");
                 }
             } else {
                 if (currentPwdHash === null) {
-                    throw new UserInputError("User must send current password");
+                    throw new GraphQLError("User must send current password", {
+                        extensions: { code: "UserInputError", email },
+                    });
                 }
                 const user = await models.User.findByPk(sessionInfo.userID);
                 if (!user) {
-                    throw new ApolloError("User not found");
+                    throw new GraphQLError("User not found");
                 }
                 if (currentPwdHash === newPwdHash) {
-                    throw new UserInputError("New password is equal to current password");
+                    throw new GraphQLError("New password is equal to current password", {
+                        extensions: { code: "UserInputError", email },
+                    });
                 }
 
                 if (user.pwdHash !== currentPwdHash) {
-                    throw new UserInputError("Incorrect current password");
+                    throw new GraphQLError("Incorrect current password", {
+                        extensions: { code: "UserInputError", email },
+                    });
                 }
                 try {
                     await user.update({ pwdHash: newPwdHash });
@@ -310,7 +351,7 @@ export const UserResolvers: Resolvers = {
                     };
                 } catch (e) {
                     logger("Error while changing password", e);
-                    throw new ApolloError("Error while changing password");
+                    throw new GraphQLError("Error while changing password");
                 }
             }
         },
@@ -320,13 +361,17 @@ export const UserResolvers: Resolvers = {
             { models, logger, sessionInfo, device }
         ) => {
             if (sessionInfo) {
-                throw new AuthenticationError("User already logged in");
+                throw new GraphQLError("User already logged in", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             const user = await models.User.findOne({
                 where: { email: props.email },
             });
             if (user) {
-                throw new UserInputError(`Email ${props.email} already used`);
+                throw new GraphQLError(`Email ${props.email} already used`, {
+                    extensions: { code: "UserInputError" },
+                });
             }
             const accountStatus: AccountStatusType = "EMAIL_VERIFICATION";
             const newUser = await models.User.create({
@@ -347,16 +392,20 @@ export const UserResolvers: Resolvers = {
             { models, device, sessionInfo }
         ) => {
             if (!sessionInfo) {
-                throw new AuthenticationError("User must be logged in");
+                throw new GraphQLError("User must be logged in", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             const { userID } = sessionInfo;
             const user = await models.User.findByPk(userID);
 
             if (!user) {
-                throw new ApolloError("User not found");
+                throw new GraphQLError("User not found");
             }
             if (user.accountStatus !== "EMAIL_VERIFICATION") {
-                throw new UserInputError("User has incorrect account status");
+                throw new GraphQLError("User has incorrect account status", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             const type: CodeType = "EMAIL_VERIFICATION";
             const code = await models.Code.findAndDestroyCodeIfNotValid(
@@ -372,7 +421,7 @@ export const UserResolvers: Resolvers = {
 
             const session = await models.Session.findByPk(sessionInfo.sessionID);
             if (!session) {
-                throw new ApolloError("Session not found");
+                throw new GraphQLError("Session not found");
             }
             return session.issueTokenPair();
         },
@@ -382,12 +431,16 @@ export const UserResolvers: Resolvers = {
             { models, device, sessionInfo }
         ) => {
             if (sessionInfo) {
-                throw new UserInputError("User must be logged out");
+                throw new GraphQLError("User must be logged out", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             const { deviceID } = device;
             const user = await models.User.findOne({ where: { email } });
             if (!user) {
-                throw new UserInputError("Incorrect email was provided");
+                throw new GraphQLError("Incorrect email was provided", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             const code = await models.Code.findAndDestroyCodeIfNotValid(
                 user.userID,
@@ -400,7 +453,7 @@ export const UserResolvers: Resolvers = {
                 await code.update({ type });
                 return { message: "Password successfully changed" };
             } catch (e) {
-                throw new ApolloError("INTERNAL SERVER ERROR");
+                throw new GraphQLError("INTERNAL SERVER ERROR");
             }
         },
         refresh: async (parent, { refreshToken }, { models, device }) => {
@@ -411,7 +464,9 @@ export const UserResolvers: Resolvers = {
                     config.keys.secretKey
                 ) as RefreshTokenInstance;
             } catch (e) {
-                throw new AuthenticationError("INVALID REFRESH TOKEN WAS PROVIDED");
+                throw new GraphQLError("Invalid refresh token was provided", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             const { userID, sessionID, deviceID, iat } = decoded;
             const session = await models.Session.findByPk(sessionID, {
@@ -425,19 +480,29 @@ export const UserResolvers: Resolvers = {
             });
 
             if (!session) {
-                throw new AuthenticationError("Invalid sessionID was provided");
+                throw new GraphQLError("Invalid sessionID was provided", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             if (userID != session.userID) {
-                throw new AuthenticationError("Session have another user");
+                throw new GraphQLError("Session have another user", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             if (session.refreshTokenIat !== iat) {
-                throw new AuthenticationError("Received expired refresh token");
+                throw new GraphQLError("Received expired refresh token", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             if (session.status !== "VALID") {
-                throw new AuthenticationError("Using invalid session");
+                throw new GraphQLError("Using invalid session", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             if (session.deviceID !== device.deviceID || session.deviceID !== deviceID) {
-                throw new AuthenticationError("User's device changed");
+                throw new GraphQLError("User's device changed", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             return session.issueTokenPair();
         },

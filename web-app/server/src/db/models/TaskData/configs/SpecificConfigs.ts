@@ -1,8 +1,8 @@
 import { Column, ForeignKey, IsUUID, Table } from "sequelize-typescript";
 import { FLOAT, INTEGER, REAL, STRING, UUID } from "sequelize";
-import { ApolloError } from "apollo-server-core";
 import { BaseSpecificTaskConfig } from "./BaseSpecificTaskConfig";
 import { GeneralTaskConfig } from "./GeneralTaskConfig";
+import { GraphQLError } from "graphql";
 import { TaskState } from "../TaskState";
 import { getConfigTableOptions } from "../tableOptions";
 
@@ -76,7 +76,8 @@ interface TypoClusterModelMethods {
 @Table(getConfigTableOptions("TypoCluster"))
 export class TypoClusterTaskConfig
     extends BaseSpecificTaskConfig
-    implements TypoClusterModelMethods {
+    implements TypoClusterModelMethods
+{
     @Column({ type: STRING, allowNull: false })
     typoFD!: string;
 
@@ -109,7 +110,8 @@ interface SpecificTypoCluster {
 @Table(getConfigTableOptions("SpecificTypoCluster"))
 export class SpecificTypoClusterTaskConfig
     extends BaseSpecificTaskConfig
-    implements SpecificTypoCluster {
+    implements SpecificTypoCluster
+{
     @ForeignKey(() => TypoClusterTaskConfig)
     @IsUUID(4)
     @Column({ type: UUID, allowNull: false })
@@ -121,7 +123,7 @@ export class SpecificTypoClusterTaskConfig
     public getParentTaskState = async () => {
         const state = await TaskState.findByPk(this.parentTaskID);
         if (!state) {
-            throw new ApolloError("Parent task not found");
+            throw new GraphQLError("Parent task not found");
         }
         return state;
     };
@@ -129,7 +131,7 @@ export class SpecificTypoClusterTaskConfig
     public getParentGeneralTaskConfig = async () => {
         const config = await GeneralTaskConfig.findByPk(this.parentTaskID);
         if (!config) {
-            throw new ApolloError("Parent task config not found");
+            throw new GraphQLError("Parent task config not found");
         }
         return config;
     };
@@ -137,7 +139,7 @@ export class SpecificTypoClusterTaskConfig
     public getParentSpecificTaskConfig = async () => {
         const specificConfig = await TypoClusterTaskConfig.findByPk(this.parentTaskID);
         if (!specificConfig) {
-            throw new ApolloError("Parent specific config not found");
+            throw new GraphQLError("Parent specific config not found");
         }
         return specificConfig;
     };

@@ -28,8 +28,12 @@ import {
     GeneralTaskConfig,
     PrimitiveType,
 } from "./configs/GeneralTaskConfig";
-import { SpecificTypoClusterResult, StatsResult, TypoClusterResult } from "./results/SubTasks";
-import { ApolloError } from "apollo-server-core";
+import {
+    SpecificTypoClusterResult,
+    StatsResult,
+    TypoClusterResult,
+} from "./results/SubTasks";
+import { GraphQLError } from "graphql";
 import { User } from "../UserData/User";
 import _ from "lodash";
 
@@ -156,17 +160,17 @@ export class TaskState extends Model implements TaskInfoModelMethods {
         } else {
             const baseConfig = await this.$get("baseConfig");
             if (!baseConfig) {
-                throw new ApolloError(`Task config not found ${this.taskID}`);
+                throw new GraphQLError(`Task config not found ${this.taskID}`);
             }
             const { type: propertyPrefix } = baseConfig;
             const config = await this.$get(`${propertyPrefix}Config`);
             if (!config) {
-                throw new ApolloError(`${propertyPrefix}Config not found`);
+                throw new GraphQLError(`${propertyPrefix}Config not found`);
             }
             await config.destroy();
             const result = await this.$get(`${propertyPrefix}Result`);
             if (!result) {
-                throw new ApolloError(`${propertyPrefix}Result not found`);
+                throw new GraphQLError(`${propertyPrefix}Result not found`);
             }
             await result.destroy();
         }
@@ -178,13 +182,13 @@ export class TaskState extends Model implements TaskInfoModelMethods {
             raw: true,
         })) as unknown as { value: string | undefined };
         if (!result) {
-            throw new ApolloError(
+            throw new GraphQLError(
                 `Not found result field ${attribute} for ${this.taskID}, primitiveType = ${prefix}`
             );
         }
         const value = _.parseInt(result.value || "");
         if (!_.isInteger(value)) {
-            throw new ApolloError(`Result field is not an integer. Parsed = ${value}`);
+            throw new GraphQLError(`Result field is not an integer. Parsed = ${value}`);
         }
         return value;
     };
@@ -195,7 +199,7 @@ export class TaskState extends Model implements TaskInfoModelMethods {
             raw: true,
         })) as unknown as { value: string | undefined };
         if (!result) {
-            throw new ApolloError(
+            throw new GraphQLError(
                 `Not found result field ${attribute} for ${this.taskID}, primitiveType = ${prefix}`
             );
         }
@@ -211,7 +215,7 @@ export class TaskState extends Model implements TaskInfoModelMethods {
             raw: true,
         })) as unknown as Record<string, never>;
         if (!result) {
-            throw new ApolloError(
+            throw new GraphQLError(
                 `Not found result fields [${attributes.join(",")}] for ${
                     this.taskID
                 }, primitiveType = ${propertyPrefix}`
@@ -233,7 +237,7 @@ export class TaskState extends Model implements TaskInfoModelMethods {
             raw: true,
         })) as unknown as { value: string };
         if (!result) {
-            throw new ApolloError(
+            throw new GraphQLError(
                 `Not found config value for ${this.taskID}, primitiveType = ${propertyPrefix}`
             );
         }
@@ -249,7 +253,7 @@ export class TaskState extends Model implements TaskInfoModelMethods {
             raw: true,
         })) as unknown as Record<string, never>;
         if (!result) {
-            throw new ApolloError(
+            throw new GraphQLError(
                 `Not found config for ${this.taskID}, primitiveType = ${propertyPrefix}`
             );
         }
@@ -265,7 +269,7 @@ export class TaskState extends Model implements TaskInfoModelMethods {
             attributes: ["taskID", "isExecuted"],
         });
         if (!state) {
-            throw new ApolloError(`Task with ID ${taskID} not found`);
+            throw new GraphQLError(`Task with ID ${taskID} not found`);
         }
         return state;
     };

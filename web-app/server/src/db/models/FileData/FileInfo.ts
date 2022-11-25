@@ -22,9 +22,9 @@ import {
     createTabularFileFromSingular,
     findRowsAndColumnsNumber,
 } from "../../../graphql/schema/TaskCreating/csvValidator";
-import { ApolloError } from "apollo-server-core";
 import { FileFormat } from "./FileFormat";
 import { GeneralTaskConfig } from "../TaskData/configs/GeneralTaskConfig";
+import { GraphQLError } from "graphql";
 import { Row } from "@fast-csv/parse";
 import { User } from "../UserData/User";
 import { finished } from "stream/promises";
@@ -33,7 +33,6 @@ import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/gener
 import path from "path";
 import validator from "validator";
 import isUUID = validator.isUUID;
-import { StatsTaskConfig } from "../TaskData/configs/SpecificConfigs";
 
 interface FileInfoModelMethods {
     getColumnNames: () => string[];
@@ -119,7 +118,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     generateHeader = async () => {
         const file = await FileInfo.findByPk(this.fileID);
         if (!file) {
-            throw new ApolloError("File not found");
+            throw new GraphQLError("File not found");
         }
         const { path, hasHeader, delimiter } = file;
         return await generateHeaderByPath(path, hasHeader, delimiter);
@@ -130,13 +129,13 @@ export class FileInfo extends Model implements FileInfoModelMethods {
 
     static getColumnNamesForFile = async (fileID: string) => {
         if (!isUUID(fileID, 4)) {
-            throw new ApolloError("Incorrect fileID");
+            throw new GraphQLError("Incorrect fileID");
         }
         const file = await FileInfo.findByPk(fileID, {
             attributes: ["renamedHeader"],
         });
         if (!file) {
-            throw new ApolloError("File not found");
+            throw new GraphQLError("File not found");
         }
         return file.getColumnNames();
     };
@@ -216,7 +215,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
 
         if (withFileFormat) {
             if (!datasetProps.inputFormat) {
-                throw new ApolloError("File hasn't input format");
+                throw new GraphQLError("File hasn't input format");
             }
             const fileFormat = await FileFormat.createFileFormatIfPropsValid(
                 file,
@@ -298,7 +297,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
             fs.createReadStream(`${path}`)
                 .pipe(parser)
                 .on("error", (e) => {
-                    throw new ApolloError(`ERROR WHILE READING FILE:\n\r${e.message}`);
+                    throw new GraphQLError(`ERROR WHILE READING FILE:\n\r${e.message}`);
                 })
                 .on("data", (row) => {
                     if (sortedIndices.includes(curRowNum++)) {

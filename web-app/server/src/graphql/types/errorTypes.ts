@@ -1,24 +1,24 @@
-import { ApolloError } from "apollo-server-errors";
+import { GraphQLError } from "graphql";
 
-export class AccessTokenExpiredError extends ApolloError {
+export class AccessTokenExpiredError extends GraphQLError {
     constructor(message: string) {
-        super(message, "TOKEN_EXPIRED");
+        super(message, { extensions: { code: "TOKEN_EXPIRED" } });
 
         Object.defineProperty(this, "name", { value: "AccessTokenExpiredError" });
     }
 }
 
-export class InvalidTokenError extends ApolloError {
+export class InvalidTokenError extends GraphQLError {
     constructor(message: string) {
-        super(message, "INVALID_TOKEN");
+        super(message, { extensions: { code: "INVALID_TOKEN" } });
 
         Object.defineProperty(this, "name", { value: "InvalidTokenError" });
     }
 }
 
-export class InvalidHeaderError extends ApolloError {
+export class InvalidHeaderError extends GraphQLError {
     constructor(message: string) {
-        super(message, "INVALID_HEADER_ERROR");
+        super(message, { extensions: { code: "INVALID_HEADER_ERROR" } });
 
         Object.defineProperty(this, "name", { value: "InvalidHeaderError" });
     }

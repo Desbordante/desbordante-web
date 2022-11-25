@@ -2,7 +2,7 @@ import { BOOLEAN, INTEGER, STRING, UUID } from "sequelize";
 import { Column, ForeignKey, IsUUID, Model, Table } from "sequelize-typescript";
 import { FileInfo } from "./FileInfo";
 import { FileProps } from "../../../graphql/types/types";
-import { UserInputError } from "apollo-server-core";
+import { GraphQLError } from "graphql";
 
 @Table({
     paranoid: true,
@@ -36,46 +36,45 @@ export class FileFormat extends Model {
     static createFileFormatIfPropsValid = async (file: FileInfo, props: FileProps) => {
         const { inputFormat, tidColumnIndex, itemColumnIndex, hasTid } = props;
         if (inputFormat === undefined) {
-            throw new UserInputError("You must provide file input format");
+            throw new GraphQLError("You must provide file input format", {
+                extensions: { code: "UserInputError" },
+            });
         }
         switch (inputFormat) {
             case "SINGULAR":
                 if (tidColumnIndex == null) {
-                    throw new UserInputError("tidColumnIndex wasn't provided", {
-                        tidColumnIndex,
+                    throw new GraphQLError("tidColumnIndex wasn't provided", {
+                        extensions: { code: "UserInputError" },
                     });
                 }
                 if (itemColumnIndex == null) {
-                    throw new UserInputError("itemColumnIndex wasn't provided", {
-                        itemColumnIndex,
+                    throw new GraphQLError("itemColumnIndex wasn't provided", {
+                        extensions: { code: "UserInputError" },
                     });
                 }
                 if (tidColumnIndex < 1) {
-                    throw new UserInputError("invalid tidColumnIndex (less, than 1)", {
-                        tidColumnIndex,
+                    throw new GraphQLError("invalid tidColumnIndex (less, than 1)", {
+                        extensions: { code: "UserInputError" },
                     });
                 }
                 if (itemColumnIndex < 1) {
-                    throw new UserInputError("invalid itemColumnIndex (less, than 1)", {
-                        tidColumnIndex,
+                    throw new GraphQLError("invalid itemColumnIndex (less, than 1)", {
+                        extensions: { code: "UserInputError" },
                     });
                 }
                 if (itemColumnIndex === tidColumnIndex) {
-                    throw new UserInputError(
-                        "item column index equal to transaction id",
-                        { tidColumnIndex, itemColumnIndex }
-                    );
+                    throw new GraphQLError("item column index equal to transaction id", {
+                        extensions: { code: "UserInputError" },
+                    });
                 }
                 break;
             case "TABULAR":
                 if (hasTid == null) {
-                    throw new UserInputError("You must provide hasTid property");
+                    throw new GraphQLError("hasTid property wasn't provided", {
+                        extensions: { code: "UserInputError" },
+                    });
                 }
                 break;
-            default:
-                throw new UserInputError("Provided incorrect input format", {
-                    inputFormat,
-                });
         }
         return (await file.$create("fileFormat", { ...props })) as FileFormat;
     };

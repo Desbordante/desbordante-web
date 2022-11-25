@@ -1,4 +1,3 @@
-import { ApolloError, UserInputError } from "apollo-server-core";
 import {
     DBTaskPrimitiveType,
     GeneralTaskConfig,
@@ -24,6 +23,7 @@ import {
 } from "./schema";
 import { Context } from "../../../types/context";
 import { FileInfo } from "../../../../db/models/FileData/FileInfo";
+import { GraphQLError } from "graphql";
 import { TaskStatusType } from "../../../../db/models/TaskData/TaskState";
 import { allowedAlgorithms } from "../../AppConfiguration/resolvers";
 import { produce } from "../../../../producer";
@@ -87,7 +87,7 @@ export abstract class AbstractCreator<
         algo: string
     ): ValidationAnswer<PropsType> => {
         if (!allowedAlgorithms.has(type)) {
-            throw new ApolloError(`Allowed algorithms for type '${type}' not found`);
+            throw new GraphQLError(`Allowed algorithms for type '${type}' not found`);
         }
         if (allowedAlgorithms.get(type)!.algorithms.some(({ name }) => algo === name)) {
             return { type: "Valid" };
@@ -175,7 +175,9 @@ export abstract class AbstractCreator<
         if (this.type === "Stats") {
             const fileFormat = await this.fileInfo.$get("fileFormat");
             if (fileFormat) {
-                throw new UserInputError("Incorrect file format for mining statistics!");
+                throw new GraphQLError("Incorrect file format for mining statistics!", {
+                    extensions: { code: "UserInputError" },
+                });
             }
         }
         if (!this.forceCreate) {
@@ -202,7 +204,9 @@ export abstract class AbstractCreator<
             const errorMessage =
                 `Received incorrect property '${String(property)}'. ` +
                 `Expected: ${expected}'`;
-            throw new UserInputError(errorMessage, { info });
+            throw new GraphQLError(errorMessage, {
+                extensions: { code: "UserInputError", info },
+            });
         }
         return await this.createTask();
     };
@@ -280,7 +284,7 @@ export class TaskCreatorFactory {
                 }
             }
         }
-        throw new ApolloError("Unreachable code");
+        throw new GraphQLError("Unreachable code");
     };
 
     public static transformRawProps = (props: RawPropsType): PropsType => {
@@ -316,7 +320,7 @@ export class TaskCreatorFactory {
                     this.getSpecificPrimitiveConstructor(props);
                 return new TaskCreatorConstructor(props, ...otherProps);
             }
-            throw new ApolloError("Unreachable code");
+            throw new GraphQLError("Unreachable code");
         })();
         return await creatorInstance.processTask();
     };

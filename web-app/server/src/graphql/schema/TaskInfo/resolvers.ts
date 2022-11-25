@@ -1,4 +1,3 @@
-import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core";
 import { CsvParserStream, parse } from "fast-csv";
 import { FindOptions, Op } from "sequelize";
 import {
@@ -10,16 +9,16 @@ import {
 import { Resolvers, TaskProcessStatusType } from "../../types/types";
 import { applyPagination, resolverCannotBeCalled, returnParent } from "../../util";
 import { AbstractFilter } from "./DependencyFilters/AbstractFilter";
-import { AuthenticationError } from "apollo-server-express";
 import { CompactData } from "./DependencyFilters/CompactData";
 import { FDFilter } from "./DependencyFilters/FDFilter";
+import { GraphQLError } from "graphql";
 import { Row } from "@fast-csv/parse";
 import { TaskCreatorFactory } from "../TaskCreating/Creator/AbstractCreator";
 import { builtInDatasets } from "../../../db/initBuiltInDatasets";
 import fs from "fs";
 import { getSpecificFilter } from "./DependencyFilters";
-import validator from "validator";
 
+import validator from "validator";
 import isUUID = validator.isUUID;
 
 export const TaskInfoResolvers: Resolvers = {
@@ -79,7 +78,7 @@ export const TaskInfoResolvers: Resolvers = {
         state: async ({ taskID }, _, { models }) => {
             const state = await models.TaskState.findByPk(taskID);
             if (!state) {
-                throw new ApolloError("Task state not found");
+                throw new GraphQLError("Task state not found");
             }
             return state;
         },
@@ -87,7 +86,7 @@ export const TaskInfoResolvers: Resolvers = {
         dataset: async ({ fileID }, _, { models }) => {
             const file = await models.FileInfo.findByPk(fileID);
             if (!file) {
-                throw new ApolloError("File not found");
+                throw new GraphQLError("File not found");
             }
             return file;
         },
@@ -100,20 +99,20 @@ export const TaskInfoResolvers: Resolvers = {
                 attributes: ["taskID"],
             });
             if (!state) {
-                throw new ApolloError("TaskInfo not found");
+                throw new GraphQLError("TaskInfo not found");
             }
             const specificConfig = await state.$get(`${prefix}Config`, {
                 raw: true,
             });
             if (!specificConfig) {
-                throw new ApolloError(`${prefix}Config not found`);
+                throw new GraphQLError(`${prefix}Config not found`);
             }
             return { ...specificConfig, fileID, prefix };
         },
         baseConfig: async ({ taskID }, __, { models }) => {
             const baseConfig = await models.GeneralTaskConfig.findByPk(taskID);
             if (!baseConfig) {
-                throw new ApolloError("Base config not found");
+                throw new GraphQLError("Base config not found");
             }
             return baseConfig;
         },
@@ -128,7 +127,7 @@ export const TaskInfoResolvers: Resolvers = {
     SpecificTaskData: {
         result: async ({ prefix, ...rest }, _, { models }) => {
             if (!isSpecificPrimitiveType(prefix)) {
-                throw new ApolloError(
+                throw new GraphQLError(
                     `Resolver incorrect TaskData type, expected SpecificTaskData. [${prefix}]`
                 );
             }
@@ -175,7 +174,7 @@ export const TaskInfoResolvers: Resolvers = {
         fileFormat: async ({ fileID }, _, { models }) => {
             const fileFormat = await models.FileFormat.findByPk(fileID);
             if (!fileFormat) {
-                throw new ApolloError("fileFormat for AR file not found");
+                throw new GraphQLError("fileFormat for AR file not found");
             }
             return fileFormat;
         },
@@ -199,7 +198,7 @@ export const TaskInfoResolvers: Resolvers = {
             const items = rowIndices.map((rowIndex) => {
                 const row = rows.get(rowIndex);
                 if (!row) {
-                    throw new ApolloError("Row not found");
+                    throw new GraphQLError("Row not found");
                 }
                 return {
                     row,
@@ -216,7 +215,7 @@ export const TaskInfoResolvers: Resolvers = {
             const items = rowIndicesWithAmount.map(({ rowIndex, amount }) => {
                 const row = rows.get(rowIndex);
                 if (!row) {
-                    throw new ApolloError("Row not found");
+                    throw new GraphQLError("Row not found");
                 }
                 return { row, rowIndex, amount };
             });
@@ -278,7 +277,7 @@ export const TaskInfoResolvers: Resolvers = {
                     { attributes: ["fileID"] }
                 );
                 if (!typoTaskConfig) {
-                    throw new ApolloError("Parent task config not found");
+                    throw new GraphQLError("Parent task config not found");
                 }
                 fileID = typoTaskConfig.fileID;
             }
@@ -287,7 +286,7 @@ export const TaskInfoResolvers: Resolvers = {
                 attributes: ["path", "delimiter", "hasHeader"],
             });
             if (!file) {
-                throw new ApolloError("File not found");
+                throw new GraphQLError("File not found");
             }
             const rows = await models.FileInfo.GetRowsByIndices(file, indices);
             const offset = pagination.offset * pagination.limit;
@@ -302,7 +301,7 @@ export const TaskInfoResolvers: Resolvers = {
             const { clusterID, sort, squash } = props;
             const file = await context.models.FileInfo.findByPk(fileID);
             if (!file) {
-                throw new ApolloError("File not found");
+                throw new GraphQLError("File not found");
             }
             const state = await TaskCreatorFactory.build(
                 "SpecificTypoCluster",
@@ -386,11 +385,11 @@ export const TaskInfoResolvers: Resolvers = {
     FileFormat: {
         dataset: async ({ fileID }, obj, { models }) => {
             if (!fileID) {
-                throw new ApolloError("fileID wasn't provided");
+                throw new GraphQLError("fileID wasn't provided");
             }
             const file = await models.FileInfo.findByPk(fileID);
             if (!file) {
-                throw new ApolloError(`Info about file = ${fileID} not found`);
+                throw new GraphQLError(`Info about file = ${fileID} not found`);
             }
             return file;
         },
@@ -399,17 +398,22 @@ export const TaskInfoResolvers: Resolvers = {
         rows: async ({ hasHeader, delimiter, path, rowsCount }, { pagination }) => {
             const { offset, limit } = pagination;
             if (limit < 0 || limit > 200) {
-                throw new UserInputError("Received incorrect limit", { limit });
+                throw new GraphQLError("Received incorrect limit", {
+                    extensions: { code: "UserInputError", limit },
+                });
             }
             if (limit === 0) {
                 return [];
             }
             if (rowsCount === undefined) {
-                throw new ApolloError("RowsCount is undefined");
+                throw new GraphQLError("RowsCount is undefined");
             }
             if (offset > rowsCount || offset < 0) {
-                throw new UserInputError(
-                    `Offset must be more than 0 and less, then rowsCount = ${rowsCount}`
+                throw new GraphQLError(
+                    `Offset must be more than 0 and less, then rowsCount = ${rowsCount}`,
+                    {
+                        extensions: { code: "UserInputError" },
+                    }
                 );
             }
 
@@ -425,7 +429,7 @@ export const TaskInfoResolvers: Resolvers = {
                 fs.createReadStream(path)
                     .pipe(parser)
                     .on("error", (e) => {
-                        throw new ApolloError(
+                        throw new GraphQLError(
                             `ERROR WHILE READING FILE:\n\r${e.message}`
                         );
                     })
@@ -448,11 +452,11 @@ export const TaskInfoResolvers: Resolvers = {
         },
         datasetInfo: async ({ fileID }, _, { models }) => {
             if (!fileID) {
-                throw new ApolloError("fileID wasn't provided");
+                throw new GraphQLError("fileID wasn't provided");
             }
             const file = await models.FileInfo.findByPk(fileID);
             if (!file) {
-                throw new ApolloError(`Info about file = ${fileID} not found`);
+                throw new GraphQLError(`Info about file = ${fileID} not found`);
             }
             return file;
         },
@@ -498,7 +502,9 @@ export const TaskInfoResolvers: Resolvers = {
                 attributes: ["fileID", "path", "delimiter", "hasHeader", "rowsCount"],
             });
             if (!fileInfo) {
-                throw new UserInputError(`Incorrect fileID = '${fileID}' was provided`);
+                throw new GraphQLError(`Incorrect fileID = '${fileID}' was provided`, {
+                    extensions: { code: "UserInputError" },
+                });
             }
             return fileInfo;
         },
@@ -515,7 +521,7 @@ export const TaskInfoResolvers: Resolvers = {
                 (!includeExecutedTasks && !includeCurrentTasks) ||
                 (!includeTasksWithoutError && !includeTasksWithError)
             ) {
-                throw new UserInputError("INVALID INPUT");
+                return [];
             }
             if (includeExecutedTasks !== includeCurrentTasks) {
                 where = { ...where, isExecuted: includeExecutedTasks };
@@ -549,7 +555,7 @@ export const TaskInfoResolvers: Resolvers = {
                     (info) => info.fileName === fileName
                 );
                 if (!dataset) {
-                    throw new ApolloError("Built in dataset info not found");
+                    throw new GraphQLError("Built in dataset info not found");
                 } else {
                     return dataset.supportedPrimitives;
                 }
@@ -565,7 +571,7 @@ export const TaskInfoResolvers: Resolvers = {
             await models.FileFormat.findByPk(fileID),
         header: async ({ fileID, hasHeader }, obj, { models }) => {
             if (!fileID) {
-                throw new ApolloError("Undefined fileID");
+                throw new GraphQLError("Undefined fileID");
             }
             const fileFormat = await models.FileFormat.findByPk(fileID, {
                 attributes: ["fileID"],
@@ -579,14 +585,18 @@ export const TaskInfoResolvers: Resolvers = {
     Query: {
         datasetInfo: async (parent, { fileID }, { models, sessionInfo }) => {
             if (!isUUID(fileID, 4)) {
-                throw new UserInputError("Invalid fileID was provided");
+                throw new GraphQLError("Invalid fileID was provided", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             const file = await models.FileInfo.findByPk(fileID);
             if (!file) {
-                throw new UserInputError("File not found");
+                throw new GraphQLError("File not found", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             if (!file.isValid) {
-                throw new ApolloError("File isn't valid");
+                throw new GraphQLError("File isn't valid");
             }
             if (
                 file.isBuiltIn ||
@@ -595,12 +605,14 @@ export const TaskInfoResolvers: Resolvers = {
             ) {
                 return file;
             }
-            throw new ForbiddenError("You don't have access");
+            throw new GraphQLError("User doesn't have access", {
+                extensions: { code: "ForbiddenError" },
+            });
         },
         taskInfo: async (parent, { taskID }, { models, sessionInfo }) => {
             if (!isUUID(taskID, 4)) {
-                throw new UserInputError("Invalid taskID was provided", {
-                    taskID,
+                throw new GraphQLError("Invalid taskID was provided", {
+                    extensions: { code: "UserInputError" },
                 });
             }
             const taskConfig =
@@ -614,8 +626,8 @@ export const TaskInfoResolvers: Resolvers = {
                 attributes: ["userID", "isPrivate"],
             });
             if (!taskConfig || !state) {
-                throw new UserInputError("Invalid taskID was provided", {
-                    taskID,
+                throw new GraphQLError("Invalid taskID was provided", {
+                    extensions: { code: "UserInputError" },
                 });
             }
             if (!state.userID || !state.isPrivate) {
@@ -629,11 +641,15 @@ export const TaskInfoResolvers: Resolvers = {
                     return taskConfig;
                 }
             }
-            throw new ForbiddenError("User doesn't have permissions");
+            throw new GraphQLError("User doesn't have permissions", {
+                extensions: { code: "AuthenticationError" },
+            });
         },
         tasksInfo: async (parent, { pagination }, { models, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
-                throw new AuthenticationError("User doesn't have permissions");
+                throw new GraphQLError("User doesn't have permissions", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             const configs = await models.GeneralTaskConfig.findAll({
                 ...pagination,
@@ -655,19 +671,25 @@ export const TaskInfoResolvers: Resolvers = {
             { models, sessionInfo }
         ) => {
             if (!isUUID(taskID, 4)) {
-                throw new UserInputError("Incorrect taskID was provided", {
-                    taskID,
+                throw new GraphQLError("Incorrect taskID was provided", {
+                    extensions: { code: "UserInputError" },
                 });
             }
             if (!sessionInfo) {
-                throw new AuthenticationError("User must be authorized");
+                throw new GraphQLError("User must be authorized", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
             const state = await models.TaskState.findByPk(taskID);
             if (!state) {
-                throw new UserInputError("Task not found", { taskID });
+                throw new GraphQLError("Task not found", {
+                    extensions: { code: "UserInputError" },
+                });
             }
             if (!state.userID) {
-                throw new UserInputError("Tasks, created by anonymous, can't be private");
+                throw new GraphQLError("Tasks, created by anonymous, can't be private", {
+                    extensions: { code: "UserInputError" },
+                });
             }
 
             if (
@@ -681,7 +703,9 @@ export const TaskInfoResolvers: Resolvers = {
                     prefix: MainPrimitiveType;
                 };
             } else {
-                throw new AuthenticationError("You don't have permission");
+                throw new GraphQLError("User doesn't have permissions", {
+                    extensions: { code: "AuthenticationError" },
+                });
             }
         },
     },

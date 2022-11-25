@@ -1,30 +1,43 @@
-import { ApolloServer } from "apollo-server-express";
-import { Application } from "express";
-import { config } from "../config";
+import { ApolloServer } from "@apollo/server";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
+import { Context } from "./types/context";
+import cors from "cors";
 import createContext from "./context";
-import { graphqlHTTP } from "express-graphql";
+import express from "express";
+import { expressMiddleware } from "@apollo/server/express4";
+import { graphqlUploadExpress } from "graphql-upload";
+import http from "http";
+import { json } from "body-parser";
+import morgan from "morgan";
 import schema from "./schema";
 
-export const configureGraphQL = async (app: Application) => {
-    const graphqlServer = new ApolloServer({
+export const configureGraphQL = async () => {
+    const app = express();
+    const httpServer = http.createServer(app);
+    const server = new ApolloServer<Context>({
         schema,
-        context: async ({ req: { headers } }) => createContext(headers),
         introspection: true,
+        plugins: [
+            ApolloServerPluginDrainHttpServer({ httpServer }),
+            ApolloServerPluginLandingPageLocalDefault({}),
+        ],
     });
-    app.get(
-        "/graphql",
-        graphqlHTTP({
-            schema,
-            graphiql: config.isDevelopment,
-        })
-    );
-    await graphqlServer
+
+    await server
         .start()
         .then(() => console.debug("GraphQL was successfully configured"))
         .catch(() => new Error("Error while graphql configuring"));
 
-    graphqlServer.applyMiddleware({
-        app,
-        path: "/graphql",
-    });
+    app.use(
+        "/graphql",
+        json(),
+        cors<cors.CorsRequest>(),
+        graphqlUploadExpress(),
+        morgan("dev"),
+        expressMiddleware(server, {
+            context: async ({ req: { headers } }) => createContext(headers),
+        })
+    );
+    return app;
 };

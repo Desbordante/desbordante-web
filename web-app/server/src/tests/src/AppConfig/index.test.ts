@@ -9,7 +9,6 @@ it("returns info about app configuration", async () => {
     });
 
     expect(result.data).toBeDefined();
-    expect(result.errors).toBeUndefined();
     expect(result.data.algorithmsConfig.maxThreadsCount).toBe(8);
     expect(result.data.algorithmsConfig.fileConfig.maxFileSize).toBe(10000000000);
     expect(result.data.algorithmsConfig.allowedFDAlgorithms.length).toBe(8);

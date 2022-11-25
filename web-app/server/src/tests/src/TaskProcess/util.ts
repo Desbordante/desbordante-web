@@ -1,4 +1,3 @@
-import { constants } from "os";
 import { isMainPrimitiveType } from "../../../db/models/TaskData/configs/GeneralTaskConfig";
 import { TypoClusterTaskResult } from "../../__generated__/types";
 import {
@@ -73,7 +72,6 @@ export const createMainTask: TaskProcessingFunction<
         queryName: "CreateMainTask",
         variables: { fileID, props },
     });
-    expect(createMainTask.errors).toBeUndefined();
     expect(createMainTask.data).toBeDefined();
     const { createMainTaskWithDatasetChoosing } = createMainTask.data;
     expect(createMainTaskWithDatasetChoosing.taskID).toBeDefined();
@@ -93,7 +91,6 @@ export const createSpecificTask: TaskProcessingFunction<
         queryName: "CreateSpecificTask",
         variables: { props },
     });
-    expect(createTask.errors).toBeUndefined();
     expect(createTask.data).toBeDefined();
     const { createSpecificTask } = createTask.data;
     expect(createSpecificTask.taskID).toBeDefined();
@@ -105,15 +102,14 @@ export const getTaskState: TaskProcessingFunction<
     CheckTaskStateVariables,
     CheckTaskState["taskInfo"]["state"]
 > = async (serverInfo, variables) => {
-    const { data, errors } = await executeOperation<
-        CheckTaskState,
-        CheckTaskStateVariables
-    >(serverInfo, {
-        variables,
-        dirname: __dirname,
-        queryName: "CheckTaskState",
-    });
-    expect(errors).toBeUndefined();
+    const { data } = await executeOperation<CheckTaskState, CheckTaskStateVariables>(
+        serverInfo,
+        {
+            variables,
+            dirname: __dirname,
+            queryName: "CheckTaskState",
+        }
+    );
     expect(data).toBeDefined();
     return data.taskInfo.state;
 };
@@ -152,8 +148,7 @@ export const getTasksResults: TaskProcessingFunction<
             filter,
         },
     });
-    const { data, errors } = getTaskResult;
-    expect(errors).toBeUndefined();
+    const { data } = getTaskResult;
 
     const { result } = data.taskInfo.data;
     expect(result).toBeDefined();
@@ -177,9 +172,7 @@ export const getTypoClusters: TaskProcessingFunction<
     });
     const {
         data: { taskInfo },
-        errors,
     } = getTypoClusters;
-    expect(errors).toBeUndefined();
 
     const expectedTypename = "SpecificTaskInfo";
     expect(taskInfo.__typename).toBe(expectedTypename);
@@ -232,9 +225,7 @@ export const getSpecificCluster: TaskProcessingFunction<
             });
             const {
                 data: { taskInfo },
-                errors,
             } = getSpecificCluster;
-            expect(errors).toBeUndefined();
 
             const expectedTypename = "SpecificTaskInfo";
             expect(taskInfo.__typename).toBe(expectedTypename);

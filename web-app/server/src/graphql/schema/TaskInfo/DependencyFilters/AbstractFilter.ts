@@ -1,4 +1,3 @@
-import { ApolloError, UserInputError } from "apollo-server-core";
 import {
     MainPrimitiveType,
     RealPrimitiveType,
@@ -6,6 +5,7 @@ import {
 import { CompactData } from "./CompactData";
 import { Context } from "../../../types/context";
 import { FileInfo } from "../../../../db/models/FileData/FileInfo";
+import { GraphQLError } from "graphql";
 import { IntersectionFilter } from "../../../types/types";
 import { TaskState } from "../../../../db/models/TaskData/TaskState";
 import _ from "lodash";
@@ -87,7 +87,7 @@ export abstract class AbstractFilter<CompactDep, Dep> {
                     return 1;
                 }
             }
-            throw new ApolloError(
+            throw new GraphQLError(
                 `Unreachable code ${JSON.stringify(lhs)} == ${JSON.stringify(rhs)}`
             );
         };
@@ -97,19 +97,20 @@ export abstract class AbstractFilter<CompactDep, Dep> {
             if (_.isString(sortBy)) {
                 return sortBy;
             } else {
-                throw new UserInputError("SortBy param is undefined");
+                throw new GraphQLError("SortBy param is undefined", {
+                    extensions: { code: "UserInputError" },
+                });
             }
         };
         switch (this.type) {
             case "AR":
-                return getStringOrThrowError(this.filter.ARSortBy);
             case "CFD":
-                return getStringOrThrowError(this.filter.CFDSortBy);
             case "FD":
+                return getStringOrThrowError(this.filter[`${this.type}SortBy` as const]);
             case "TypoFD":
                 return getStringOrThrowError(this.filter.FDSortBy);
         }
-        throw new ApolloError(`Type ${this.type} not implemented yet`);
+        throw new GraphQLError(`Type ${this.type} not implemented yet`);
     };
 
     public static getColumnsInfo = async (fileID: string): Promise<ColumnsInfo> => {
