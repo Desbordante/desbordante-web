@@ -33,6 +33,7 @@ import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/gener
 import path from "path";
 import validator from "validator";
 import isUUID = validator.isUUID;
+import { StatsTaskConfig } from "../TaskData/configs/SpecificConfigs";
 
 interface FileInfoModelMethods {
     getColumnNames: () => string[];
@@ -102,9 +103,6 @@ export class FileInfo extends Model implements FileInfoModelMethods {
 
     @Column({ type: STRING, unique: true })
     path!: string;
-
-    @Column({ type: BOOLEAN, allowNull: false, defaultValue: false })
-    statsMiningStarted!: boolean;
 
     static getPathToUploadedDataset = (fileName: string) => {
         if (!require.main) {

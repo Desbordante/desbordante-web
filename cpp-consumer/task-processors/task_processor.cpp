@@ -118,7 +118,7 @@ void TaskProcessor::SaveStatsResult() const {
     for(unsigned i = 0; i < stats.size(); ++i) {
         auto stats_result = stats[i].ToKeyValueMap();
         stats_result.insert({{"fileID", file_id}, {"columnIndex", std::to_string(i)}});
-        task_->db_manager_->SendInsertQuery(stats_result, "Statistic");
+        task_->GetDBManager()->SendInsertQuery(stats_result, "ColumnStats");
     }
     LOG(INFO) << "Stats was successfully calculated, results saved\n";
 }

@@ -457,11 +457,43 @@ export const TaskInfoResolvers: Resolvers = {
             return file;
         },
     },
+    DatasetStats: {
+        stats: async (fileInfo, { pagination }, { models }) => {
+            const { fileID } = fileInfo;
+            const config = await models.GeneralTaskConfig.findOne({
+                where: { fileID, algorithmName: "Stats", type: "Stats" },
+            });
+            if (!config) {
+                return [];
+            }
+            const taskState = await models.TaskState.findByPk(config.taskID);
+            if (!taskState || !taskState.isExecuted) {
+                return [];
+            }
+            const columnStats = await models.ColumnStats.findAll({
+                ...pagination,
+                raw: true,
+                where: { fileID },
+                order: [["columnIndex", "ASC"]],
+            });
+            const columns = fileInfo.getColumns();
+            return columnStats.map((stats) => {
+                const index = stats.columnIndex;
+                return { ...stats, column: columns[index] };
+            });
+        },
+        state: async ({ fileID }, _, { models }) => {
+            const config = await models.GeneralTaskConfig.findOne({
+                where: { fileID, algorithmName: "Stats", type: "Stats" },
+            });
+            if (!config) {
+                return null;
+            }
+            return await models.TaskState.findByPk(config.taskID);
+        },
+    },
     DatasetInfo: {
         snippet: async ({ fileID }, _, { models }) => {
-            if (!fileID) {
-                throw new ApolloError("received null fileID");
-            }
             const fileInfo = await models.FileInfo.findByPk(fileID, {
                 attributes: ["fileID", "path", "delimiter", "hasHeader", "rowsCount"],
             });
@@ -510,30 +542,7 @@ export const TaskInfoResolvers: Resolvers = {
                 prefix: MainPrimitiveType;
             })[];
         },
-        stats: async ({ fileID }, { pagination }, { models }) => {
-            const fileInfo = await models.FileInfo.findByPk(fileID);
-            if (!fileInfo) {
-                throw new UserInputError(`Incorrect fileID = '${fileID}' was provided`);
-            }
-            if(!fileInfo.statsMiningStarted){
-                return [];
-            }
-            const columnStats =  await models.ColumnStats.findAll({
-                ...pagination, raw: true,
-                where: {
-                    fileID,
-                },
-                order: [ ["columnIndex", "ASC"]],
-            });
-            if(!columnStats || columnStats.length === 0) {
-                return [];
-            }
-            const columnNames = fileInfo.getColumns();
-            return columnStats.map((stats) => {
-                const index = stats.columnIndex;
-                return { ...stats, column: columnNames[index] };
-            });
-        },
+        statsInfo: returnParent,
         supportedPrimitives: async ({ fileID, isBuiltIn, fileName }, obj, { models }) => {
             if (isBuiltIn) {
                 const dataset = builtInDatasets.find(

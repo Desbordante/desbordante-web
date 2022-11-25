@@ -28,7 +28,6 @@ export type MainPrimitiveType = Exclude<
     DBTaskPrimitiveType,
     "TypoCluster" | "SpecificTypoCluster" | StatsType
 >;
-export type InnerMainPrimitiveType = MainPrimitiveType | StatsType;
 type OtherPrimitiveType = Exclude<DBTaskPrimitiveType, MainPrimitiveType>;
 export type SpecificPrimitiveType = Exclude<
     OtherPrimitiveType,
