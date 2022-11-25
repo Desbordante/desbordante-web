@@ -73,7 +73,6 @@ public:
         }
         std::string query = "INSERT INTO \"" + table_name + "\" (" + boost::join(keys, ",") +
             ") VALUES (" + boost::join(values, ",") + ")";
-        LOG(INFO) << "Inserting:" << query;
         return SendBaseQuery(query, "Insert into table " + table_name + ": \'" + query + "\'");
     }
 

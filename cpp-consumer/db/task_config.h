@@ -1,11 +1,11 @@
 #pragma once
-#include <string>
-#include <filesystem>
+#include <enum.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
+#include <filesystem>
+#include <string>
 #include <utility>
-#include <enum.h>
 
 #include "field_wrapper.h"
 #include "specific_db_manager.h"
@@ -18,7 +18,9 @@ BETTER_ENUM(BaseTablesType, char, state, config, fileinfo, fileformat)
 BETTER_ENUM(SpecificTablesType, char, config, result)
 BETTER_ENUM(SearchByAttr, char, fileID, taskID)
 
-using DesbordanteDbManager = SpecificDbManager<BaseTablesType, std::pair<SpecificTablesType, TaskMiningType>, SearchByAttr>;
+using DesbordanteDbManager =
+        SpecificDbManager<BaseTablesType, std::pair<SpecificTablesType, TaskMiningType>,
+                          SearchByAttr>;
 
 class TaskConfig {
 private:
@@ -34,7 +36,9 @@ private:
     }
 
     template <typename MapSearchKey>
-    static void InsertAllParamsFromTable(MapSearchKey key, std::shared_ptr<DesbordanteDbManager>& db_manager, TaskConfig& config);
+    static void InsertAllParamsFromTable(MapSearchKey key,
+                                         std::shared_ptr<DesbordanteDbManager>& db_manager,
+                                         TaskConfig& config);
 
 public:
     explicit TaskConfig(std::string task_id)
@@ -69,9 +73,11 @@ public:
     }
 
     std::pair<SpecificTablesType, TaskMiningType> GetSpecificMapKey(
-        SpecificTablesType table_type) const;
+            SpecificTablesType table_type) const;
 
-    friend class TaskProcessor;
+    const DesbordanteDbManager* GetDBManager() const {
+        return db_manager_.get();
+    }
 };
 
-}
+}  // namespace consumer

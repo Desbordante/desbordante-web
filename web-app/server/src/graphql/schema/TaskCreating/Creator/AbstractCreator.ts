@@ -2,7 +2,6 @@ import { ApolloError, UserInputError } from "apollo-server-core";
 import {
     DBTaskPrimitiveType,
     GeneralTaskConfig,
-    InnerMainPrimitiveType,
     SpecificPrimitiveType,
     isMainPrimitiveType,
     isSpecificPrimitiveType,
@@ -139,9 +138,13 @@ export abstract class AbstractCreator<
             model: GeneralTaskConfig,
             where: { algorithmName, fileID: this.fileInfo.fileID },
         };
-        const include = type !== "Stats" ?
-            [ { association: SpecificConfigModelName, where: { ...props } },
-                generalInclude] : [generalInclude];
+        const include =
+            type !== "Stats"
+                ? [
+                      { association: SpecificConfigModelName, where: { ...props } },
+                      generalInclude,
+                  ]
+                : [generalInclude];
         // @ts-ignore
         const specificConfigs = await this.models().TaskState.findAll({ include });
         if (specificConfigs.length === 0) {
@@ -164,17 +167,14 @@ export abstract class AbstractCreator<
         });
         await taskState.$create(`${this.type}Config`, { ...this.props });
         await taskState.$create(`${this.type}Result`, {});
-        if(this.type === "Stats") {
-            this.fileInfo.update({ statsMiningStarted: true });
-        }
         return taskState;
     };
 
     private createTask = async () => {
         // TODO: Refactor this later...
-        if(this.type === "Stats") {
+        if (this.type === "Stats") {
             const fileFormat = await this.fileInfo.$get("fileFormat");
-            if(fileFormat) {
+            if (fileFormat) {
                 throw new UserInputError("Incorrect file format for mining statistics!");
             }
         }

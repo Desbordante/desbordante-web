@@ -588,6 +588,13 @@ const typeDefs = gql`
         quantile75: String
     }
 
+    type DatasetStats {
+        "Returns an empty array if statistics have not yet been calculated"
+        stats(pagination: Pagination! = { offset: 0, limit: 100 }): [ColumnStats!]!
+        "Returns null if statistics have not yet started to be calculated"
+        state: TaskStateAnswer
+    }
+
     type DatasetInfo {
         fileID: String!
         userID: ID
@@ -606,10 +613,7 @@ const typeDefs = gql`
         snippet: Snippet!
         supportedPrimitives: [MainPrimitiveType!]!
         tasks(filter: TasksInfoFilter!): [TaskInfo!]
-        "Set true when stats start mining for the first time"
-        statsMiningStarted: Boolean!
-        "Returns an empty array if statistics have not yet been calculated"
-        stats(pagination: Pagination! = { offset: 0, limit: 100 }): [ColumnStats!]!
+        statsInfo: DatasetStats!
     }
 
     type Query {

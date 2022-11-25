@@ -13,7 +13,7 @@ import { FileInfo } from "./FileInfo";
     paranoid: true,
     updatedAt: false,
     createdAt: false,
-    tableName: "Statistic",
+    tableName: "ColumnStats",
 })
 export class ColumnStats extends Model {
     @IsUUID(4)
@@ -24,7 +24,7 @@ export class ColumnStats extends Model {
     @Column({ type: INTEGER, primaryKey: true })
     columnIndex!: number;
 
-    @Column({ type: STRING, allowNull: false, defaultValue: "" })
+    @Column({ type: STRING, allowNull: false })
     type!: string;
 
     @Column({ type: INTEGER, allowNull: true })

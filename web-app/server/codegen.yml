@@ -22,6 +22,7 @@ generates:
         User: ./models#UserModel
         Session: ./models#SessionModel
         Role: ./models#RoleModel
+        DatasetStats: ./models#DatasetStatsModel
         DatasetInfo: ./models#DatasetInfoModel
         FDPieChartData: ./models#FDPieChartDataModel
         CFDPieChartData: ./models#CFDPieChartDataModel
