@@ -10,7 +10,6 @@ query AllowedDatasetsQuery {
                 itemColumnIndex
                 fileID
             }
-            path
             mimeType
             delimiter
             hasHeader
