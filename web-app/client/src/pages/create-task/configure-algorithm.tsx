@@ -1,8 +1,8 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useLazyQuery } from '@apollo/client';
 import _ from 'lodash';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { FC, useCallback, useEffect, useMemo } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Controller,
   ControllerFieldState,
@@ -39,9 +39,17 @@ import {
 } from '@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing';
 import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations/chooseTask';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
+import {
+  getCountOfColumns,
+  getCountOfColumnsVariables,
+} from '@graphql/operations/queries/__generated__/getCountOfColumns'
+import { GET_COUNT_OF_COLUMNS } from '@graphql/operations/queries/getDatasetColumnCount';
+
+import { useErrorContext } from '@hooks/useErrorContext'; // to delete?
 import styles from '@styles/ConfigureAlgorithm.module.scss';
 import { showError } from '@utils/toasts';
 import { MainPrimitiveType } from 'types/globalTypes';
+import { cursorTo } from 'readline'; // to delete?
 
 type FDForm = {
   algorithmName: any;
@@ -229,6 +237,53 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
     }),
     [primitive]
   );
+  // Array<{label: string, value: number}>
+  // {label: string, value: number}[]
+  const [columnData, setColumnData] = useState<Array<{ label: string, value: number }>>([]);
+  const [getCountOfColumns, { loading, error, data }] = useLazyQuery<
+    getCountOfColumns,
+    getCountOfColumnsVariables
+    >(GET_COUNT_OF_COLUMNS);
+  
+  useEffect(() => {
+    if (primitive !== MainPrimitiveType.MetricVerification)
+      return;
+    
+    getCountOfColumns({ variables: {fileID: fileID} })
+  }, [primitive])
+
+  function* columnGenerator(from: number, to: number) {
+    let curr = from;
+
+    while (curr <= to)
+      yield { label: `Column ${curr}`, value: curr++ };
+  }
+
+  useEffect(() => {
+    if (primitive !== MainPrimitiveType.MetricVerification)
+      return;
+
+    if (loading) {
+      setColumnData([{ label: "Loading", value: -1 }]);
+      return;
+    }
+
+    if (error) {
+      setColumnData([]);
+      showError(
+        error.message,
+        'Can\' fetch columns information. Please try later.'
+      );
+      return;
+    }
+
+    if (data) {
+      const countOfColumns: number = data?.datasetInfo?.countOfColumns || 0;
+
+      const array = Array.from(columnGenerator(1, countOfColumns));
+      setColumnData(array);
+    }
+  }, [loading, error, data])
 
   useEffect(() => {
     const defaultValues = defaultValuesByPrimitive[primitive];
@@ -460,7 +515,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
             value={getSelectOption(value)}
             onChange={(e) => onChange(getSelectValue(e))}
             label="LHS Columns"
-            options={[{ label: '1', value: '1' }, { label: '2', value: '2' }, { label: '3', value: '3' }]}
+            options={columnData}
           />
         ),
         rhs: ({ field: { onChange, value, ...field } }) => (
@@ -529,7 +584,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         ),
       },
     }),
-    [watchAlgorithm, watchColumnType]
+    [watchAlgorithm, watchColumnType, columnData]
   );
 
   const InputsForm = _.map(
