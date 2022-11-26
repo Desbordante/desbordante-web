@@ -1,4 +1,4 @@
-import { BOOLEAN, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
+import sequelize, { BOOLEAN, DATE, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
 import {
     BelongsTo,
     Column,
@@ -33,7 +33,6 @@ import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/gener
 import path from "path";
 import validator from "validator";
 import isUUID = validator.isUUID;
-import { StatsTaskConfig } from "../TaskData/configs/SpecificConfigs";
 
 interface FileInfoModelMethods {
     getColumnNames: () => string[];
@@ -54,6 +53,9 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         primaryKey: true,
     })
     fileID!: string;
+
+    @Column({ type: DATE, allowNull: false, defaultValue: sequelize.fn("NOW") })
+    createdAt!: string;
 
     @ForeignKey(() => User)
     @Column({ type: UUID, allowNull: true })

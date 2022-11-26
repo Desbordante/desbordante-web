@@ -597,18 +597,22 @@ const typeDefs = gql`
 
     type DatasetInfo {
         fileID: String!
+        createdAt: String!
         userID: ID
         isBuiltIn: Boolean!
+        "The name of the file under which it is stored on the server"
         fileName: String!
+        "The original name of the file submitted by the user"
         originalFileName: String!
         mimeType: String
         encoding: String
         hasHeader: Boolean!
         header: [String!]
-        path: String!
         delimiter: String!
         rowsCount: Int!
+        "Null for transactional datasets"
         countOfColumns: Int
+        "Not null for transactional datasets"
         fileFormat: FileFormat
         snippet: Snippet!
         supportedPrimitives: [MainPrimitiveType!]!
@@ -640,7 +644,7 @@ const typeDefs = gql`
         Authorized users can see their dataset
         Users with permission "VIEW_ADMIN_INFO" can see all dataset
         """
-        datasetInfo(fileID: ID!): DatasetInfo
+        datasetInfo(fileID: ID!): DatasetInfo!
         """
         User can see results if one of the conditions is met:
         1) Task was created by anonymous
