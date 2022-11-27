@@ -15,7 +15,7 @@ import {
   InputFileFormat,
   MainPrimitiveType,
 } from 'types/globalTypes';
-import styles from '../FilePropsView.module.scss';
+import styles from '../FilePropertiesModal.module.scss';
 
 interface PropertyListProps {
   data: FileProps;
