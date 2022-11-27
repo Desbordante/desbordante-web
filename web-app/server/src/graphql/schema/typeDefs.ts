@@ -612,6 +612,8 @@ const typeDefs = gql`
         rowsCount: Int!
         "Null for transactional datasets"
         countOfColumns: Int
+        "Numbers of MainPrimitive type tasks"
+        numberOfUses: Int!
         "Not null for transactional datasets"
         fileFormat: FileFormat
         snippet: Snippet!
@@ -865,17 +867,6 @@ const typeDefs = gql`
         createSpecificTask(
             props: IntersectionSpecificTaskProps!
             forceCreate: Boolean! = false
-        ): TaskState!
-
-        """
-        This query allows clients (with permission USE_OWN_DATASETS) upload dataset and create task.
-        ***
-        By default, the result of the algorithm is visible for all users.
-        """
-        createMainTaskWithDatasetUploading(
-            props: IntersectionMainTaskProps!
-            datasetProps: FileProps!
-            table: Upload!
         ): TaskState!
 
         """

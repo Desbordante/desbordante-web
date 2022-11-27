@@ -23,7 +23,10 @@ const ALL_PRIMITIVES = [
 ] as const;
 
 export type DBTaskPrimitiveType = typeof ALL_PRIMITIVES[number];
-export type PrimitiveType = Exclude<DBTaskPrimitiveType, "SpecificTypoCluster" | StatsType>;
+export type PrimitiveType = Exclude<
+    DBTaskPrimitiveType,
+    "SpecificTypoCluster" | StatsType
+>;
 export type MainPrimitiveType = Exclude<
     DBTaskPrimitiveType,
     "TypoCluster" | "SpecificTypoCluster" | StatsType
@@ -49,6 +52,8 @@ export const isSpecificPrimitiveType = (
 ): type is SpecificPrimitiveType => {
     return SPECIFIC_TASKS.includes(type);
 };
+
+export const mainPrimitives = ALL_PRIMITIVES.filter(isMainPrimitiveType);
 
 @Table(getConfigTableOptions())
 export class GeneralTaskConfig extends Model {

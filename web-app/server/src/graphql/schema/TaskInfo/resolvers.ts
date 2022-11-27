@@ -6,6 +6,7 @@ import {
     MainPrimitiveType,
     SPECIFIC_TASKS,
     isSpecificPrimitiveType,
+    mainPrimitives,
 } from "../../../db/models/TaskData/configs/GeneralTaskConfig";
 import { Resolvers, TaskProcessStatusType } from "../../types/types";
 import { applyPagination, resolverCannotBeCalled, returnParent } from "../../util";
@@ -70,12 +71,8 @@ export const TaskInfoResolvers: Resolvers = {
         processStatus: ({ status }) => status as TaskProcessStatusType,
     },
     AbstractTaskInfo: {
-        __resolveType: ({ prefix }) => {
-            const answer = SPECIFIC_TASKS.includes(prefix)
-                ? "SpecificTaskInfo"
-                : "TaskInfo";
-            return answer;
-        },
+        __resolveType: ({ prefix }) =>
+            SPECIFIC_TASKS.includes(prefix) ? "SpecificTaskInfo" : "TaskInfo",
         state: async ({ taskID }, _, { models }) => {
             const state = await models.TaskState.findByPk(taskID);
             if (!state) {
@@ -493,15 +490,7 @@ export const TaskInfoResolvers: Resolvers = {
         },
     },
     DatasetInfo: {
-        snippet: async ({ fileID }, _, { models }) => {
-            const fileInfo = await models.FileInfo.findByPk(fileID, {
-                attributes: ["fileID", "path", "delimiter", "hasHeader", "rowsCount"],
-            });
-            if (!fileInfo) {
-                throw new UserInputError(`Incorrect fileID = '${fileID}' was provided`);
-            }
-            return fileInfo;
-        },
+        snippet: returnParent,
         tasks: async ({ fileID }, { filter }, { models }) => {
             const {
                 includeExecutedTasks,
@@ -563,21 +552,24 @@ export const TaskInfoResolvers: Resolvers = {
         },
         fileFormat: async ({ fileID }, obj, { models }) =>
             await models.FileFormat.findByPk(fileID),
-        header: async ({ fileID, hasHeader }, obj, { models }) => {
-            if (!fileID) {
-                throw new ApolloError("Undefined fileID");
-            }
-            const fileFormat = await models.FileFormat.findByPk(fileID, {
-                attributes: ["fileID"],
-            });
-            if (fileFormat && !hasHeader) {
+        header: async (fileInfo) => {
+            const fileFormat = await fileInfo.$get("fileFormat");
+            if (fileFormat && !fileInfo.hasHeader) {
                 return null;
             }
-            return await models.FileInfo.getColumnNamesForFile(fileID);
+            return fileInfo.getColumnNames();
+        },
+        numberOfUses: async ({ fileID }, _, { models }) => {
+            return await models.GeneralTaskConfig.count({
+                where: {
+                    type: { [Op.in]: mainPrimitives },
+                    fileID,
+                },
+            });
         },
     },
     Query: {
-        datasetInfo: async (parent, { fileID }, { models, sessionInfo }) => {
+        datasetInfo: async (_, { fileID }, { models, sessionInfo }) => {
             if (!isUUID(fileID, 4)) {
                 throw new UserInputError("Invalid fileID was provided");
             }
