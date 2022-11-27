@@ -181,8 +181,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     static uploadDataset = async (
         datasetProps: FileProps,
         table: any,
-        userID: string | null = null,
-        withFileFormat = false
+        userID: string | null = null
     ) => {
         const {
             createReadStream,
@@ -216,10 +215,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
             renamedHeader: JSON.stringify(await file.generateHeader()),
         });
 
-        if (withFileFormat) {
-            if (!datasetProps.inputFormat) {
-                throw new ApolloError("File hasn't input format");
-            }
+        if (datasetProps.inputFormat) {
             const fileFormat = await FileFormat.createFileFormatIfPropsValid(
                 file,
                 datasetProps

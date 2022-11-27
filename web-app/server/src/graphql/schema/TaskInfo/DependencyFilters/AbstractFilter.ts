@@ -127,6 +127,10 @@ export abstract class AbstractFilter<CompactDep, Dep> {
         return { itemValues: items.split(",") };
     };
 
-    public static getRealPrimitiveType = (type: MainPrimitiveType): RealPrimitiveType =>
-        type === "TypoFD" ? "FD" : type;
+    public static getRealPrimitiveType = (type: MainPrimitiveType): RealPrimitiveType => {
+        if (type === "Stats") {
+            throw new ApolloError("Use DatasetInfo to get info about stats");
+        }
+        return type === "TypoFD" ? "FD" : type;
+    };
 }

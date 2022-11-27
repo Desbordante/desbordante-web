@@ -25,7 +25,13 @@ import isUUID = validator.isUUID;
 
 export const TaskInfoResolvers: Resolvers = {
     TaskWithDepsResult: {
-        __resolveType: ({ prefix }) => `${prefix}TaskResult`,
+        __resolveType: ({ prefix }) => {
+            // TODO: Fix
+            if (prefix === "Stats") {
+                throw new UserInputError("Stats tasks doesn't have config");
+            }
+            return `${prefix}TaskResult`;
+        },
         depsAmount: async ({ prefix, state }) =>
             await state.getResultField(prefix, "depsAmount"),
         filteredDeps: async ({ state, prefix, fileID }, { filter }, context) => {
@@ -44,7 +50,12 @@ export const TaskInfoResolvers: Resolvers = {
             `Filtered${AbstractFilter.getRealPrimitiveType(prefix)}s`,
     },
     PrimitiveTaskConfig: {
-        __resolveType: ({ prefix }) => `${prefix}TaskConfig`,
+        __resolveType: ({ prefix }) => {
+            if (prefix === "Stats") {
+                throw new UserInputError("Stats tasks doesn't have config");
+            }
+            return `${prefix}TaskConfig`;
+        },
     },
     TaskStateAnswer: {
         __resolveType: ({ status }) => {
@@ -532,10 +543,10 @@ export const TaskInfoResolvers: Resolvers = {
             })[];
         },
         statsInfo: returnParent,
-        supportedPrimitives: async ({ fileID, isBuiltIn, fileName }, obj, { models }) => {
-            if (isBuiltIn) {
+        supportedPrimitives: async (file) => {
+            if (file.isBuiltIn) {
                 const dataset = builtInDatasets.find(
-                    (info) => info.fileName === fileName
+                    (info) => info.fileName === file.fileName
                 );
                 if (!dataset) {
                     throw new ApolloError("Built in dataset info not found");
@@ -543,11 +554,11 @@ export const TaskInfoResolvers: Resolvers = {
                     return dataset.supportedPrimitives;
                 }
             }
-            const fileFormat = await models.FileFormat.findByPk(fileID);
-            if (!fileFormat) {
-                return ["FD", "CFD", "TypoFD"];
-            } else {
+            const fileFormat = await file.$get("fileFormat");
+            if (fileFormat) {
                 return ["AR"];
+            } else {
+                return mainPrimitives.filter((type) => type != "AR");
             }
         },
         fileFormat: async ({ fileID }, obj, { models }) =>

@@ -21,7 +21,7 @@ export const config = {
     appConfig: {
         fileConfig: {
             allowedFileFormats: ["text/csv", "application/vnd.ms-excel"],
-            allowedDelimiters: [",", "\\t", "\\n", "|", ";"],
+            allowedDelimiters: [",", "|", ";"],
             maxFileSize: 1e10,
         },
         maxThreadsCount: Number(process.env.MAX_THREADS_COUNT || "4"),
