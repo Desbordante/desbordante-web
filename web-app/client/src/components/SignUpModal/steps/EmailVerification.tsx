@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import { FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Button from '@components/Button';
+import { Alert } from '@components/FileStats/Alert';
 import { Text } from '@components/Inputs';
 import {
   approveUserEmail,
@@ -68,9 +69,9 @@ const EmailVerification: FC<Props> = ({ onSuccess }) => {
   return (
     <>
       <h4 className={styles.title}>Sign Up</h4>
-      <p>
-        We have sent the verification code to <span>{user?.email}</span>
-      </p>
+      <Alert className={styles.alert}>
+        We have sent the verification code to {user?.email}
+      </Alert>
       <form onSubmit={onSubmit} className={styles.formContainer}>
         <div className={styles.inputGroup}>
           <Text

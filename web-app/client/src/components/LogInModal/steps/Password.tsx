@@ -10,6 +10,7 @@ import {
 } from '@graphql/operations/mutations/__generated__/changePassword';
 import { CHANGE_PASSWORD } from '@graphql/operations/mutations/changePassword';
 import { useAuthContext } from '@hooks/useAuthContext';
+import hashPassword from '@utils/hashPassword';
 import styles from '../LogInModal.module.scss';
 
 type Inputs = {
@@ -43,7 +44,7 @@ const Password: FC<Props> = ({ onSuccess, email }) => {
     const response = await changePassword({
       variables: {
         email,
-        newPwdHash: values.password,
+        newPwdHash: hashPassword(values.password),
       },
     });
 

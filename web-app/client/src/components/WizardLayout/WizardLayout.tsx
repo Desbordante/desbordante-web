@@ -1,25 +1,28 @@
+import cn from 'classnames';
 import { FC, PropsWithChildren, ReactElement } from 'react';
-import bg from '@assets/backgrounds/reports.jpg';
+import Background from '@assets/backgrounds/create-task.svg?component';
 import styles from './WizardLayout.module.scss';
 
 interface Props extends PropsWithChildren {
   header: ReactElement;
   footer: ReactElement;
+  className?: string;
 }
 
-export const WizardLayout: FC<Props> = ({ header, footer, children }) => {
+const WizardLayout: FC<Props> = ({ header, footer, className, children }) => {
   return (
     <div className={styles.page}>
-      <div className={styles.background}>
-        <img
-          src={bg.src}
-          className={styles.background_image}
-          alt="background"
-        />
-      </div>
-      <div className={styles.section_text}>{header}</div>
-      <div className={styles.content}>{children}</div>
+      <Background
+        width="100%"
+        height="100%"
+        preserveAspectRatio="xMidYMid slice"
+        className={styles.background}
+      />
+      <div className={styles.sectionText}>{header}</div>
+      <div className={cn(className, styles.content)}>{children}</div>
       <div className={styles.footer}>{footer}</div>
     </div>
   );
 };
+
+export default WizardLayout;

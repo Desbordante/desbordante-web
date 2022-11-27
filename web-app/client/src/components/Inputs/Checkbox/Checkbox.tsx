@@ -21,7 +21,7 @@ const Checkbox: ForwardRefRenderFunction<HTMLInputElement, Props> = (
         className
       )}
     >
-      <div className={styles.inputContainer}>
+      <label className={styles.inputContainer}>
         <input
           type="checkbox"
           id={id}
@@ -32,8 +32,8 @@ const Checkbox: ForwardRefRenderFunction<HTMLInputElement, Props> = (
           )}
           {...props}
         />
-        {label && <label htmlFor={id}>{label}</label>}
-      </div>
+        {label}
+      </label>
       {error && <p className={styles.error}>{error}</p>}
     </div>
   );

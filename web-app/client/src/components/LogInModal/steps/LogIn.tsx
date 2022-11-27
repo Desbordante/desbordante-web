@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import isEmail from 'validator/lib/isEmail';
 import isStrongPassword from 'validator/lib/isStrongPassword';
@@ -38,25 +38,20 @@ const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
   } = useForm<Inputs>({
     defaultValues,
   });
-  const [globalError, setGlobalError] = useState('');
 
   const [logIn] = useMutation<logIn, logInVariables>(LOG_IN);
 
   const onSubmit = handleSubmit(async (values) => {
-    try {
-      const response = await logIn({
-        variables: {
-          email: values.email,
-          pwdHash: hashPassword(values.password),
-        },
-      });
+    const response = await logIn({
+      variables: {
+        email: values.email,
+        pwdHash: hashPassword(values.password),
+      },
+    });
 
-      if (response.data?.logIn) {
-        applyTokens(response.data.logIn);
-        onSuccess();
-      }
-    } catch (error) {
-      setGlobalError(error instanceof Error ? error.message : 'Incorrect data');
+    if (response.data?.logIn) {
+      applyTokens(response.data.logIn);
+      onSuccess();
     }
   });
 

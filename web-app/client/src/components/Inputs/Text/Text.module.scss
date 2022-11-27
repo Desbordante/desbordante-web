@@ -11,6 +11,7 @@
       display: block;
       margin: 0 8px 0 0;
       color: $black;
+      white-space: nowrap;
     }
   }
 
@@ -19,9 +20,9 @@
     width: 100%;
     padding: 16px;
     color: $black;
-    background: transparent;
     border: 1px solid $black-25;
     border-radius: 8px;
+    background: $white-25;
 
     &:focus {
       outline: none;

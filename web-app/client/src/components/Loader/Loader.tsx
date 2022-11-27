@@ -1,7 +1,6 @@
 import { useQuery } from '@apollo/client';
 import cn from 'classnames';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 import { FC, useEffect } from 'react';
 import {
   getTaskInfo,
@@ -22,7 +21,6 @@ const Loader: FC<Props> = ({ taskID, onComplete }) => {
     getTaskInfoVariables
   >(GET_TASK_INFO, { variables: { taskID } });
 
-  const router = useRouter();
   const status = getTaskStatusData(error, data);
 
   useEffect(() => {
@@ -59,13 +57,13 @@ const Loader: FC<Props> = ({ taskID, onComplete }) => {
     <div className={styles.container}>
       {icon}
       <div className={styles.text}>
-        <p>
+        <h6>
           Task status:
           <span className={cn(styles[status.className], styles.status)}>
             {' '}
             {status.label}
           </span>
-        </p>
+        </h6>
         <p className={styles.description}>{status.description}</p>
       </div>
     </div>

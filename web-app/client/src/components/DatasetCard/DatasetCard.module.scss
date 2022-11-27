@@ -1,54 +1,70 @@
 @import "styles/common";
 
 .card {
-  flex: none;
-  order: 2;
-  flex-grow: 0;
   gap: 16px;
   flex-direction: column;
   align-items: flex-start;
   display: flex;
-  box-sizing: border-box;
   padding: 16px 24px;
-  width: 250px;
-  min-height: 112px;
+  width: 280px;
+  height: 120px;
   border: 2px solid $black;
   border-radius: 8px;
   cursor: pointer;
-  text-align: left;
-}
+  background: $white-25;
+  transition: 0.15s;
 
-@media (max-width: 1050px) {
-  .card {
-    flex-grow: 1;
+  &:hover:not(&.disabled) {
+    background: $primary-02;
   }
-}
 
-.card.selected {
-  border: 2px solid $primary-0;
-  background: $primary-05;
-}
-
-.card_description {
-  @include paragraph-small;
-  white-space: pre-line;
-
-  span.large_content {
-    font-size: 12px;
+  &.selected {
+    border: 2px solid $primary-0;
+    background: $primary-05;
   }
-}
-.card_title {
-  justify-content: space-between;
-  display: flex;
-  width: 100%;
 
-  img {
-    cursor: pointer;
+  .cardTitle {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+
+    p {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    svg {
+      flex-shrink: 0;
+    }
   }
-  p {
-    max-width: calc(100% - 20px);
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+
+  .cardDescription {
+    @include paragraph-small;
+    white-space: pre-line;
+
+    .largeContent {
+      font-size: 12px;
+    }
+  }
+
+  &.disabled {
+    border: 2px solid $black-25;
+    cursor: default;
+
+    .cardTitle {
+      p {
+        color: $black-50;
+      }
+
+      svg * {
+        fill: $black-50;
+      }
+    }
+
+    .cardDescription span {
+      color: $black-25;
+    }
   }
 }

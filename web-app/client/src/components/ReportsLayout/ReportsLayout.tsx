@@ -1,45 +1,38 @@
 import classNames from 'classnames';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import React, { FC, PropsWithChildren } from 'react';
-import { PrimitiveType } from 'types/globalTypes';
-import bg from '@assets/backgrounds/reports.jpg';
-import chartIcon from '@assets/icons/chart.svg';
-import clusterIcon from '@assets/icons/cluster.svg';
-import datatableIcon from '@assets/icons/datatable.svg';
-import dropDownIcon from '@assets/icons/list-dropdown.svg';
-import settingsIcon from '@assets/icons/settings-black.svg';
+import Background from '@assets/backgrounds/reports.svg?component';
+import ChartIcon from '@assets/icons/chart.svg?component';
+import ClusterIcon from '@assets/icons/cluster.svg?component';
+import DatatableIcon from '@assets/icons/datatable.svg?component';
+import DropDownIcon from '@assets/icons/list-dropdown.svg?component';
 import { useTaskContext } from '@components/TaskContext';
+import { PrimitiveType } from 'types/globalTypes';
 import styles from './ReportsLayout.module.scss';
 
 type Props = PropsWithChildren;
 
-const menuOverview = {
-  label: 'Overview',
-  pathname: '/overview',
-  icon: settingsIcon,
-};
 const menuStatistics = {
   label: 'Statistics',
   pathname: '/reports/charts',
-  icon: chartIcon,
+  icon: <ChartIcon />,
 };
 
 const menuClusters = {
   label: 'Clusters',
   pathname: '/reports/clusters',
-  icon: clusterIcon,
+  icon: <ClusterIcon />,
 };
 
 const menuPrimitiveList = {
   label: 'Primitive list',
   pathname: '/reports/dependencies',
-  icon: dropDownIcon,
+  icon: <DropDownIcon />,
 };
 const menuDatasetSnippet = {
   label: 'Dataset snippet',
-  pathname: '/snippet',
-  icon: datatableIcon,
+  pathname: '/reports/snippet',
+  icon: <DatatableIcon />,
 };
 
 export const reportsTabs: Record<
@@ -47,46 +40,25 @@ export const reportsTabs: Record<
   { label: string; pathname: string; icon: any }[]
 > = {
   [PrimitiveType.TypoCluster]: [],
-  [PrimitiveType.FD]: [
-    menuOverview,
-    menuStatistics,
-    menuPrimitiveList,
-    menuDatasetSnippet,
-  ],
-  [PrimitiveType.CFD]: [
-    menuOverview,
-    menuStatistics,
-    menuPrimitiveList,
-    menuDatasetSnippet,
-  ],
-  [PrimitiveType.AR]: [
-    menuOverview,
-    menuStatistics,
-    menuPrimitiveList,
-    menuDatasetSnippet,
-  ],
-  [PrimitiveType.TypoFD]: [
-    menuOverview,
-    menuStatistics,
-    menuPrimitiveList,
-    menuClusters,
-    menuDatasetSnippet,
-  ],
+  [PrimitiveType.FD]: [menuStatistics, menuPrimitiveList, menuDatasetSnippet],
+  [PrimitiveType.CFD]: [menuStatistics, menuPrimitiveList, menuDatasetSnippet],
+  [PrimitiveType.AR]: [menuPrimitiveList, menuDatasetSnippet],
+  [PrimitiveType.TypoFD]: [menuPrimitiveList, menuClusters, menuDatasetSnippet],
 };
 
 export const ReportsLayout: FC<Props> = ({ children }) => {
   const router = useRouter();
   const { taskInfo } = useTaskContext();
   const primitive = taskInfo?.taskInfo.data.baseConfig.type;
+
   return (
     <div className={styles.page}>
-      <div className={styles.background}>
-        <img
-          src={bg.src}
-          className={styles.background_image}
-          alt="background"
-        />
-      </div>
+      <Background
+        className={styles.background}
+        width="100%"
+        height="100%"
+        preserveAspectRatio="xMidYMid slice"
+      />
       <div className={styles.menu}>
         <ul>
           {primitive &&
@@ -103,9 +75,7 @@ export const ReportsLayout: FC<Props> = ({ children }) => {
                   })
                 }
               >
-                <span className={styles.icon}>
-                  <Image src={icon} width={24} height={24} />
-                </span>
+                {icon}
                 <p>{label}</p>
               </li>
             ))}

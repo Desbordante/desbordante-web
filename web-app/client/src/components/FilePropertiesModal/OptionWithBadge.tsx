@@ -1,7 +1,7 @@
 import { ComponentType } from 'react';
 import { OptionProps } from 'react-select';
-import styles from '@components/FilePropsView/FilePropsView.module.scss';
-import { ColumnOption } from '@components/FilePropsView/StatsTab';
+import styles from '@components/FilePropertiesModal/FilePropsView.module.scss';
+import { ColumnOption } from '@components/FilePropertiesModal/tabs/StatsTab';
 import { Badge } from '@components/FileStats/Badge';
 import { InputPropsBase } from '@components/Inputs';
 import { Option as CustomOption } from '@components/Inputs/Select/customComponents';

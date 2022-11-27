@@ -1,7 +1,7 @@
 import cn from 'classnames';
-import Image from 'next/image';
 import { ComponentType } from 'react';
 import {
+  components,
   ControlProps,
   IndicatorsContainerProps,
   InputProps,
@@ -62,20 +62,9 @@ const Placeholder: ComponentType<PlaceholderProps & InputPropsBase> = ({
   </div>
 );
 
-const Input: ComponentType<InputProps & InputPropsBase> = ({
-  innerRef,
-  value,
-  isDisabled,
-  ...inputProps
-}) => (
-  <div className={cn(styles.input, value && styles.hasValue)}>
-    <input
-      type="text"
-      ref={innerRef}
-      value={value}
-      disabled={isDisabled}
-      {...inputProps}
-    />
+const Input: ComponentType<InputProps & InputPropsBase> = (inputProps) => (
+  <div className={cn(styles.input, inputProps.value && styles.hasValue)}>
+    <components.Input {...inputProps} />
   </div>
 );
 

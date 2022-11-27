@@ -1,5 +1,16 @@
 @import "styles/common";
 
+.header {
+  text-align: center;
+  margin: 0 0 32px;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .fieldsRow {
   display: flex;
   gap: 24px;
@@ -8,30 +19,6 @@
   & > * {
     flex-grow: 1;
     max-width: calc(50% - 12px);
-  }
-}
-
-.container {
-  width: 560px;
-  height: fit-content;
-  padding: 48px;
-  border-radius: 16px;
-  background-color: $white;
-
-  max-height: 100vh;
-
-  overflow-y: auto;
-  overflow-x: auto;
-
-  h4 {
-    padding: 0;
-    margin: 0;
-    text-align: center;
-    margin-bottom: 32px;
-  }
-
-  form > * {
-    margin-top: 24px;
   }
 }
 

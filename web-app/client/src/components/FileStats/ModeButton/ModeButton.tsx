@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { ButtonHTMLAttributes, FC } from 'react';
-import grid from '@assets/icons/grid.svg';
-import list from '@assets/icons/list.svg';
+import GridIcon from '@assets/icons/grid.svg?component';
+import ListIcon from '@assets/icons/list.svg?component';
 import Button from '@components/Button';
 import styles from './ModeButton.module.scss';
 
@@ -16,7 +16,7 @@ export const ModeButton: FC<ModeButtonProps> = ({
 }: ModeButtonProps) => (
   <Button
     variant="secondary"
-    icon={!tableMode ? grid : list}
+    icon={!tableMode ? <GridIcon /> : <ListIcon />}
     className={classNames(className, styles.wrapper)}
     aria-label="Change mode"
     {...props}

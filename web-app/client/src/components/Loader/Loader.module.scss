@@ -3,18 +3,13 @@
 .container {
   gap: 40px;
   justify-content: center;
+  align-items: center;
   display: flex;
-  height: fit-content;
 }
 
 .text {
-  gap: 16px;
-  justify-content: space-around;
-  flex-direction: column;
-  display: flex;
-
-  .description {
-    @include paragraph-small;
+  h6 {
+    margin: 0 0 16px;
   }
 }
 

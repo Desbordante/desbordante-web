@@ -10,7 +10,7 @@ import {
   useForm,
   UseFormStateReturn,
 } from 'react-hook-form';
-import ideaIcon from '@assets/icons/idea.svg';
+import IdeaIcon from '@assets/icons/idea.svg?component';
 import Button from '@components/Button';
 import { Select } from '@components/Inputs';
 import NumberSlider from '@components/Inputs/NumberSlider/NumberSlider';
@@ -29,10 +29,10 @@ import {
   createTaskWithDatasetChoosingVariables,
 } from '@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing';
 import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations/chooseTask';
-import { useErrorContext } from '@hooks/useErrorContext';
+import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
-import { MainPrimitiveType } from 'types/globalTypes';
 import { showError } from '@utils/toasts';
+import { MainPrimitiveType } from 'types/globalTypes';
 
 type FDForm = {
   algorithmName: any;
@@ -40,17 +40,20 @@ type FDForm = {
   errorThreshold: number;
   threadsCount: number;
 };
+
 type CFDForm = {
   algorithmName: any;
   maxLHS: number;
   minConfidence: number;
   minSupportCFD: number;
 };
+
 type ARForm = {
   algorithmName: any;
   minConfidence: number;
   minSupportAR: number;
 };
+
 type TypoFDForm = {
   preciseAlgorithm?: any;
   approximateAlgorithm?: any;
@@ -64,6 +67,7 @@ type TypoFDForm = {
   defaultRatio: number;
   metric: any;
 };
+
 type AlgorithmConfig = FDForm | CFDForm | ARForm | TypoFDForm;
 type AlgorithmProps = FDForm & CFDForm & ARForm & TypoFDForm;
 type FormInput = (props: {
@@ -103,49 +107,54 @@ const defaultValuesByPrimitive = {
     metric: 'MODULUS_OF_DIFFERENCE',
   } as TypoFDForm,
 };
+
 type QueryProps = {
   primitive: MainPrimitiveType;
   fileID: string;
   formParams: { [key: string]: string | string[] | undefined };
 };
+
 const ConfigureAlgorithm: NextPage = () => {
   const router = useRouter();
-  const {
-    primitive: rawPrimitive,
-    fileID: rawFileID,
-    ...formParams
-  } = router.query;
-  const primitive =
-    typeof rawPrimitive === 'string' && rawPrimitive in MainPrimitiveType
-      ? (rawPrimitive as MainPrimitiveType)
-      : undefined;
-  const fileID = typeof rawFileID === 'string' ? rawFileID : undefined;
+  const { primitive, fileID, config } = useTaskUrlParams();
+
+  if (router.isReady && !primitive.value) {
+    router.push({
+      pathname: '/create-task/choose-primitive',
+      query: router.query,
+    });
+  }
+
+  if (router.isReady && !fileID.value) {
+    router.push({
+      pathname: '/create-task/choose-file',
+      query: router.query,
+    });
+  }
+
   return (
     <>
-      {primitive && fileID && (
+      {primitive.value && fileID.value && (
         <BaseConfigureAlgorithm
-          primitive={primitive}
-          fileID={fileID}
-          formParams={formParams}
+          primitive={primitive.value}
+          fileID={fileID.value}
+          formParams={config.value}
         />
       )}
-      {!primitive && <p>Error: primitive not specified</p>}
     </>
   );
 };
+
 const BaseConfigureAlgorithm: FC<QueryProps> = ({
   primitive,
   fileID,
   formParams,
 }) => {
   const router = useRouter();
-  const {
-    handleSubmit,
-    reset,
-    control,
-    watch,
-    formState: { errors },
-  } = useForm<AlgorithmConfig, keyof AlgorithmProps>({
+  const { handleSubmit, reset, control, watch } = useForm<
+    AlgorithmConfig,
+    keyof AlgorithmProps
+  >({
     defaultValues: {
       algorithmName: 'Pyro',
       preciseAlgorithm: 'Pyro',
@@ -170,7 +179,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
             type: primitive,
             ...data,
           },
-          forceCreate: false,
+          forceCreate: true,
         },
       })
         .then((resp) =>
@@ -231,7 +240,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
       >
         Go Back
       </Button>
-      <Button variant="primary" icon={ideaIcon} onClick={analyzeHandler}>
+      <Button variant="primary" icon={<IdeaIcon />} onClick={analyzeHandler}>
         Analyze
       </Button>
     </>
@@ -255,18 +264,20 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         errorThreshold: ({ field }) => (
           <NumberSlider
             {...field}
+            size={4}
             disabled={
               !optionsByAlgorithms[watchAlgorithm as Algorithms].includes(
                 'threshold'
               )
             }
-            sliderProps={{ min: 0, max: 1, step: 1e-6 }}
+            sliderProps={{ min: 0, max: 1, step: 1e-4 }}
             label="Error threshold"
           />
         ),
         maxLHS: ({ field }) => (
           <NumberSlider
             {...field}
+            size={4}
             disabled={
               !optionsByAlgorithms[watchAlgorithm as Algorithms].includes(
                 'arity'
@@ -279,6 +290,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         threadsCount: ({ field }) => (
           <NumberSlider
             {...field}
+            size={4}
             disabled={
               !optionsByAlgorithms[watchAlgorithm as Algorithms].includes(
                 'threads'
@@ -303,13 +315,15 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         minConfidence: ({ field }) => (
           <NumberSlider
             {...field}
-            sliderProps={{ min: 0, max: 1, step: 1e-6 }}
+            size={4}
+            sliderProps={{ min: 0, max: 1, step: 1e-4 }}
             label="Minimum confidence"
           />
         ),
         maxLHS: ({ field }) => (
           <NumberSlider
             {...field}
+            size={4}
             sliderProps={{ min: 1, max: 10, step: 1 }}
             label="Arity constraint"
           />
@@ -317,6 +331,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         minSupportCFD: ({ field }) => (
           <NumberSlider
             {...field}
+            size={4}
             sliderProps={{ min: 1, max: 16, step: 1 }}
             label="Minimum support"
           />
@@ -336,14 +351,16 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         minConfidence: ({ field }) => (
           <NumberSlider
             {...field}
-            sliderProps={{ min: 0, max: 1, step: 1e-6 }}
+            size={5}
+            sliderProps={{ min: 0, max: 1, step: 1e-4 }}
             label="Minimum confidence"
           />
         ),
         minSupportAR: ({ field }) => (
           <NumberSlider
             {...field}
-            sliderProps={{ min: 0, max: 1, step: 1e-6 }}
+            size={5}
+            sliderProps={{ min: 0, max: 1, step: 1e-4 }}
             label="Minimum support"
           />
         ),
@@ -370,13 +387,15 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         errorThreshold: ({ field }) => (
           <NumberSlider
             {...field}
-            sliderProps={{ min: 0, max: 1, step: 1e-6 }}
+            size={4}
+            sliderProps={{ min: 0, max: 1, step: 1e-4 }}
             label="Error threshold"
           />
         ),
         maxLHS: ({ field }) => (
           <NumberSlider
             {...field}
+            size={4}
             sliderProps={{ min: 1, max: 9, step: 1 }}
             label="Arity constraint"
           />
@@ -384,6 +403,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         threadsCount: ({ field }) => (
           <NumberSlider
             {...field}
+            size={4}
             sliderProps={{ min: 1, max: 8, step: 1 }}
             label="Thread count"
           />
@@ -391,14 +411,16 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         defaultRadius: ({ field }) => (
           <NumberSlider
             {...field}
-            sliderProps={{ min: 1, max: 10, step: 1e-6 }}
+            size={4}
+            sliderProps={{ min: 1, max: 10, step: 1e-4 }}
             label="Radius"
           />
         ),
         defaultRatio: ({ field }) => (
           <NumberSlider
             {...field}
-            sliderProps={{ min: 0, max: 1, step: 0.01 }}
+            size={4}
+            sliderProps={{ min: 0, max: 1, step: 1e-2 }}
             label="Ratio"
           />
         ),
@@ -419,6 +441,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         />
       )
   );
+
   return (
     <WizardLayout header={header} footer={footer}>
       <div className={styles.container}>{InputsForm}</div>

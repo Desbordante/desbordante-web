@@ -22,6 +22,7 @@
     padding: 16px;
     border: 1px solid $black-25;
     border-radius: 8px;
+    background: $white-25;
 
     &.focused {
       border: 1px solid $primary-0;
@@ -48,9 +49,15 @@
 
   .input {
     position: absolute;
+    @include paragraph;
 
     &.hasValue {
       position: relative;
+    }
+
+    > div {
+      margin: 0;
+      padding: 0;
     }
 
     input {

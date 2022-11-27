@@ -10,6 +10,10 @@
   .buttons {
     gap: 16px;
     display: flex;
+
+    button {
+      height: 60px;
+    }
   }
 }
 

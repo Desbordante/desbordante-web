@@ -12,6 +12,9 @@ export const GET_ALGORITHMS_CONFIG = gql`
         rowsCount
         countOfColumns
         isBuiltIn
+        createdAt
+        originalFileName
+        numberOfUses
       }
       allowedFDAlgorithms {
         name

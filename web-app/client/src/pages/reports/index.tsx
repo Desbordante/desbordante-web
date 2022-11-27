@@ -1,5 +1,4 @@
-import _ from 'lodash';
-import type { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Loader from '@components/Loader/Loader';
 import styles from '@styles/Reports.module.scss';
@@ -7,6 +6,7 @@ import styles from '@styles/Reports.module.scss';
 const ReportsHome: NextPage = () => {
   const router = useRouter();
   const taskID = router.query.taskID;
+
   return (
     <div className={styles.container}>
       {taskID && (
@@ -22,9 +22,16 @@ const ReportsHome: NextPage = () => {
           taskID={taskID as string}
         />
       )}
-      {!taskID && <p>You haven't selected a task</p>}
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = (context) => {
+  if (!context.query.taskID) {
+    return { notFound: true };
+  }
+
+  return { props: {} };
 };
 
 export default ReportsHome;

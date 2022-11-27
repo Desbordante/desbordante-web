@@ -6,7 +6,7 @@ type TabProps = {
   name: string;
 };
 
-export const Tab: FC<TabProps & PropsWithChildren> = ({ name, children }) => {
+export const Tab: FC<TabProps & PropsWithChildren> = ({ children }) => {
   return (
     <>
       <div>{children}</div>
@@ -20,12 +20,15 @@ type Props = {
 
 export const TabView: FC<Props> = ({ children }) => {
   const [tab, setTab] = useState(0);
-  const childrenArray = Array.isArray(children) ? children : [children];
+  const childrenArray = Array.isArray(children)
+    ? children.filter((child) => child)
+    : [children];
   return (
     <div>
       <div className={styles.header}>
         {childrenArray.map(({ props }, i) => (
           <p
+            key={props.name}
             onClick={() => setTab(i)}
             className={classNames(i === tab && styles.selected)}
           >

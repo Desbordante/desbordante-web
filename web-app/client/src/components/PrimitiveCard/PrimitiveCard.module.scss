@@ -1,0 +1,29 @@
+@import "styles/common";
+
+.primitiveCard {
+  .radio {
+    padding: 16px 32px;
+    background: $white-25;
+    border: 2px solid $black-10;
+    border-radius: 8px;
+    white-space: nowrap;
+    transition: 0.15s;
+
+    &:hover {
+      border-color: $primary-0;
+    }
+
+    &.selected {
+      border-color: $primary-0;
+      background: $primary-05;
+    }
+  }
+
+  .descriptionBelow {
+    margin: 8px 0 16px;
+
+    @media (min-width: 1200px) {
+      display: none;
+    }
+  }
+}

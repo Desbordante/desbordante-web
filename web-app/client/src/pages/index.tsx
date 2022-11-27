@@ -35,7 +35,7 @@ const Home: NextPage = () => {
           <div className={styles.links}>
             <Button
               variant="gradient"
-              onClick={() => router.push('/create-task/choose-file')}
+              onClick={() => router.push('/create-task/choose-primitive')}
             >
               Get Started
             </Button>

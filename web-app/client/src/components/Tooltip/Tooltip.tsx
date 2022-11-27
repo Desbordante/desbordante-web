@@ -1,7 +1,6 @@
 import cn from 'classnames';
-import Image from 'next/image';
 import { useState } from 'react';
-import infoIcon from '@assets/icons/info.svg';
+import InfoIcon from '@assets/icons/info.svg?component';
 import { FCWithChildren } from 'types/react';
 
 import styles from './Tooltip.module.scss';
@@ -20,11 +19,9 @@ const Tooltip: FCWithChildren<Props> = ({
 
   return (
     <div className={cn(styles.tooltip, className)}>
-      <Image
+      <InfoIcon
         width={16}
         height={16}
-        src={infoIcon}
-        alt="info"
         className={styles.icon}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}

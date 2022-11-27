@@ -1,6 +1,5 @@
 import classNames from 'classnames';
-import Image, { StaticImageData } from 'next/image';
-import { FC, ButtonHTMLAttributes } from 'react';
+import { FC, ButtonHTMLAttributes, ReactNode } from 'react';
 import styles from './Button.module.scss';
 
 type ButtonVariant =
@@ -10,12 +9,11 @@ type ButtonVariant =
   | 'secondary-danger'
   | 'tertiary';
 type ButtonSize = 'sm' | 'lg' | 'md';
-type Icon = string | StaticImageData;
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
-  icon?: Icon;
+  icon?: ReactNode;
 }
 
 const Button: FC<Props> = ({
@@ -44,11 +42,7 @@ const Button: FC<Props> = ({
       )}
     >
       <>
-        {icon && (
-          <span className={styles.icon}>
-            <Image src={icon} width={24} height={24} />
-          </span>
-        )}
+        {icon}
         {children}
       </>
     </button>

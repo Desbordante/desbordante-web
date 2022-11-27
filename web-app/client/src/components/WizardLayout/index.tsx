@@ -1,2 +1,1 @@
-import { WizardLayout } from './WizardLayout';
-export default WizardLayout;
+export { default } from './WizardLayout';

@@ -1,5 +1,10 @@
 .container {
-  gap: 128px;
   display: flex;
-  flex-wrap: wrap;
+  gap: 128px;
+  height: 100%;
+
+  @media (max-width: 1600px) {
+    flex-direction: column;
+    gap: 64px;
+  }
 }
