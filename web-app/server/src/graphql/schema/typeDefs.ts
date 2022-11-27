@@ -588,7 +588,24 @@ const typeDefs = gql`
         quantile75: String
     }
 
+    """
+    If 'name' = Columns, 'amount' contains the number of columns in the dataset.
+    If 'name' = Rows, 'amount' contains the number of rows in the dataset.
+    If 'name' = Categorical, then 'amount' contains the number of categorical columns.
+    Otherwise, 'name' contains the column type, 'amount'contains the number of columns 
+    with that type.
+    """
+    type OverviewData {
+        name: String!
+        amount: Int!
+    }
+
     type DatasetStats {
+        """
+        Returns an overview of the statistics of the dataset columns:
+        number of columns, rows, number of categorical columns, number of columns of each type.
+        """
+        overview: [OverviewData!]!
         "Returns an empty array if statistics have not yet been calculated"
         stats(pagination: Pagination! = { offset: 0, limit: 100 }): [ColumnStats!]!
         "Returns null if statistics have not yet started to be calculated"
