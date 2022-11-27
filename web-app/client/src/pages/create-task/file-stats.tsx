@@ -6,7 +6,7 @@ import { WizardLayout } from '@components/WizardLayout/WizardLayout';
 import client from '@graphql/client';
 import {
   getFileStats,
-  getFileStats_datasetInfo_stats as FileStats,
+  getFileStats_datasetInfo_statsInfo_stats as ColumnStats,
   getFileStatsVariables,
 } from '@graphql/operations/queries/__generated__/getFileStats';
 import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
@@ -16,7 +16,7 @@ import { StatType } from 'types/fileStats';
 
 type FileStatsProps = {
   overview: StatType[];
-  columns: FileStats[];
+  columns: ColumnStats[];
   name: string;
 };
 
@@ -45,7 +45,7 @@ export const getServerSideProps: GetServerSideProps<
 
   const overview: StatType[] = getOverview(file);
 
-  const columns: FileStats[] = file.stats;
+  const columns: ColumnStats[] = file.statsInfo.stats;
 
   return {
     props: {
@@ -73,7 +73,7 @@ const FileStats: NextPage<FileStatsProps> = ({
       </Group>
       <Group header="Columns" className={styles.columns}>
         {columns.map((column) => (
-          <ColumnCard key={column.columnIndex} column={column} />
+          <ColumnCard key={column.column.index} columnStats={column} />
         ))}
       </Group>
     </WizardLayout>

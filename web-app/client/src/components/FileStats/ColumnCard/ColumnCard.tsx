@@ -9,17 +9,17 @@ import { useToggle } from '@components/FileStats/hooks';
 import { ModeButton } from '@components/FileStats/ModeButton';
 import { Paper } from '@components/FileStats/Paper';
 import { StatsBlock } from '@components/FileStats/StatsBlock';
-import { getFileStats_datasetInfo_stats as FileStats } from '@graphql/operations/queries/__generated__/getFileStats';
+import { getFileStats_datasetInfo_statsInfo_stats as ColumnStats } from '@graphql/operations/queries/__generated__/getFileStats';
 import styles from './ColumnCard.module.scss';
 
 type ColumnCardProps = {
-  column: FileStats;
+  columnStats: ColumnStats;
   compact?: boolean;
 } & HTMLProps<HTMLDivElement>;
 
 export const ColumnCard: FC<ColumnCardProps> = ({
   className,
-  column,
+  columnStats,
   compact,
   ...props
 }: ColumnCardProps) => {
@@ -31,12 +31,12 @@ export const ColumnCard: FC<ColumnCardProps> = ({
     <div className={styles.header}>
       <div className={styles.nameWithBadges}>
         <div className={styles.name}>
-          <span>#{column.columnIndex + 1}</span>
-          <h6>{column.columnName}</h6>
+          <span>#{columnStats.column.index + 1}</span>
+          <h6>{columnStats.column.index}</h6>
         </div>
         <div className={styles.badges}>
-          <Badge mode="secondary">{column.type}</Badge>
-          {column.isCategorical && <Badge>Categorical</Badge>}
+          <Badge mode="secondary">{columnStats.type}</Badge>
+          {columnStats.isCategorical && <Badge>Categorical</Badge>}
         </div>
       </div>
       <ModeButton tableMode={tableMode} onClick={toggleMode} />
@@ -49,16 +49,16 @@ export const ColumnCard: FC<ColumnCardProps> = ({
         <StatsBlock
           tableMode={tableMode}
           stats={[
-            { name: 'Distinct', value: column.distinct },
-            { name: 'Count', value: column.count },
+            { name: 'Distinct', value: columnStats.distinct },
+            { name: 'Count', value: columnStats.count },
           ]}
           size="lg"
         />
         <StatsBlock
           tableMode={tableMode}
           stats={[
-            { name: 'Avg', value: column.avg },
-            { name: 'Std', value: column.STD },
+            { name: 'Avg', value: columnStats.avg },
+            { name: 'Std', value: columnStats.STD },
           ]}
           size="lg"
         />
@@ -68,20 +68,20 @@ export const ColumnCard: FC<ColumnCardProps> = ({
           <StatsBlock
             tableMode={tableMode}
             stats={[
-              { name: 'Min', value: column.min },
-              { name: 'Max', value: column.max },
-              { name: 'Quantile 25', value: column.quantile25 },
-              { name: 'Quantile 50', value: column.quantile50 },
-              { name: 'Quantile 75', value: column.quantile75 },
+              { name: 'Min', value: columnStats.min },
+              { name: 'Max', value: columnStats.max },
+              { name: 'Quantile 25', value: columnStats.quantile25 },
+              { name: 'Quantile 50', value: columnStats.quantile50 },
+              { name: 'Quantile 75', value: columnStats.quantile75 },
             ]}
             header="Quantile stats"
           />
           <StatsBlock
             tableMode={tableMode}
             stats={[
-              { name: 'Skewness', value: column.skewness },
-              { name: 'Kurtosis', value: column.kurtosis },
-              { name: 'Sum', value: column.sum },
+              { name: 'Skewness', value: columnStats.skewness },
+              { name: 'Kurtosis', value: columnStats.kurtosis },
+              { name: 'Sum', value: columnStats.sum },
             ]}
             header="Descriptive stats"
           />

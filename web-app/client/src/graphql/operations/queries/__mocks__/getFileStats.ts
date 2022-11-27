@@ -1,45 +1,18 @@
 import { GraphQLError } from 'graphql';
-import {
-  getFileStats,
-  getFileStats_datasetInfo,
-} from '@graphql/operations/queries/__generated__/getFileStats';
+import { getFileStats } from '@graphql/operations/queries/__generated__/getFileStats';
+import { TaskErrorStatusType } from 'types/globalTypes';
 
 const fileStatsMock: getFileStats = {
   datasetInfo: {
     __typename: 'DatasetInfo',
     fileID: 'f7410bff-873a-4299-82dc-fc1f21b44cd1',
     fileName: 'SimpleTypos.csv',
-    hasStats: false,
-    statsProgress: 0,
     countOfColumns: 3,
-    overview: {
-      __typename: 'FileOverview',
-      categoricals: 5,
-      integers: 4,
-      floats: 3,
-      strings: 3,
+    statsInfo: {
+      __typename: 'DatasetStats',
+      state: null,
+      stats: [],
     },
-    stats: [
-      {
-        __typename: 'FileStats',
-        columnIndex: 0,
-        columnName: 'Column #0',
-        distinct: 256,
-        isCategorical: true,
-        count: 1281731,
-        avg: '9706.470388',
-        STD: '7451.165309',
-        skewness: '0.637135',
-        kurtosis: '2.329082',
-        min: '0',
-        max: '28565',
-        sum: '12441083997',
-        quantile25: '3318',
-        quantile50: '7993',
-        quantile75: '14948',
-        type: 'Integer',
-      },
-    ],
   },
 };
 
@@ -48,29 +21,75 @@ export const inProgressFileIdMock = 'inProgressFileId';
 export const completedFileIdMock = 'completedFileId';
 export const notFoundFileIdMock = 'notFoundFileId';
 export const errorFileIdMock = 'errorFileId';
+export const startErrorFileIdMock = 'startErrorFileId';
+export const statsErrorFileIdMock = 'statsErrorFileId';
 
-export const notProcessedFileStatsMock: getFileStats = {
-  datasetInfo: {
-    ...(fileStatsMock.datasetInfo as getFileStats_datasetInfo),
-    hasStats: false,
-    statsProgress: 0,
-  },
-};
+export const notProcessedFileStatsMock: getFileStats = fileStatsMock;
 
 export const inProgressFileStatsMock: getFileStats = {
   datasetInfo: {
-    ...(fileStatsMock.datasetInfo as getFileStats_datasetInfo),
-    hasStats: true,
-    statsProgress: 50,
+    ...fileStatsMock.datasetInfo,
+    statsInfo: {
+      __typename: 'DatasetStats',
+      state: {
+        __typename: 'TaskState',
+        progress: 50,
+      },
+      stats: [],
+    },
   },
 };
 
 export const completedFileStatsMock: getFileStats = {
   datasetInfo: {
-    ...(fileStatsMock.datasetInfo as getFileStats_datasetInfo),
-    hasStats: true,
-    statsProgress: 100,
+    ...fileStatsMock.datasetInfo,
+    statsInfo: {
+      __typename: 'DatasetStats',
+      state: {
+        __typename: 'TaskState',
+        progress: 100,
+      },
+      stats: [
+        {
+          __typename: 'ColumnStats',
+          column: {
+            __typename: 'Column',
+            index: 0,
+            name: 'Column #0',
+          },
+          distinct: 256,
+          isCategorical: true,
+          count: 1281731,
+          avg: '9706.470388',
+          STD: '7451.165309',
+          skewness: '0.637135',
+          kurtosis: '2.329082',
+          min: '0',
+          max: '28565',
+          sum: '12441083997',
+          quantile25: '3318',
+          quantile50: '7993',
+          quantile75: '14948',
+          type: 'Integer',
+        },
+      ],
+    },
   },
 };
 
 export const notFoundFileStatsMock = [new GraphQLError('Not found!')];
+export const startErrorFileStatsMock = [new GraphQLError('Start error!')];
+
+export const statsErrorFileStatsMock: getFileStats = {
+  datasetInfo: {
+    ...fileStatsMock.datasetInfo,
+    statsInfo: {
+      __typename: 'DatasetStats',
+      state: {
+        __typename: 'InternalServerTaskError',
+        errorStatus: TaskErrorStatusType.INTERNAL_SERVER_ERROR,
+      },
+      stats: [],
+    },
+  },
+};

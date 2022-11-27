@@ -6,10 +6,10 @@ import { completedFileStatsMock } from '@graphql/operations/queries/__mocks__/ge
 const user = userEvent.setup();
 
 describe('ColumnCard Component', () => {
-  const column = completedFileStatsMock.datasetInfo!.stats[0]!;
+  const column = completedFileStatsMock.datasetInfo.statsInfo.stats[0];
 
   it('Should change mode', async () => {
-    render(<ColumnCard column={column} />);
+    render(<ColumnCard columnStats={column} />);
 
     expect(() => screen.getByRole('table')).toThrow();
 
@@ -20,7 +20,7 @@ describe('ColumnCard Component', () => {
   });
 
   it('Should show details', async () => {
-    const { container } = render(<ColumnCard column={column} />);
+    const { container } = render(<ColumnCard columnStats={column} />);
 
     const collapse = container.getElementsByClassName(
       'ReactCollapse--collapse'

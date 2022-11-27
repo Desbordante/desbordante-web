@@ -5,32 +5,39 @@ export const GET_FILE_STATS = gql`
     datasetInfo(fileID: $fileID) {
       fileID
       fileName
-      hasStats
       countOfColumns
-      statsProgress
-      overview {
-        categoricals
-        integers
-        floats
-        strings
-      }
-      stats {
-        columnIndex
-        columnName
-        distinct
-        isCategorical
-        count
-        avg
-        STD
-        skewness
-        kurtosis
-        min
-        max
-        sum
-        quantile25
-        quantile50
-        quantile75
-        type
+      statsInfo {
+        state {
+          ... on TaskState {
+            progress
+          }
+          ... on InternalServerTaskError {
+            errorStatus
+          }
+          ... on ResourceLimitTaskError {
+            errorStatus
+          }
+        }
+        stats(pagination: { offset: 0, limit: 100 }) {
+          column {
+            name
+            index
+          }
+          type
+          distinct
+          isCategorical
+          count
+          avg
+          STD
+          skewness
+          kurtosis
+          min
+          max
+          sum
+          quantile25
+          quantile50
+          quantile75
+        }
       }
     }
   }
