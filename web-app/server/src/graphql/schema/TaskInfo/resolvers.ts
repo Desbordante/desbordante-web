@@ -1,6 +1,6 @@
 import { ApolloError, ForbiddenError, UserInputError } from "apollo-server-core";
 import { CsvParserStream, parse } from "fast-csv";
-import { FindOptions, Op } from "sequelize";
+import { FindOptions, Op, col, fn } from "sequelize";
 import {
     GeneralTaskConfig,
     MainPrimitiveType,
@@ -8,7 +8,7 @@ import {
     isSpecificPrimitiveType,
     mainPrimitives,
 } from "../../../db/models/TaskData/configs/GeneralTaskConfig";
-import { Resolvers, TaskProcessStatusType } from "../../types/types";
+import { OverviewData, Resolvers, TaskProcessStatusType } from "../../types/types";
 import { applyPagination, resolverCannotBeCalled, returnParent } from "../../util";
 import { AbstractFilter } from "./DependencyFilters/AbstractFilter";
 import { AuthenticationError } from "apollo-server-express";
@@ -466,6 +466,34 @@ export const TaskInfoResolvers: Resolvers = {
         },
     },
     DatasetStats: {
+        overview: async (fileInfo, _, { models }) => {
+            const { fileID } = fileInfo;
+            const config = await models.GeneralTaskConfig.findOne({
+                where: { fileID, algorithmName: "Stats", type: "Stats" },
+            });
+            const result = [
+                { name: "Columns", amount: fileInfo.countOfColumns },
+                { name: "Rows", amount: fileInfo.rowsCount },
+            ];
+            if (!config) {
+                return result;
+            }
+            const taskState = await models.TaskState.findByPk(config.taskID);
+            if (!taskState?.isExecuted) {
+                return result;
+            }
+            const typesOverview = await models.ColumnStats.findAll({
+                attributes: [["type", "name"], [fn("COUNT", col("columnIndex")), "amount"]],
+                group: ["type"],
+                raw: true,
+                where: { fileID },
+            }) as unknown as OverviewData[];
+            const categoricalCount = await models.ColumnStats.count({
+                where: { fileID, isCategorical: true },
+            });
+            result.push({ name: "Categorical", amount: categoricalCount });
+            return [...result, ...typesOverview];
+        },
         stats: async (fileInfo, { pagination }, { models }) => {
             const { fileID } = fileInfo;
             const config = await models.GeneralTaskConfig.findOne({
@@ -475,7 +503,7 @@ export const TaskInfoResolvers: Resolvers = {
                 return [];
             }
             const taskState = await models.TaskState.findByPk(config.taskID);
-            if (!taskState || !taskState.isExecuted) {
+            if (!taskState?.isExecuted) {
                 return [];
             }
             const columnStats = await models.ColumnStats.findAll({
@@ -689,3 +717,4 @@ export const TaskInfoResolvers: Resolvers = {
         },
     },
 };
+
