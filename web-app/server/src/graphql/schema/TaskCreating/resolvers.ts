@@ -87,25 +87,6 @@ export const TaskCreatingResolvers: Resolvers = {
                 sessionInfo.userID
             );
         },
-        createMainTaskWithDatasetUploading: async (
-            parent,
-            { props, datasetProps, table },
-            context
-        ) => {
-            const { models, sessionInfo } = context;
-            if (!sessionInfo || !sessionInfo.permissions.includes("USE_OWN_DATASETS")) {
-                throw new AuthenticationError(
-                    "User must be authorized and has permission USE_OWN_DATASETS"
-                );
-            }
-            const file = await models.FileInfo.uploadDataset(
-                datasetProps,
-                table,
-                sessionInfo.userID,
-                props.type === "AR"
-            );
-            return await TaskCreatorFactory.build(props.type, context, props, file, true);
-        },
         deleteTask: async (
             parent,
             { taskID, safeDelete },

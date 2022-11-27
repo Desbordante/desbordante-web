@@ -4,7 +4,7 @@ import {
     PrimitiveType,
     SpecificPrimitiveType,
 } from "../../db/models/TaskData/configs/GeneralTaskConfig";
-import { DatasetInfo, ResourceLimitErrorType, TaskErrorStatusType } from "./types";
+import { ResourceLimitErrorType, TaskErrorStatusType } from "./types";
 import { $GetType } from "sequelize-typescript/dist/model/model/model";
 import { AbstractFilter } from "../schema/TaskInfo/DependencyFilters/AbstractFilter";
 import { AlgorithmsConfigType } from "../schema/AppConfiguration/resolvers";
@@ -56,8 +56,8 @@ export type AlgorithmsConfigModel = AlgorithmsConfigType;
 export type BaseTaskConfigModel = GeneralTaskConfig;
 export type TypoClusterTaskConfigModel = { typoFD: string; fileID: string };
 export type ARTaskConfigModel = { fileID: string };
-export type DatasetInfoModel = FileInfo;
-export type DatasetStatsModel = DatasetInfoModel
+export type DatasetInfoModel = FileInfo & { numberOfUses?: number };
+export type DatasetStatsModel = DatasetInfoModel;
 export type InputFileFormatModel = FileFormat;
 export type PrimitiveTaskResultModel = { state: TaskState } & TaskInfoModel;
 export type SpecificTaskResultModel = {
