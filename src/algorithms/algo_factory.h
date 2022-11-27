@@ -129,7 +129,7 @@ FDAlgorithm::Config CreateFDAlgorithmConfigFromMap(ParamsMap params) {
     FDAlgorithm::Config c;
 
     c.data = ExtractParamFromMap<std::filesystem::path>(params, onam::kData);
-    c.separator = ExtractParamFromMap<char>(params, onam::kSeparatorConfig);
+    c.separator = ExtractParamFromMap<char>(params, onam::kSeparator);
     c.has_header = ExtractParamFromMap<bool>(params, onam::kHasHeader);
     c.is_null_equal_null = ExtractParamFromMap<bool>(params, onam::kEqualNulls);
     c.max_lhs = ExtractParamFromMap<unsigned int>(params, onam::kMaximumLhs);
@@ -167,7 +167,7 @@ ARAlgorithm::Config CreateArAlgorithmConfigFromMap(ParamsMap params) {
     ARAlgorithm::Config c;
 
     c.data = ExtractParamFromMap<std::filesystem::path>(params, onam::kData);
-    c.separator = ExtractParamFromMap<char>(params, onam::kSeparatorConfig);
+    c.separator = ExtractParamFromMap<char>(params, onam::kSeparator);
     c.has_header = ExtractParamFromMap<bool>(params, onam::kHasHeader);
     c.minsup = ExtractParamFromMap<double>(params, onam::kMinimumSupport);
     c.minconf = ExtractParamFromMap<double>(params, onam::kMinimumConfidence);
@@ -204,7 +204,7 @@ MetricVerifier::Config CreateMetricVerifierConfigFromMap(ParamsMap params) {
         throw std::invalid_argument("Q-gram length should be greater than zero.");
     }
     c.data = ExtractParamFromMap<std::filesystem::path>(params, onam::kData);
-    c.separator = ExtractParamFromMap<char>(params, onam::kSeparatorConfig);
+    c.separator = ExtractParamFromMap<char>(params, onam::kSeparator);
     c.has_header = ExtractParamFromMap<bool>(params, onam::kHasHeader);
     c.is_null_equal_null = ExtractParamFromMap<bool>(params, onam::kEqualNulls);
     c.lhs_indices = ExtractParamFromMap<std::vector<unsigned int>>(params, onam::kLhsIndices);
