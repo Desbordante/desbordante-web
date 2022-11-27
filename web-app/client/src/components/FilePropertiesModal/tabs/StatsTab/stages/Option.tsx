@@ -1,12 +1,12 @@
 import { ComponentType } from 'react';
 import { OptionProps } from 'react-select';
-import styles from '@components/FilePropertiesModal/FilePropsView.module.scss';
-import { ColumnOption } from '@components/FilePropertiesModal/tabs/StatsTab';
 import { Badge } from '@components/FileStats/Badge';
 import { InputPropsBase } from '@components/Inputs';
 import { Option as CustomOption } from '@components/Inputs/Select/customComponents';
+import { ColumnOption } from 'types/fileStats';
+import styles from '../StatsTab.module.scss';
 
-export const OptionWithBadge: ComponentType<OptionProps & InputPropsBase> = ({
+export const Option: ComponentType<OptionProps & InputPropsBase> = ({
   children,
   ...props
 }) => {

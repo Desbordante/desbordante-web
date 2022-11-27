@@ -263,7 +263,7 @@ describe('StatsTab Component', () => {
 
     await waitFor(() => {
       expect(routerPushMock).toBeCalledWith(
-        `/create-task/file-stats?fileID=${completedFileIdMock}`
+        `/create-task/file-stats?fileID=${completedFileStatsMock.datasetInfo.fileID}`
       );
     });
   });
