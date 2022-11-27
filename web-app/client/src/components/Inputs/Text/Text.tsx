@@ -13,7 +13,6 @@ import styles from './Text.module.scss';
 type Props = InputPropsBase &
   HTMLProps<HTMLInputElement> & {
     tooltip?: ReactNode;
-    type?: 'email' | 'password' | 'text';
   };
 
 const Text: ForwardRefRenderFunction<HTMLInputElement, Props> = (

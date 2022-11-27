@@ -28,15 +28,11 @@
       margin: 0 128px;
     }
 
-    @media (max-width: 1300px) {
-      margin: 0 96px;
-    }
-
-    @media (max-width: 1200px) {
+    @media (max-width: 1440px) {
       margin: 0 64px;
     }
 
-    @media (max-width: 1080px) {
+    @media (max-width: 1200px) {
       justify-content: center;
     }
 
@@ -65,15 +61,15 @@
       aspect-ratio: 16 / 15;
       width: 640px;
 
-      @media (max-width: 1440px) {
+      @media (max-width: 1600px) {
         width: 480px;
       }
 
-      @media (max-width: 1200px) {
+      @media (max-width: 1440px) {
         width: 400px;
       }
 
-      @media (max-width: 1080px) {
+      @media (max-width: 1200px) {
         display: none;
       }
 

@@ -1,6 +1,6 @@
 import { Chart as ChartJs, ArcElement } from 'chart.js';
 import classNames from 'classnames';
-import { FC, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { animated } from 'react-spring';
 import { DepAttribute } from '@components/TaskContext';
@@ -17,12 +17,7 @@ export interface Props {
   maxItemsShown?: number;
   title: string;
 }
-
-export const useControls = () => {
-  const [depth, setDepth] = useState(0);
-  const [search, setSearch] = useState('');
-  return { depth, setDepth, search, setSearch };
-};
+/* eslint-enable no-unused-vars */
 
 // Get how much px is one rem, later used in chart dimensions
 const rem =
@@ -32,7 +27,7 @@ const rem =
 
 const AnimatedDoughnut = animated(Doughnut);
 
-/* eslint-enable no-unused-vars */
+const maxItemsSelected = 9;
 
 const Chart: FC<Props> = ({
   attributes,
@@ -46,17 +41,21 @@ const Chart: FC<Props> = ({
   const [highlightIndex, setHighlightIndex] = useState<number | null>(null);
   const [displayAttributes, setDisplayAttributes] = useState(attributes);
 
-  const maxItemsSelected = 9;
+  const selectAttribute = useCallback(
+    (attr: DepAttribute) =>
+      setSelectedAttributeIndices(
+        selectedAttributeIndices.concat(attr.column.index)
+      ),
+    [selectedAttributeIndices, setSelectedAttributeIndices]
+  );
 
-  const selectAttribute = (attr: DepAttribute) =>
-    setSelectedAttributeIndices(
-      selectedAttributeIndices.concat(attr.column.index)
-    );
-
-  const removeAttribute = (attr: DepAttribute) =>
-    setSelectedAttributeIndices(
-      selectedAttributeIndices.filter((index) => index !== attr.column.index)
-    );
+  const removeAttribute = useCallback(
+    (attr: DepAttribute) =>
+      setSelectedAttributeIndices(
+        selectedAttributeIndices.filter((index) => index !== attr.column.index)
+      ),
+    [selectedAttributeIndices, setSelectedAttributeIndices]
+  );
 
   useEffect(() => {
     // filtering and splitting dataset into layers
@@ -85,18 +84,34 @@ const Chart: FC<Props> = ({
       });
     }
     setDisplayAttributes(newDisplayAttributes);
-  }, [search, depth, attributes.length, selectedAttributeIndices]);
+  }, [
+    search,
+    depth,
+    attributes.length,
+    selectedAttributeIndices,
+    attributes,
+    maxItemsShown,
+  ]);
 
-  const handleSelect = (_: any, item: Column[]) => {
-    if (!item.length) {
-      return;
-    }
-    if (item[0].index === maxItemsShown) {
-      setDepth(depth + 1);
-    } else if (selectedAttributeIndices.length < maxItemsSelected) {
-      selectAttribute(displayAttributes[item[0].index]);
-    }
-  };
+  const handleSelect = useCallback(
+    (_: any, item: Column[]) => {
+      if (!item.length) {
+        return;
+      }
+      if (item[0].index === maxItemsShown) {
+        setDepth(depth + 1);
+      } else if (selectedAttributeIndices.length < maxItemsSelected) {
+        selectAttribute(displayAttributes[item[0].index]);
+      }
+    },
+    [
+      depth,
+      displayAttributes,
+      maxItemsShown,
+      selectAttribute,
+      selectedAttributeIndices.length,
+    ]
+  );
 
   return (
     <div className={styles.container}>
@@ -117,8 +132,7 @@ const Chart: FC<Props> = ({
         </ul>
         <div
           onMouseOut={() => setHighlightIndex(null)}
-          className="chart-canvas"
-          style={{ height: 'min(40vh, 20rem)', width: 'min(40vh, 20rem)' }}
+          className={styles.canvas}
         >
           <AnimatedDoughnut
             style={{
@@ -157,7 +171,7 @@ const Chart: FC<Props> = ({
               // @ts-ignore
               cutoutPercentage: 10,
               layout: {
-                padding: 1 * rem,
+                padding: rem,
               },
               plugins: {
                 legend: {
@@ -165,24 +179,24 @@ const Chart: FC<Props> = ({
                 },
                 tooltip: {
                   displayColors: false,
-                  cornerRadius: 1 * rem,
+                  cornerRadius: rem,
                   backgroundColor: '#e5e5e5',
                   titleColor: '#000000',
                   titleAlign: 'center',
                   titleFont: {
                     family: "'Roboto', sans-serif",
-                    size: 1 * rem,
+                    size: rem,
                     weight: '600',
                   },
                   bodyColor: '#000000',
                   bodyAlign: 'center',
                   bodyFont: {
                     family: "'Roboto', sans-serif",
-                    size: 1 * rem,
+                    size: rem,
                     weight: '400',
                   },
                   titleMarginBottom: 0.5 * rem,
-                  padding: 1 * rem,
+                  padding: rem,
                   callbacks: {
                     label: (tooltipItem: any) => tooltipItem.label,
                   },
@@ -195,20 +209,24 @@ const Chart: FC<Props> = ({
           />
         </div>
       </div>
-      <div className={styles.selectedAttributes}>
+      <ul className={styles.selectedAttributesContainer}>
         {selectedAttributeIndices.map((attributeIndex) => {
           const attr = attributes.find(
             (e) => e.column.index === attributeIndex
           );
           return (
             attr && (
-              <span key={attributeIndex} onClick={() => removeAttribute(attr)}>
+              <li
+                key={attributeIndex}
+                className={styles.selectedAttribute}
+                onClick={() => removeAttribute(attr)}
+              >
                 {attr.column.name}
-              </span>
+              </li>
             )
           );
         })}
-      </div>
+      </ul>
     </div>
   );
 };

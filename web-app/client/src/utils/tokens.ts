@@ -6,7 +6,7 @@ export function getAccessToken(): string | undefined {
 }
 
 export function setAccessToken(token: string) {
-  document.cookie = cookie.serialize('accessToken', token);
+  document.cookie = cookie.serialize('accessToken', token, { path: '/' });
 }
 
 export function getRefreshToken(): string | undefined {
@@ -14,7 +14,7 @@ export function getRefreshToken(): string | undefined {
 }
 
 export function setRefreshToken(token: string) {
-  document.cookie = cookie.serialize('refreshToken', token);
+  document.cookie = cookie.serialize('refreshToken', token, { path: '/' });
 }
 
 export function saveTokenPair(tokenPair: TokenPair) {

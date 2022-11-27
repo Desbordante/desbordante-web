@@ -17,6 +17,9 @@ export const GET_USER = gql`
         rowsCount
         countOfColumns
         isBuiltIn
+        createdAt
+        originalFileName
+        numberOfUses
       }
     }
   }

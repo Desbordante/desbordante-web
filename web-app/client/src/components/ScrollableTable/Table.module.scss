@@ -50,15 +50,15 @@
   border-radius: 8px;
   max-height: 360px;
   height: 360px;
-  overflow-y: scroll;
+  overflow: auto;
   margin-bottom: 24px;
 }
 
 .table {
-  width: 55vw;
-
   tbody {
     td {
+      @include paragraph-small;
+      white-space: nowrap;
       padding: 8px 24px;
     }
     tr:nth-child(even) {
@@ -73,6 +73,8 @@
     box-shadow: inset 0px 1px $black-25, 0 1px $black-25;
 
     td {
+      @include paragraph;
+      white-space: nowrap;
       padding: 12px 24px;
     }
   }

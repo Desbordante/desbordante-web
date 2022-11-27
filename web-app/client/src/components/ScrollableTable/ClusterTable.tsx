@@ -1,19 +1,16 @@
-import { useLazyQuery, useQuery } from '@apollo/client';
-import { GET_SPECIFIC_CLUSTER } from '@graphql/operations/queries/EDP/getSpecificCluster';
-import _ from 'lodash';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { useLazyQuery } from '@apollo/client';
 import classNames from 'classnames';
-import Image from 'next/image';
+import { FC, useCallback, useEffect, useState } from 'react';
+import ClusterOptions from '@components/ClusterOptions';
+import { useTaskContext } from '@components/TaskContext';
 import {
   getSpecificCluster,
   getSpecificClusterVariables,
 } from '@graphql/operations/queries/EDP/__generated__/getSpecificCluster';
-import threeDots from '@assets/icons/three-dots.svg';
+import { GET_SPECIFIC_CLUSTER } from '@graphql/operations/queries/EDP/getSpecificCluster';
+import { useErrorContext } from '@hooks/useErrorContext';
 import Table from './ScrollableTable';
 import styles from './Table.module.scss';
-import { Checkbox } from '@components/Inputs';
-import { useErrorContext } from '@hooks/useErrorContext';
-import { useTaskContext } from '@components/TaskContext';
 
 type ClusterTableProps = {
   data: string[][] | undefined;
@@ -32,7 +29,6 @@ const ClusterTable: FC<ClusterTableProps> = ({
 }) => {
   const [offset, setOffset] = useState(0);
   const [data, setData] = useState(defaultData || []);
-  const [showOptions, setShowOptions] = useState(false);
   const [squash, setSquash] = useState(false);
   const [sort, setSort] = useState(false);
   const { showError } = useErrorContext();
@@ -112,6 +108,7 @@ const ClusterTable: FC<ClusterTableProps> = ({
       });
     }
   }, [error]);
+
   return (
     <div className={styles.clusterContainer}>
       <Table
@@ -122,44 +119,16 @@ const ClusterTable: FC<ClusterTableProps> = ({
               )
             : header
         }
-        {...{ data, onScroll }}
+        data={pageRows}
+        onScroll={onScroll}
         className={classNames(loading && styles.disabled)}
       />
-
-      <div className={styles.options}>
-        <Image
-          onClick={() => setShowOptions((e) => !e)}
-          src={threeDots}
-          width={24}
-          height={24}
-        />
-        {showOptions && (
-          <div
-            onClick={() => setShowOptions(false)}
-            className={styles.optionsOverlay}
-          ></div>
-        )}
-
-        {showOptions && (
-          <div className={styles.optionsDropdown}>
-            <Checkbox
-              label="Sorted"
-              checked={sort}
-              variant="simple"
-              id="ClusterTableSortedCheckbox"
-              onChange={() => setSort((sorted) => !sorted)}
-            />
-
-            <Checkbox
-              label="Squashed"
-              checked={squash}
-              variant="simple"
-              id="ClusterTableSquashedCheckbox"
-              onChange={() => setSquash((squashed) => !squashed)}
-            />
-          </div>
-        )}
-      </div>
+      <ClusterOptions
+        isSorted={sort}
+        setIsSorted={setSort}
+        isSquashed={squash}
+        setIsSquashed={setSquash}
+      />
     </div>
   );
 };

@@ -5,6 +5,10 @@ html, body, #__next {
   height: 100%;
 }
 
+html {
+  font-size: 20px;
+}
+
 * {
   color: $black;
 }

@@ -5,7 +5,6 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-
   margin: 0;
   outline: none;
   border: none;
@@ -15,6 +14,7 @@
   background: transparent;
   text-align: center;
   text-decoration: none;
+  transition: 0.15s;
 
   &:disabled {
     cursor: default;
@@ -98,6 +98,10 @@
     color: $black-50;
     background: $black-05;
   }
+
+  svg * {
+    fill: $primary-0;
+  }
 }
 
 .secondary {
@@ -131,6 +135,10 @@
     color: $black-50;
     box-shadow: none;
     background: $black-10;
+
+    svg * {
+      fill: $black-50;
+    }
   }
 }
 

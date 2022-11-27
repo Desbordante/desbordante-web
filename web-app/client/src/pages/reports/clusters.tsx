@@ -87,7 +87,9 @@ const Loader: FC<LoaderProps> = ({ lhs, rhs }) => {
         <h6>Discovering clusters for dependency</h6>
         <div className={styles.dependency}>
           {lhs.map((attr) => (
-            <span className={styles.attr}>{attr}</span>
+            <span className={styles.attr} key={attr}>
+              {attr}
+            </span>
           ))}
           <Image src={longArrowIcon} width={66} height={15} />
           <span className={styles.attr}>{rhs}</span>

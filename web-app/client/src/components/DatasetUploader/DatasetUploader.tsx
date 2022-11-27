@@ -1,4 +1,4 @@
-import { DefaultContext, useMutation } from '@apollo/client';
+import { DefaultContext, useMutation, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import Image from 'next/image';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
@@ -13,7 +13,9 @@ import {
   uploadDatasetVariables,
 } from '@graphql/operations/mutations/__generated__/uploadDataset';
 import { UPLOAD_DATASET } from '@graphql/operations/mutations/uploadDataset';
-import { showError } from '@utils/toasts';
+import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
+import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithmsConfig';
+import useModal from '@hooks/useModal';
 import { AllowedDataset } from 'types/algorithms';
 import styles from './DatasetUploader.module.scss';
 
@@ -28,9 +30,14 @@ const DatasetUploader: FC<Props> = ({ onUpload }) => {
   const [fileUploadProgress, setFileUploadProgress] = useState<Progress>({
     state: 'idle',
   });
+  const { data: algorithmsConfig } = useQuery<getAlgorithmsConfig>(
+    GET_ALGORITHMS_CONFIG
+  );
   const [uploadDataset] = useMutation<uploadDataset, uploadDatasetVariables>(
     UPLOAD_DATASET
   );
+  const { open: openFilePropertiesModal, close: closeFilePropertiesModal } =
+    useModal('FILE_PROPERTIES');
 
   const onDrop = useCallback((e: DragEvent) => {
     e.preventDefault();
@@ -51,19 +58,20 @@ const DatasetUploader: FC<Props> = ({ onUpload }) => {
     document.addEventListener('drop', onDrop);
     document.addEventListener('dragover', onDragOver);
     document.addEventListener('dragleave', onDragLeave);
+
     return () => {
       document.removeEventListener('drop', onDrop);
       document.removeEventListener('dragover', onDragOver);
       document.removeEventListener('dragleave', onDragLeave);
     };
-  }, []);
+  }, [onDragLeave, onDragOver, onDrop]);
 
   useEffect(() => {
     if (
       fileUploadProgress.state === 'fail' ||
       fileUploadProgress.state === 'complete'
     ) {
-      setTimeout(() => setFileUploadProgress({ state: 'idle' }), 800);
+      setTimeout(() => setFileUploadProgress({ state: 'idle' }), 1500);
     }
   }, [fileUploadProgress]);
 
@@ -79,24 +87,47 @@ const DatasetUploader: FC<Props> = ({ onUpload }) => {
     },
   };
 
-  const onChange = (files: FileList | null) => {
+  const onChange = async (files: FileList | null) => {
     setIsDraggedInside(false);
-    if (files?.length) {
-      uploadDataset({
-        variables: {
-          datasetProps: { delimiter: ',', hasHeader: false },
-          table: files[0],
-        },
-        context,
-      })
-        .then((res) => {
-          onUpload(res.data?.uploadDataset as AllowedDataset);
-          setFileUploadProgress({ state: 'complete' });
-        })
-        .catch(() => {
-          setFileUploadProgress({ state: 'fail' });
-        });
+    if (!algorithmsConfig) {
+      setFileUploadProgress({ state: 'fail' });
+      return;
     }
+
+    const { allowedFileFormats, maxFileSize } =
+      algorithmsConfig?.algorithmsConfig.fileConfig;
+
+    if (
+      !files ||
+      files.length !== 1 ||
+      !allowedFileFormats.includes(files[0].type) ||
+      files[0].size > maxFileSize
+    ) {
+      setFileUploadProgress({ state: 'fail' });
+      return;
+    }
+
+    openFilePropertiesModal({
+      onClose: () => {
+        setFileUploadProgress({ state: 'idle' });
+        closeFilePropertiesModal();
+      },
+      onSubmit: async (datasetProps) => {
+        try {
+          const { data } = await uploadDataset({
+            variables: {
+              datasetProps,
+              table: files[0],
+            },
+            context,
+          });
+          onUpload(data?.uploadDataset as AllowedDataset);
+          setFileUploadProgress({ state: 'complete' });
+        } catch (error) {
+          setFileUploadProgress({ state: 'fail' });
+        }
+      },
+    });
   };
 
   return (
@@ -104,17 +135,18 @@ const DatasetUploader: FC<Props> = ({ onUpload }) => {
       className={classNames(
         cardStyles.card,
         styles.uploader,
-        isFileDragged ? styles.dragged_outside : null,
-        isDraggedInside ? styles.dragged_inside : null
+        isFileDragged && styles.dragged_outside,
+        isDraggedInside && styles.dragged_inside,
+        styles[fileUploadProgress.state]
       )}
       tabIndex={0}
-      onClick={(e) => inputFile?.current?.click()}
-      onDragEnter={(e) => setIsDraggedInside(true)}
+      onClick={() => inputFile?.current?.click()}
+      onDragEnter={() => setIsDraggedInside(true)}
       onDragOver={(e) => {
         e.preventDefault();
         setIsDraggedInside(true);
       }}
-      onDragLeave={(e) => setIsDraggedInside(false)}
+      onDragLeave={() => setIsDraggedInside(false)}
       onDrop={(e) => onChange(e.dataTransfer.files)}
     >
       <div className={styles.uploader_title}>

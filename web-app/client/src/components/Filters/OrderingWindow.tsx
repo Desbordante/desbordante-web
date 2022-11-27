@@ -1,13 +1,11 @@
 import _ from 'lodash';
 import React, { FC } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
-import Button from '@components/Button';
 import { ControlledSelect } from '@components/Inputs/Select';
-import PopupWindowContainer from '@components/PopupWindowContainer';
+import ListPropertiesModal from '@components/ListPropertiesModal';
 import { OrderingTitles } from '@constants/titles';
 import { OrderBy, PrimitiveType } from 'types/globalTypes';
 import { FiltersFields } from './Filters';
-import styles from './Filters.module.scss';
 
 type OrderingProps = {
   setIsOrderingShown: (arg: boolean) => void;
@@ -43,48 +41,31 @@ export const OrderingWindow: FC<OrderingProps> = ({
   };
 
   return (
-    <>
-      <PopupWindowContainer onOutsideClick={() => setIsOrderingShown(false)}>
-        <div className={styles.container}>
-          <h4>Choose ordering</h4>
-          <ControlledSelect
-            control={control}
-            controlName="ordering"
-            label="Order by"
-            options={_.values(orderingOptions)}
-          />
-
-          <ControlledSelect
-            control={control}
-            controlName="direction"
-            label="Direction"
-            options={_.values(directionOptions)}
-          />
-
-          <div className={styles.footer}>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                reset();
-                setIsOrderingShown(false);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => {
-                baseForm.setValue('ordering', ordering);
-                baseForm.setValue('direction', direction);
-                setIsOrderingShown(false);
-              }}
-            >
-              Apply
-            </Button>
-          </div>
-        </div>
-      </PopupWindowContainer>
-    </>
+    <ListPropertiesModal
+      name="Ordering"
+      onClose={() => {
+        reset();
+        setIsOrderingShown(false);
+      }}
+      onApply={() => {
+        baseForm.setValue('ordering', ordering);
+        baseForm.setValue('direction', direction);
+        setIsOrderingShown(false);
+      }}
+    >
+      <ControlledSelect
+        control={control}
+        controlName="ordering"
+        label="Order by"
+        options={_.values(orderingOptions)}
+      />
+      <ControlledSelect
+        control={control}
+        controlName="direction"
+        label="Direction"
+        options={_.values(directionOptions)}
+      />
+    </ListPropertiesModal>
   );
 };
 export default OrderingWindow;

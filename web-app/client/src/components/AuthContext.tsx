@@ -6,8 +6,8 @@ import React, {
   useEffect,
   PropsWithChildren,
   FC,
+  useCallback,
 } from 'react';
-
 import {
   logOut,
   logOutVariables,
@@ -37,6 +37,7 @@ type AuthContextType = {
   setIsLogInShown: React.Dispatch<React.SetStateAction<boolean>>;
   signOut: () => void;
   applyTokens: (tokens: TokenPair) => void;
+  refreshUserData: () => void;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -84,38 +85,38 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
     });
   };
 
-  useEffect(() => {
-    if (user?.id) {
-      (async () => {
-        const response = await getUser({
-          variables: {
-            userID: user.id!,
-          },
-        });
-        if (response.data?.user) {
-          const {
-            userID,
-            fullName,
-            email,
-            accountStatus,
-            permissions,
-            datasets,
-          } = response.data.user;
-          setUser({
-            id: userID,
-            name: fullName,
-            email,
-            isVerified: accountStatus === 'EMAIL_VERIFIED',
-            permissions: parseUserPermissions(permissions),
-            datasets: datasets || [],
-          });
-        } else {
-          showError('Your authentication expired.', 'Please, log in again.');
-          removeUser();
-        }
-      })();
+  const refreshUserData = useCallback(async () => {
+    if (!user?.id) {
+      return;
     }
-  }, []);
+
+    const response = await getUser({
+      variables: {
+        userID: user.id,
+      },
+      fetchPolicy: 'network-only',
+    });
+
+    if (response.data?.user) {
+      const { userID, fullName, email, accountStatus, permissions, datasets } =
+        response.data.user;
+      setUser({
+        id: userID,
+        name: fullName,
+        email,
+        isVerified: accountStatus === 'EMAIL_VERIFIED',
+        permissions: parseUserPermissions(permissions),
+        datasets: datasets || [],
+      });
+    } else {
+      showError('Your authentication expired.', 'Please, log in again.');
+      removeUser();
+    }
+  }, [getUser, user?.id]);
+
+  useEffect(() => {
+    refreshUserData();
+  }, [refreshUserData]);
 
   useEffect(() => {
     setupDeviceInfo();
@@ -140,7 +141,7 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
         }
       }
     }
-  }, []);
+  }, [getAnonymousPermissions, user]);
 
   useEffect(() => {
     if (user) {
@@ -163,6 +164,7 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
     setIsLogInShown,
     signOut,
     applyTokens,
+    refreshUserData,
   };
 
   return (

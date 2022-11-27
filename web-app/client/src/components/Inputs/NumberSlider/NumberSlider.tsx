@@ -10,8 +10,8 @@ import {
   useState,
 } from 'react';
 import { InputPropsBase, Text } from '@components/Inputs';
-import Tooltip from '@components/Tooltip';
 import 'rc-slider/assets/index.css';
+import Tooltip from '@components/Tooltip';
 import styles from './NumberSlider.module.scss';
 
 type Props = InputPropsBase &
@@ -112,7 +112,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
             onChange(v);
             setTempValue(v.toString());
           }}
-          handleRender={(origin, _props) => (
+          handleRender={(origin) => (
             <div
               {...(origin.props as BaseHTMLAttributes<HTMLDivElement>)}
               className={styles.sliderHandle}

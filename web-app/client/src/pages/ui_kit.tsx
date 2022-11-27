@@ -1,5 +1,6 @@
 import Button from '@components/Button';
 import { Text, Checkbox, Select } from '@components/Inputs';
+import Radio from '@components/Inputs/Radio';
 import Tooltip from '@components/Tooltip';
 import styles from '@styles/UiKit.module.scss';
 
@@ -117,6 +118,36 @@ const Selects = () => {
   );
 };
 
+const Radios = () => {
+  const options = [
+    {
+      label: 'Comma (" , ")',
+      value: ',',
+    },
+    {
+      label: 'New line (" \\n ")',
+      value: '\\n',
+    },
+    {
+      label: 'Tabulation (" \\t ")',
+      value: '\\t',
+    },
+  ];
+
+  return (
+    <div className={styles.row}>
+      {options.map((option) => (
+        <Radio
+          label={option.label}
+          value={option.value}
+          key={option.value}
+          name="qwe"
+        />
+      ))}
+    </div>
+  );
+};
+
 const UIKit = () => {
   return (
     <div className={styles.root}>
@@ -125,6 +156,7 @@ const UIKit = () => {
       <InputCheckbox />
       <Tooltips />
       <Selects />
+      <Radios />
     </div>
   );
 };

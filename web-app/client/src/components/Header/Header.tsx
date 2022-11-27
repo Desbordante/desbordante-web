@@ -49,6 +49,15 @@ const Header = () => {
         {user?.name ? (
           <>
             <p>Welcome, {user.name}</p>
+            {!user.isVerified && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => openSignUpModal({})}
+              >
+                Verify Email
+              </Button>
+            )}
             <Button variant="secondary-danger" size="sm" onClick={signOut}>
               Log Out
             </Button>

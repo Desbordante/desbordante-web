@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/router';
-import { StatsTab } from '@components/FilePropsView/StatsTab';
+import { StatsTab } from '@components/FilePropertiesModal/tabs/StatsTab';
 import { startProcessingStats } from '@graphql/operations/mutations/__generated__/startProcessingStats';
 import { START_PROCESSING_STATS } from '@graphql/operations/mutations/startProcessingStats';
 import { getFileStats } from '@graphql/operations/queries/__generated__/getFileStats';

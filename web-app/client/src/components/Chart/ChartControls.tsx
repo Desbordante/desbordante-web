@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import collapseChartIcon from '@assets/icons/collapse-chart.svg';
+import CollapseChartIcon from '@assets/icons/collapse-chart.svg?component';
 import Button from '@components/Button';
 import { Text } from '@components/Inputs';
 import styles from './ChartControls.module.scss';
@@ -28,8 +28,7 @@ export const ChartControls: FC<Props> = ({
       {depth > 0 && (
         <Button
           variant="secondary"
-          size="sm"
-          icon={collapseChartIcon}
+          icon={<CollapseChartIcon />}
           onClick={() => setDepth(Math.max(0, depth - 1))}
         >
           Collapse this layer

@@ -1,11 +1,10 @@
 import { useLazyQuery } from '@apollo/client';
-import _ from 'lodash';
-import type { GetServerSideProps, NextPage } from 'next';
+import type { GetServerSideProps } from 'next';
 import { ReactElement, useEffect, useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import eyeIcon from '@assets/icons/eye.svg';
-import filterIcon from '@assets/icons/filter.svg';
-import orderingIcon from '@assets/icons/ordering.svg';
+import EyeIcon from '@assets/icons/eye.svg?component';
+import FilterIcon from '@assets/icons/filter.svg?component';
+import OrderingIcon from '@assets/icons/ordering.svg?component';
 import Button from '@components/Button';
 import DependencyList from '@components/DependencyList/DependencyList';
 import {
@@ -52,7 +51,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
   const { search, page, ordering, direction, showKeys } = watch();
 
   const [infoVisible, setInfoVisible] = useState(true);
-  const [getDeps, { loading, data, called, previousData }] = useLazyQuery<
+  const [getDeps, { loading, data, previousData }] = useLazyQuery<
     GetMainTaskDeps,
     GetMainTaskDepsVariables
   >(GET_MAIN_TASK_DEPS);
@@ -128,7 +127,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
           <Button
             variant="secondary"
             size="md"
-            icon={filterIcon}
+            icon={<FilterIcon />}
             onClick={() => setIsFilteringShown(true)}
           >
             Filters
@@ -136,7 +135,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
           <Button
             variant="secondary"
             size="md"
-            icon={orderingIcon}
+            icon={<OrderingIcon />}
             onClick={() => setIsOrderingShown(true)}
           >
             Ordering
@@ -146,7 +145,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
               <Button
                 variant="secondary"
                 size="md"
-                icon={eyeIcon}
+                icon={<EyeIcon />}
                 onClick={() => setInfoVisible((e) => !e)}
               >
                 Visibility
