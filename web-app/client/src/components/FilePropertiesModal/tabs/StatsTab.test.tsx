@@ -6,7 +6,10 @@ import { useRouter } from 'next/router';
 import { StatsTab } from '@components/FilePropertiesModal/tabs/StatsTab';
 import { startProcessingStats } from '@graphql/operations/mutations/__generated__/startProcessingStats';
 import { START_PROCESSING_STATS } from '@graphql/operations/mutations/startProcessingStats';
-import { getFileStats } from '@graphql/operations/queries/__generated__/getFileStats';
+import {
+  getFileStats,
+  getFileStats_datasetInfo_statsInfo_state_TaskState as TaskState,
+} from '@graphql/operations/queries/__generated__/getFileStats';
 import {
   completedFileIdMock,
   completedFileStatsMock,
@@ -17,8 +20,13 @@ import {
   notFoundFileStatsMock,
   notProcessedFileIdMock,
   notProcessedFileStatsMock,
+  startErrorFileIdMock,
+  startErrorFileStatsMock,
+  statsErrorFileIdMock,
+  statsErrorFileStatsMock,
 } from '@graphql/operations/queries/__mocks__/getFileStats';
 import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
+import { TaskErrorStatusType } from 'types/globalTypes';
 
 const user = userEvent.setup();
 
@@ -33,6 +41,17 @@ describe('StatsTab Component', () => {
         query: GET_FILE_STATS,
         variables: {
           fileID: notProcessedFileIdMock,
+        },
+      },
+      result: {
+        data: notProcessedFileStatsMock,
+      },
+    },
+    {
+      request: {
+        query: GET_FILE_STATS,
+        variables: {
+          fileID: startErrorFileIdMock,
         },
       },
       result: {
@@ -83,6 +102,17 @@ describe('StatsTab Component', () => {
         data: null,
       },
     },
+    {
+      request: {
+        query: GET_FILE_STATS,
+        variables: {
+          fileID: statsErrorFileIdMock,
+        },
+      },
+      result: {
+        data: statsErrorFileStatsMock,
+      },
+    },
   ];
 
   const mutationMocks: MockedResponse<startProcessingStats>[] = [
@@ -93,12 +123,21 @@ describe('StatsTab Component', () => {
       },
       newData: jest.fn(() => ({
         data: {
-          startProcessingStats: {
-            __typename: 'DatasetInfo',
-            fileID: notProcessedFileIdMock,
+          createMainTaskWithDatasetChoosing: {
+            __typename: 'TaskState',
+            taskID: 'test',
           },
         },
       })),
+    },
+    {
+      request: {
+        query: START_PROCESSING_STATS,
+        variables: { fileID: startErrorFileIdMock, threadsCount },
+      },
+      result: {
+        errors: startErrorFileStatsMock,
+      },
     },
   ];
 
@@ -112,8 +151,12 @@ describe('StatsTab Component', () => {
     jest.clearAllMocks();
   });
 
-  it('Should display start processing stage', async () => {
-    render(<Component fileID={notProcessedFileIdMock} />);
+  it.each`
+    name       | fileId
+    ${'stage'} | ${notProcessedFileIdMock}
+    ${'error'} | ${startErrorFileIdMock}
+  `('Should display start processing $name', async ({ fileId }) => {
+    render(<Component fileID={fileId} />);
 
     // Loading
     expect(await screen.findByText('Loading...')).toBeInTheDocument();
@@ -145,8 +188,23 @@ describe('StatsTab Component', () => {
     // Start processing
     user.click(button);
 
-    const startProcessingMutationMock = mutationMocks[0].newData;
-    await waitFor(() => expect(startProcessingMutationMock).toHaveBeenCalled());
+    // Loading
+    expect(await screen.findByText('Loading...')).toBeInTheDocument();
+
+    switch (fileId) {
+      case notProcessedFileIdMock:
+        const startProcessingMutationMock = mutationMocks[0].newData;
+        await waitFor(() =>
+          expect(startProcessingMutationMock).toHaveBeenCalled()
+        );
+        break;
+      case startErrorFileIdMock:
+        // Alert
+        expect(await screen.findByRole('alert')).toHaveTextContent(
+          startErrorFileStatsMock[0].message
+        );
+        break;
+    }
   });
 
   it('Should display in progress stage', async () => {
@@ -160,16 +218,14 @@ describe('StatsTab Component', () => {
       screen.getByLabelText('Discovering statistics')
     );
 
-    expect(progressBar).toHaveValue(
-      inProgressFileStatsMock.datasetInfo?.statsProgress
-    );
+    const progress = (
+      inProgressFileStatsMock.datasetInfo?.statsInfo.state as TaskState
+    ).progress;
+
+    expect(progressBar).toHaveValue(progress);
 
     // Progress text
-    expect(
-      await screen.findByText(
-        `${inProgressFileStatsMock.datasetInfo?.statsProgress}%`
-      )
-    ).toBeInTheDocument();
+    expect(await screen.findByText(`${progress}%`)).toBeInTheDocument();
 
     // Button
     expect(await screen.findByRole('button')).toBeDisabled();
@@ -212,27 +268,18 @@ describe('StatsTab Component', () => {
     });
   });
 
-  it('Should display not found error stage', async () => {
-    render(<Component fileID={notFoundFileIdMock} />);
+  it.each`
+    fileId                  | errorMessage
+    ${notFoundFileIdMock}   | ${notFoundFileStatsMock[0].message}
+    ${errorFileIdMock}      | ${'An unknown error has occurred'}
+    ${statsErrorFileIdMock} | ${TaskErrorStatusType.INTERNAL_SERVER_ERROR}
+  `("Should display '$errorMessage'", async ({ fileId, errorMessage }) => {
+    render(<Component fileID={fileId} />);
 
     // Loading
     expect(await screen.findByText('Loading...')).toBeInTheDocument();
 
     // Alert
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      notFoundFileStatsMock[0].message
-    );
-  });
-
-  it('Should display unknown error stage', async () => {
-    render(<Component fileID={errorFileIdMock} />);
-
-    // Loading
-    expect(await screen.findByText('Loading...')).toBeInTheDocument();
-
-    // Alert
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'An unknown error has occurred'
-    );
+    expect(await screen.findByRole('alert')).toHaveTextContent(errorMessage);
   });
 });

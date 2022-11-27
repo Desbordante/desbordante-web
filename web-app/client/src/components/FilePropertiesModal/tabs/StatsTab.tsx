@@ -46,56 +46,64 @@ export const StatsTab: FC<StatsTabProps> = ({ fileID }: StatsTabProps) => {
   const [stage, setStage] = useState<Stage | null>(null);
   const [selectedColumn, setSelectedColumn] = useState(-1);
   const progressId = useId();
+  const [error, setError] = useState<string | null>(null);
 
   const {
-    data: fileStats,
+    data,
     startPolling,
     stopPolling,
-    loading,
-    error,
+    loading: loadingFileStats,
   } = useQuery<getFileStats, getFileStatsVariables>(GET_FILE_STATS, {
     variables: {
-      fileID: fileID,
+      fileID,
     },
     onCompleted: (fileStats) => {
-      const file = fileStats.datasetInfo!;
+      const state = fileStats.datasetInfo.statsInfo.state;
 
-      if (!file.hasStats) return setStage(Stage.Start);
+      if (state === null) return setStage(Stage.Start);
 
-      if (file.statsProgress !== 100) return setStage(Stage.Processing);
+      if (state.__typename !== 'TaskState') return setError(state.errorStatus);
+
+      if (state.progress !== 100) return setStage(Stage.Processing);
 
       return setStage(Stage.Show);
     },
+    onError: (error) => setError(error.message),
   });
 
-  const [startProcessing] = useMutation<
+  const [startProcessing, { loading: loadingStartProcessing }] = useMutation<
     startProcessingStats,
     startProcessingStatsVariables
   >(START_PROCESSING_STATS, {
     onCompleted: () => setStage(Stage.Processing),
+    onError: (error) => setError(error.message),
   });
 
   useEffect(() => {
     if (stage === Stage.Processing) startPolling?.(1000);
 
     if (stage === Stage.Show) stopPolling?.();
-  }, [stage]);
 
-  if (loading)
+    return () => {
+      stopPolling?.();
+    };
+  }, [stage, startPolling, stopPolling]);
+
+  if (loadingFileStats || loadingStartProcessing)
     return (
       <div className={styles.loading}>
         <h5>Loading...</h5>
       </div>
     );
 
-  const file = fileStats?.datasetInfo;
-
-  if (error || !file)
+  if (error || !data)
     return (
       <Alert header="Error" variant="error" className={styles.error}>
-        {error?.message || 'An unknown error has occurred'}
+        {error || 'An unknown error has occurred'}
       </Alert>
     );
+
+  const file = data.datasetInfo;
 
   const start = (
     <>
@@ -113,17 +121,17 @@ export const StatsTab: FC<StatsTabProps> = ({ fileID }: StatsTabProps) => {
     </>
   );
 
-  const processing = (
-    <>
+  const taskState = file.statsInfo.state;
+  const processing =
+    taskState?.__typename === 'TaskState' ? (
       <div className={styles.processing}>
         <div className={styles.processingLabel}>
           <label htmlFor={progressId}>Discovering statistics</label>
-          {`${file.statsProgress}%`}
+          {`${taskState.progress}%`}
         </div>
-        <Progress value={file.statsProgress} id={progressId} />
+        <Progress value={taskState.progress} id={progressId} />
       </div>
-    </>
-  );
+    ) : null;
 
   const overview = (
     <Table>
@@ -138,12 +146,13 @@ export const StatsTab: FC<StatsTabProps> = ({ fileID }: StatsTabProps) => {
     </Table>
   );
 
+  const fileStats = file.statsInfo.stats;
   const options: ColumnOption[] = [
     { value: -1, label: 'Overview' },
-    ...file.stats.map((column) => ({
-      value: column.columnIndex,
-      label: column.columnName!,
-      type: column.type!,
+    ...fileStats.map((column) => ({
+      value: column.column.index,
+      label: column.column.name,
+      type: column.type,
       isCategorical: !!column.isCategorical,
     })),
   ];
@@ -165,8 +174,8 @@ export const StatsTab: FC<StatsTabProps> = ({ fileID }: StatsTabProps) => {
       {selectedColumn !== -1 && (
         <ColumnCard
           data-testid="column-card"
-          column={
-            file.stats.find((column) => column.columnIndex === selectedColumn)!
+          columnStats={
+            fileStats.find((column) => column.column.index === selectedColumn)!
           }
           compact
         />
