@@ -37,6 +37,7 @@ include_directories(
     "src/algorithms/depminer"
     "src/algorithms/statistics"
     "src/algorithms/c_tane"
+    "src/algorithms/options"
     "src/model"
     "src/model/types"
     "src/util"
