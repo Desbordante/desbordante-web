@@ -223,7 +223,11 @@ AnswerEnumType ProcessMsg(const std::string& task_id, std::shared_ptr<Desbordant
         task_processor->Execute();
         return AnswerEnumType::TASK_SUCCESSFULLY_PROCESSED;
     } catch (const std::exception& e) {
-        std::cout << "Unexpected behaviour in 'process_task()'.\n" << e.what();
+        LOG(INFO) << "Unexpected behaviour in 'process_task()'.\n" << e.what();
+        if (!task_processor) {
+            LOG(INFO) << "TaskProcessor wasn't created";
+            return AnswerEnumType::TASK_CRASHED_WITHOUT_STATUS_UPDATING;
+        }
         task_processor->GetConfig().UpdateParams(BaseTablesType::state,
                            {{"status", "INTERNAL_SERVER_ERROR"}, {"error_msg", e.what()}});
         return AnswerEnumType::TASK_CRASHED_STATUS_UPDATED;

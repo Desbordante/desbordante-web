@@ -159,8 +159,7 @@ template <typename ParamsMap>
 ARAlgorithm::Config CreateArAlgorithmConfigFromMap(ParamsMap params) {
     ARAlgorithm::Config c;
 
-    c.data = std::filesystem::current_path() / "input_data" /
-             ExtractParamFromMap<std::string>(params, posr::kData);
+    c.data = ExtractParamFromMap<std::filesystem::path>(params, posr::kData);
     c.separator = ExtractParamFromMap<char>(params, posr::kSeparatorConfig);
     c.has_header = ExtractParamFromMap<bool>(params, posr::kHasHeader);
     c.minsup = ExtractParamFromMap<double>(params, posr::kMinimumSupport);
