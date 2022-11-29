@@ -1,7 +1,7 @@
 import { FC, useId } from 'react';
 import Button from '@components/Button';
 import { Progress } from '@components/FileStats/Progress';
-import { getFileStats_datasetInfo_statsInfo_state as TaskState } from '@graphql/operations/queries/__generated__/getFileStats';
+import { getFileStats_datasetInfo_statsInfo_state_TaskState as TaskState } from '@graphql/operations/queries/__generated__/getFileStats';
 import styles from '../StatsTab.module.scss';
 import { Stage } from './Stage';
 
@@ -13,8 +13,6 @@ export const ProcessingStage: FC<ProcessingStageProps> = ({
   taskState,
 }: ProcessingStageProps) => {
   const progressId = useId();
-
-  if (taskState?.__typename !== 'TaskState') return null;
 
   return (
     <Stage buttons={<Button disabled>Start Processing</Button>}>

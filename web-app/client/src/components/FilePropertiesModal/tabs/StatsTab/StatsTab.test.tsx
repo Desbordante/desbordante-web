@@ -20,6 +20,8 @@ import {
   notFoundFileStatsMock,
   notProcessedFileIdMock,
   notProcessedFileStatsMock,
+  notSupportedFileIdMock,
+  notSupportedFileStatsMock,
   startErrorFileIdMock,
   startErrorFileStatsMock,
   statsErrorFileIdMock,
@@ -111,6 +113,17 @@ describe('StatsTab Component', () => {
       },
       result: {
         data: statsErrorFileStatsMock,
+      },
+    },
+    {
+      request: {
+        query: GET_FILE_STATS,
+        variables: {
+          fileID: notSupportedFileIdMock,
+        },
+      },
+      result: {
+        data: notSupportedFileStatsMock,
       },
     },
   ];
@@ -281,5 +294,17 @@ describe('StatsTab Component', () => {
 
     // Alert
     expect(await screen.findByRole('alert')).toHaveTextContent(errorMessage);
+  });
+
+  it('Should display not supported alert', async () => {
+    render(<Component fileID={notSupportedFileIdMock} />);
+
+    // Loading
+    expect(await screen.findByText('Loading...')).toBeInTheDocument();
+
+    // Alert
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /not supported/i
+    );
   });
 });

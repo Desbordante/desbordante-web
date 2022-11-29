@@ -1,13 +1,19 @@
 import { GraphQLError } from 'graphql';
 import { getFileStats } from '@graphql/operations/queries/__generated__/getFileStats';
-import { TaskErrorStatusType } from 'types/globalTypes';
+import { MainPrimitiveType, TaskErrorStatusType } from 'types/globalTypes';
 
 const fileStatsMock: getFileStats = {
+  algorithmsConfig: {
+    __typename: 'AlgorithmsConfig',
+    maxThreadsCount: 8,
+  },
+
   datasetInfo: {
     __typename: 'DatasetInfo',
     fileID: 'f7410bff-873a-4299-82dc-fc1f21b44cd1',
     fileName: 'SimpleTypos.csv',
     countOfColumns: 3,
+    supportedPrimitives: [MainPrimitiveType.Stats],
     statsInfo: {
       __typename: 'DatasetStats',
       state: null,
@@ -23,10 +29,13 @@ export const notFoundFileIdMock = 'notFoundFileId';
 export const errorFileIdMock = 'errorFileId';
 export const startErrorFileIdMock = 'startErrorFileId';
 export const statsErrorFileIdMock = 'statsErrorFileId';
+export const notSupportedFileIdMock = 'notSupportedFileId';
 
 export const notProcessedFileStatsMock: getFileStats = fileStatsMock;
 
 export const inProgressFileStatsMock: getFileStats = {
+  ...fileStatsMock,
+
   datasetInfo: {
     ...fileStatsMock.datasetInfo,
     statsInfo: {
@@ -41,6 +50,8 @@ export const inProgressFileStatsMock: getFileStats = {
 };
 
 export const completedFileStatsMock: getFileStats = {
+  ...fileStatsMock,
+
   datasetInfo: {
     ...fileStatsMock.datasetInfo,
     statsInfo: {
@@ -81,6 +92,8 @@ export const notFoundFileStatsMock = [new GraphQLError('Not found!')];
 export const startErrorFileStatsMock = [new GraphQLError('Start error!')];
 
 export const statsErrorFileStatsMock: getFileStats = {
+  ...fileStatsMock,
+
   datasetInfo: {
     ...fileStatsMock.datasetInfo,
     statsInfo: {
@@ -91,5 +104,14 @@ export const statsErrorFileStatsMock: getFileStats = {
       },
       stats: [],
     },
+  },
+};
+
+export const notSupportedFileStatsMock: getFileStats = {
+  ...fileStatsMock,
+
+  datasetInfo: {
+    ...fileStatsMock.datasetInfo,
+    supportedPrimitives: [],
   },
 };

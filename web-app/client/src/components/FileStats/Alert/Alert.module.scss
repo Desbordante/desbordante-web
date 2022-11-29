@@ -21,6 +21,10 @@
     color: $color;
   }
 
+  & > svg {
+    fill: $color;
+  }
+
   p {
     /* stylelint-disable */
     color: darken($color, 50%);
@@ -38,4 +42,8 @@
 
 .success {
   @include template($success);
+}
+
+.warning {
+  @include template($warning);
 }

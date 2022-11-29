@@ -5,7 +5,7 @@ import InfoIcon from '@assets/icons/info-blue.svg?component';
 import SuccessIcon from '@assets/icons/success-green.svg?component';
 import styles from './Alert.module.scss';
 
-type AlertVariant = 'info' | 'error' | 'success';
+type AlertVariant = 'info' | 'error' | 'success' | 'warning';
 
 type AlertProps = {
   variant?: AlertVariant;
@@ -16,6 +16,7 @@ const alertIcons: Record<AlertVariant, ReactNode> = {
   info: <InfoIcon />,
   error: <ErrorIcon />,
   success: <SuccessIcon />,
+  warning: <ErrorIcon />,
 };
 
 export const Alert: FC<AlertProps> = ({

@@ -1,8 +1,11 @@
 import { FC, useState } from 'react';
+import { getFileStats_datasetInfo_statsInfo_state_TaskState as TaskState } from '@graphql/operations/queries/__generated__/getFileStats';
+import { MainPrimitiveType } from 'types/globalTypes';
 import { useFileStats, usePollingControl, useStartProcessing } from './hooks';
 import {
   ErrorStage,
   LoadingStage,
+  NotSupportedStage,
   ProcessingStage,
   ShowStage,
   StartStage,
@@ -42,34 +45,42 @@ export const StatsTab: FC<StatsTabProps> = ({ fileID }: StatsTabProps) => {
 
   if (error || !data) return <ErrorStage error={error} />;
 
-  const start = (
+  const startStage = (
     <StartStage
+      maxThreadsCount={data.algorithmsConfig.maxThreadsCount}
       onStart={(threadsCount) =>
         startProcessing({
-          variables: { fileID: fileID, threadsCount },
+          variables: { fileID, threadsCount },
         })
       }
     />
   );
 
-  const datasetInfo = data.datasetInfo;
+  const { datasetInfo } = data;
 
-  const taskState = datasetInfo.statsInfo.state;
+  const { supportedPrimitives } = datasetInfo;
 
-  const processing =
-    taskState !== null ? (
-      <ProcessingStage taskState={taskState} />
-    ) : (
-      <LoadingStage />
-    );
+  // Not supported
+  if (!supportedPrimitives.includes(MainPrimitiveType.Stats))
+    return <NotSupportedStage />;
 
-  const show = <ShowStage datasetInfo={datasetInfo} />;
+  const { state: taskState } = datasetInfo.statsInfo;
 
   return (
     <>
-      {stage === StatsStage.Start && start}
-      {stage === StatsStage.Processing && processing}
-      {stage === StatsStage.Show && show}
+      {/* Start stage */}
+      {stage === StatsStage.Start && startStage}
+
+      {/* Processing stage */}
+      {stage === StatsStage.Processing &&
+        (taskState !== null ? (
+          <ProcessingStage taskState={taskState as TaskState} /> // is guaranteed to be TaskState
+        ) : (
+          <LoadingStage />
+        ))}
+
+      {/* Show stage */}
+      {stage === StatsStage.Show && <ShowStage datasetInfo={datasetInfo} />}
     </>
   );
 };

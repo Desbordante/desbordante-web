@@ -3,3 +3,4 @@ export * from './ProcessingStage';
 export * from './ShowStage';
 export * from './ErrorStage';
 export * from './LoadingStage';
+export * from './NotSupportedStage';
