@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { Dispatch, SetStateAction } from 'react';
-import { StatsStage } from '@components/FilePropertiesModal/StatsTab';
+import { StatsStage } from '@components/FilePropertiesModal/tabs/StatsTab';
 import {
   getFileStats,
   getFileStatsVariables,
@@ -16,8 +16,10 @@ export const useFileStats = (
     variables: {
       fileID,
     },
-    onCompleted: (fileStats) => {
-      const state = fileStats.datasetInfo.statsInfo.state;
+    onCompleted: (data) => {
+      const { datasetInfo } = data;
+
+      const { state } = datasetInfo.statsInfo;
 
       if (state === null) return setStage(StatsStage.Start);
 

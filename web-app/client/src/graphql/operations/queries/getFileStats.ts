@@ -2,10 +2,15 @@ import { gql } from '@apollo/client';
 
 export const GET_FILE_STATS = gql`
   query getFileStats($fileID: ID!) {
+    algorithmsConfig {
+      maxThreadsCount
+    }
+
     datasetInfo(fileID: $fileID) {
       fileID
       fileName
       countOfColumns
+      supportedPrimitives
       statsInfo {
         state {
           ... on TaskState {

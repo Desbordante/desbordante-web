@@ -6,10 +6,12 @@ import { Stage } from './Stage';
 
 type StartStageProps = {
   onStart: (threadsCount: number) => void;
+  maxThreadsCount: number;
 };
 
 export const StartStage: FC<StartStageProps> = ({
   onStart,
+  maxThreadsCount,
 }: StartStageProps) => {
   const [threadsCount, setThreadsCount] = useState(1);
 
@@ -25,7 +27,7 @@ export const StartStage: FC<StartStageProps> = ({
         Would you like to start processing?
       </Alert>
       <NumberSlider
-        sliderProps={{ min: 1, max: 9, step: 1 }}
+        sliderProps={{ min: 1, max: maxThreadsCount, step: 1 }}
         label="Thread count"
         value={threadsCount}
         onChange={(value) => setThreadsCount(Math.round(value))}
