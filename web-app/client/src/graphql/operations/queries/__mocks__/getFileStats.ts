@@ -16,6 +16,7 @@ const fileStatsMock: getFileStats = {
     supportedPrimitives: [MainPrimitiveType.Stats],
     statsInfo: {
       __typename: 'DatasetStats',
+      overview: [{ __typename: 'OverviewData', name: 'Test', amount: 10 }],
       state: null,
       stats: [],
     },
@@ -39,12 +40,11 @@ export const inProgressFileStatsMock: getFileStats = {
   datasetInfo: {
     ...fileStatsMock.datasetInfo,
     statsInfo: {
-      __typename: 'DatasetStats',
+      ...fileStatsMock.datasetInfo.statsInfo,
       state: {
         __typename: 'TaskState',
         progress: 50,
       },
-      stats: [],
     },
   },
 };
@@ -55,7 +55,7 @@ export const completedFileStatsMock: getFileStats = {
   datasetInfo: {
     ...fileStatsMock.datasetInfo,
     statsInfo: {
-      __typename: 'DatasetStats',
+      ...fileStatsMock.datasetInfo.statsInfo,
       state: {
         __typename: 'TaskState',
         progress: 100,
@@ -97,7 +97,7 @@ export const statsErrorFileStatsMock: getFileStats = {
   datasetInfo: {
     ...fileStatsMock.datasetInfo,
     statsInfo: {
-      __typename: 'DatasetStats',
+      ...fileStatsMock.datasetInfo.statsInfo,
       state: {
         __typename: 'InternalServerTaskError',
         errorStatus: TaskErrorStatusType.INTERNAL_SERVER_ERROR,

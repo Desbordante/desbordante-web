@@ -2,5 +2,8 @@ import { getFileStats_datasetInfo } from '@graphql/operations/queries/__generate
 import { StatType } from 'types/fileStats';
 
 export const getOverview = (file: getFileStats_datasetInfo): StatType[] => [
-  { name: 'Number of columns', value: file.countOfColumns },
+  ...file.statsInfo.overview.map(({ name, amount }) => ({
+    name,
+    value: amount,
+  })),
 ];

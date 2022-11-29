@@ -34,6 +34,9 @@ export const getServerSideProps: GetServerSideProps<
       fileID: (context.query as FileStatsQuery).fileID,
     },
     errorPolicy: 'all',
+    context: {
+      headers: context.req.headers,
+    },
   });
 
   const file = data?.datasetInfo;
