@@ -6,17 +6,18 @@ import { errorLink, requestIdLink } from '@graphql/context';
 import { customFetch } from '@graphql/customFetch';
 
 const isServer = typeof window === 'undefined';
+const uri = isServer ? graphQLLocalEndpoint : graphQLEndpoint;
 
 const client = new ApolloClient({
   ssrMode: isServer,
-  uri: isServer ? graphQLLocalEndpoint : graphQLEndpoint,
+  uri,
   cache: new InMemoryCache(),
   link: ApolloLink.from([
     //@ts-ignore
     errorLink,
     requestIdLink,
     createUploadLink({
-      uri: graphQLEndpoint,
+      uri,
       fetch: customFetch as any,
     }),
   ]),

@@ -10,4 +10,4 @@ export const passwordSaltPrefix =
   process.env.NEXT_PUBLIC_PASSWORD_SALT_PREFIX || '';
 export const passwordSaltPostfix =
   process.env.NEXT_PUBLIC_PASSWORD_SALT_POSTFIX || '';
-export const serverLocalIP = process.env.SSR_SERVER_IP || '127.0.0.1';
+export const serverLocalIP = process.env.NEXT_SSR_SERVER_IP || '127.0.0.1';
