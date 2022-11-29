@@ -9,6 +9,7 @@ export const GET_FILE_STATS = gql`
     datasetInfo(fileID: $fileID) {
       fileID
       fileName
+      originalFileName
       countOfColumns
       supportedPrimitives
       statsInfo {

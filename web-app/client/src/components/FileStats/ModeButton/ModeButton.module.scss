@@ -1,7 +1,15 @@
 .wrapper {
   padding: 12px;
 
+
+
   @media (max-width: 960px) {
     padding: 8px;
+  }
+}
+
+svg.grid {
+  * {
+    fill: none;
   }
 }

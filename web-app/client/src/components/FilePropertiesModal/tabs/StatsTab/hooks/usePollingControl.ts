@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StatsStage } from '@components/FilePropertiesModal/StatsTab';
+import { StatsStage } from '@components/FilePropertiesModal/tabs/StatsTab';
 
 export const usePollingControl = (
   stage: StatsStage | null,
