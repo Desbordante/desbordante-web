@@ -1,0 +1,156 @@
+import cn from 'classnames';
+import Image from 'next/image';
+import { ComponentType } from 'react';
+import {
+  StylesConfig,
+  components,
+  ControlProps,
+  MultiValueGenericProps,
+  MultiValueProps,
+  MultiValueRemoveProps,
+  PlaceholderProps,
+  InputProps,
+  ClearIndicatorProps,
+  DropdownIndicatorProps,
+  IndicatorsContainerProps,
+  OptionProps,
+  NoticeProps,
+} from 'react-select';
+import ChevronDownIcon from '@assets/icons/arrow-down.svg?component';
+import EmptyButton from '@assets/icons/close.svg?component';
+import { InputPropsBase } from '@components/Inputs';
+import styles from './MultiSelect.module.scss';
+
+export const colorStyles: StylesConfig = {
+  control: (styles) => ({}),
+  valueContainer: (styles) => ({ ...styles, padding: 0 }),
+  indicatorSeparator: (styles) => ({ ...styles, margin: 0 }),
+}
+
+const Control: ComponentType<ControlProps & InputPropsBase> = (props) => (
+  <components.Control className={cn(
+    styles.control,
+    // @ts-ignore
+    props.selectProps.error && styles.error,
+    props.isFocused && styles.focused
+  )} {...props} />
+);
+
+const MultiValueContainer: ComponentType<MultiValueGenericProps & InputPropsBase> = (props) => (
+  <components.MultiValueContainer {...props} />
+);
+
+const MultiValue: ComponentType<MultiValueProps & InputPropsBase> = (props) => (
+  <components.MultiValue className={styles.multiValue} {...props} />
+);
+
+const MultiValueLabel: ComponentType<MultiValueGenericProps & InputPropsBase> = (props) => (
+  <div
+    {...props.innerProps}
+    className={cn(
+      styles.multiValueLabel,
+      props.error && styles.error
+    )}
+    title={ props.children as string }
+  >
+    {props.children}
+  </div>
+);
+
+const MultiValueRemove: ComponentType<MultiValueRemoveProps & InputPropsBase> = (props) => (
+  <div
+    {...props.innerProps}
+    className={cn(
+      styles.multiValueRemove,
+      props.error && styles.error
+    )}
+  >
+    <EmptyButton/>
+  </div>
+);
+
+const Placeholder: ComponentType<PlaceholderProps & InputPropsBase> = (props) => (
+  <components.Placeholder className={styles.placeholder} {...props} />
+);
+
+const Input: ComponentType<InputProps & InputPropsBase> = (props) => (
+  <components.Input className={cn(styles.input, props.value && styles.hasValue)} {...props} />
+);
+
+const ClearIndicator: ComponentType<
+  ClearIndicatorProps & InputPropsBase
+> = ({ innerProps }) => (
+  <div className={styles.clearIndicator} {...innerProps}>
+    <EmptyButton />
+  </div>
+);
+
+const DropdownIndicator: ComponentType<
+  DropdownIndicatorProps & InputPropsBase
+> = ({ innerProps }) => (
+  <div className={styles.dropdownIndicator} {...innerProps}>
+    <ChevronDownIcon />
+  </div>
+);
+
+const IndicatorsContainer: ComponentType<
+  IndicatorsContainerProps & InputPropsBase
+> = (props) => (
+  <components.IndicatorsContainer className={styles.indicatorsContainer} {...props} />
+);
+
+export const Option: ComponentType<OptionProps & InputPropsBase> = ({
+  innerProps,
+  innerRef,
+  children,
+  isFocused,
+  isSelected,
+}) => (
+  <div
+    className={cn(
+      styles.option,
+      isFocused && styles.focused,
+      isSelected && styles.selected
+    )}
+    {...innerProps}
+    ref={innerRef}
+  >
+    {children}
+  </div>
+);
+
+const NoOptionsMessage: ComponentType<NoticeProps & InputPropsBase> = ({
+  innerProps,
+  children,
+}) => (
+  <div className={cn(styles.option, styles.noOptionsMessage)} {...innerProps}>
+    {children}
+  </div>
+);
+
+const LoadingMessage: ComponentType<NoticeProps & InputPropsBase> = ({
+  innerProps,
+  children,
+}) => (
+  <div className={cn(styles.option, styles.noOptionsMessage)} {...innerProps}>
+    {children}
+  </div>
+);
+
+const customComponents = {
+  Control,
+  MultiValueContainer,
+  MultiValue,
+  MultiValueLabel,
+  MultiValueRemove,
+  Placeholder,
+  Input,
+  ClearIndicator,
+  DropdownIndicator,
+  IndicatorsContainer,
+  Option,
+  NoOptionsMessage,
+  LoadingMessage,
+};
+
+export default customComponents;

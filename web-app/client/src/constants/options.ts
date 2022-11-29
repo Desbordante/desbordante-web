@@ -102,7 +102,7 @@ export const metricOptionsByPrimitive: Record<MainPrimitiveType, MFDMetricOption
 
 export const optionsByMetrics: Record<MFDMetrics, string[]> = {
   EUCLIDIAN: [],
-  COSINE: [],
+  COSINE: ['qgram'],
   LEVENHTEIN: [],
 };
 
@@ -132,14 +132,14 @@ export const metricColumnTypeOptionsByPrimitive: Record<MainPrimitiveType, MFDCo
 
 export const optionsByColumnTypes: Record<MFDColumnTypes, string[]> = {
   NUMERIC: [],
-  STRING: ['qgram'],
+  STRING: [],
 };
 
 // Distance to Null
 
 export type MFDDistances =
   | 'Infinity'
-  | '0';
+  | 'Zero';
 
 export type MFDDistancesOption = {
   label: MFDDistances;
@@ -148,5 +148,5 @@ export type MFDDistancesOption = {
 
 export const MFDDistancesOptions: MFDDistancesOption[] = [
   { label: 'Infinity', value: true },
-  { label: '0', value: false },
+  { label: 'Zero', value: false },
 ];
