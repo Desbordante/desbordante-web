@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { ColumnCard } from '@components/FileStats/ColumnCard';
 import { Group } from '@components/FileStats/Group';
 import { OverviewCard } from '@components/FileStats/OverviewCard';
-import { WizardLayout } from '@components/WizardLayout/WizardLayout';
+import WizardLayout from '@components/WizardLayout/WizardLayout';
 import {
   getFileStats,
   getFileStatsVariables,
@@ -31,7 +31,7 @@ const FileStats: NextPage = () => {
 
   const { datasetInfo: file } = data;
   const {
-    fileName: name,
+    originalFileName: name,
     statsInfo: { stats },
   } = file;
 
