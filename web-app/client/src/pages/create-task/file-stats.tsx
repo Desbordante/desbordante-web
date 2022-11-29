@@ -1,12 +1,12 @@
-import type { GetServerSideProps, NextPage } from 'next';
+import { useQuery } from '@apollo/client';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { ColumnCard } from '@components/FileStats/ColumnCard';
 import { Group } from '@components/FileStats/Group';
 import { OverviewCard } from '@components/FileStats/OverviewCard';
 import { WizardLayout } from '@components/WizardLayout/WizardLayout';
-import client from '@graphql/client';
 import {
   getFileStats,
-  getFileStats_datasetInfo_statsInfo_stats as ColumnStats,
   getFileStatsVariables,
 } from '@graphql/operations/queries/__generated__/getFileStats';
 import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
@@ -14,56 +14,29 @@ import styles from '@styles/FileStats.module.scss';
 import { getOverview } from '@utils/fileStats';
 import { StatType } from 'types/fileStats';
 
-type FileStatsProps = {
-  overview: StatType[];
-  columns: ColumnStats[];
-  name: string;
-};
+const FileStats: NextPage = () => {
+  const router = useRouter();
+  const { data } = useQuery<getFileStats, getFileStatsVariables>(
+    GET_FILE_STATS,
+    {
+      variables: {
+        fileID: router.query.fileID as string,
+      },
+    }
+  );
 
-type FileStatsQuery = {
-  fileID: string;
-};
+  if (!data) {
+    return null;
+  }
 
-export const getServerSideProps: GetServerSideProps<
-  FileStatsProps,
-  FileStatsQuery
-> = async (context) => {
-  const { data } = await client.query<getFileStats, getFileStatsVariables>({
-    query: GET_FILE_STATS,
-    variables: {
-      fileID: (context.query as FileStatsQuery).fileID,
-    },
-    errorPolicy: 'all',
-    context: {
-      headers: context.req.headers,
-    },
-  });
-
-  const file = data?.datasetInfo;
-
-  if (!file)
-    return {
-      notFound: true,
-    };
+  const { datasetInfo: file } = data;
+  const {
+    fileName: name,
+    statsInfo: { stats },
+  } = file;
 
   const overview: StatType[] = getOverview(file);
 
-  const columns: ColumnStats[] = file.statsInfo.stats;
-
-  return {
-    props: {
-      overview,
-      columns,
-      name: file.fileName,
-    },
-  };
-};
-
-const FileStats: NextPage<FileStatsProps> = ({
-  name,
-  overview,
-  columns,
-}: FileStatsProps) => {
   const header = (
     <>
       <h2 className={styles.title}>{name}</h2>
@@ -75,8 +48,8 @@ const FileStats: NextPage<FileStatsProps> = ({
         <OverviewCard stats={overview} />
       </Group>
       <Group header="Columns" className={styles.columns}>
-        {columns.map((column) => (
-          <ColumnCard key={column.column.index} columnStats={column} />
+        {stats.map((stat) => (
+          <ColumnCard key={stat.column.index} columnStats={stat} />
         ))}
       </Group>
     </WizardLayout>
