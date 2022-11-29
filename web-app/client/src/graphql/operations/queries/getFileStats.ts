@@ -12,6 +12,10 @@ export const GET_FILE_STATS = gql`
       countOfColumns
       supportedPrimitives
       statsInfo {
+        overview {
+          name
+          amount
+        }
         state {
           ... on TaskState {
             progress
