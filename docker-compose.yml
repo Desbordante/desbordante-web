@@ -79,7 +79,7 @@ services:
       - postfix
     volumes:
       - uploads:/server/uploads/
-      - datasets:/server/build/target/inputData/
+      - datasets:/server/build/target/input_data/
     networks:
       - network
     restart: always

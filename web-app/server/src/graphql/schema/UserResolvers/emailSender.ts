@@ -1,12 +1,11 @@
 import { Code, CodeType } from "../../../db/models/UserData/Code";
 import { ApolloError } from "apollo-server-core";
+import config from "../../../config";
 import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-    host: process.env.POSTFIX_HOST,
-    port: 25,
-    ignoreTLS: true,
-});
+const transporter = nodemailer.createTransport(
+  { ...config.hosts.postfix, ignoreTLS: true }
+);
 
 export const sendVerificationCode = async (
     code: number,
@@ -24,7 +23,7 @@ export const sendVerificationCode = async (
     }
 
     return await transporter.sendMail({
-        from: `Desbordante Enjoyer <${process.env.POSTFIX_EMAIL}>`,
+        from: `Desbordante Enjoyer <${config.postfix.email}>`,
         to: userEmail,
         subject: "Email verification code",
         text,
@@ -39,7 +38,7 @@ export const createAndSendVerificationCode = async (
     logger?: typeof console.log
 ) => {
     const code = await Code.createVerificationCode(userID, deviceID, type);
-    if (process.env.POSTFIX_ENABLED === "true") {
+    if (config.postfix.enabled) {
         try {
             await sendVerificationCode(code.value, userEmail, type);
         } catch (e) {
