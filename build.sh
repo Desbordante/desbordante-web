@@ -1,23 +1,17 @@
 usage() {
-cat << EOF  
-Usage: ./build.sh [-c|-consumer] [-h|--help]
+cat << EOF
+Usage: ./build.sh [-h|--help]
 
 -h,     -help,          Display help
-
--c,     --consumer      Enable consumer compilation
 
 EOF
 }
 
-PREFIX=""
 POSTFIX="-DCMAKE_BUILD_TYPE=RELEASE -DSAFE_VERTICAL_HASHING=ON"
 
 for i in "$@"
     do
     case $i in
-        -c|--consumer) # Enable consumer compile
-            PREFIX="-D ENABLE_CONSUMER_COMPILE=ON "
-            ;;
         -h|--help|*) # Display help.
             usage
             exit 0
@@ -34,5 +28,5 @@ cd ..
 mkdir build
 cd build
 rm CMakeCache.txt
-cmake $PREFIX .. $POSTFIX
-make
+cmake .. $POSTFIX
+make -j10

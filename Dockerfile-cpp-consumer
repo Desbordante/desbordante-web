@@ -2,7 +2,7 @@ FROM debian:bullseye-slim as stage1
 RUN apt-get update && apt-get install -y libboost-all-dev libstdc++6 \
 libpqxx-dev git g++ make cmake
 COPY . .
-run ./build.sh -c
+run ./build.sh
 
 
 FROM debian:bullseye-slim
