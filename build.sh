@@ -29,4 +29,4 @@ mkdir build
 cd build
 rm CMakeCache.txt
 cmake .. $POSTFIX
-make -j10
+make

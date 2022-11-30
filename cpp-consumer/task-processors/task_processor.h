@@ -23,7 +23,7 @@ const static std::map<std::string, Algo> algo_name_resolution{
     {"Pyro", Algo::pyro},       {"Dep Miner", Algo::depminer}, {"TaneX", Algo::tane},
     {"FastFDs", Algo::fastfds}, {"FD mine", Algo::fdmine},     {"DFD", Algo::dfd},
     {"FDep", Algo::fdep},       {"Apriori", Algo::apriori},    {"Typo Miner", Algo::typominer},
-    {"CTane", Algo::ctane},     {"FUN", Algo::fun}, {"Stats", Algo::stats}
+    {"CTane", Algo::ctane},     {"FUN", Algo::fun}, {"Stats", Algo::stats}, {"HyFD", Algo::hyfd}
 };
 
 class TaskProcessor {
