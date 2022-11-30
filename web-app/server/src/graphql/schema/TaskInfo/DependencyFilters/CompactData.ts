@@ -123,6 +123,7 @@ export class CompactData {
         const transformFromCompactData = (item: string) => {
             return item
                 .split(";")
+                .filter((str) => str.length > 0)
                 .map((indices) => indices.split(",").map(Number))
                 .map(toChartRow);
         };

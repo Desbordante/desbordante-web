@@ -101,7 +101,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     rowsCount!: number;
 
     @Column({ type: INTEGER, allowNull: true })
-    countOfColumns: number;
+    countOfColumns?: number;
 
     @Column({ type: STRING, unique: true })
     path!: string;

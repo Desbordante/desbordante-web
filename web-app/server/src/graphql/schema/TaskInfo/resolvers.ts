@@ -466,15 +466,15 @@ export const TaskInfoResolvers: Resolvers = {
         },
     },
     DatasetStats: {
-        overview: async (fileInfo, _, { models }) => {
-            const { fileID } = fileInfo;
+        overview: async ({ fileID, countOfColumns, rowsCount }, _, { models }) => {
             const config = await models.GeneralTaskConfig.findOne({
                 where: { fileID, algorithmName: "Stats", type: "Stats" },
             });
-            const result = [
-                { name: "Columns", amount: fileInfo.countOfColumns },
-                { name: "Rows", amount: fileInfo.rowsCount },
-            ];
+            const result = [];
+            if (countOfColumns !== undefined && countOfColumns !== null) {
+                result.push({ name: "Columns", amount: countOfColumns });
+            }
+            result.push({ name: "Rows", amount: rowsCount });
             if (!config) {
                 return result;
             }
@@ -482,12 +482,15 @@ export const TaskInfoResolvers: Resolvers = {
             if (!taskState?.isExecuted) {
                 return result;
             }
-            const typesOverview = await models.ColumnStats.findAll({
-                attributes: [["type", "name"], [fn("COUNT", col("columnIndex")), "amount"]],
+            const typesOverview = (await models.ColumnStats.findAll({
+                attributes: [
+                    ["type", "name"],
+                    [fn("COUNT", col("columnIndex")), "amount"],
+                ],
                 group: ["type"],
                 raw: true,
                 where: { fileID },
-            }) as unknown as OverviewData[];
+            })) as unknown as OverviewData[];
             const categoricalCount = await models.ColumnStats.count({
                 where: { fileID, isCategorical: true },
             });
@@ -717,4 +720,3 @@ export const TaskInfoResolvers: Resolvers = {
         },
     },
 };
-
