@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(Desbordante)
 
-option(ENABLE_CONSUMER_COMPILE "Build the consumer for kafka" OFF)
-
 # By default select Debug build
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
@@ -53,9 +51,7 @@ include_directories(
 
 include_directories(SYSTEM "lib/easyloggingpp/src" "lib/better-enums/")
 
-if (ENABLE_CONSUMER_COMPILE)
-    add_subdirectory("cpp-consumer")
-endif()
+add_subdirectory("cpp-consumer")
 
 # adding submodules
 add_subdirectory("lib/googletest")
