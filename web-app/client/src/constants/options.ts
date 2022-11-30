@@ -1,43 +1,36 @@
 import { MainPrimitiveType } from 'types/globalTypes';
 
-export type Algorithms =
-  | 'Pyro'
-  | 'TaneX'
-  | 'FastFDs'
-  | 'FD mine'
-  | 'DFD'
-  | 'Dep Miner'
-  | 'FDep'
-  | 'FUN'
-  | 'CTane'
-  | 'Apriori';
+const FDAlgorithms = [
+  'Pyro',
+  'TaneX',
+  'FastFDs',
+  'HyFD',
+  'FD mine',
+  'DFD',
+  'Dep Miner',
+  'FDep',
+  'FUN',
+] as const;
 
-export type AlgoOption = {
-  value: Algorithms;
-  label: Algorithms;
-};
+type FDAlgorithm = typeof FDAlgorithms[number];
+type CFDAlgorithm = 'CTane';
+type ARAlgorithm = 'Apriori';
 
-export const FDoptions: AlgoOption[] = [
-  { label: 'Pyro', value: 'Pyro' },
-  { label: 'TaneX', value: 'TaneX' },
-  { label: 'FastFDs', value: 'FastFDs' },
-  { label: 'FD mine', value: 'FD mine' },
-  { label: 'DFD', value: 'DFD' },
-  { label: 'Dep Miner', value: 'Dep Miner' },
-  { label: 'FDep', value: 'FDep' },
-  { label: 'FUN', value: 'FUN' },
-];
-export const CFDoptions: AlgoOption[] = [{ label: 'CTane', value: 'CTane' }];
-export const ARoptions: AlgoOption[] = [{ label: 'Apriori', value: 'Apriori' }];
-export const ApproxOptions: AlgoOption[] = [{ label: 'Pyro', value: 'Pyro' }];
-export const TypoOptions: AlgoOption[] = [
-  { label: 'FastFDs', value: 'FastFDs' },
-  { label: 'FD mine', value: 'FD mine' },
-  { label: 'DFD', value: 'DFD' },
-  { label: 'Dep Miner', value: 'Dep Miner' },
-  { label: 'FDep', value: 'FDep' },
-  { label: 'FUN', value: 'FUN' },
-];
+export type Algorithms = FDAlgorithm | CFDAlgorithm | ARAlgorithm;
+
+type AlgoProps = 'arity' | 'threshold' | 'threads';
+
+const toAlgoOption = (algo: Algorithms) => ({
+  value: algo,
+  label: algo,
+});
+
+export type AlgoOption = ReturnType<typeof toAlgoOption>;
+export const FDoptions: AlgoOption[] = FDAlgorithms.map(toAlgoOption);
+export const TypoOptions = FDoptions;
+export const CFDoptions: AlgoOption[] = [toAlgoOption('CTane')];
+export const ARoptions: AlgoOption[] = [toAlgoOption('Apriori')];
+export const ApproxOptions: AlgoOption[] = [toAlgoOption('Pyro')];
 
 export const optionsByPrimitive: Record<MainPrimitiveType, AlgoOption[]> = {
   [MainPrimitiveType.FD]: FDoptions,
@@ -46,10 +39,11 @@ export const optionsByPrimitive: Record<MainPrimitiveType, AlgoOption[]> = {
   [MainPrimitiveType.TypoFD]: TypoOptions,
 };
 
-export const optionsByAlgorithms: Record<Algorithms, string[]> = {
+export const optionsByAlgorithms: Record<Algorithms, AlgoProps[]> = {
   Pyro: ['threshold', 'arity', 'threads'],
   TaneX: ['threshold', 'arity'],
   FastFDs: ['threads'],
+  HyFD: ['threads'],
   'FD mine': [],
   DFD: ['threads'],
   'Dep Miner': [],

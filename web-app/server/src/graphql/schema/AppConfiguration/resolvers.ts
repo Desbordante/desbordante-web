@@ -27,6 +27,14 @@ export const allowedFDAlgorithms = [
         },
     },
     {
+        name: "HyFD",
+        properties: {
+            hasErrorThreshold: false,
+            hasArityConstraint: false,
+            isMultiThreaded: true,
+        },
+    },
+    {
         name: "FD mine",
         properties: {
             hasErrorThreshold: false,
