@@ -7,5 +7,8 @@ COPY client/package.json client/package.json
 COPY client/yarn.lock client/yarn.lock
 WORKDIR /client/
 RUN yarn
+COPY --from=desbordante_server:latest /server/schema.json /server/schema.json
 COPY client/ /client/
-ENTRYPOINT ["yarn", "dev"]
+RUN yarn local:generate
+RUN yarn build
+ENTRYPOINT ["yarn", "start"]

@@ -8,6 +8,10 @@ module.exports = {
   swcMinify: true,
   eslint: {
     dirs: ['src'],
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
   sassOptions: {
     includePaths: [path.join(__dirname, 'src')],

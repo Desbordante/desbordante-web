@@ -51,6 +51,6 @@ generates:
         SpecificTaskData: ./models#AbstractTaskInfoModel
         AbstractTaskInfo: ./models#AbstractTaskInfoModel
 #        PrimitiveType: ./models#PrimitiveTypeModel
-  ./graphql.schema.json:
+  ./schema.json:
     plugins:
       - "introspection"
