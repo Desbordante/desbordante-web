@@ -8,6 +8,10 @@ module.exports = {
   swcMinify: true,
   eslint: {
     dirs: ['src'],
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
   sassOptions: {
     includePaths: [path.join(__dirname, 'src')],
@@ -32,10 +36,12 @@ module.exports = {
               typescript: true,
               expandProps: 'end',
               svgoConfig: {
-                plugins: [{
-                  name: 'removeViewBox',
-                  active: false
-                }],
+                plugins: [
+                  {
+                    name: 'removeViewBox',
+                    active: false,
+                  },
+                ],
               },
             },
           },
