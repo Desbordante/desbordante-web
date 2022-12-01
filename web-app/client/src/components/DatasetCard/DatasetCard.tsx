@@ -26,7 +26,7 @@ const getFileDescription = (file: AllowedDataset) => {
   const usedTimes = file.numberOfUses;
   return [
     `${rowsCount} rows, ${countOfColumns} columns`,
-    file.isBuiltIn ? `Used ${usedTimes} times` : `Updated ${range}`,
+    file.isBuiltIn ? `Used ${usedTimes} times` : `Uploaded ${range}`,
   ];
 };
 

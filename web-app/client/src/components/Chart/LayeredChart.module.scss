@@ -26,12 +26,16 @@
   gap: 48px;
 
   .labels {
-    align-self: center;
     display: inline-block;
+    align-self: center;
+    max-width: 240px;
+    width: 100%;
 
     li {
       @include paragraph;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       color: $black;
     }
 

@@ -5,11 +5,11 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import Button from '@components/Button';
 import { Checkbox, Text } from '@components/Inputs';
 import { ControlledSelect } from '@components/Inputs/Select';
-import Tooltip from '@components/Tooltip';
 import delimiterNames from '@constants/delimiterNames';
 import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
 import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithmsConfig';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
+import { AllowedDataset } from 'types/algorithms';
 import {
   FileProps,
   InputFileFormat,
@@ -18,12 +18,10 @@ import {
 import styles from '../FilePropertiesModal.module.scss';
 
 interface PropertyListProps {
-  data: FileProps;
+  data: AllowedDataset;
 }
 
 export const FilePropsList: FC<PropertyListProps> = ({ data }) => {
-  const { primitive } = useTaskUrlParams();
-
   return (
     <div className={styles.propsList}>
       <div>
@@ -35,33 +33,27 @@ export const FilePropsList: FC<PropertyListProps> = ({ data }) => {
         <p>{data.hasHeader ? 'Yes' : 'No'}</p>
       </div>
 
-      {primitive.value === MainPrimitiveType.AR && (
+      {data.fileFormat && (
         <>
           <div>
-            <p>
-              Itemset format
-              <Tooltip>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua
-              </Tooltip>
-            </p>
-            <p>{data.inputFormat}</p>
+            <p>Itemset format</p>
+            <p>{data.fileFormat.inputFormat}</p>
           </div>
-          {data.inputFormat === 'SINGULAR' ? (
+          {data.fileFormat.inputFormat === 'SINGULAR' ? (
             <>
               <div>
                 <p>ID column index</p>
-                <p>{data.tidColumnIndex}</p>
+                <p>{data.fileFormat.tidColumnIndex}</p>
               </div>
               <div>
                 <p>Itemset column index</p>
-                <p>{data.itemColumnIndex}</p>
+                <p>{data.fileFormat.itemColumnIndex}</p>
               </div>
             </>
           ) : (
             <div>
               <p>Has transaction ID</p>
-              <p>{data.hasTid ? 'Yes' : 'No'}</p>
+              <p>{data.fileFormat.hasTid ? 'Yes' : 'No'}</p>
             </div>
           )}
         </>

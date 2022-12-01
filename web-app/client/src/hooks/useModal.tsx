@@ -44,7 +44,7 @@ const useModal = <T extends ModalName>(name: T) => {
         })
       );
     },
-    [Modal, callerId, defaultModalProps, name, setVisibleModals, visibleModals]
+    [Modal, callerId, defaultModalProps, setVisibleModals, visibleModals]
   );
 
   const closeAll = useCallback(() => {

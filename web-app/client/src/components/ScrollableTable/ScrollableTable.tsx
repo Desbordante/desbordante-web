@@ -1,54 +1,93 @@
-import { useLazyQuery, useQuery } from '@apollo/client';
-import { GET_SPECIFIC_CLUSTER } from '@graphql/operations/queries/EDP/getSpecificCluster';
-import _ from 'lodash';
-import {
-  getSpecificCluster,
-  getSpecificClusterVariables,
-} from '@graphql/operations/queries/EDP/__generated__/getSpecificCluster';
 import classNames from 'classnames';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, UIEventHandler, useMemo } from 'react';
 import styles from './Table.module.scss';
 
+const mapFromArray = <T,>(array?: T[]) =>
+  Object.fromEntries(array?.map((item) => [item, true]) || []);
+
 type Props = {
-  data: string[][] | undefined;
-  header?: string[];
-  onScroll: () => void;
+  data: string[][];
+  header: string[] | null;
+  highlightRowIndices?: number[];
+  highlightColumnIndices?: number[];
+  shownColumnIndices?: number[];
+  onScroll?: () => void;
   className?: string;
 };
 
-const Table: FC<Props> = ({ data, header, onScroll, className }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
+const Table: FC<Props> = ({
+  data,
+  header,
+  highlightRowIndices,
+  highlightColumnIndices,
+  shownColumnIndices,
+  onScroll,
+  className,
+}) => {
+  const displayHeader = useMemo(
+    () => header || data[0].map((_, index) => `Column ${index}`),
+    [header, data]
+  );
 
-  useEffect(() => {
-    if (isScrolled) {
-      onScroll();
+  const highlightedRowsMap = useMemo(
+    () => mapFromArray(highlightRowIndices),
+    [highlightRowIndices]
+  );
+
+  const highlightedColumnsMap = useMemo(
+    () => mapFromArray(highlightColumnIndices),
+    [highlightColumnIndices]
+  );
+
+  const handleScroll: UIEventHandler<HTMLDivElement> = (event) => {
+    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+
+    if (Math.abs(scrollTop - (scrollHeight - clientHeight)) < 100) {
+      onScroll?.();
     }
-  }, [isScrolled]);
+  };
+
   return (
     <div
       className={classNames(styles.container, className)}
-      onScroll={(e) =>
-        setIsScrolled(
-          Math.abs(
-            e.currentTarget.scrollTop -
-              (e.currentTarget.scrollHeight - e.currentTarget.clientHeight)
-          ) < 100
-        )
-      }
+      onScroll={handleScroll}
     >
       <table className={styles.table}>
         <thead>
-          <tr>{header && header.map((e) => <td>{e}</td>)}</tr>
           <tr>
-            {!header && data && data[0].map((e, i) => <td>Column {i}</td>)}
+            {displayHeader.map((item, columnIndex) => (
+              <td
+                key={item}
+                className={classNames(
+                  columnIndex in highlightedColumnsMap && styles.highlighted,
+                  shownColumnIndices &&
+                    !shownColumnIndices.includes(columnIndex) &&
+                    styles.hidden
+                )}
+              >
+                {item}
+              </td>
+            ))}
           </tr>
         </thead>
         <tbody>
           {data &&
-            data.map((row) => (
-              <tr>
-                {row.map((e) => (
-                  <td>{e}</td>
+            data.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((item, columnIndex) => (
+                  <td
+                    key={columnIndex}
+                    className={classNames(
+                      (rowIndex in highlightedRowsMap ||
+                        columnIndex in highlightedColumnsMap) &&
+                        styles.highlighted,
+                      shownColumnIndices &&
+                        !shownColumnIndices.includes(columnIndex) &&
+                        styles.hidden
+                    )}
+                  >
+                    {item}
+                  </td>
                 ))}
               </tr>
             ))}

@@ -10,7 +10,10 @@ import { useTaskContext } from '@components/TaskContext';
 import { PrimitiveType } from 'types/globalTypes';
 import styles from './ReportsLayout.module.scss';
 
-type Props = PropsWithChildren;
+interface Props extends PropsWithChildren {
+  pageClass?: string;
+  containerClass?: string;
+}
 
 const menuStatistics = {
   label: 'Statistics',
@@ -46,13 +49,17 @@ export const reportsTabs: Record<
   [PrimitiveType.TypoFD]: [menuPrimitiveList, menuClusters, menuDatasetSnippet],
 };
 
-export const ReportsLayout: FC<Props> = ({ children }) => {
+export const ReportsLayout: FC<Props> = ({
+  pageClass,
+  containerClass,
+  children,
+}) => {
   const router = useRouter();
   const { taskInfo } = useTaskContext();
   const primitive = taskInfo?.taskInfo.data.baseConfig.type;
 
   return (
-    <div className={styles.page}>
+    <div className={classNames(styles.page, pageClass)}>
       <Background
         className={styles.background}
         width="100%"
@@ -81,7 +88,9 @@ export const ReportsLayout: FC<Props> = ({ children }) => {
             ))}
         </ul>
       </div>
-      <div className={styles.content}>{children}</div>
+      <div className={classNames(styles.content, containerClass)}>
+        {children}
+      </div>
     </div>
   );
 };

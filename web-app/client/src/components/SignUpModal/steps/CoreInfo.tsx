@@ -56,23 +56,25 @@ const CoreInfo: FC<Props> = ({ onSuccess }) => {
     defaultValues,
   });
   const onSubmit = handleSubmit(async (values) => {
-    const response = await createUser({
-      variables: {
-        props: {
-          fullName: values.fullName,
-          email: values.email,
-          pwdHash: hashPassword(values.password),
-          country: values.country,
-          companyOrAffiliation: values.company,
-          occupation: values.occupation,
+    try {
+      const response = await createUser({
+        variables: {
+          props: {
+            fullName: values.fullName,
+            email: values.email,
+            pwdHash: hashPassword(values.password),
+            country: values.country,
+            companyOrAffiliation: values.company,
+            occupation: values.occupation,
+          },
         },
-      },
-    });
+      });
 
-    if (response.data?.createUser) {
-      applyTokens(response.data.createUser.tokens);
-      onSuccess();
-    }
+      if (response.data?.createUser) {
+        applyTokens(response.data.createUser.tokens);
+        onSuccess();
+      }
+    } catch (e) {}
   });
 
   return (
