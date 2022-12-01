@@ -33,7 +33,7 @@ const Chart: FC<Props> = ({
   attributes,
   selectedAttributeIndices,
   setSelectedAttributeIndices,
-  maxItemsShown = 4,
+  maxItemsShown = 9,
   title,
 }) => {
   const [depth, setDepth] = useState(0);
@@ -123,6 +123,7 @@ const Chart: FC<Props> = ({
             .filter((attr) => attr.value)
             .map((attr, index) => (
               <li
+                title={attr.column.name}
                 key={index}
                 className={classNames(index === highlightIndex && styles.hover)}
               >
@@ -154,7 +155,7 @@ const Chart: FC<Props> = ({
                   borderColor: '#ffffff',
                   hoverBorderColor: '#ffffff',
                   borderWidth: 0.2 * rem,
-                  hoverOffset: 1 * rem,
+                  hoverOffset: rem,
                 },
               ],
             }}

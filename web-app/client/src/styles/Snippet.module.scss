@@ -1,0 +1,22 @@
+@import "styles/common";
+
+.page {
+  max-height: 100%;
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+
+    .header {
+      margin: 0 0 32px;
+    }
+
+    .table {
+      max-height: none;
+      max-width: 100%;
+      width: fit-content;
+      margin: 0;
+    }
+  }
+}

@@ -42,17 +42,19 @@ const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
   const [logIn] = useMutation<logIn, logInVariables>(LOG_IN);
 
   const onSubmit = handleSubmit(async (values) => {
-    const response = await logIn({
-      variables: {
-        email: values.email,
-        pwdHash: hashPassword(values.password),
-      },
-    });
+    try {
+      const response = await logIn({
+        variables: {
+          email: values.email,
+          pwdHash: hashPassword(values.password),
+        },
+      });
 
-    if (response.data?.logIn) {
-      applyTokens(response.data.logIn);
-      onSuccess();
-    }
+      if (response.data?.logIn) {
+        applyTokens(response.data.logIn);
+        onSuccess();
+      }
+    } catch (e) {}
   });
 
   return (
@@ -84,6 +86,7 @@ const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
 
         <div className={styles.buttons}>
           <Button
+            type="button"
             variant="secondary"
             onClick={onRecovery}
             disabled={isSubmitting}

@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 import { useAuthContext } from '@hooks/useAuthContext';
 import useModal from '@hooks/useModal';
 import ModalContainer, { ModalProps } from '../ModalContainer';
@@ -11,8 +11,14 @@ const SignUpModal: FC<ModalProps> = ({ onClose }) => {
 
   const [stage, setStage] = useState(user?.id && !user?.isVerified ? 2 : 1);
 
-  const goToNextStage = () => setStage((prevStage) => prevStage + 1);
-  const onSuccess = () => openAuthSuccessModal({});
+  const goToNextStage = useCallback(
+    () => setStage((prevStage) => prevStage + 1),
+    []
+  );
+  const onSuccess = useCallback(
+    () => openAuthSuccessModal({}),
+    [openAuthSuccessModal]
+  );
 
   return (
     <ModalContainer onClose={onClose}>

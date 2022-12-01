@@ -9,6 +9,7 @@
   outline: none;
   border: none;
   padding: 0;
+  white-space: nowrap;
   border-radius: 8px;
   cursor: pointer;
   background: transparent;
@@ -23,10 +24,10 @@
   &.withoutText {
     min-width: initial;
   }
-}
 
-.icon {
-  display: flex;
+  svg {
+    flex-shrink: 0;
+  }
 }
 
 @mixin button-size($min-width, $padding-y, $padding-x) {
@@ -99,7 +100,7 @@
     background: $black-05;
   }
 
-  svg * {
+  svg *:not([fill = "none"]) {
     fill: $primary-0;
   }
 }
@@ -136,7 +137,7 @@
     box-shadow: none;
     background: $black-10;
 
-    svg * {
+    svg *:not([fill = "none"]) {
       fill: $black-50;
     }
   }

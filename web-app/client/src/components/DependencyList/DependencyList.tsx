@@ -56,7 +56,7 @@ const DependencyList: FC<Props> = ({ deps, infoVisible }) => {
               isSelected && styles.selectedRow,
               isError && styles.errorRow
             )}
-            onClick={() => selectDependency(fullDependency)}
+            onClick={() => selectDependency(isSelected ? [] : fullDependency)}
           >
             {makeSide(row.lhs, infoVisible)}
             <div className={styles.arrowContainer}>

@@ -6,13 +6,14 @@ import {
 import { StatsTab } from '@components/FilePropertiesModal/tabs/StatsTab';
 import ModalContainer, { ModalProps } from '@components/ModalContainer';
 import { Tab, TabView } from '@components/TabView/TabView';
+import { AllowedDataset } from 'types/algorithms';
 import { FileProps } from 'types/globalTypes';
 import styles from './FilePropertiesModal.module.scss';
 
 type Props = ModalProps &
   (
     | {
-        data: FileProps;
+        data: AllowedDataset;
         fileID: string;
       }
     | {
@@ -30,7 +31,7 @@ const FilePropertiesModal: FC<Props> = ({ onClose, ...props }) => {
             <FilePropsList {...props} />
           </Tab>
           <Tab name="Statistics">
-            <StatsTab {...props} />
+            <StatsTab {...props} onClose={onClose} />
           </Tab>
         </TabView>
       ) : (
