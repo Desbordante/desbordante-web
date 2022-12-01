@@ -32,7 +32,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
       <div className={styles.nameWithBadges}>
         <div className={styles.name}>
           <span>#{columnStats.column.index + 1}</span>
-          <h6>{columnStats.column.index}</h6>
+          <h6>{columnStats.column.name}</h6>
         </div>
         <div className={styles.badges}>
           <Badge mode="secondary">{columnStats.type}</Badge>
