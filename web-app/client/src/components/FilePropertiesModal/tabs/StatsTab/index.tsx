@@ -13,6 +13,7 @@ import {
 
 type StatsTabProps = {
   fileID: string;
+  onClose?: () => void;
 };
 
 export enum StatsStage {
@@ -21,7 +22,7 @@ export enum StatsStage {
   Show,
 }
 
-export const StatsTab: FC<StatsTabProps> = ({ fileID }: StatsTabProps) => {
+export const StatsTab: FC<StatsTabProps> = ({ fileID, onClose }) => {
   const [stage, setStage] = useState<StatsStage | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,7 +81,9 @@ export const StatsTab: FC<StatsTabProps> = ({ fileID }: StatsTabProps) => {
         ))}
 
       {/* Show stage */}
-      {stage === StatsStage.Show && <ShowStage datasetInfo={datasetInfo} />}
+      {stage === StatsStage.Show && (
+        <ShowStage datasetInfo={datasetInfo} onClose={onClose} />
+      )}
     </>
   );
 };

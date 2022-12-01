@@ -15,6 +15,12 @@ export const GET_USER = gql`
         delimiter
         supportedPrimitives
         rowsCount
+        fileFormat {
+          inputFormat
+          tidColumnIndex
+          itemColumnIndex
+          hasTid
+        }
         countOfColumns
         isBuiltIn
         createdAt

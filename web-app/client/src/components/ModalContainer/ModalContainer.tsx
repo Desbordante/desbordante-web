@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import { useEffect, useRef } from 'react';
 import { animated, useSpring } from 'react-spring';
 import CloseIcon from '@assets/icons/close.svg?component';
@@ -6,10 +7,12 @@ import styles from './ModalContainer.module.scss';
 
 export interface ModalProps {
   onClose?: () => void;
+  className?: string;
 }
 
 const ModalContainer: FCWithChildren<ModalProps> = ({
   children,
+  className,
   onClose = () => null,
 }) => {
   const backgroundFadeRef = useRef<HTMLDivElement>(null);
@@ -76,7 +79,7 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
       ref={backgroundFadeRef}
     >
       <animated.div
-        className={styles.container}
+        className={cn(className, styles.container)}
         style={containerProps}
         ref={containerRef}
       >

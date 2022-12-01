@@ -10,6 +10,12 @@ export const GET_ALGORITHMS_CONFIG = gql`
         delimiter
         supportedPrimitives
         rowsCount
+        fileFormat {
+          inputFormat
+          tidColumnIndex
+          itemColumnIndex
+          hasTid
+        }
         countOfColumns
         isBuiltIn
         createdAt

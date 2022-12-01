@@ -13,11 +13,10 @@ import { Stage } from './Stage';
 
 type ShowStageProps = {
   datasetInfo: getFileStats_datasetInfo;
+  onClose?: () => void;
 };
 
-export const ShowStage: FC<ShowStageProps> = ({
-  datasetInfo,
-}: ShowStageProps) => {
+export const ShowStage: FC<ShowStageProps> = ({ datasetInfo, onClose }) => {
   const router = useRouter();
   const [selectedColumn, setSelectedColumn] = useState(-1);
 
@@ -39,9 +38,10 @@ export const ShowStage: FC<ShowStageProps> = ({
     <Stage
       buttons={
         <Button
-          onClick={() =>
-            router.push(`/create-task/file-stats?fileID=${datasetInfo.fileID}`)
-          }
+          onClick={() => {
+            router.push(`/create-task/file-stats?fileID=${datasetInfo.fileID}`);
+            onClose?.();
+          }}
         >
           Show More
         </Button>

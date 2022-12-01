@@ -83,7 +83,18 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
         },
       },
     });
-  }, [taskID, primitive, search, page, ordering, direction]);
+  }, [
+    taskID,
+    primitive,
+    search,
+    page,
+    ordering,
+    direction,
+    getDeps,
+    showKeys,
+    mustContainRhsColIndices,
+    mustContainLhsColIndices,
+  ]);
 
   // todo add loading text/animation, maybe in Pagination component too
   const shownData = (loading ? previousData : data) || defaultData;

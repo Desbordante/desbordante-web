@@ -8,7 +8,7 @@ const AuthSuccessModal: FC<ModalProps> = ({ onClose }) => {
   const { user } = useAuthContext();
 
   return (
-    <ModalContainer onClose={onClose}>
+    <ModalContainer onClose={onClose} className={styles.authSuccessModal}>
       <h4 className={styles.title}>
         Welcome,{' '}
         <span className={styles.userName}>{user?.name || 'Anonymous'}</span>
