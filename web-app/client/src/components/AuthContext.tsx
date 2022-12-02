@@ -144,7 +144,8 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
         }
       }
     }
-  }, [getAnonymousPermissions, user]);
+    /* eslint-disable react-hooks/exhaustive-deps */
+  }, [getAnonymousPermissions]);
 
   useEffect(() => {
     if (user) {
