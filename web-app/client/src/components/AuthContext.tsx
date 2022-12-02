@@ -43,11 +43,7 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [user, setUser] = useState<User | undefined>(
-    localStorage.getItem('user')
-      ? JSON.parse(localStorage.getItem('user')!)
-      : undefined
-  );
+  const [user, setUser] = useState<User | undefined>();
 
   const [getUser] = useLazyQuery<getUser, getUserVariables>(GET_USER);
   const [getAnonymousPermissions] = useLazyQuery<getAnonymousPermissions>(
@@ -113,6 +109,13 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
       removeUser();
     }
   }, [getUser, user?.id]);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   useEffect(() => {
     refreshUserData();
