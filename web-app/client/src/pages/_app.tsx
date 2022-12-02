@@ -1,6 +1,5 @@
 import { ApolloProvider } from '@apollo/client';
 import { AuthContextProvider } from '@components/AuthContext';
-import ClientOnly from '@components/ClientOnly';
 import { ErrorContextProvider } from '@components/ErrorContext';
 import GoogleAnalytics from '@components/GoogleAnalytics';
 import Layout from '@components/Layout';
@@ -16,14 +15,12 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   return (
     <ApolloProvider client={client}>
-      <ClientOnly>
-        <ErrorContextProvider>
-          <AuthContextProvider>
-            <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
-            <ToastContainer />
-          </AuthContextProvider>
-        </ErrorContextProvider>
-      </ClientOnly>
+      <ErrorContextProvider>
+        <AuthContextProvider>
+          <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
+          <ToastContainer />
+        </AuthContextProvider>
+      </ErrorContextProvider>
       {environment === 'production' && <GoogleAnalytics />}
     </ApolloProvider>
   );
