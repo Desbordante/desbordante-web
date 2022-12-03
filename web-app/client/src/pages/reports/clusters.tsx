@@ -36,7 +36,9 @@ const ReportsClusters: NextPageWithLayout = () => {
       {selectedDependency.length > 0 && !miningCompleted && !cluster && (
         <Loader
           lhs={selectedDependency.slice(0, -1).map((e) => e.column.name)}
-          rhs={selectedDependency.at(-1)!.column.name}
+          rhs={
+            selectedDependency.at(selectedDependency.length - 1)!.column.name
+          }
         />
       )}{' '}
       {miningCompleted && !cluster && <h6>No clusters were found</h6>}

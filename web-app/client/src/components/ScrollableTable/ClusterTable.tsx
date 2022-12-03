@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { FC, useCallback, useEffect, useState } from 'react';
 import ClusterOptions from '@components/ClusterOptions';
 import { useTaskContext } from '@components/TaskContext';
+import _ from 'lodash';
 import {
   getSpecificCluster,
   getSpecificClusterVariables,
@@ -119,7 +120,7 @@ const ClusterTable: FC<ClusterTableProps> = ({
               )
             : header
         }
-        data={pageRows}
+        data={data}
         onScroll={onScroll}
         className={classNames(loading && styles.disabled)}
       />
