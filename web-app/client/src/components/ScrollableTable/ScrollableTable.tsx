@@ -7,7 +7,7 @@ const mapFromArray = <T,>(array?: T[]) =>
 
 type Props = {
   data: string[][];
-  header: string[] | null;
+  header?: string[];
   highlightRowIndices?: number[];
   highlightColumnIndices?: number[];
   shownColumnIndices?: number[];
