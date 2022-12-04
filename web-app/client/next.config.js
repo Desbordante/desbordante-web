@@ -35,6 +35,7 @@ module.exports = {
             options: {
               typescript: true,
               expandProps: 'end',
+              replaceAttrValues: { '#000001': 'currentColor' },
               svgoConfig: {
                 plugins: [
                   {
