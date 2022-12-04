@@ -28,7 +28,10 @@ export class CompactData {
         transform: (dep: string) => T,
         sep = ";"
     ) => {
-        return data.split(sep).map(transform);
+        return data
+            .split(sep)
+            .filter((str) => str.length > 0)
+            .map(transform);
     };
 
     ///
