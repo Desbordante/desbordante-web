@@ -592,7 +592,7 @@ const typeDefs = gql`
     If 'name' = Columns, 'amount' contains the number of columns in the dataset.
     If 'name' = Rows, 'amount' contains the number of rows in the dataset.
     If 'name' = Categorical, then 'amount' contains the number of categorical columns.
-    Otherwise, 'name' contains the column type, 'amount'contains the number of columns 
+    Otherwise, 'name' contains the column type, 'amount' contains the number of columns
     with that type.
     """
     type OverviewData {
@@ -896,6 +896,14 @@ const typeDefs = gql`
         This query allows client to set task privacy.
         """
         changeTaskResultsPrivacy(taskID: String!, isPrivate: Boolean!): TaskInfo!
+
+        """
+        Delete info about stats mining task.
+        All users can remove info about stats for built-in datasets.
+        All users can remove info about their tasks for their datasets.
+        Admins can remove info about all stats tasks.
+        """
+        deleteStatsInfo(fileID: String!): String!
     }
 `;
 
