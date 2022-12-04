@@ -168,6 +168,7 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
   const { data: defaultAlgorithmConfig } = await client.query({
     query: GET_ALGORITHMS_CONFIG,
+    fetchPolicy: 'no-cache',
   });
 
   return {
