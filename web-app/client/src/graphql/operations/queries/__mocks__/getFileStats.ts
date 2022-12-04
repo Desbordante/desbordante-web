@@ -12,6 +12,7 @@ const fileStatsMock: getFileStats = {
     __typename: 'DatasetInfo',
     fileID: 'f7410bff-873a-4299-82dc-fc1f21b44cd1',
     fileName: 'SimpleTypos.csv',
+    originalFileName: 'SimpleTypos.csv',
     countOfColumns: 3,
     supportedPrimitives: [MainPrimitiveType.Stats],
     statsInfo: {

@@ -2,11 +2,14 @@
 
 .wrapper {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   text-align: left;
   @include paragraph;
+
+  tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
 
   tr {
     display: flex;
