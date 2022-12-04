@@ -3,6 +3,7 @@ import { AuthenticationError } from "apollo-server-express";
 import { Permission } from "../../../db/models/UserData/Permission";
 import { Resolvers } from "../../types/types";
 import { TaskCreatorFactory } from "./Creator/AbstractCreator";
+import { ApolloError } from "apollo-server-errors";
 
 export const TaskCreatingResolvers: Resolvers = {
     Mutation: {
@@ -117,6 +118,44 @@ export const TaskCreatingResolvers: Resolvers = {
             throw new AuthenticationError(
                 "User doesn't have permission to delete this task"
             );
+        },
+        deleteStatsInfo: async (_, { fileID }, { models, sessionInfo }) => {
+            const force = true;
+            const file = await models.FileInfo.findByPk(fileID);
+            if (!file) {
+                throw new UserInputError(`Receive incorrect fileID '${fileID}'`, {
+                    fileID,
+                });
+            }
+
+            if (
+                !(
+                    file.isBuiltIn ||
+                    file.userID === sessionInfo?.userID ||
+                    sessionInfo?.permissions.includes("MANAGE_USERS_SESSIONS")
+                )
+            ) {
+                throw new ForbiddenError(
+                    "User doesn't have permissions for this operation"
+                );
+            }
+
+            const config = await models.GeneralTaskConfig.findOne({
+                where: { fileID, algorithmName: "Stats", type: "Stats" },
+            });
+            if (!config) {
+                throw new UserInputError(`Task with Stats mining not found '${fileID}'`, {
+                    fileID,
+                });
+            }
+            const { taskID } = config;
+            const state = await models.TaskState.findByPk(taskID);
+            if (!state) {
+                throw new ApolloError(`State for task '${taskID}' not found`);
+            }
+            await state.fullDestroy(force);
+            await models.ColumnStats.destroy({ where: { fileID }, force });
+            return `StatsInfo for dataset '${fileID}' was successfully deleted`;
         },
     },
 };
