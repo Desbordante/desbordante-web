@@ -415,7 +415,10 @@ export const TaskInfoResolvers: Resolvers = {
             if (rowsCount === undefined) {
                 throw new ApolloError("RowsCount is undefined");
             }
-            if (offset > rowsCount || offset < 0) {
+            if (offset > rowsCount) {
+                return [];
+            }
+            if (offset < 0) {
                 throw new UserInputError(
                     `Offset must be more than 0 and less, then rowsCount = ${rowsCount}`
                 );

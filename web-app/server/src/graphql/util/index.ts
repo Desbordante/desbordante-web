@@ -13,6 +13,7 @@ export const applyPagination = <T>(
     if (offset < 0) {
         throw new UserInputError("Offset cannot be less, than 0", pagination);
     } else if (limit < 0 || limit > maxLimit) {
+        return [];
         throw new UserInputError(
             `Limit must be greater than zero, and less than maxLimit (${maxLimit})`,
             pagination

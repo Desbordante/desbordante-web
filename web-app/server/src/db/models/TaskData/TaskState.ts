@@ -28,7 +28,11 @@ import {
     GeneralTaskConfig,
     PrimitiveType,
 } from "./configs/GeneralTaskConfig";
-import { SpecificTypoClusterResult, StatsResult, TypoClusterResult } from "./results/SubTasks";
+import {
+    SpecificTypoClusterResult,
+    StatsResult,
+    TypoClusterResult,
+} from "./results/SubTasks";
 import { ApolloError } from "apollo-server-core";
 import { User } from "../UserData/User";
 import _ from "lodash";
@@ -176,13 +180,17 @@ export class TaskState extends Model implements TaskInfoModelMethods {
         const result = (await this.$get(`${prefix}Result`, {
             attributes: [[attribute, "value"]],
             raw: true,
-        })) as unknown as { value: string | undefined };
+        })) as unknown as { value: string | number | undefined };
         if (!result) {
             throw new ApolloError(
                 `Not found result field ${attribute} for ${this.taskID}, primitiveType = ${prefix}`
             );
         }
-        const value = _.parseInt(result.value || "");
+        const value =
+            typeof result.value == "number"
+                ? result.value
+                : _.parseInt(result.value || "");
+
         if (!_.isInteger(value)) {
             throw new ApolloError(`Result field is not an integer. Parsed = ${value}`);
         }
