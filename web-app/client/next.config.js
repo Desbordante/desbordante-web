@@ -31,11 +31,14 @@ module.exports = {
             options: {
               typescript: true,
               expandProps: 'end',
+              replaceAttrValues: { '#000001': 'currentColor' },
               svgoConfig: {
-                plugins: [{
-                  name: 'removeViewBox',
-                  active: false
-                }],
+                plugins: [
+                  {
+                    name: 'removeViewBox',
+                    active: false,
+                  },
+                ],
               },
             },
           },

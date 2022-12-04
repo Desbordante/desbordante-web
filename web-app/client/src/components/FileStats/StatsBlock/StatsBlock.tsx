@@ -22,7 +22,8 @@ export const StatsBlock: FC<StatsBlockProps> = ({
 
   const items = stats.map(
     (item, index) =>
-      item.value &&
+      item.value !== null &&
+      item.value !== undefined &&
       (tableMode ? (
         <tr key={index}>
           <th>{item.name}</th>

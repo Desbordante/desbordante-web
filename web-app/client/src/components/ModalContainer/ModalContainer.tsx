@@ -31,14 +31,18 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
   });
 
   const containerProps = useSpring({
+    reset: true,
     from: {
       opacity: 0,
       transform: 'translate3d(0, 3%, 0)',
     },
-    to: {
-      opacity: 1,
-      transform: 'translate3d(0, 0, 0)',
-    },
+    to: [
+      {
+        opacity: 1,
+        transform: 'translate3d(0, 0, 0)',
+      },
+      { transform: 'none', config: { immediate: true } },
+    ],
     config: {
       tension: 300,
     },

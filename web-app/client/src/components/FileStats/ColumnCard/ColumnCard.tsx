@@ -1,8 +1,7 @@
 import classNames from 'classnames';
 import { FC, HTMLProps } from 'react';
 import { Collapse } from 'react-collapse';
-import ChevronDownIcon from '@assets/icons/chevron-down.svg?component';
-import ChevronUpIcon from '@assets/icons/chevron-up.svg?component';
+import ArrowDownIcon from '@assets/icons/arrow-down.svg?component';
 import Button from '@components/Button';
 import { Badge } from '@components/FileStats/Badge';
 import { useToggle } from '@components/FileStats/hooks';
@@ -106,7 +105,13 @@ export const ColumnCard: FC<ColumnCardProps> = ({
       {!compact && (
         <Button
           variant="secondary"
-          icon={!showDetails ? <ChevronDownIcon /> : <ChevronUpIcon />}
+          icon={
+            <ArrowDownIcon
+              style={{
+                transform: showDetails ? 'rotate(180deg)' : '',
+              }}
+            />
+          }
           className={styles.detailsButton}
           onClick={toggleDetails}
           aria-label={!showDetails ? 'Show details' : 'Hide details'}
