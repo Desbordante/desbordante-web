@@ -1,13 +1,14 @@
-#include "c_tane.h"
+#include "ctane.h"
 
 #include <chrono>
 #include <list>
 #include <memory>
+
 #include <easylogging++.h>
 
-#include "relational_schema.h"
 #include "c_lattice_level.h"
 #include "c_lattice_vertex.h"
+#include "relational_schema.h"
 
 using namespace util;
 using namespace model;
@@ -17,7 +18,7 @@ namespace algos {
 void CTane::Initialize() {
     if (item_names_.empty() || relation_ == nullptr) {
         std::tie(item_names_, relation_) = ColumnLayoutPartialRelationData::CreateFrom(
-            *input_generator_, config_.is_null_equal_null, min_sup_);
+                *input_generator_, config_.is_null_equal_null, config_.min_sup);
     }
     if (relation_->GetColumnData().empty()) {
         throw std::runtime_error("Got an empty .csv file: CFD mining is meaningless.");
@@ -89,12 +90,11 @@ void CTane::PruneCandidates(CLatticeLevel* level, const CLatticeVertex* x_vertex
         if (tuple_pattern.HasColumnPattern(rhs_column_pattern) &&
             tuple_pattern.GetWithoutColumn(rhs_col_index) <= xa_vertex_without_col) {
             auto& candidates = vertex->GetRhsCandidates();
-            candidates.erase(std::remove_if(candidates.begin(), candidates.end(),
-                                            [&other_indices, &rhs_column_pattern](
-                                                const ColumnPattern* col_pattern) {
-                                                return *col_pattern == rhs_column_pattern ||
-                                                       other_indices[col_pattern->GetColumnIndex()];
-                                            }),
+            auto pred = [&other_indices, &rhs_column_pattern](const ColumnPattern* col_pattern) {
+                return *col_pattern == rhs_column_pattern ||
+                       other_indices[col_pattern->GetColumnIndex()];
+            };
+            candidates.erase(std::remove_if(candidates.begin(), candidates.end(), pred),
                              vertex->GetRhsCandidates().end());
         }
     }
@@ -102,27 +102,27 @@ void CTane::PruneCandidates(CLatticeLevel* level, const CLatticeVertex* x_vertex
 
 void CTane::Prune(CLatticeLevel* level) const {
     auto& level_vertices = level->GetVertices();
-    level_vertices.erase(
-        std::remove_if(level_vertices.begin(), level_vertices.end(),
-                       [&](std::unique_ptr<CLatticeVertex>& vertex) {
-                           return vertex->GetRhsCandidates().empty() ||
-                                  (vertex->GetPositionListIndex()->GetSize() < min_sup_);
-                       }),
-        level_vertices.end());
+    auto pred = [&](std::unique_ptr<CLatticeVertex>& vertex) {
+        return vertex->GetRhsCandidates().empty() ||
+               (vertex->GetPositionListIndex()->GetSize() < config_.min_sup);
+    };
+    level_vertices.erase(std::remove_if(level_vertices.begin(), level_vertices.end(), pred),
+                         level_vertices.end());
 }
 
 unsigned long long CTane::ExecuteInternal() {
-    unsigned int levels_amount =
-        std::min(config_.max_lhs, (unsigned int)relation_->GetSchema()->GetNumColumns() - 1) + 1;
-    double progress_step = 100.0 / (levels_amount);
+    Initialize();
+
+    auto max_lvl = std::min(config_.max_lhs, (uint)relation_->GetSchema()->GetNumColumns() - 1) + 1;
+    double progress_step = 100.0 / (max_lvl);
     auto start_time = std::chrono::system_clock::now();
 
     std::vector<std::unique_ptr<CLatticeLevel>> levels;
 
-    for (unsigned int arity = 0; arity < levels_amount; arity++) {
+    for (unsigned int arity = 0; arity < max_lvl; arity++) {
         if (arity == 0) {
             CLatticeLevel::GenerateFirstLevel(levels, relation_.get());
-            for (const auto& x: levels[0]->GetVertices()) {
+            for (const auto& x : levels[0]->GetVertices()) {
                 if (x->GetPositionListIndex()->GetPartitionsNumber() == relation_->GetNumRows()) {
                     auto column_id = x->GetTuplePattern().GetColumnIndices().find_first();
                     keys_.emplace_back(relation_->GetSchema()->GetColumn((int)column_id));
@@ -145,7 +145,7 @@ unsigned long long CTane::ExecuteInternal() {
                 auto pli_1 = xa->GetParents()[0]->GetPositionListIndex();
                 auto pli_2 = xa->GetParents()[1]->GetPositionListIndex();
                 xa->AcquirePositionListIndex(pli_1->Intersect(pli_2));
-                if (xa->GetPositionListIndex()->GetSize() < min_sup_) {
+                if (xa->GetPositionListIndex()->GetSize() < config_.min_sup) {
                     continue;
                 }
             }
@@ -156,11 +156,11 @@ unsigned long long CTane::ExecuteInternal() {
                                  [&a](const ColumnPattern* col) {
                                      return col->ToString() == a->ToString();
                                  }) != xa->GetRhsCandidates().end()) {
-                    double conf = min_conf_ == 1 ? IsExactCfd(*x, *xa)
+                    double conf = config_.min_conf == 1 ? IsExactCfd(*x, *xa)
                                   : a->IsConst() ? CalculateConstConfidence(*x, *xa)
                                                  : CalculateConfidence(*x, *xa);
 
-                    if (conf >= min_conf_) {
+                    if (conf >= config_.min_conf) {
                         RegisterCfd(x->GetTuplePattern(), *a, xa->GetSupport(), conf);
                     }
                     if (conf == 1) {
@@ -178,7 +178,7 @@ unsigned long long CTane::ExecuteInternal() {
     SetProgress(100);
 
     auto elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::system_clock::now() - start_time);
+            std::chrono::system_clock::now() - start_time);
     apriori_millis_ += elapsed_milliseconds.count();
 
     LOG(INFO) << "Found " << cfd_collection_.size() << " CFDs";
@@ -186,4 +186,4 @@ unsigned long long CTane::ExecuteInternal() {
     return apriori_millis_;
 }
 
-} // namespace algos
+}  // namespace algos
