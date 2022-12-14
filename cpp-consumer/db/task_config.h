@@ -9,6 +9,7 @@
 
 #include "field_wrapper.h"
 #include "specific_db_manager.h"
+#include "names_resolvers.h"
 
 namespace consumer {
 
@@ -77,6 +78,10 @@ public:
 
     const DesbordanteDbManager* GetDBManager() const {
         return db_manager_.get();
+    }
+
+    std::string GetAlgoName() const {
+        return resolvers::ResolveAlgoName(GetParam<std::string>("algo_name"));
     }
 };
 

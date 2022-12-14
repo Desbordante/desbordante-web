@@ -1,5 +1,8 @@
 #pragma once
 
+#include "ar_algorithm_enums.h"
+#include "algorithms/create_primitive.h"
+
 #include <string>
 #include <pqxx/row>
 #include <pqxx/result>
@@ -41,6 +44,11 @@ FieldWrapper<unsigned int>::FieldWrapper(const pqxx::field& field);
 template <>
 FieldWrapper<std::filesystem::path>::FieldWrapper(const pqxx::field& field);
 
+template <>
+FieldWrapper<algos::InputFormat>::FieldWrapper(const pqxx::field& field);
+
+template <>
+FieldWrapper<algos::PrimitiveType>::FieldWrapper(const pqxx::field& field);
 
 class ExtendedAttributeBase {
 

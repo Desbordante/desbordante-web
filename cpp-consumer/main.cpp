@@ -5,13 +5,14 @@
 
 #include "db/task_config.h"
 #include "db/specific_db_manager.h"
+#include "algorithms/options/names.h"
 
-#include <boost/algorithm/string.hpp>
 #include <easylogging++.h>
 
 #include "task-processors/task_processor.h"
 
 using namespace consumer;
+namespace onam = algos::config::names;
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -56,35 +57,38 @@ static DesbordanteDbManager::BaseTables BaseTables() {
          {file_info_table,
           SearchByAttr::fileID,
           {
-              std::make_shared<ExtendedAttribute<bool>>("hasHeader", "has_header"),
-              std::make_shared<ExtendedAttribute<char>>("delimiter", "separator"),
-              std::make_shared<ExtendedAttribute<std::filesystem::path>>("path", "data"),
-              std::make_shared<CreateAttribute<bool>>("is_null_equal_null", true),
-              std::make_shared<CreateAttribute<int>>("seed", 0)
+              std::make_shared<ExtendedAttribute<bool>>("hasHeader", onam::kHasHeader),
+              std::make_shared<ExtendedAttribute<char>>("delimiter", onam::kSeparator),
+              std::make_shared<ExtendedAttribute<std::filesystem::path>>("path", onam::kData),
+              std::make_shared<CreateAttribute<bool>>(onam::kEqualNulls, true),
+              std::make_shared<CreateAttribute<int>>(onam::kSeed, 0)
           }}},
         {BaseTablesType::fileformat,
          {file_format_table,
           SearchByAttr::fileID,
           {
-              std::make_shared<ExtendedAttribute<std::string>>(
-                  "inputFormat", "input_format", [](std::string& value) { boost::to_lower(value); }),
+              std::make_shared<ExtendedAttribute<algos::InputFormat>>(
+                  "inputFormat", onam::kInputFormat),
               std::make_shared<ExtendedAttribute<unsigned>>(
-                  std::string("tidColumnIndex"), std::string("tid_column_index"),
+                  std::string("tidColumnIndex"), std::string(onam::kTIdColumnIndex),
                   [](auto& i) { i--; },
                   [](const TaskConfig& task_config) {
-                      return task_config.GetParam<std::string>("input_format") == "singular";
+                      return task_config.GetParam<algos::InputFormat>(onam::kInputFormat) ==
+                          +algos::InputFormat::singular;
                   }),
               std::make_shared<ExtendedAttribute<unsigned>>(
-                  "itemColumnIndex", "item_column_index", [](auto& i) { i--; },
+                  "itemColumnIndex", onam::kItemColumnIndex, [](auto& i) { i--; },
                   [](const TaskConfig& task_config) {
-                      return task_config.GetParam<std::string>("input_format") == "singular";
+                      return task_config.GetParam<algos::InputFormat>(onam::kInputFormat) ==
+                          +algos::InputFormat::singular;
                   }),
-              std::make_shared<ExtendedAttribute<bool>>("hasTid", "has_tid",
-                                                        [](const TaskConfig& task_config) {
-                                                            return task_config.GetParam<std::string>("input_format") ==
-                                                                   "tabular";
-                                                        }),
-          }}}};
+              std::make_shared<ExtendedAttribute<bool>>(
+                  "hasTid", onam::kFirstColumnTId,
+                  [](const TaskConfig& task_config) {
+                      return task_config.GetParam<algos::InputFormat>(onam::kInputFormat) ==
+                          +algos::InputFormat::tabular;
+                  }),
+              }}}};
 }
 
 static DesbordanteDbManager::SpecificTables SpecificTables() {
@@ -99,38 +103,38 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
         {{SpecificTablesType::config, TaskMiningType::FD},
          {get_specific_config_table_name(TaskMiningType::FD),
           SearchByAttr::taskID,
-          {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", "max_lhs"),
-           std::make_shared<ExtendedAttribute<ushort>>("threadsCount", "threads"),
-           std::make_shared<ExtendedAttribute<double>>("errorThreshold", "error")}}},
+          {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", onam::kMaximumLhs),
+           std::make_shared<ExtendedAttribute<ushort>>("threadsCount", onam::kThreads),
+           std::make_shared<ExtendedAttribute<double>>("errorThreshold", onam::kError)}}},
         {{SpecificTablesType::config, TaskMiningType::CFD},
          {get_specific_config_table_name(TaskMiningType::CFD),
           SearchByAttr::taskID,
-          {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", "max_lhs"),
-           std::make_shared<CreateAttribute<ushort>>("threads", 1),
-         std::make_shared<ExtendedAttribute<double>>("minSupportCFD", "minsup"),
-         std::make_shared<ExtendedAttribute<double>>("minConfidence", "minconf")}}
+          {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", onam::kMaximumLhs),
+           std::make_shared<CreateAttribute<ushort>>(onam::kThreads, 1),
+           std::make_shared<ExtendedAttribute<double>>("minSupportCFD", onam::kMinimumSupport),
+           std::make_shared<ExtendedAttribute<double>>("minConfidence", onam::kMinimumConfidence)}}
         },
         {{SpecificTablesType::config, TaskMiningType::AR},
          {get_specific_config_table_name(TaskMiningType::AR),
           SearchByAttr::taskID,
-          {std::make_shared<ExtendedAttribute<double>>("minSupportAR", "minsup"),
-           std::make_shared<ExtendedAttribute<double>>("minConfidence", "minconf")}}},
+          {std::make_shared<ExtendedAttribute<double>>("minSupportAR", onam::kMinimumSupport),
+           std::make_shared<ExtendedAttribute<double>>("minConfidence", onam::kMinimumConfidence)}}},
         {{SpecificTablesType::config, TaskMiningType::TypoFD},
          {get_specific_config_table_name(TaskMiningType::TypoFD),
           SearchByAttr::taskID,
-          {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", "max_lhs"),
-              std::make_shared<ExtendedAttribute<ushort>>("threadsCount", "threads"),
-              std::make_shared<ExtendedAttribute<double>>("errorThreshold", "error"),
-              std::make_shared<ExtendedAttribute<std::string>>("preciseAlgorithm", "precise_algo"),
-              std::make_shared<ExtendedAttribute<std::string>>("approximateAlgorithm", "approx_algo"),
+          {std::make_shared<ExtendedAttribute<unsigned>>("maxLHS", onam::kMaximumLhs),
+              std::make_shared<ExtendedAttribute<ushort>>("threadsCount", onam::kThreads),
+              std::make_shared<ExtendedAttribute<double>>("errorThreshold", onam::kError),
+              std::make_shared<ExtendedAttribute<algos::PrimitiveType>>("preciseAlgorithm", onam::kPreciseAlgorithm),
+              std::make_shared<ExtendedAttribute<algos::PrimitiveType>>("approximateAlgorithm", onam::kApproximateAlgorithm),
           }}},
         {{SpecificTablesType::config, TaskMiningType::TypoCluster},
          {get_specific_config_table_name(TaskMiningType::TypoCluster),
           SearchByAttr::taskID,
           {std::make_shared<ExtendedAttribute<std::string>>("typoFD", "typo_fd"),
               std::make_shared<ExtendedAttribute<std::string>>("parentTaskID", "typo_task_id"),
-              std::make_shared<ExtendedAttribute<double>>("radius", "radius"),
-              std::make_shared<ExtendedAttribute<double>>("ratio", "ratio"),
+              std::make_shared<ExtendedAttribute<double>>("radius", onam::kRadius),
+              std::make_shared<ExtendedAttribute<double>>("ratio", onam::kRatio),
           }}},
         {{SpecificTablesType::config, TaskMiningType::SpecificTypoCluster},
          {get_specific_config_table_name(TaskMiningType::SpecificTypoCluster),
@@ -140,7 +144,7 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
           }}},
         {{SpecificTablesType::config, TaskMiningType::Stats},
          {get_specific_config_table_name(TaskMiningType::Stats), SearchByAttr::taskID,
-         {std::make_shared<ExtendedAttribute<ushort>>("threadsCount", "threads")}}},
+         {std::make_shared<ExtendedAttribute<ushort>>("threadsCount", onam::kThreads)}}},
         {{SpecificTablesType::result, TaskMiningType::FD},
          {get_specific_result_table_name(TaskMiningType::FD),
           SearchByAttr::taskID,

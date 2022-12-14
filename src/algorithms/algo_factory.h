@@ -100,7 +100,7 @@ template <typename OptionMap>
 void LoadPrimitive(Primitive& prim, OptionMap&& options) {
     ConfigureFromMap(prim, options);
     auto parser = CSVParser{
-            details::ExtractOptionValue<std::string>(options, config::names::kData),
+            details::ExtractOptionValue<std::filesystem::path>(options, config::names::kData),
             details::ExtractOptionValue<char>(options, config::names::kSeparator),
             details::ExtractOptionValue<bool>(options, config::names::kHasHeader)};
     prim.Fit(parser);
@@ -132,6 +132,21 @@ std::unique_ptr<Primitive> CreateTypoMiner(OptionMap&& options) {
     return typo_miner;
 }
 
+template <typename ParamsMap>
+std::unique_ptr<Primitive> CreateCFDAlgorithmInstance(ParamsMap&& params) {
+    CFDAlgorithm::Config c;
+    c.data = details::ExtractOptionValue<std::filesystem::path>(params, config::names::kData);
+    c.separator = details::ExtractOptionValue<char>(params, config::names::kSeparator);
+    c.has_header = details::ExtractOptionValue<bool>(params, config::names::kHasHeader);
+    c.is_null_equal_null = details::ExtractOptionValue<bool>(params, config::names::kEqualNulls);
+    c.max_lhs = details::ExtractOptionValue<unsigned int>(params, config::names::kMaximumLhs);
+    c.parallelism = details::ExtractOptionValue<ushort>(params, config::names::kThreads);
+    c.min_conf = details::ExtractOptionValue<double>(params, config::names::kMinimumConfidence);
+    c.min_sup = details::ExtractOptionValue<double>(params, config::names::kMinimumSupport);
+
+    return std::make_unique<CTane>(c);
+}
+
 template <typename OptionMap>
 std::unique_ptr<Primitive> CreatePrimitive(std::string const& primitive_name,
                                            OptionMap&& options) {
@@ -140,6 +155,9 @@ std::unique_ptr<Primitive> CreatePrimitive(std::string const& primitive_name,
     }
     if (primitive_name == "typo_miner") {
         return CreateTypoMiner(std::forward<OptionMap>(options));
+    }
+    if (primitive_name == "ctane") {
+        return CreateCFDAlgorithmInstance(std::forward<OptionMap>(options));
     }
     PrimitiveType const primitive_enum = PrimitiveType::_from_string_nocase(primitive_name.c_str());
     return CreatePrimitive(primitive_enum, std::forward<OptionMap>(options));

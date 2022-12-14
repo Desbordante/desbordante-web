@@ -8,6 +8,7 @@
 #include "relation_data.h"
 #include "c_lattice_vertex.h"
 #include "c_lattice_level.h"
+#include "algorithms/options/names.h"
 
 namespace algos {
 
@@ -40,11 +41,7 @@ private:
 public:
     long apriori_millis_ = 0;
 
-    explicit CTane(Config const& config)
-        : CFDAlgorithm(config, {kDefaultPhaseName}),
-          min_conf_(config.GetSpecialParam<double>("minconf")) {
-        min_sup_ = (unsigned int)config.GetSpecialParam<double>("minsup");
-    }
+    explicit CTane(Config const& config) : CFDAlgorithm(config, {kDefaultPhaseName}) {}
 };
 
 } // namespace algos
