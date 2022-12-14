@@ -1,9 +1,8 @@
 #include <filesystem>
 
-#include "gtest/gtest.h"
-
-#include "c_tane.h"
+#include "ctane.h"
 #include "datasets.h"
+#include "gtest/gtest.h"
 
 namespace fs = std::filesystem;
 
@@ -15,18 +14,13 @@ public:
     using PatternValue = std::string;
     using ItemType = std::pair<Column, PatternValue>;
     using CFDFromString = std::pair<std::vector<ItemType>, ItemType>;
+
 protected:
     static std::unique_ptr<algos::CFDAlgorithm> CreateAlgorithmInstance(
-        unsigned int max_lhs,
-        double min_sup, double min_conf, std::filesystem::path const& path,
-        char separator = ',', bool hasHeader = true) {
-        algos::CFDAlgorithm::Config const config = {path,
-                                                    separator,
-                                                    hasHeader,
-                                                    true,
-                                                    max_lhs,
-                                                    1,
-                                                    {{"minsup", min_sup}, {"minconf", min_conf}}};
+            unsigned int max_lhs, unsigned int min_sup, double min_conf,
+            std::filesystem::path const& path, char separator = ',', bool hasHeader = true) {
+        algos::CFDAlgorithm::Config const config = {path,    separator, hasHeader, true,
+                                                    max_lhs, 1,         min_conf,  min_sup};
         return std::make_unique<algos::CTane>(config);
     }
 };

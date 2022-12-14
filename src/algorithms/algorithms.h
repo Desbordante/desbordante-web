@@ -17,7 +17,7 @@
 #include "algorithms/association_rules/apriori.h"
 
 /* Conditional functional dependency mining algorithms */
-#include "algorithms/c_tane/c_tane.h"
+#include "algorithms/ctane/ctane.h"
 
 /* Metric FD verifier */
 #include "algorithms/metric/metric_verifier.h"

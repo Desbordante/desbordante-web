@@ -111,7 +111,7 @@ void TaskProcessor::SaveTypoFdTaskResult() const {
 }
 
 void TaskProcessor::SaveStatsResult() const {
-    auto algo = GetAlgoAs<CsvStats>();
+    auto algo = GetAlgoAs<DataStats>();
     const auto& stats = algo->GetAllStats();
     const std::string file_id = task_->GetParam("fileID");
     LOG(INFO) << "Insert params for stats result";
