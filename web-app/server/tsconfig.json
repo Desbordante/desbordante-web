@@ -78,5 +78,8 @@
   "include": [
     "src/**/**.ts",
     "src/**/**.graphql",
-  ]
+  ],
+  "ts-node": {
+    "files": true
+  }
 }
