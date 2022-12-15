@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router';
-import Script from 'next/script';
 import { useEffect } from 'react';
 import { googleAnalyticsKey } from '@utils/env';
 import { pageView } from '@utils/googleAnalytics';
@@ -17,28 +16,24 @@ const GoogleAnalytics = () => {
       router.events.off('routeChangeComplete', handleRouteChange);
       router.events.off('hashChangeComplete', handleRouteChange);
     };
-  }, [router.events]);
+  }, [router?.events]);
 
   return (
     <>
-      <Script
-        strategy="afterInteractive"
+      <script
+        async
         src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsKey}`}
       />
-      <Script
-        id="gtag-init"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
+      <script async id="google-analytics">
+        {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${googleAnalyticsKey}', {
               page_path: window.location.pathname,
             });
-          `,
-        }}
-      />
+          `}
+      </script>
     </>
   );
 };
