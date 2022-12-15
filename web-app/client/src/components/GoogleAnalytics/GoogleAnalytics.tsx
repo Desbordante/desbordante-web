@@ -24,16 +24,19 @@ const GoogleAnalytics = () => {
         async
         src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsKey}`}
       />
-      <script async id="google-analytics">
-        {`
+      <script
+        async
+        id="google-analytics"
+        dangerouslySetInnerHTML={{
+          __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${googleAnalyticsKey}', {
               page_path: window.location.pathname,
-            });
-          `}
-      </script>
+            });`,
+        }}
+      />
     </>
   );
 };
