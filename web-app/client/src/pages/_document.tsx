@@ -1,4 +1,5 @@
 import { Html, Head, Main, NextScript } from 'next/document';
+import GoogleAnalytics from '@components/GoogleAnalytics';
 
 const MyDocument = () => {
   return (
@@ -7,6 +8,8 @@ const MyDocument = () => {
         <meta charSet="utf-8" />
         <meta name="theme-color" content="#000000" />
         <meta name="description" content="Open-source data profiling tool" />
+
+        <GoogleAnalytics />
 
         {/*OpenGraph*/}
         <meta
