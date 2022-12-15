@@ -8,8 +8,7 @@ export const getPathToBuiltInDataset = (fileName: string) => {
         throw Error("FATAL SERVER ERROR");
     }
     const rootPath = path.dirname(require.main.filename).split("/");
-    rootPath.pop();
-    rootPath.pop(); // remove folder 'bin'
+    rootPath.pop(); // remove folder 'src'
     rootPath.pop(); // remove folder 'server'
     rootPath.pop(); // remove folder 'web-app'
     rootPath.push("build"); // add folder 'build'
