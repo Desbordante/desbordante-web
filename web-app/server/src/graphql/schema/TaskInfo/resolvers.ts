@@ -22,6 +22,7 @@ import { getSpecificFilter } from "./DependencyFilters";
 import validator from "validator";
 
 import isUUID = validator.isUUID;
+import { FileInfo } from "../../../db/models/FileData/FileInfo";
 
 export const TaskInfoResolvers: Resolvers = {
     TaskWithDepsResult: {
@@ -292,7 +293,7 @@ export const TaskInfoResolvers: Resolvers = {
             }
 
             const file = await models.FileInfo.findByPk(fileID, {
-                attributes: ["path", "delimiter", "hasHeader"],
+                attributes: ["path", "delimiter", "hasHeader", "isBuiltIn"],
             });
             if (!file) {
                 throw new ApolloError("File not found");
@@ -404,7 +405,10 @@ export const TaskInfoResolvers: Resolvers = {
         },
     },
     Snippet: {
-        rows: async ({ hasHeader, delimiter, path, rowsCount }, { pagination }) => {
+        rows: async (
+            { hasHeader, delimiter, path, rowsCount, isBuiltIn },
+            { pagination }
+        ) => {
             const { offset, limit } = pagination;
             if (limit < 0 || limit > 200) {
                 throw new UserInputError("Received incorrect limit", { limit });
@@ -433,7 +437,7 @@ export const TaskInfoResolvers: Resolvers = {
                     maxRows: limit,
                 });
 
-                fs.createReadStream(path)
+                fs.createReadStream(FileInfo.resolvePath(path, isBuiltIn))
                     .pipe(parser)
                     .on("error", (e) => {
                         throw new ApolloError(
