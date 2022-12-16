@@ -191,6 +191,8 @@ export abstract class AbstractCreator<
         const { taskID } = task;
 
         await produce({ taskID }, this.context.topicNames.tasks);
+        task.status = "ADDED_TO_THE_TASK_QUEUE";
+        await task.save();
         return task;
     };
 

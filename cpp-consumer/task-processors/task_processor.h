@@ -9,23 +9,6 @@ namespace consumer {
 
 using namespace algos;
 
-const static std::map<consumer::TaskMiningType, AlgoMiningType> mining_type_resolution{
-    {TaskMiningType::AR, AlgoMiningType::ar},
-    {TaskMiningType::CFD, AlgoMiningType::cfd},
-    {TaskMiningType::FD, AlgoMiningType::fd},
-    {TaskMiningType::SpecificTypoCluster, AlgoMiningType::typos},
-    {TaskMiningType::TypoCluster, AlgoMiningType::typos},
-    {TaskMiningType::TypoFD, AlgoMiningType::typos},
-    {TaskMiningType::Stats, AlgoMiningType::stats}
-};
-
-const static std::map<std::string, Algo> algo_name_resolution{
-    {"Pyro", Algo::pyro},       {"Dep Miner", Algo::depminer}, {"TaneX", Algo::tane},
-    {"FastFDs", Algo::fastfds}, {"FD mine", Algo::fdmine},     {"DFD", Algo::dfd},
-    {"FDep", Algo::fdep},       {"Apriori", Algo::apriori},    {"Typo Miner", Algo::typominer},
-    {"CTane", Algo::ctane},     {"FUN", Algo::fun}, {"Stats", Algo::stats}, {"HyFD", Algo::hyfd}
-};
-
 class TaskProcessor {
     std::unique_ptr<TaskConfig> task_;
     std::unique_ptr<algos::Primitive> algo_;
@@ -113,18 +96,10 @@ public:
     explicit TaskProcessor(std::unique_ptr<TaskConfig> task_config)
         : task_(std::move(task_config)), cur_phase_(0), phase_progress_(0) {
         LOG(INFO) << "Get algo mining type";
-        const auto& algo_mining_type = mining_type_resolution.at(task_->GetPreciseMiningType());
         LOG(INFO) << "Get algo name";
-        const auto& algo_name = algo_name_resolution.at(task_->GetParam<std::string>("algo_name"));
-        LOG(INFO) << "Get algo " << algo_name._to_string();
-
-        if (algo_name == +Algo::typominer) {
-            algo_ = TypoMiner::CreateFrom<Pyro>(
-                    details::CreateFDAlgorithmConfigFromMap(task_->GetParamsIntersection()));
-        } else {
-            algo_ = algos::CreateAlgorithmInstance(algo_mining_type, algo_name,
-                                                   task_->GetParamsIntersection());
-        }
+        std::string algo_name = task_->GetAlgoName();
+        LOG(INFO) << "Get algo " << algo_name << '\n';
+        algo_ = algos::CreatePrimitive(algo_name, task_->GetParamsIntersection());
         LOG(INFO) << "Set algo has progress";
         algo_has_progress_ = !algo_->GetPhaseNames().empty();
         LOG(INFO) << "Phase name init";
