@@ -52,6 +52,7 @@ services:
       context: ./web-app/
       dockerfile: Dockerfile-server
     environment:
+      IS_IN_DOCKER: 'true'
       DB_NAME: "${POSTGRES_DB}"
       DB_USER: "${POSTGRES_USER}"
       DB_PASSWORD: "${POSTGRES_PASSWORD}"
