@@ -73,21 +73,29 @@ export const optionsByAlgorithms: Record<Algorithms, AlgoProps[]> = {
 
 // Metrics Options
 
-export type MFDMetrics =
-  | 'EUCLIDIAN'
-  | 'COSINE'
-  | 'LEVENHTEIN';
+const MFDMetrics = ['Euclidean', 'Cosine', 'Levenshtein'] as const;
+
+export type MFDMetric = typeof MFDMetrics[number];
+
 
 export type MFDMetricOption = {
   label: string;
-  value: MFDMetrics;
+  value: MFDMetric;
 };
 
-export const MFDMetricOptions: MFDMetricOption[] = [
-  { label: 'Euclidian', value: 'EUCLIDIAN' },
-  { label: 'Cosine', value: 'COSINE' },
-  { label: 'Levenhtein', value: 'LEVENHTEIN' },
-];
+// Pechenux: I implemented a simpler solution. I am waiting for an response about this
+// export const MFDMetricOptions: MFDMetricOption[] = [
+//   { label: 'Euclidean', value: 'EUCLIDEAN' },
+//   { label: 'Cosine', value: 'COSINE' },
+//   { label: 'Levenshtein', value: 'LEVENSHTEIN' },
+// ];
+
+const toMetricOption = (metric: MFDMetric) => ({
+  value: metric,
+  label: metric,
+});
+
+export const MFDMetricOptions: MFDMetricOption[] = MFDMetrics.map(toMetricOption);
 
 export const metricOptionsByPrimitive: Record<MainPrimitiveType, MFDMetricOption[]> = {
   [MainPrimitiveType.FD]: [],
@@ -98,26 +106,26 @@ export const metricOptionsByPrimitive: Record<MainPrimitiveType, MFDMetricOption
   [MainPrimitiveType.Stats]: [] // Pechenux to reviewers: temporary solution
 };
 
-export const optionsByMetrics: Record<MFDMetrics, string[]> = {
-  EUCLIDIAN: [],
-  COSINE: ['qgram'],
-  LEVENHTEIN: [],
+export const optionsByMetrics: Record<MFDMetric, string[]> = {
+  Euclidean: [],
+  Cosine: ['qgram'],
+  Levenshtein: [],
 };
 
 // Column Types
 
-export type MFDColumnTypes =
-  | 'NUMERIC'
-  | 'STRING';
+export type MFDColumnType =
+  | 'Numeric'
+  | 'String';
 
 export type MFDColumnTypeOption = {
   label: string;
-  value: MFDColumnTypes;
+  value: MFDColumnType;
 };
 
 export const MFDColumnTypeOptions: MFDColumnTypeOption[] = [
-  { label: 'Numeric', value: 'NUMERIC' },
-  { label: 'String', value: 'STRING' },
+  { label: 'Numeric', value: 'Numeric' },
+  { label: 'String', value: 'String' },
 ];
 
 export const metricColumnTypeOptionsByPrimitive: Record<MainPrimitiveType, MFDColumnTypeOption[]> = {
@@ -129,19 +137,19 @@ export const metricColumnTypeOptionsByPrimitive: Record<MainPrimitiveType, MFDCo
   [MainPrimitiveType.Stats]: [] // Pechenux to reviewers: temporary solution
 };
 
-export const optionsByColumnTypes: Record<MFDColumnTypes, string[]> = {
-  NUMERIC: [],
-  STRING: [],
+export const optionsByColumnTypes: Record<MFDColumnType, string[]> = {
+  Numeric: [],
+  String: [],
 };
 
 // Distance to Null
 
-export type MFDDistances =
+export type MFDDistance =
   | 'Infinity'
   | 'Zero';
 
 export type MFDDistancesOption = {
-  label: MFDDistances;
+  label: MFDDistance;
   value: boolean;
 };
 

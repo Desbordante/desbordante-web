@@ -25,8 +25,8 @@ import {
   FDoptions,
   optionsByAlgorithms,
   TypoOptions,
-  MFDColumnTypes,
-  MFDMetrics,
+  MFDColumnType,
+  MFDMetric,
   MFDAlgoOptions,
   MFDMetricOptions,
   MFDColumnTypeOptions,
@@ -516,7 +516,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         rhs: ({ field: { onChange, value, ...field } }) => (
           <MultiSelect
             {...field}
-            error={watchColumnType as MFDColumnTypes == "STRING" && value.length > 1 ? "Must contain only one column" : undefined}
+            error={watchColumnType as MFDColumnType == "String" && value.length > 1 ? "Must contain only one column" : undefined}
             isLoading={loading}
             value={getSelectOptions(columnData, value)}
             onChange={(newValue, _) => onChange(getSelectValues(newValue as { label: string, value: number }[]))}
@@ -537,10 +537,10 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           <Select
             {...field}
             error={
-              watchColumnType as MFDColumnTypes == "NUMERIC" && value != "EUCLIDIAN" ?
+              watchColumnType as MFDColumnType == "Numeric" && value != "Euclidean" ?
                 "Must be Euclidian"
                 :
-                watchColumnType as MFDColumnTypes != "NUMERIC" && value == "EUCLIDIAN" ?
+                watchColumnType as MFDColumnType != "Numeric" && value == "Euclidean" ?
                   "Can't be Euclidian"
                   :
                   undefined
@@ -554,11 +554,11 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         algorithmName: ({ field: { onChange, value, ...field } }) => (
           <Select
             {...field}
-            isDisabled={watchColumnType as MFDColumnTypes == "NUMERIC" && watchRHS.length == 1}
+            isDisabled={watchColumnType as MFDColumnType == "Numeric" && watchRHS.length == 1}
             error={
               watchRHS.length != 2 &&
                 value == "Calipers" &&
-                !(watchColumnType as MFDColumnTypes == "NUMERIC" && watchRHS.length == 1) ?
+                !(watchColumnType as MFDColumnType == "Numeric" && watchRHS.length == 1) ?
                 "Count of RHS Columns must be 2"
                 :
                 undefined
@@ -580,7 +580,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           <NumberInput
             {...field}
             disabled={
-              !optionsByMetrics[watchMetric as MFDMetrics].includes(
+              !optionsByMetrics[watchMetric as MFDMetric].includes(
                 'qgram'
               )
             }
