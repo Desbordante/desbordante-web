@@ -145,6 +145,7 @@ const defaultValuesByPrimitive = {
     qgramLength: 0.1,
     distanceToNullIsInfinity: true,
   } as MFDForm,
+  [MainPrimitiveType.Stats]: {}, // Pechenux to reviewers: temporary solution
 };
 
 type QueryProps = {
@@ -327,6 +328,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
     Partial<Record<keyof AlgorithmProps, FormInput>>
   > = useMemo(
     () => ({
+      [MainPrimitiveType.Stats]: {}, // to delete
       [MainPrimitiveType.FD]: {
         algorithmName: ({ field: { onChange, value, ...field } }) => (
           <Select

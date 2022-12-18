@@ -41,18 +41,15 @@ export const CFDoptions: AlgoOption[] = [toAlgoOption('CTane')];
 export const ARoptions: AlgoOption[] = [toAlgoOption('Apriori')];
 export const ApproxOptions: AlgoOption[] = [toAlgoOption('Pyro')];
 
-export const MFDAlgoOptions: AlgoOption[] = [
-  { label: 'Brute', value: 'Brute' },
-  { label: 'Approx', value: 'Approx' },
-  { label: 'Calipers', value: 'Calipers' },
-];
+export const MFDAlgoOptions: AlgoOption[] = MFDAlgorithms.map(toAlgoOption);
 
-export const optionsByPrimitive: Record<MainPrimitiveType, AlgoOption[]> = { // Maybe rename to algorithmOptions
+export const optionsByPrimitive: Record<MainPrimitiveType, AlgoOption[]> = {
   [MainPrimitiveType.FD]: FDoptions,
   [MainPrimitiveType.AR]: ARoptions,
   [MainPrimitiveType.CFD]: CFDoptions,
   [MainPrimitiveType.TypoFD]: TypoOptions,
   [MainPrimitiveType.MetricVerification]: MFDAlgoOptions,
+  [MainPrimitiveType.Stats]: [], // Pechenux to reviewers: temporary solution
 };
 
 export const optionsByAlgorithms: Record<Algorithms, AlgoProps[]> = {
@@ -98,6 +95,7 @@ export const metricOptionsByPrimitive: Record<MainPrimitiveType, MFDMetricOption
   [MainPrimitiveType.CFD]: [],
   [MainPrimitiveType.TypoFD]: [],
   [MainPrimitiveType.MetricVerification]: MFDMetricOptions,
+  [MainPrimitiveType.Stats]: [] // Pechenux to reviewers: temporary solution
 };
 
 export const optionsByMetrics: Record<MFDMetrics, string[]> = {
@@ -128,6 +126,7 @@ export const metricColumnTypeOptionsByPrimitive: Record<MainPrimitiveType, MFDCo
   [MainPrimitiveType.CFD]: [],
   [MainPrimitiveType.TypoFD]: [],
   [MainPrimitiveType.MetricVerification]: MFDColumnTypeOptions,
+  [MainPrimitiveType.Stats]: [] // Pechenux to reviewers: temporary solution
 };
 
 export const optionsByColumnTypes: Record<MFDColumnTypes, string[]> = {
