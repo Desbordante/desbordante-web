@@ -43,8 +43,32 @@
       }
 
       .description {
+        display: flex;
+        align-items: flex-end;
         margin: 1.2rem 0 0;
         color: $black;
+
+        .unidataLogo {
+          position: relative;
+          transform: translateY(-1px);
+          display: flex;
+          margin: auto 0 0 8px;
+
+          &:hover {
+            cursor: pointer;
+
+            &::before {
+              content: "";
+              position: absolute;
+              right: 0;
+              bottom: 0;
+              transform: translateY(1px);
+              width: 117px;
+              height: 2px;
+              background: #000000;
+            }
+          }
+        }
       }
 
       .links {
