@@ -2,6 +2,7 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import HomeBackground from '@assets/backgrounds/home.svg?component';
+import UnidataLogo from '@assets/images/unidata-logo.svg?component';
 import Button from '../components/Button';
 import ExternalLink from '../components/ExternalLink';
 import styles from '../styles/Home.module.scss';
@@ -30,7 +31,16 @@ const Home: NextPage = () => {
         <div className={styles.content}>
           <h1 className={styles.name}>Desbordante</h1>
           <h6 className={styles.description}>
-            Open-source data profiling tool
+            Open-source data profiling tool supported by
+            <a
+              className={styles.unidataLogo}
+              href="https://unidata-platform.ru"
+              target="_blank"
+              rel="noreferrer"
+              title="Unidata"
+            >
+              <UnidataLogo width={150} height={26} />
+            </a>
           </h6>
           <div className={styles.links}>
             <Button
