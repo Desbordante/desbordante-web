@@ -31,7 +31,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 32px;
-    padding: 16px;
+    padding: 11px 16px;
     border: 1px solid $black-25;
     border-radius: 8px;
 
@@ -41,7 +41,8 @@
     }
 
     &.error {
-      border: 2px solid $error;
+      border: 1px solid #00000000;
+      outline: 2px solid $error;
     }
   }
   
@@ -50,7 +51,7 @@
   
     background: rgba(118, 0, 209, 0.1);
     border-radius: 4px;
-    margin: 4px;
+    margin: 2px;
   }
 
   .multiValueLabel {
@@ -87,7 +88,7 @@
 
   .input {
     @include paragraph;
-    padding: 0;
+    padding: 3px 0;
     background: none;
     border: none;
     outline: none;
@@ -122,6 +123,29 @@
   .option {
     @include paragraph;
     padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+  
+    .optionText {
+      // min-width: 50%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  
+    // .optionBadgeContainer {
+    //   // TODO: make items "magnet" to the right edge with margin-left: auto;
+    //   display: flex;
+    //   flex-wrap: wrap;
+    //   justify-content: flex-end;
+    //   align-items: center;
+    // }
+    
+    &.once {
+      justify-content: space-between;
+    }
   
     &.focused {
       background: $primary-02;

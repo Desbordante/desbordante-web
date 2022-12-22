@@ -18,6 +18,7 @@ interface NumberInputProps {
   includingMin?: boolean;
   max?: number;
   includingMax?: boolean;
+  nunbersAfterDot?: number;
 }
 
 type Props = InputPropsBase &
@@ -42,6 +43,7 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
   },
   ref
 ) => {
+  const nunbersAfterDot = numberProps?.nunbersAfterDot !== undefined ? numberProps?.nunbersAfterDot : null;
   const min = numberProps?.min !== undefined ? numberProps?.min : null; // (0 || null) === null
   const max = numberProps?.max !== undefined ? numberProps?.max : null;
   const includingMin = numberProps?.includingMin !== undefined ? numberProps?.includingMin : true;
@@ -53,13 +55,20 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
     setTempValue(value === undefined ? '' : value?.toString());
   }, [value]);
 
-  const prepareValue = (s: string): number => {
+  const placeIncideBorders = (s: string): number => {
     const parsed = Number.parseFloat(s);
     if (!Number.isNaN(parsed)) {
       if (min !== null && parsed <= min) return includingMin ? min : defaultNum;
       if (max !== null && parsed >= max) return includingMax ? max : defaultNum;
       return parsed;
     } else return defaultNum;
+  };
+
+  const prepareValue = (s: string): number => {
+    const parsed = placeIncideBorders(s);
+    if (nunbersAfterDot !== null)
+      return Number.parseFloat(parsed.toFixed(nunbersAfterDot));
+    return parsed;
   };
 
   return (

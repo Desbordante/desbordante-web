@@ -33,7 +33,6 @@ import {
   MFDDistancesOptions,
   optionsByMetrics,
   optionsByColumnTypes,
-
 } from '@constants/options';
 import {
   createTaskWithDatasetChoosing,
@@ -52,7 +51,7 @@ import styles from '@styles/ConfigureAlgorithm.module.scss';
 import { showError } from '@utils/toasts';
 import { MainPrimitiveType } from 'types/globalTypes';
 import { cursorTo } from 'readline';
-import { MultiValue } from 'react-select';
+import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
 
 type FDForm = {
   algorithmName: any;
@@ -88,13 +87,14 @@ type TypoFDForm = {
   metric: any;
 };
 type MFDForm = {
-  lhs: number[];
-  rhs: number[];
-  rhsColumnType: any;
+  algorithmName: "MetricVerification"; // constant
+  lhsIndices: number[];
+  rhsIndices: number[];
+  rhsColumnType: any; // client-side
   metric: any;
-  algorithmName: any;
+  metricAlgorithm: any;
   parameter: number; //toleranceParameter
-  qgramLength: number;
+  q: number; // qgramLength
   distanceToNullIsInfinity: any;
 }
 type AlgorithmConfig = FDForm | CFDForm | ARForm | TypoFDForm | MFDForm;
@@ -135,14 +135,15 @@ const defaultValuesByPrimitive = {
     defaultRatio: 1,
     metric: 'MODULUS_OF_DIFFERENCE',
   } as TypoFDForm,
-  [MainPrimitiveType.MetricVerification]: {
-    lhs: [],
-    rhs: [],
-    rhsColumnType: 'NUMERIC',
-    metric: 'EUCLIDIAN',
-    algorithmName: 'Brute',
+  [MainPrimitiveType.MFD]: {
+    algorithmName: "MetricVerification", // constant
+    lhsIndices: [],
+    rhsIndices: [],
+    rhsColumnType: 'Numeric', // client-side
+    metric: 'EUCLIDEAN',
+    metricAlgorithm: 'BRUTE',
     parameter: 1.0, //toleranceParameter
-    qgramLength: 0.1,
+    q: 1, // qgramLength
     distanceToNullIsInfinity: true,
   } as MFDForm,
   [MainPrimitiveType.Stats]: {}, // Pechenux to reviewers: temporary solution
@@ -191,7 +192,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   formParams,
 }) => {
   const router = useRouter();
-  const { handleSubmit, reset, control, watch } = useForm<
+  const { handleSubmit, reset, control, watch, setValue } = useForm<
     AlgorithmConfig,
     keyof AlgorithmProps
   >({
@@ -209,11 +210,19 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   const getSelectValues: (opt: ReadonlyArray<any>) => number[] = (opt) => {
     return opt.map(element => element.value);
   };
-  const getSelectOptions: (options: ReadonlyArray<any>, value: ReadonlyArray<number>) => ReadonlyArray<any> = (
+  const getSelectOptions: (options: ReadonlyArray<any>, values: ReadonlyArray<number>) => ReadonlyArray<any> = (
     options, values
   ) => {
-    return options.filter((element) => { return values.includes(element.value) })
+    return values !== undefined ? options.filter((element) => { return values.includes(element.value) }) : [];
   };
+
+  function omit(obj: any, ...props: any) {
+    const result = { ...obj };
+    props.forEach(function (prop: any) {
+      delete result[prop];
+    });
+    return result;
+  }
 
   const [createTask] = useMutation<
     createTaskWithDatasetChoosing,
@@ -221,6 +230,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   >(CREATE_TASK_WITH_CHOOSING_DATASET);
   const analyzeHandler = useCallback(
     handleSubmit((data) => {
+      data = omit(data, 'rhsColumnType');
       createTask({
         variables: {
           fileID: fileID,
@@ -256,11 +266,11 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
     getCountOfColumnsVariables
     >(GET_COUNT_OF_COLUMNS, {
       variables: { fileID: fileID },
-      skip: (primitive !== MainPrimitiveType.MetricVerification),
+      skip: (primitive !== MainPrimitiveType.MFD),
       onError: (error) => {
         showError(
           error.message,
-          'Can\' fetch columns information. Please try later.'
+          'Can\'t fetch columns information. Please try later.'
         );
       }
     });
@@ -268,10 +278,21 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   const columnData = useMemo(() => {
     if (data) {
       const countOfColumns: number = data?.datasetInfo?.countOfColumns || 0;
+      const statistics: any[] = data?.datasetInfo?.statsInfo.stats || [];
       const hasHeader: boolean = data?.datasetInfo?.hasHeader || false;
       const headers: string[] = data?.datasetInfo?.header || [];
 
-      return [...Array(countOfColumns)].map((_, i) => ({ label: hasHeader ? `${i + 1}: ${headers[i]}` : `Column ${i + 1}`, value: i + 1 }));
+      return [...Array(countOfColumns)].map((_, i) => (
+        {
+          label: hasHeader ? `${i + 1}: ${headers[i]}` : `Column ${i + 1}`,
+          value: i,
+          badges: statistics.filter(elem => elem.column.index == i).map(
+            (elem => ({ label: elem.type, style: badgeStyles.primary }))
+          )
+          // filtering for columns with equal indices
+          // get type from each and create badge
+        }
+      ));
     }
     return [];
   }, [loading, error, data]);
@@ -291,9 +312,40 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   }, [formParams]);
 
   const watchAlgorithm = watch('algorithmName', 'Pyro') || 'Pyro';
-  const watchColumnType = watch('rhsColumnType', 'NUMERIC') || 'NUMERIC';
-  const watchMetric = watch('metric', 'EUCLIDIAN') || 'EUCLIDIAN';
-  const watchRHS = watch('rhs', []) || [];
+  const watchColumnType = watch('rhsColumnType', 'Numeric') || 'Numeric';
+  const watchMetric = watch('metric', 'EUCLIDEAN') || 'EUCLIDEAN';
+  const watchRHS = watch('rhsIndices', []) || [];
+
+  const TypesCategories: Record<string, string> = {
+    "Int": "Numeric",
+    "Double": "Numeric",
+    "BigInt": "Numeric",
+    "String": "String"
+  }
+
+  const [columnType, setColumnType] = useState("manual");
+
+  useEffect(() => { // logic for mfd rhs type
+    if (columnData.some(elem => elem.badges.length == 0)) { // noTypesFlag
+      setColumnType("manual");
+      return;
+    }
+
+    const types = Array.from(new Set<string>(watchRHS.map(elem => TypesCategories[columnData[elem].badges[0].label] || "Undefined")));
+
+    if (types.length === 0) { // allow user to change type
+      setColumnType("manual");
+    } else if (types.length === 1) { // set type for user
+      if (["Numeric", "String"].includes(types[0])) {
+        setColumnType("auto");
+        setValue("rhsColumnType", types[0])
+      } else {// show error
+        setColumnType("error");
+      }
+    } else { // show error
+      setColumnType("error");
+    }
+  }, [watchRHS])
 
   const header = (
     <>
@@ -379,7 +431,6 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           />
         ),
       },
-
       [MainPrimitiveType.CFD]: {
         algorithmName: ({ field: { onChange, value, ...field } }) => (
           <Select
@@ -502,8 +553,9 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           />
         ),
       },
-      [MainPrimitiveType.MetricVerification]: {
-        lhs: ({ field: { onChange, value, ...field } }) => (
+      [MainPrimitiveType.MFD]: {
+        // TODO: add hidden field
+        lhsIndices: ({ field: { onChange, value, ...field } }) => (
           <MultiSelect
             {...field}
             isLoading={loading}
@@ -513,10 +565,18 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
             options={columnData}
           />
         ),
-        rhs: ({ field: { onChange, value, ...field } }) => (
+        rhsIndices: ({ field: { onChange, value, ...field } }) => (
           <MultiSelect
             {...field}
-            error={watchColumnType as MFDColumnType == "String" && value.length > 1 ? "Must contain only one column" : undefined}
+            error={
+              columnType === "error" ?
+                "Choose different columns"
+                :
+                watchColumnType as MFDColumnType === "String" && value.length > 1 ?
+                  "Must contain only one column of type \"String\""
+                  :
+                  undefined
+            }
             isLoading={loading}
             value={getSelectOptions(columnData, value)}
             onChange={(newValue, _) => onChange(getSelectValues(newValue as { label: string, value: number }[]))}
@@ -527,6 +587,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         rhsColumnType: ({ field: { onChange, value, ...field } }) => (
           <Select
             {...field}
+            isDisabled={columnType === "auto"}
             value={MFDColumnTypeOptions.find(option => option.value === value)}
             onChange={(e) => onChange(getSelectValue(e))}
             label="RHS column type"
@@ -537,11 +598,11 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           <Select
             {...field}
             error={
-              watchColumnType as MFDColumnType == "Numeric" && value != "Euclidean" ?
-                "Must be Euclidian"
+              watchColumnType as MFDColumnType == "Numeric" && value != "EUCLIDEAN" ?
+                "Must be Euclidean if column type is numeric"
                 :
-                watchColumnType as MFDColumnType != "Numeric" && value == "Euclidean" ?
-                  "Can't be Euclidian"
+                watchColumnType as MFDColumnType != "Numeric" && value == "EUCLIDEAN" ?
+                  "Can't be Euclidean if column type is not numeric"
                   :
                   undefined
             }
@@ -551,19 +612,19 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
             options={MFDMetricOptions}
           />
         ),
-        algorithmName: ({ field: { onChange, value, ...field } }) => (
+        metricAlgorithm: ({ field: { onChange, value, ...field } }) => (
           <Select
             {...field}
             isDisabled={watchColumnType as MFDColumnType == "Numeric" && watchRHS.length == 1}
             error={
               watchRHS.length != 2 &&
-                value == "Calipers" &&
+                value == "CALIPERS" &&
                 !(watchColumnType as MFDColumnType == "Numeric" && watchRHS.length == 1) ?
                 "Count of RHS Columns must be 2"
                 :
                 undefined
             }
-            value={getSelectOption(value)}
+            value={MFDAlgoOptions.find(option => option.value === value)}
             onChange={(e) => onChange(getSelectValue(e))}
             label="Algorithm"
             options={MFDAlgoOptions}
@@ -576,7 +637,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
             label="Tolerance parameter"
           />
         ),
-        qgramLength: ({ field }) => (
+        q: ({ field }) => (
           <NumberInput
             {...field}
             disabled={
@@ -584,7 +645,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
                 'qgram'
               )
             }
-            numberProps={{ defaultNum: 0.1, min: 0, includingMin: false}}
+            numberProps={{ defaultNum: 1, min: 1, includingMin: true, nunbersAfterDot: 0 }}
             label="Q-gram length"
           />
         ),
@@ -599,7 +660,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         ),
       },
     }),
-    [watchAlgorithm, watchColumnType, watchMetric, watchRHS, columnData, loading]
+    [watchAlgorithm, watchColumnType, watchMetric, watchRHS, columnData, loading, columnType]
   );
 
   const InputsForm = _.map(

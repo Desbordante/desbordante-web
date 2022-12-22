@@ -6,6 +6,15 @@ export const GET_COUNT_OF_COLUMNS = gql`
       countOfColumns
       hasHeader
       header
+    	statsInfo {
+        stats {
+          column {
+            name
+            index
+          }
+          type
+        }
+      }
     }
   }
 `;
