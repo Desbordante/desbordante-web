@@ -1,5 +1,18 @@
 import { MainPrimitiveType } from 'types/globalTypes';
 import { bool } from 'yup';
+import _ from 'lodash';
+
+const capitalize = _.capitalize as <T extends string>(value: T) => Capitalize<Lowercase<T>>
+
+type CapitalizedOption<T extends string> = {
+  label: Capitalize<Lowercase<T>>;
+  value: T;
+};
+
+const toCapitalizedOption: <T extends string>(value: T) => CapitalizedOption<T> = (value) => ({
+  value,
+  label: capitalize(value)
+});
 
 const FDAlgorithms = [
   'Pyro',
@@ -13,17 +26,13 @@ const FDAlgorithms = [
   'FUN',
 ] as const;
 
-const MFDAlgorithms = [
-  'Brute',
-  'Approx',
-  'Calipers',
-] as const;
-
 type FDAlgorithm = typeof FDAlgorithms[number];
 type CFDAlgorithm = 'CTane';
 type ARAlgorithm = 'Apriori';
-type MFDAlgorithm = typeof MFDAlgorithms[number];
 
+const MFDAlgorithms = ['BRUTE', 'APPROX', 'CALIPERS'] as const;
+
+type MFDAlgorithm = typeof MFDAlgorithms[number];
 
 export type Algorithms = FDAlgorithm | CFDAlgorithm | ARAlgorithm | MFDAlgorithm;
 
@@ -41,14 +50,19 @@ export const CFDoptions: AlgoOption[] = [toAlgoOption('CTane')];
 export const ARoptions: AlgoOption[] = [toAlgoOption('Apriori')];
 export const ApproxOptions: AlgoOption[] = [toAlgoOption('Pyro')];
 
-export const MFDAlgoOptions: AlgoOption[] = MFDAlgorithms.map(toAlgoOption);
+const toCapitalizedAlgoOption = (algo: Algorithms): AlgoOption => ({
+  value: algo,
+  label: capitalize(algo) as Algorithms,
+});
+
+export const MFDAlgoOptions: AlgoOption[] = MFDAlgorithms.map(toCapitalizedAlgoOption);
 
 export const optionsByPrimitive: Record<MainPrimitiveType, AlgoOption[]> = {
   [MainPrimitiveType.FD]: FDoptions,
   [MainPrimitiveType.AR]: ARoptions,
   [MainPrimitiveType.CFD]: CFDoptions,
   [MainPrimitiveType.TypoFD]: TypoOptions,
-  [MainPrimitiveType.MetricVerification]: MFDAlgoOptions,
+  [MainPrimitiveType.MFD]: MFDAlgoOptions,
   [MainPrimitiveType.Stats]: [], // Pechenux to reviewers: temporary solution
 };
 
@@ -64,52 +78,36 @@ export const optionsByAlgorithms: Record<Algorithms, AlgoProps[]> = {
   FUN: [],
   CTane: [],
   Apriori: [],
-  Brute: [], // Metric Algorithms
-  Approx: [], // Metric Algorithms
-  Calipers: [], // Metric Algorithms
+  BRUTE: [], // Metric Algorithms
+  APPROX: [], // Metric Algorithms
+  CALIPERS: [], // Metric Algorithms
 };
 
 // ------------------------ METRIC FUNCTIONAL DEPENDENCIES ONLY PARAMETERS ---------------------------
 
 // Metrics Options
 
-const MFDMetrics = ['Euclidean', 'Cosine', 'Levenshtein'] as const;
+const MFDMetrics = ['EUCLIDEAN', 'COSINE', 'LEVENSHTEIN'] as const;
 
 export type MFDMetric = typeof MFDMetrics[number];
 
+export type MFDMetricOption = CapitalizedOption<MFDMetric>;
 
-export type MFDMetricOption = {
-  label: string;
-  value: MFDMetric;
-};
-
-// Pechenux: I implemented a simpler solution. I am waiting for an response about this
-// export const MFDMetricOptions: MFDMetricOption[] = [
-//   { label: 'Euclidean', value: 'EUCLIDEAN' },
-//   { label: 'Cosine', value: 'COSINE' },
-//   { label: 'Levenshtein', value: 'LEVENSHTEIN' },
-// ];
-
-const toMetricOption = (metric: MFDMetric) => ({
-  value: metric,
-  label: metric,
-});
-
-export const MFDMetricOptions: MFDMetricOption[] = MFDMetrics.map(toMetricOption);
+export const MFDMetricOptions: MFDMetricOption[] = MFDMetrics.map(toCapitalizedOption);
 
 export const metricOptionsByPrimitive: Record<MainPrimitiveType, MFDMetricOption[]> = {
   [MainPrimitiveType.FD]: [],
   [MainPrimitiveType.AR]: [],
   [MainPrimitiveType.CFD]: [],
   [MainPrimitiveType.TypoFD]: [],
-  [MainPrimitiveType.MetricVerification]: MFDMetricOptions,
+  [MainPrimitiveType.MFD]: MFDMetricOptions,
   [MainPrimitiveType.Stats]: [] // Pechenux to reviewers: temporary solution
 };
 
 export const optionsByMetrics: Record<MFDMetric, string[]> = {
-  Euclidean: [],
-  Cosine: ['qgram'],
-  Levenshtein: [],
+  EUCLIDEAN: [],
+  COSINE: ['qgram'],
+  LEVENSHTEIN: [],
 };
 
 // Column Types
@@ -133,7 +131,7 @@ export const metricColumnTypeOptionsByPrimitive: Record<MainPrimitiveType, MFDCo
   [MainPrimitiveType.AR]: [],
   [MainPrimitiveType.CFD]: [],
   [MainPrimitiveType.TypoFD]: [],
-  [MainPrimitiveType.MetricVerification]: MFDColumnTypeOptions,
+  [MainPrimitiveType.MFD]: MFDColumnTypeOptions,
   [MainPrimitiveType.Stats]: [] // Pechenux to reviewers: temporary solution
 };
 

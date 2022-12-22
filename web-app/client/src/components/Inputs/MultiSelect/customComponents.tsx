@@ -20,6 +20,9 @@ import ChevronDownIcon from '@assets/icons/arrow-down.svg?component';
 import EmptyButton from '@assets/icons/close.svg?component';
 import { InputPropsBase } from '@components/Inputs';
 import styles from './MultiSelect.module.scss';
+import { OptionWithBadges } from 'types/multiSelect';
+import { OptionBadge } from './OptionBadge';
+import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
 
 export const colorStyles: StylesConfig = {
   control: (styles) => ({}),
@@ -105,19 +108,33 @@ export const Option: ComponentType<OptionProps & InputPropsBase> = ({
   children,
   isFocused,
   isSelected,
-}) => (
-  <div
-    className={cn(
-      styles.option,
-      isFocused && styles.focused,
-      isSelected && styles.selected
-    )}
-    {...innerProps}
-    ref={innerRef}
-  >
-    {children}
-  </div>
-);
+  data
+}) => {
+  const optionData = data as OptionWithBadges;
+
+  return (
+    <div
+      className={cn(
+        styles.option,
+        (optionData.badges?.length == 1) && styles.once,
+        isFocused && styles.focused,
+        isSelected && styles.selected
+      )}
+      {...innerProps}
+      ref={innerRef}
+      title={(children as string) + (optionData.badges?.map(elem => " " + elem.label as string))}
+    >
+      <div className={styles.optionText}>
+        {children}
+      </div>
+      {/* <div className={styles.optionBadgeContainer}> */}
+        {optionData.badges && optionData.badges?.map(elem => <OptionBadge style={
+          elem.style ? elem.style : badgeStyles.secondary
+        }>{elem.label}</OptionBadge>)}
+      {/* </div> */}
+    </div>
+  );
+};
 
 const NoOptionsMessage: ComponentType<NoticeProps & InputPropsBase> = ({
   innerProps,

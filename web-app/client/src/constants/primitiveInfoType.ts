@@ -31,11 +31,11 @@ const primitiveInfo: Record<MainPrimitiveType, PrimitiveInfoType> = {
       'Error detection pipeline is a built-in functionality for detecting typos and mispells which can prevent some functional dependency from holding on a dataset. In the first step, pipeline initiates process for approximate functional dependencies mining. Next, the user selects an approximate functional dependency that "almost" holds and inspect the differences in the right-hand side of a dependency among the cluster\'s tuples. Finally, the user chooses which values should be fixed and makes the corresponding changes.',
     link: 'https://mstrutov.github.io/Desbordante/guides/error-detection-pipeline.html',
   },
-  [MainPrimitiveType.MetricVerification]: {
-    label: 'Metric Verification',
+  [MainPrimitiveType.MFD]: {
+    label: 'Metric Verification ',
     description:
       'To fill', // Pechenux to reviewers: temporary solution
-    link: 'To fill', // Pechenux to reviewers: temporary solution
+    link: 'https://mstrutov.github.io/Desbordante/guides/error-detection-pipeline.html', // Pechenux to reviewers: temporary solution
   },
   [MainPrimitiveType.Stats]: {
     label: 'Stats',
