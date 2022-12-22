@@ -1,0 +1,9 @@
+mutation createUser($props: CreatingUserProps!) {
+    createUser(props: $props) {
+        message
+        tokens {
+            accessToken
+            refreshToken
+        }
+    }
+}

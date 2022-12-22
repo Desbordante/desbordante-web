@@ -1,0 +1,36 @@
+query algorithmsConfig {
+    algorithmsConfig {
+        allowedARAlgorithms {
+            name
+            properties {
+                hasSupport
+                hasConfidence
+            }
+        }
+        allowedFDAlgorithms {
+            name
+            properties {
+                hasErrorThreshold
+                hasArityConstraint
+                isMultiThreaded
+            }
+        }
+        allowedDatasets {
+            fileID
+        }
+        allowedCFDAlgorithms {
+            name
+            properties {
+                hasArityConstraint
+                hasSupport
+                hasConfidence
+            }
+        }
+        fileConfig {
+            allowedFileFormats
+            allowedDelimiters
+            maxFileSize
+        }
+        maxThreadsCount
+    }
+}

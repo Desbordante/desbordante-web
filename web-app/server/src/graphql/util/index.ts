@@ -1,4 +1,5 @@
 import { ApolloError, UserInputError } from "apollo-server-core";
+import config from "../../config";
 
 export type Pagination = { offset: number; limit: number };
 
@@ -10,6 +11,9 @@ export const applyPagination = <T>(
     maxLimit = defaultMaxLimit
 ) => {
     const { offset, limit } = pagination;
+    if (config.isTest && limit === -1) {
+        return data; //for test purposes only!!!
+    }
     if (offset < 0) {
         throw new UserInputError("Offset cannot be less, than 0", pagination);
     } else if (limit < 0 || limit > maxLimit) {

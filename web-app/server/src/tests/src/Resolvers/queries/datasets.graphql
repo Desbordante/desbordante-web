@@ -1,0 +1,36 @@
+query datasets($props: DatasetsQueryProps!, $filter: TasksInfoFilter!) {
+    datasets(props: $props) {
+        fileID
+        createdAt
+        userID
+        isBuiltIn
+        fileName
+        originalFileName
+        mimeType
+        encoding
+        hasHeader
+        header
+        delimiter
+        rowsCount
+        delimiter
+        rowsCount
+        countOfColumns
+        numberOfUses
+        fileFormat {
+            fileID
+        }
+        snippet {
+            header
+        }
+        supportedPrimitives
+        tasks(filter: $filter) {
+            taskID
+        }
+        statsInfo {
+            overview {
+                name
+                amount
+            }
+        }
+    }
+}

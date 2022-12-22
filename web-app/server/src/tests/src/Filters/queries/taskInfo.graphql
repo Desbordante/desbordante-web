@@ -1,0 +1,74 @@
+query taskInfo($taskID: ID!, $filter: IntersectionFilter!) {
+    taskInfo(taskID: $taskID) {
+        taskID
+        data {
+            __typename
+            ... on TaskWithDepsData {
+                result {
+                    taskID
+                    __typename
+                    ... on FDTaskResult {
+                        filteredDepsFD: filteredDeps(filter: $filter) {
+                            filteredDepsAmount
+                            __typename
+                            ... on FilteredFDs {
+                                filteredDepsAmount
+                                deps {
+                                    lhs {
+                                        name
+                                        index
+                                    }
+                                    rhs {
+                                        name
+                                        index
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ... on CFDTaskResult {
+                        filteredDepsCFD: filteredDeps(filter: $filter) {
+                            filteredDepsAmount
+                            __typename
+                            ...on FilteredCFDs {
+                                filteredDepsAmount
+                                deps {
+                                    lhs {
+                                        column {
+                                            name
+                                            index
+                                        }
+                                        pattern
+                                    }
+                                    rhs {
+                                        column {
+                                            name
+                                            index
+                                        }
+                                        pattern
+                                    }
+                                    confidence
+                                    support
+                                }
+                            }
+                        }
+                    }
+                    ... on ARTaskResult {
+                        filteredDepsAR: filteredDeps(filter: $filter) {
+                            filteredDepsAmount
+                            __typename
+                            ...on FilteredARs {
+                                filteredDepsAmount
+                                deps {
+                                    lhs
+                                    rhs
+                                    confidence
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

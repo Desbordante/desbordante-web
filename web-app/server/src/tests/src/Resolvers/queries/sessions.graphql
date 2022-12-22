@@ -1,0 +1,13 @@
+query sessions($pagination: Pagination!, $onlyValid: Boolean!) {
+    sessions(pagination: $pagination, onlyValid: $onlyValid) {
+        sessionID
+        userID
+        user {
+            userID
+        }
+        deviceID
+        status
+        accessTokenIat
+        refreshTokenIat
+    }
+}

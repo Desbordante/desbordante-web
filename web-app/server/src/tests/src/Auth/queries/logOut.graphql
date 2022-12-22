@@ -1,0 +1,3 @@
+mutation logOut($allSessions: Boolean!) {
+    logOut(allSessions: $allSessions)
+}

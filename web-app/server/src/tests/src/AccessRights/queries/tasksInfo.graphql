@@ -1,0 +1,5 @@
+query tasksInfo($pagination: Pagination!) {
+    tasksInfo(pagination: $pagination) {
+        taskID
+    }
+}

@@ -39,6 +39,7 @@ const compareDevices = async (
 };
 
 export const createContext = async (headers: IncomingHttpHeaders): Promise<Context> => {
+
     let requestID = headers["x-request-id"];
     if (typeof requestID !== "string") {
         if (config.isDevelopment) {

@@ -1,0 +1,17 @@
+mutation createMainTaskWithDatasetChoosing($props: IntersectionMainTaskProps!, $fileID: ID!, $forceCreate: Boolean!) {
+    createMainTaskWithDatasetChoosing(props: $props, fileID: $fileID, forceCreate: $forceCreate) {
+        taskID
+        user {
+            userID
+        }
+        isPrivate
+        attemptNumber
+        processStatus
+        phaseName
+        currentPhase
+        progress
+        maxPhase
+        isExecuted
+        elapsedTime
+    }
+}

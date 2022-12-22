@@ -1,0 +1,5 @@
+query users($pagination: Pagination!) {
+    users(pagination: $pagination) {
+        userID
+    }
+}
