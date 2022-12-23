@@ -41,7 +41,7 @@ const MultiSelect: ForwardRefRenderFunction<any, MultiSelectProps> = (
         ref={ref}
         components={{ ...customComponents, ...components }}
         styles={colorStyles}
-
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         error={error}
       />

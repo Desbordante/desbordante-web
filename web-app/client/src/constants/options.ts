@@ -1,17 +1,12 @@
-import { MainPrimitiveType } from 'types/globalTypes';
 import { bool } from 'yup';
-import _ from 'lodash';
+import { capitalize, CapitalizedOption } from '@utils/capitalizeOptions';
+import { MainPrimitiveType } from 'types/globalTypes';
 
-const capitalize = _.capitalize as <T extends string>(value: T) => Capitalize<Lowercase<T>>
-
-type CapitalizedOption<T extends string> = {
-  label: Capitalize<Lowercase<T>>;
-  value: T;
-};
-
-const toCapitalizedOption: <T extends string>(value: T) => CapitalizedOption<T> = (value) => ({
+const toCapitalizedOption: <T extends string>(
+  value: T
+) => CapitalizedOption<T> = (value) => ({
   value,
-  label: capitalize(value)
+  label: capitalize(value),
 });
 
 const FDAlgorithms = [
@@ -34,7 +29,11 @@ const MFDAlgorithms = ['BRUTE', 'APPROX', 'CALIPERS'] as const;
 
 type MFDAlgorithm = typeof MFDAlgorithms[number];
 
-export type Algorithms = FDAlgorithm | CFDAlgorithm | ARAlgorithm | MFDAlgorithm;
+export type Algorithms =
+  | FDAlgorithm
+  | CFDAlgorithm
+  | ARAlgorithm
+  | MFDAlgorithm;
 
 type AlgoProps = 'arity' | 'threshold' | 'threads';
 
@@ -55,7 +54,9 @@ const toCapitalizedAlgoOption = (algo: Algorithms): AlgoOption => ({
   label: capitalize(algo) as Algorithms,
 });
 
-export const MFDAlgoOptions: AlgoOption[] = MFDAlgorithms.map(toCapitalizedAlgoOption);
+export const MFDAlgoOptions: AlgoOption[] = MFDAlgorithms.map(
+  toCapitalizedAlgoOption
+);
 
 export const optionsByPrimitive: Record<MainPrimitiveType, AlgoOption[]> = {
   [MainPrimitiveType.FD]: FDoptions,
@@ -93,15 +94,19 @@ export type MFDMetric = typeof MFDMetrics[number];
 
 export type MFDMetricOption = CapitalizedOption<MFDMetric>;
 
-export const MFDMetricOptions: MFDMetricOption[] = MFDMetrics.map(toCapitalizedOption);
+export const MFDMetricOptions: MFDMetricOption[] =
+  MFDMetrics.map(toCapitalizedOption);
 
-export const metricOptionsByPrimitive: Record<MainPrimitiveType, MFDMetricOption[]> = {
+export const metricOptionsByPrimitive: Record<
+  MainPrimitiveType,
+  MFDMetricOption[]
+> = {
   [MainPrimitiveType.FD]: [],
   [MainPrimitiveType.AR]: [],
   [MainPrimitiveType.CFD]: [],
   [MainPrimitiveType.TypoFD]: [],
   [MainPrimitiveType.MFD]: MFDMetricOptions,
-  [MainPrimitiveType.Stats]: [] // Pechenux to reviewers: temporary solution
+  [MainPrimitiveType.Stats]: [], // Pechenux to reviewers: temporary solution
 };
 
 export const optionsByMetrics: Record<MFDMetric, string[]> = {
@@ -112,9 +117,7 @@ export const optionsByMetrics: Record<MFDMetric, string[]> = {
 
 // Column Types
 
-export type MFDColumnType =
-  | 'Numeric'
-  | 'String';
+export type MFDColumnType = 'Numeric' | 'String';
 
 export type MFDColumnTypeOption = {
   label: string;
@@ -126,13 +129,16 @@ export const MFDColumnTypeOptions: MFDColumnTypeOption[] = [
   { label: 'String', value: 'String' },
 ];
 
-export const metricColumnTypeOptionsByPrimitive: Record<MainPrimitiveType, MFDColumnTypeOption[]> = {
+export const metricColumnTypeOptionsByPrimitive: Record<
+  MainPrimitiveType,
+  MFDColumnTypeOption[]
+> = {
   [MainPrimitiveType.FD]: [],
   [MainPrimitiveType.AR]: [],
   [MainPrimitiveType.CFD]: [],
   [MainPrimitiveType.TypoFD]: [],
   [MainPrimitiveType.MFD]: MFDColumnTypeOptions,
-  [MainPrimitiveType.Stats]: [] // Pechenux to reviewers: temporary solution
+  [MainPrimitiveType.Stats]: [], // Pechenux to reviewers: temporary solution
 };
 
 export const optionsByColumnTypes: Record<MFDColumnType, string[]> = {
@@ -142,9 +148,7 @@ export const optionsByColumnTypes: Record<MFDColumnType, string[]> = {
 
 // Distance to Null
 
-export type MFDDistance =
-  | 'Infinity'
-  | 'Zero';
+export type MFDDistance = 'Infinity' | 'Zero';
 
 export type MFDDistancesOption = {
   label: MFDDistance;

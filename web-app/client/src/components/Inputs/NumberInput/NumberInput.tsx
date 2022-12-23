@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import {
-  BaseHTMLAttributes,
   forwardRef,
   ForwardRefRenderFunction,
   HTMLProps,
@@ -18,7 +17,7 @@ interface NumberInputProps {
   includingMin?: boolean;
   max?: number;
   includingMax?: boolean;
-  nunbersAfterDot?: number;
+  numbersAfterDot?: number;
 }
 
 type Props = InputPropsBase &
@@ -43,11 +42,19 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
   },
   ref
 ) => {
-  const nunbersAfterDot = numberProps?.nunbersAfterDot !== undefined ? numberProps?.nunbersAfterDot : null;
+  const numbersAfterDot =
+    numberProps?.numbersAfterDot !== undefined
+      ? numberProps?.numbersAfterDot
+      : null;
+
   const min = numberProps?.min !== undefined ? numberProps?.min : null; // (0 || null) === null
   const max = numberProps?.max !== undefined ? numberProps?.max : null;
-  const includingMin = numberProps?.includingMin !== undefined ? numberProps?.includingMin : true;
-  const includingMax = numberProps?.includingMax !== undefined ? numberProps?.includingMax : true;
+
+  const includingMin =
+    numberProps?.includingMin !== undefined ? numberProps?.includingMin : true;
+  const includingMax =
+    numberProps?.includingMax !== undefined ? numberProps?.includingMax : true;
+
   const defaultNum = numberProps?.defaultNum || 0;
 
   const [tempValue, setTempValue] = useState<string>('');
@@ -55,7 +62,7 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
     setTempValue(value === undefined ? '' : value?.toString());
   }, [value]);
 
-  const placeIncideBorders = (s: string): number => {
+  const placeInsideBorders = (s: string): number => {
     const parsed = Number.parseFloat(s);
     if (!Number.isNaN(parsed)) {
       if (min !== null && parsed <= min) return includingMin ? min : defaultNum;
@@ -65,9 +72,9 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
   };
 
   const prepareValue = (s: string): number => {
-    const parsed = placeIncideBorders(s);
-    if (nunbersAfterDot !== null)
-      return Number.parseFloat(parsed.toFixed(nunbersAfterDot));
+    const parsed = placeInsideBorders(s);
+    if (numbersAfterDot !== null)
+      return Number.parseFloat(parsed.toFixed(numbersAfterDot));
     return parsed;
   };
 

@@ -1,10 +1,10 @@
 export type Badge = {
-    label: string;
-    style?: string;
-}
+  label: string;
+  style?: string;
+};
 
 export type OptionWithBadges = {
-    label: string;
-    value: string;
-    badges?: Badge[];
+  label: string;
+  value: string;
+  badges?: Badge[];
 };

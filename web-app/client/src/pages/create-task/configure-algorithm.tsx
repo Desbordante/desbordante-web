@@ -1,3 +1,4 @@
+import { cursorTo } from 'readline';
 import { useMutation, useQuery } from '@apollo/client';
 import _ from 'lodash';
 import type { NextPage } from 'next';
@@ -14,8 +15,9 @@ import IdeaIcon from '@assets/icons/idea.svg?component';
 import Button from '@components/Button';
 import { Select } from '@components/Inputs';
 import { MultiSelect } from '@components/Inputs';
-import NumberSlider from '@components/Inputs/NumberSlider';
+import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
 import NumberInput from '@components/Inputs/NumberInput';
+import NumberSlider from '@components/Inputs/NumberSlider';
 import WizardLayout from '@components/WizardLayout';
 import {
   Algorithms,
@@ -39,19 +41,16 @@ import {
   createTaskWithDatasetChoosingVariables,
 } from '@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing';
 import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations/chooseTask';
-import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import {
   getCountOfColumns,
   getCountOfColumnsVariables,
-} from '@graphql/operations/queries/__generated__/getCountOfColumns'
+} from '@graphql/operations/queries/__generated__/getCountOfColumns';
 import { GET_COUNT_OF_COLUMNS } from '@graphql/operations/queries/getDatasetColumnCount';
-
 import { useErrorContext } from '@hooks/useErrorContext'; // to delete?
+import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
 import { showError } from '@utils/toasts';
 import { MainPrimitiveType } from 'types/globalTypes';
-import { cursorTo } from 'readline';
-import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
 
 type FDForm = {
   algorithmName: any;
@@ -87,7 +86,7 @@ type TypoFDForm = {
   metric: any;
 };
 type MFDForm = {
-  algorithmName: "MetricVerification"; // constant
+  algorithmName: 'MetricVerification'; // constant
   lhsIndices: number[];
   rhsIndices: number[];
   rhsColumnType: any; // client-side
@@ -96,7 +95,8 @@ type MFDForm = {
   parameter: number; //toleranceParameter
   q: number; // qgramLength
   distanceToNullIsInfinity: any;
-}
+};
+
 type AlgorithmConfig = FDForm | CFDForm | ARForm | TypoFDForm | MFDForm;
 type AlgorithmProps = FDForm & CFDForm & ARForm & TypoFDForm & MFDForm;
 type FormInput = (props: {
@@ -136,7 +136,7 @@ const defaultValuesByPrimitive = {
     metric: 'MODULUS_OF_DIFFERENCE',
   } as TypoFDForm,
   [MainPrimitiveType.MFD]: {
-    algorithmName: "MetricVerification", // constant
+    algorithmName: 'MetricVerification', // constant
     lhsIndices: [],
     rhsIndices: [],
     rhsColumnType: 'Numeric', // client-side
@@ -208,12 +208,15 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   ) => ({ label: value, value });
 
   const getSelectValues: (opt: ReadonlyArray<any>) => number[] = (opt) => {
-    return opt.map(element => element.value);
+    return opt.map((element) => element.value);
   };
-  const getSelectOptions: (options: ReadonlyArray<any>, values: ReadonlyArray<number>) => ReadonlyArray<any> = (
-    options, values
-  ) => {
-    return values !== undefined ? options.filter((element) => { return values.includes(element.value) }) : [];
+  const getSelectOptions: (
+    options: ReadonlyArray<any>,
+    values: ReadonlyArray<number>
+  ) => ReadonlyArray<any> = (options, values) => {
+    return values !== undefined
+      ? options.filter(({ value }) => values.includes(value))
+      : [];
   };
 
   function omit(obj: any, ...props: any) {
@@ -264,16 +267,16 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   const { loading, error, data } = useQuery<
     getCountOfColumns,
     getCountOfColumnsVariables
-    >(GET_COUNT_OF_COLUMNS, {
-      variables: { fileID: fileID },
-      skip: (primitive !== MainPrimitiveType.MFD),
-      onError: (error) => {
-        showError(
-          error.message,
-          'Can\'t fetch columns information. Please try later.'
-        );
-      }
-    });
+  >(GET_COUNT_OF_COLUMNS, {
+    variables: { fileID: fileID },
+    skip: primitive !== MainPrimitiveType.MFD,
+    onError: (error) => {
+      showError(
+        error.message,
+        "Can't fetch columns information. Please try later."
+      );
+    },
+  });
 
   const columnData = useMemo(() => {
     if (data) {
@@ -282,17 +285,15 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
       const hasHeader: boolean = data?.datasetInfo?.hasHeader || false;
       const headers: string[] = data?.datasetInfo?.header || [];
 
-      return [...Array(countOfColumns)].map((_, i) => (
-        {
-          label: hasHeader ? `${i + 1}: ${headers[i]}` : `Column ${i + 1}`,
-          value: i,
-          badges: statistics.filter(elem => elem.column.index == i).map(
-            (elem => ({ label: elem.type, style: badgeStyles.primary }))
-          )
-          // filtering for columns with equal indices
-          // get type from each and create badge
-        }
-      ));
+      return [...Array(countOfColumns)].map((_, i) => ({
+        label: hasHeader ? `${i + 1}: ${headers[i]}` : `Column ${i + 1}`,
+        value: i,
+        badges: statistics
+          .filter((elem) => elem.column.index == i)
+          .map((elem) => ({ label: elem.type, style: badgeStyles.primary })),
+        // filtering for columns with equal indices
+        // get type from each and create badge
+      }));
     }
     return [];
   }, [loading, error, data]);
@@ -317,35 +318,48 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   const watchRHS = watch('rhsIndices', []) || [];
 
   const TypesCategories: Record<string, string> = {
-    "Int": "Numeric",
-    "Double": "Numeric",
-    "BigInt": "Numeric",
-    "String": "String"
-  }
+    Int: 'Numeric',
+    Double: 'Numeric',
+    BigInt: 'Numeric',
+    String: 'String',
+  };
 
-  const [columnType, setColumnType] = useState("manual");
+  const [columnType, setColumnType] = useState('manual');
 
-  useEffect(() => { // logic for mfd rhs type
-    if (columnData.some(elem => elem.badges.length == 0)) { // noTypesFlag
-      setColumnType("manual");
+  // logic for mfd rhs type
+  useEffect(() => {
+    // noTypesFlag
+    if (columnData.some((elem) => elem.badges.length == 0)) {
+      setColumnType('manual');
       return;
     }
 
-    const types = Array.from(new Set<string>(watchRHS.map(elem => TypesCategories[columnData[elem].badges[0].label] || "Undefined")));
+    const types = Array.from(
+      new Set<string>(
+        watchRHS.map(
+          (elem) =>
+            TypesCategories[columnData[elem].badges[0].label] || 'Undefined'
+        )
+      )
+    );
 
-    if (types.length === 0) { // allow user to change type
-      setColumnType("manual");
-    } else if (types.length === 1) { // set type for user
-      if (["Numeric", "String"].includes(types[0])) {
-        setColumnType("auto");
-        setValue("rhsColumnType", types[0])
-      } else {// show error
-        setColumnType("error");
+    if (types.length === 0) {
+      // allow user to change type
+      setColumnType('manual');
+    } else if (types.length === 1) {
+      // set type for user
+      if (['Numeric', 'String'].includes(types[0])) {
+        setColumnType('auto');
+        setValue('rhsColumnType', types[0]);
+      } else {
+        // show error
+        setColumnType('error');
       }
-    } else { // show error
-      setColumnType("error");
+    } else {
+      // show error
+      setColumnType('error');
     }
-  }, [watchRHS])
+  }, [watchRHS]);
 
   const header = (
     <>
@@ -560,7 +574,11 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
             {...field}
             isLoading={loading}
             value={getSelectOptions(columnData, value)}
-            onChange={(newValue, _) => onChange(getSelectValues(newValue as { label: string, value: number }[]))}
+            onChange={(newValue, _) =>
+              onChange(
+                getSelectValues(newValue as { label: string; value: number }[])
+              )
+            }
             label="LHS Columns"
             options={columnData}
           />
@@ -569,17 +587,20 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           <MultiSelect
             {...field}
             error={
-              columnType === "error" ?
-                "Choose different columns"
-                :
-                watchColumnType as MFDColumnType === "String" && value.length > 1 ?
-                  "Must contain only one column of type \"String\""
-                  :
-                  undefined
+              columnType === 'error'
+                ? 'Choose different columns'
+                : (watchColumnType as MFDColumnType) === 'String' &&
+                  value.length > 1
+                ? 'Must contain only one column of type "String"'
+                : undefined
             }
             isLoading={loading}
             value={getSelectOptions(columnData, value)}
-            onChange={(newValue, _) => onChange(getSelectValues(newValue as { label: string, value: number }[]))}
+            onChange={(newValue, _) =>
+              onChange(
+                getSelectValues(newValue as { label: string; value: number }[])
+              )
+            }
             label="RHS Columns"
             options={columnData}
           />
@@ -587,8 +608,10 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         rhsColumnType: ({ field: { onChange, value, ...field } }) => (
           <Select
             {...field}
-            isDisabled={columnType === "auto"}
-            value={MFDColumnTypeOptions.find(option => option.value === value)}
+            isDisabled={columnType === 'auto'}
+            value={MFDColumnTypeOptions.find(
+              (option) => option.value === value
+            )}
             onChange={(e) => onChange(getSelectValue(e))}
             label="RHS column type"
             options={MFDColumnTypeOptions}
@@ -598,15 +621,15 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           <Select
             {...field}
             error={
-              watchColumnType as MFDColumnType == "Numeric" && value != "EUCLIDEAN" ?
-                "Must be Euclidean if column type is numeric"
-                :
-                watchColumnType as MFDColumnType != "Numeric" && value == "EUCLIDEAN" ?
-                  "Can't be Euclidean if column type is not numeric"
-                  :
-                  undefined
+              (watchColumnType as MFDColumnType) == 'Numeric' &&
+              value != 'EUCLIDEAN'
+                ? 'Must be Euclidean if column type is numeric'
+                : (watchColumnType as MFDColumnType) != 'Numeric' &&
+                  value == 'EUCLIDEAN'
+                ? "Can't be Euclidean if column type is not numeric"
+                : undefined
             }
-            value={MFDMetricOptions.find(option => option.value === value)}
+            value={MFDMetricOptions.find((option) => option.value === value)}
             onChange={(e) => onChange(getSelectValue(e))}
             label="Metric"
             options={MFDMetricOptions}
@@ -615,16 +638,21 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         metricAlgorithm: ({ field: { onChange, value, ...field } }) => (
           <Select
             {...field}
-            isDisabled={watchColumnType as MFDColumnType == "Numeric" && watchRHS.length == 1}
+            isDisabled={
+              (watchColumnType as MFDColumnType) == 'Numeric' &&
+              watchRHS.length == 1
+            }
             error={
               watchRHS.length != 2 &&
-                value == "CALIPERS" &&
-                !(watchColumnType as MFDColumnType == "Numeric" && watchRHS.length == 1) ?
-                "Count of RHS Columns must be 2"
-                :
-                undefined
+              value == 'CALIPERS' &&
+              !(
+                (watchColumnType as MFDColumnType) == 'Numeric' &&
+                watchRHS.length == 1
+              )
+                ? 'Count of RHS Columns must be 2'
+                : undefined
             }
-            value={MFDAlgoOptions.find(option => option.value === value)}
+            value={MFDAlgoOptions.find((option) => option.value === value)}
             onChange={(e) => onChange(getSelectValue(e))}
             label="Algorithm"
             options={MFDAlgoOptions}
@@ -633,7 +661,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         parameter: ({ field }) => (
           <NumberInput
             {...field}
-            numberProps={{ defaultNum: 1.0, min: 0}}
+            numberProps={{ defaultNum: 1.0, min: 0 }}
             label="Tolerance parameter"
           />
         ),
@@ -641,18 +669,23 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           <NumberInput
             {...field}
             disabled={
-              !optionsByMetrics[watchMetric as MFDMetric].includes(
-                'qgram'
-              )
+              !optionsByMetrics[watchMetric as MFDMetric].includes('qgram')
             }
-            numberProps={{ defaultNum: 1, min: 1, includingMin: true, nunbersAfterDot: 0 }}
+            numberProps={{
+              defaultNum: 1,
+              min: 1,
+              includingMin: true,
+              numbersAfterDot: 0,
+            }}
             label="Q-gram length"
           />
         ),
-        distanceToNullIsInfinity: ({ field: { onChange, value, ...field } }) => (
+        distanceToNullIsInfinity: ({
+          field: { onChange, value, ...field },
+        }) => (
           <Select
             {...field}
-            value={MFDDistancesOptions.find(option => option.value === value)}
+            value={MFDDistancesOptions.find((option) => option.value === value)}
             onChange={(e) => onChange(getSelectValue(e))}
             label="Distance to null"
             options={MFDDistancesOptions}
@@ -660,7 +693,15 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         ),
       },
     }),
-    [watchAlgorithm, watchColumnType, watchMetric, watchRHS, columnData, loading, columnType]
+    [
+      watchAlgorithm,
+      watchColumnType,
+      watchMetric,
+      watchRHS,
+      columnData,
+      loading,
+      columnType,
+    ]
   );
 
   const InputsForm = _.map(
