@@ -11,7 +11,7 @@ export const GET_COUNT_OF_COLUMNS = gql`
       statsInfo {
         stats {
           column {
-            ...COLUMN
+            ...Column
           }
           type
         }
