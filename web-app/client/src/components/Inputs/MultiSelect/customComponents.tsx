@@ -1,5 +1,4 @@
 import cn from 'classnames';
-import Image from 'next/image';
 import { ComponentType } from 'react';
 import {
   StylesConfig,
@@ -19,70 +18,75 @@ import {
 import ChevronDownIcon from '@assets/icons/arrow-down.svg?component';
 import EmptyButton from '@assets/icons/close.svg?component';
 import { InputPropsBase } from '@components/Inputs';
-import styles from './MultiSelect.module.scss';
+import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
 import { OptionWithBadges } from 'types/multiSelect';
 import { OptionBadge } from './OptionBadge';
-import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
+import styles from './MultiSelect.module.scss';
 
 export const colorStyles: StylesConfig = {
   control: (styles) => ({}),
   valueContainer: (styles) => ({ ...styles, padding: 0 }),
   indicatorSeparator: (styles) => ({ ...styles, margin: 0 }),
-}
+};
 
 const Control: ComponentType<ControlProps & InputPropsBase> = (props) => (
-  <components.Control className={cn(
-    styles.control,
-    // @ts-ignore
-    props.selectProps.error && styles.error,
-    props.isFocused && styles.focused
-  )} {...props} />
+  <components.Control
+    className={cn(
+      styles.control,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      props.selectProps.error && styles.error,
+      props.isFocused && styles.focused
+    )}
+    {...props}
+  />
 );
 
-const MultiValueContainer: ComponentType<MultiValueGenericProps & InputPropsBase> = (props) => (
-  <components.MultiValueContainer {...props} />
-);
+const MultiValueContainer: ComponentType<
+  MultiValueGenericProps & InputPropsBase
+> = (props) => <components.MultiValueContainer {...props} />;
 
 const MultiValue: ComponentType<MultiValueProps & InputPropsBase> = (props) => (
   <components.MultiValue className={styles.multiValue} {...props} />
 );
 
-const MultiValueLabel: ComponentType<MultiValueGenericProps & InputPropsBase> = (props) => (
+const MultiValueLabel: ComponentType<
+  MultiValueGenericProps & InputPropsBase
+> = (props) => (
   <div
     {...props.innerProps}
-    className={cn(
-      styles.multiValueLabel,
-      props.error && styles.error
-    )}
-    title={ props.children as string }
+    className={cn(styles.multiValueLabel, props.error && styles.error)}
+    title={props.children as string}
   >
     {props.children}
   </div>
 );
 
-const MultiValueRemove: ComponentType<MultiValueRemoveProps & InputPropsBase> = (props) => (
+const MultiValueRemove: ComponentType<
+  MultiValueRemoveProps & InputPropsBase
+> = (props) => (
   <div
     {...props.innerProps}
-    className={cn(
-      styles.multiValueRemove,
-      props.error && styles.error
-    )}
+    className={cn(styles.multiValueRemove, props.error && styles.error)}
   >
-    <EmptyButton/>
+    <EmptyButton />
   </div>
 );
 
-const Placeholder: ComponentType<PlaceholderProps & InputPropsBase> = (props) => (
-  <components.Placeholder className={styles.placeholder} {...props} />
-);
+const Placeholder: ComponentType<PlaceholderProps & InputPropsBase> = (
+  props
+) => <components.Placeholder className={styles.placeholder} {...props} />;
 
 const Input: ComponentType<InputProps & InputPropsBase> = (props) => (
-  <components.Input className={cn(styles.input, props.value && styles.hasValue)} {...props} />
+  <components.Input
+    className={cn(styles.input, props.value && styles.hasValue)}
+    {...props}
+  />
 );
 
-const ClearIndicator: ComponentType<
-  ClearIndicatorProps & InputPropsBase
-> = ({ innerProps }) => (
+const ClearIndicator: ComponentType<ClearIndicatorProps & InputPropsBase> = ({
+  innerProps,
+}) => (
   <div className={styles.clearIndicator} {...innerProps}>
     <EmptyButton />
   </div>
@@ -99,7 +103,10 @@ const DropdownIndicator: ComponentType<
 const IndicatorsContainer: ComponentType<
   IndicatorsContainerProps & InputPropsBase
 > = (props) => (
-  <components.IndicatorsContainer className={styles.indicatorsContainer} {...props} />
+  <components.IndicatorsContainer
+    className={styles.indicatorsContainer}
+    {...props}
+  />
 );
 
 export const Option: ComponentType<OptionProps & InputPropsBase> = ({
@@ -108,7 +115,7 @@ export const Option: ComponentType<OptionProps & InputPropsBase> = ({
   children,
   isFocused,
   isSelected,
-  data
+  data,
 }) => {
   const optionData = data as OptionWithBadges;
 
@@ -116,22 +123,27 @@ export const Option: ComponentType<OptionProps & InputPropsBase> = ({
     <div
       className={cn(
         styles.option,
-        (optionData.badges?.length == 1) && styles.once,
+        optionData.badges?.length == 1 && styles.once,
         isFocused && styles.focused,
         isSelected && styles.selected
       )}
       {...innerProps}
       ref={innerRef}
-      title={(children as string) + (optionData.badges?.map(elem => " " + elem.label as string))}
+      title={
+        (children as string) +
+        optionData.badges?.map((elem) => (' ' + elem.label) as string)
+      }
     >
-      <div className={styles.optionText}>
-        {children}
-      </div>
-      {/* <div className={styles.optionBadgeContainer}> */}
-        {optionData.badges && optionData.badges?.map(elem => <OptionBadge style={
-          elem.style ? elem.style : badgeStyles.secondary
-        }>{elem.label}</OptionBadge>)}
-      {/* </div> */}
+      <div className={styles.optionText}>{children}</div>
+      {optionData.badges &&
+        optionData.badges?.map((elem, i) => (
+          <OptionBadge
+            key={(children as string) + '_Badge' + i}
+            style={elem.style ? elem.style : badgeStyles.secondary}
+          >
+            {elem.label}
+          </OptionBadge>
+        ))}
     </div>
   );
 };

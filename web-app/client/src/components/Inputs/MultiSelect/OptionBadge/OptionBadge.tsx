@@ -11,10 +11,7 @@ export const OptionBadge: FC<OptionBadgeProps> = ({
   className,
   ...props
 }: OptionBadgeProps) => (
-  <article
-    className={cn(className, styles.wrapper, style)}
-    {...props}
-  >
+  <article className={cn(className, styles.wrapper, style)} {...props}>
     {props.children}
   </article>
 );

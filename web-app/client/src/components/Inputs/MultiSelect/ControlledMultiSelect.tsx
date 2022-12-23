@@ -13,12 +13,14 @@ type ControlProps<T extends FieldValues> = {
 };
 
 const getSelectValues: (opt: ReadonlyArray<any>) => number[] = (opt) => {
-  return opt.map(element => element.value);
+  return opt.map((element) => element.value);
 };
-const getSelectOptions: (options: ReadonlyArray<any>, value: ReadonlyArray<number>) => ReadonlyArray<any> = (
-  options, values
-) => {
-  return options.filter((element) => { return values.includes(element.value) })
+
+const getSelectOptions: (
+  options: ReadonlyArray<any>,
+  value: ReadonlyArray<number>
+) => ReadonlyArray<any> = (options, values) => {
+  return options.filter(({ value }) => values.includes(value));
 };
 
 const ControlledSelect = <T extends FieldValues>({
@@ -34,9 +36,16 @@ const ControlledSelect = <T extends FieldValues>({
     render={({ field }) => (
       <MultiSelect
         {...field}
-        onChange={(newValue, _) => field.onChange(getSelectValues(newValue as { label: string, value: number }[]))}
+        onChange={(newValue, _) =>
+          field.onChange(
+            getSelectValues(newValue as { label: string; value: number }[])
+          )
+        }
         //onChange={(option: any) => field.onChange(option?.value)}
-        value={getSelectOptions(rest.options as ReadonlyArray<any>, field.value)}
+        value={getSelectOptions(
+          rest.options as ReadonlyArray<any>,
+          field.value
+        )}
         //value={rest.options?.find((e: any) => e?.value === field.value)}
         {...rest}
       />
