@@ -1,4 +1,4 @@
-import { testQuery } from "../../util";
+import { testQuery, toAuthorizationHeader } from "../../util";
 import {
     createMainTask,
     createMainTaskVariables,
@@ -33,7 +33,7 @@ describe("test props validation for AR", () => {
                 "forceCreate": true,
             },
             headers: {
-                authorization: "Bearer " + accessToken,
+                authorization: toAuthorizationHeader(accessToken),
             },
         });
 
@@ -58,12 +58,12 @@ describe("test props validation for AR", () => {
                 "forceCreate": true,
             },
             headers: {
-                authorization: "Bearer " + accessToken,
+                authorization: toAuthorizationHeader(accessToken),
             },
         });
 
         expect(result.errors).toBeTruthy();
-        expect(result.data).toBeFalsy(); //shouldn't data contain createMainTaskWithDatasetChoosing which is null?
+        expect(result.data).toBeFalsy();
     });
 
     it("create AR task with wrong min confidence", async () => {
@@ -83,12 +83,12 @@ describe("test props validation for AR", () => {
                 "forceCreate": true,
             },
             headers: {
-                authorization: "Bearer " + accessToken,
+                authorization: toAuthorizationHeader(accessToken),
             },
         });
 
         expect(result.errors).toBeTruthy();
-        expect(result.data).toBeFalsy(); //shouldn't data contain createMainTaskWithDatasetChoosing which is null?
+        expect(result.data).toBeFalsy();
     });
 
     it("create AR task with wrong min support", async () => {
@@ -108,11 +108,11 @@ describe("test props validation for AR", () => {
                 "forceCreate": true,
             },
             headers: {
-                authorization: "Bearer " + accessToken,
+                authorization: toAuthorizationHeader(accessToken),
             },
         });
 
         expect(result.errors).toBeTruthy();
-        expect(result.data).toBeFalsy(); //shouldn't data contain createMainTaskWithDatasetChoosing which is null?
+        expect(result.data).toBeFalsy();
     });
 });

@@ -6,7 +6,6 @@ import path from "path";
 import { schema } from "../graphql/schema";
 import { createTestClient } from "apollo-server-integration-testing";
 import createContext from "../graphql/context";
-import {mock} from "../graphql/context/mock";
 import {baseHeaders} from "./headers";
 
 export const getTestServer = async (context = getContext) => ({
@@ -73,9 +72,12 @@ const loadGraphqlQuery = (dirname: string, queryName: string) => {
         { loaders: [new GraphQLFileLoader()] }
     );
 
+    const queryText = sources[0].rawSDL;
+    const queryType = queryText ? queryText.split(" ")[0] : "query"
+
     return {
-        queryText: sources[0].rawSDL,
-        queryType: (sources[0].rawSDL) ? sources[0].rawSDL.split(" ")[0] : "query"
+        queryText,
+        queryType
     };
 };
 
@@ -118,4 +120,8 @@ export const testQuery = async <ResultType extends object, VariablesType extends
         const result = await ((queryType === "query") ? query: mutate)<ResultType>(queryText);
         return result as Omit<typeof result, "data"> & { data: ResultType };
     }
+};
+
+export const toAuthorizationHeader = (token: string): string => {
+    return "Bearer " + token;
 };

@@ -1,15 +1,16 @@
-import { testQuery } from "../../util";
+import { testQuery, toAuthorizationHeader } from "../../util";
 import { datasets, datasetsVariables } from "../Resolvers/queries/__generated__/datasets";
 import { createTestUser } from "../../../db/initTestData";
+import { basePagination } from "../../headers";
 
-let invalidToken: string;
-let validToken: string;
+let userToken: string;
+let adminToken: string;
 
 describe("test access rights for datasets query", () => {
 
     beforeAll(async () => {
-        await createTestUser("USER").then(_ => invalidToken = _.token);
-        await createTestUser("ADMIN").then(_ => validToken = _.token);
+        await createTestUser("USER").then(({ token }) => userToken = token);
+        await createTestUser("ADMIN").then(({ token }) => adminToken = token);
     });
 
     it("using datasets without permission", async () => {
@@ -21,15 +22,12 @@ describe("test access rights for datasets query", () => {
                 props: {
                     includeBuiltInDatasets: true,
                     includeDeletedDatasets: false,
-                    pagination: {
-                        offset: 0,
-                        limit: 10,
-                    },
+                    ...basePagination,
                 },
                 filter: {},
             },
             headers: {
-                authorization: "Bearer " + invalidToken,
+                authorization: toAuthorizationHeader(userToken),
             },
         });
 
@@ -46,15 +44,12 @@ describe("test access rights for datasets query", () => {
                 props: {
                     includeBuiltInDatasets: true,
                     includeDeletedDatasets: false,
-                    pagination: {
-                        offset: 0,
-                        limit: 10,
-                    },
+                    ...basePagination,
                 },
                 filter: {},
             },
             headers: {
-                authorization: "Bearer " + validToken,
+                authorization: "Bearer " + adminToken,
             },
         });
 

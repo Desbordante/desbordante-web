@@ -1,4 +1,4 @@
-import { testQuery } from "../../util";
+import { testQuery, toAuthorizationHeader } from "../../util";
 import { User } from "../../../db/models/UserData/User";
 
 import { createUser, createUserVariables } from "./queries/__generated__/createUser";
@@ -23,10 +23,9 @@ let tokens: refresh["refresh"];
 describe("Testing authorization", () => {
     afterAll(async () => {
         await User.destroy({
-            where:
-                {
+            where: {
                     userID,
-                },
+            },
             force: true,
         });
     });
@@ -42,7 +41,6 @@ describe("Testing authorization", () => {
             },
         });
 
-        expect(result).toBeTruthy();
         expect(result.data).toBeDefined();
         expect(result.errors).toBeUndefined();
         expect(result.data.createUser.message).toBeTruthy();
@@ -61,7 +59,6 @@ describe("Testing authorization", () => {
             },
         });
 
-        expect(result).toBeTruthy();
         expect(result.data).toBeTruthy();
         expect(result.errors).toBeFalsy();
         expect(result.data.logIn.accessToken).toBeTruthy();
@@ -80,11 +77,10 @@ describe("Testing authorization", () => {
                 userID: "",
             },
             headers: {
-                authorization: "Bearer " + tokens.accessToken,
+                authorization: toAuthorizationHeader(tokens.accessToken),
             },
         });
 
-        expect(result).toBeTruthy();
         expect(result.data).toBeTruthy();
         expect(result.errors).toBeFalsy();
         expect(result.data.user).toBeTruthy();
@@ -94,8 +90,8 @@ describe("Testing authorization", () => {
         expect(result.data.user?.email).toBe(email);
 
         if (result.data.user?.userID) {
-userID = result.data.user?.userID;
-}
+            userID = result.data.user?.userID;
+        }
     });
 
     it("refresh token", async () => {
@@ -107,7 +103,6 @@ userID = result.data.user?.userID;
             },
         });
 
-        expect(result).toBeTruthy();
         expect(result.data).toBeTruthy();
         expect(result.errors).toBeFalsy();
         expect(result.data.refresh.accessToken).toBeTruthy();
@@ -124,11 +119,10 @@ userID = result.data.user?.userID;
                 allSessions: true,
             },
             headers: {
-                authorization: "Bearer " + tokens.accessToken,
+                authorization: toAuthorizationHeader(tokens.accessToken),
             },
         });
 
-        expect(result).toBeTruthy();
         expect(result.data).toBeTruthy();
         expect(result.errors).toBeFalsy();
     });

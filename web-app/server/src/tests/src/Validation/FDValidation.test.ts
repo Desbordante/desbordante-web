@@ -1,7 +1,6 @@
 import { createTestUser } from "../../../db/initTestData";
 import { getDatasetForPrimitive } from "../Resolvers/utils";
-import { testQuery } from "../../util";
-import { createMainTaskWithDatasetChoosing } from "../Filters/queries/__generated__/createMainTaskWithDatasetChoosing";
+import { testQuery, toAuthorizationHeader } from "../../util";
 import { createMainTask, createMainTaskVariables } from "./queries/__generated__/createMainTaskWithDatasetChoosing";
 
 let accessToken: string;
@@ -33,7 +32,7 @@ describe("test filters on FD task", () => {
                 forceCreate: true,
             },
             headers: {
-                authorization: "Bearer " + accessToken,
+                authorization: toAuthorizationHeader(accessToken),
             },
         });
 
@@ -58,7 +57,7 @@ describe("test filters on FD task", () => {
                 forceCreate: true,
             },
             headers: {
-                authorization: "Bearer " + accessToken,
+                authorization: toAuthorizationHeader(accessToken),
             },
         });
 
@@ -83,7 +82,7 @@ describe("test filters on FD task", () => {
                 forceCreate: true,
             },
             headers: {
-                authorization: "Bearer " + accessToken,
+                authorization: toAuthorizationHeader(accessToken),
             },
         });
 
@@ -108,7 +107,7 @@ describe("test filters on FD task", () => {
                 forceCreate: true,
             },
             headers: {
-                authorization: "Bearer " + accessToken,
+                authorization: toAuthorizationHeader(accessToken),
             },
         });
 

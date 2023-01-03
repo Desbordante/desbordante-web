@@ -61,7 +61,6 @@ export const createTestUser = async (role: RoleType): Promise<{answer: string; t
     }).\nThis account has following permissions ${JSON.stringify(
         await user.getPermissions()
     )}`;
-    answer += `\nAuthorization: Bearer ${token}`;
-    answer += "\n";
+    answer += `\nAuthorization: Bearer ${token}\n`;
     return { answer: answer, token: token };
 };

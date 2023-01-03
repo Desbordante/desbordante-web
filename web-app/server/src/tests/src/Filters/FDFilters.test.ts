@@ -1,54 +1,23 @@
-import { testQuery } from "../../util";
-import { createMainTaskWithDatasetChoosing, createMainTaskWithDatasetChoosingVariables } from "./queries/__generated__/createMainTaskWithDatasetChoosing";
-import { getFilteredDeps, waitWileTaskFinishes } from "./util";
-import { getDatasetForPrimitive } from "../Resolvers/utils";
+import { cleanUp, createTestData, getFilteredDeps } from "./util";
 import { Fd } from "../../__generated__/types";
-import { createTestUser } from "../../../db/initTestData";
+import { basePagination } from "../../headers";
 
-let accessToken: string;
-let fileID: string;
 let taskID: string;
+let fileID: string;
 
 jest.setTimeout(10000);
 
 describe("test filters on FD task", () => {
 
     beforeAll(async () => {
-        await createTestUser("ADMIN").then(_ => accessToken = _.token);
-        fileID = await getDatasetForPrimitive("FD", accessToken, "TestLong.csv");
+        await createTestData("FD", "0,2,1;0,2;2,1", "Pyro").then(({ taskUUID, fileUUID }) => {
+             taskID = taskUUID;
+             fileID = fileUUID;
+        });
     });
 
-
-    it("create FD task", async () => {
-
-       const result = await testQuery<createMainTaskWithDatasetChoosing, createMainTaskWithDatasetChoosingVariables>({
-          dirname: __dirname,
-          queryName: "createMainTaskWithDatasetChoosing",
-          variables: {
-              props: {
-                  algorithmName: "Pyro",
-                  type: "FD",
-                  errorThreshold: 0.5,
-                  maxLHS: -1,
-                  threadsCount: 1,
-              },
-              fileID: fileID,
-              forceCreate: true,
-          },
-          headers: {
-              authorization: "Bearer " + accessToken,
-          },
-       });
-
-       expect(result).toBeTruthy();
-       expect(result.data).toBeTruthy();
-       expect(result.data.createMainTaskWithDatasetChoosing).toBeTruthy();
-       expect(result.data.createMainTaskWithDatasetChoosing.taskID).toBeTruthy();
-       expect(result.data.createMainTaskWithDatasetChoosing.isExecuted).toBeDefined();
-       expect(result.data.createMainTaskWithDatasetChoosing.processStatus).toBeTruthy();
-
-       taskID = result.data.createMainTaskWithDatasetChoosing.taskID;
-       await waitWileTaskFinishes(taskID);
+    afterAll(async () => {
+       await cleanUp("FD", taskID, fileID);
     });
 
     it("test orderBY parameter", async () => {
@@ -73,26 +42,24 @@ describe("test filters on FD task", () => {
             FDSortBy: "LHS_COL_ID",
         });
 
+        expect(depsASC).toBeTruthy();
+        expect(depsDESC).toBeTruthy();
         expect(depsASC).toStrictEqual(depsDESC.reverse());
     });
 
-    it("test filter string \"First\"", async () => {
+    it("test filter string \"A\"", async () => {
 
         const result = await getFilteredDeps<Fd>(taskID, {
-            filterString: "First",
+            filterString: "A",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             FDSortBy: "LHS_NAME",
         });
 
-        expect(result.every(_ => {
-            return _.lhs.some(_ => {
-                return _.name === "First";
-                }) || _.rhs.name === "First";
-        })).toBeTruthy();
+        expect(result.map(({ lhs, rhs }) =>
+            [...lhs, rhs]).every((items) => items.some((item) => item.name === "A"))
+        ).toBeTruthy();
+
     });
 
     it("test mustContainLhs filter", async () => {
@@ -100,57 +67,44 @@ describe("test filters on FD task", () => {
         const result = await getFilteredDeps<Fd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             FDSortBy: "LHS_NAME",
             mustContainLhsColIndices: [0],
         });
 
-        expect(result.every(_ => {
-            return _.lhs.every(_ => {
-                return _.index === 0;
+        expect(result.every((items) => {
+            return items.lhs.some((item) => {
+                return item.index === 0;
                 });
         })).toBeTruthy();
     });
 
-    it("test mustContainRhs filter", async () => { // this doesn't work
+    // mustContainRhsColIndices works the over way around
+    it("test mustContainRhs filter", async () => {
 
         const result = await getFilteredDeps<Fd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             FDSortBy: "RHS_NAME",
             mustContainRhsColIndices: [0],
         });
 
-        expect(result.every(_ => {
-            return _.rhs.index === 0;
+        expect(result.every((item) => {
+            return item.rhs.index === 0;
         })).toBeTruthy();
     });
 
-    it("test FDSortBy LHS_COL_ID", async () => { //TODO: fix this
+    it("test FDSortBy LHS_COL_ID", async () => {
 
         const result = await getFilteredDeps<Fd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             FDSortBy: "LHS_COL_ID",
-            mustContainLhsColIndices: [0],
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                return _1.lhs[0].index - _2.lhs[0].index;
-            })
-        );
+        expect(result.map((items) => items.lhs.map((item) => item.index))).toStrictEqual([[0], [0, 2], [2]]);
     });
 
     it("test FDSortBy RHS_COL_ID", async () => {
@@ -158,19 +112,11 @@ describe("test filters on FD task", () => {
         const result = await getFilteredDeps<Fd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: -1,
-            },
+            ...basePagination,
             FDSortBy: "RHS_COL_ID",
-            mustContainLhsColIndices: [0],
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                return _1.rhs.index - _2.rhs.index;
-            })
-        );
+        expect(result.map((item) => item.rhs.index)).toStrictEqual([1, 1, 2]);
     });
 
     it("test FDSortBy LHS_NAME", async () => {
@@ -178,25 +124,11 @@ describe("test filters on FD task", () => {
         const result = await getFilteredDeps<Fd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             FDSortBy: "LHS_NAME",
-            mustContainLhsColIndices: [0],
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                if (_1.lhs[0].name < _2.lhs[0].name) {
-                    return -1;
-                } else if (_1.lhs[0].name > _2.lhs[0].name) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            })
-        );
+        expect(result.map((items) => items.lhs.map((item) => item.name))).toStrictEqual([["A"], ["A", "C"], ["C"]]);
     });
 
     it("test FDSortBy RHS_NAME", async () => {
@@ -204,24 +136,10 @@ describe("test filters on FD task", () => {
         const result = await getFilteredDeps<Fd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             FDSortBy: "RHS_NAME",
-            mustContainLhsColIndices: [0],
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                if (_1.rhs.name < _2.rhs.name) {
-                    return -1;
-                } else if (_1.rhs.name > _2.rhs.name) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            })
-        );
+        expect(result.map((item) => item.rhs.name)).toStrictEqual(["B", "B", "C"]);
     });
 });

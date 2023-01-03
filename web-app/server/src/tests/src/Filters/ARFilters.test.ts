@@ -1,55 +1,25 @@
-import { testQuery } from "../../util";
-import { createMainTaskWithDatasetChoosing, createMainTaskWithDatasetChoosingVariables } from "./queries/__generated__/createMainTaskWithDatasetChoosing";
-import { compare, getFilteredDeps, waitWileTaskFinishes } from "./util";
-import { getDatasetForPrimitive } from "../Resolvers/utils";
-import { AR } from "../TaskProcess/queries/__generated__/GetMainTaskDeps";
+import { cleanUp, createTestData, getFilteredDeps } from "./util";
 import { Ar } from "../../__generated__/types";
-import { createTestUser } from "../../../db/initTestData";
+import { basePagination } from "../../headers";
 
-let accessToken: string;
-let fileID: string;
 let taskID: string;
+let fileID: string;
 
 jest.setTimeout(10000);
 
 describe("test filters on AR task", () => {
 
     beforeAll(async () => {
-        await createTestUser("ADMIN").then(_ => accessToken = _.token);
-        fileID = await getDatasetForPrimitive("AR", accessToken, "rules-kaggle-rows-2.csv");
-    });
-
-    it("create AR task", async () => {
-
-        const result = await testQuery<createMainTaskWithDatasetChoosing, createMainTaskWithDatasetChoosingVariables>({
-            dirname: __dirname,
-            queryName: "createMainTaskWithDatasetChoosing",
-            variables: {
-                "props": {
-                    "algorithmName": "Apriori",
-                    "type": "AR",
-                    "maxLHS": -1,
-                    "minConfidence": 0.1,
-                    "minSupportAR": 0.1,
-                },
-                "fileID": fileID,
-                "forceCreate": true,
-            },
-            headers: {
-                authorization: "Bearer " + accessToken,
-            },
+        await createTestData("AR", "0.8:1:2;0.6:2:1;0.9:0:1", "Apriori").then(({ taskUUID, fileUUID }) => {
+            taskID = taskUUID;
+            fileID = fileUUID;
         });
-
-        expect(result).toBeTruthy();
-        expect(result.data).toBeTruthy();
-        expect(result.data.createMainTaskWithDatasetChoosing).toBeTruthy();
-        expect(result.data.createMainTaskWithDatasetChoosing.taskID).toBeTruthy();
-        expect(result.data.createMainTaskWithDatasetChoosing.isExecuted).toBeDefined();
-        expect(result.data.createMainTaskWithDatasetChoosing.processStatus).toBeTruthy();
-
-        taskID = result.data.createMainTaskWithDatasetChoosing.taskID;
-        await waitWileTaskFinishes(taskID, 10);
     });
+
+    afterAll(async () => {
+        await cleanUp("AR", taskID, fileID);
+    });
+
 
     it("test orderBY parameter", async () => {
 
@@ -77,10 +47,10 @@ describe("test filters on AR task", () => {
     });
 
 
-    it("test filter string \"BREAD\"", async () => {
+    it("test filter string \"A\"", async () => {
 
         const result = await getFilteredDeps<Ar>(taskID, {
-            filterString: "BREAD",
+            filterString: "A",
             orderBy: "ASC",
             pagination: {
                 offset: 0,
@@ -89,13 +59,9 @@ describe("test filters on AR task", () => {
             ARSortBy: "DEFAULT",
         });
 
-        expect(result.every(_ => {
-            return _.lhs.some(_ => {
-                return _ === "BREAD";
-            }) || _.rhs.some(_ => {
- return _ === "BREAD";
-});
-        })).toBeTruthy();
+        expect(result.map(({ lhs, rhs }) =>
+            [...lhs, ...rhs]).every((items) => items.some((item) => item === "A"))
+        ).toBeTruthy();
     });
 
     it("test ARSortBy LHS_NAME", async () => {
@@ -103,23 +69,11 @@ describe("test filters on AR task", () => {
         const result = await getFilteredDeps<Ar>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             ARSortBy: "LHS_NAME",
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                for (let i = 0; i < Math.min(_1.lhs.length, _2.lhs.length); ++i) {
-                    if (compare(_1.lhs[i], _2.lhs[i]) != 0) {
-                        return compare(_1.lhs[i], _2.lhs[i]);
-                    }
-                }
-                return _1.lhs.length - _2.lhs.length;
-            })
-        );
+        expect(result.map((items) => items.lhs.map((item) => item))).toStrictEqual([["A"], ["B"], ["C"]]);
     });
 
     it("test ARSortBy RHS_NAME", async () => {
@@ -127,23 +81,11 @@ describe("test filters on AR task", () => {
         const result = await getFilteredDeps<Ar>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             ARSortBy: "RHS_NAME",
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                for (let i = 0; i < Math.min(_1.rhs.length, _2.rhs.length); ++i) {
-                    if (compare(_1.rhs[i], _2.rhs[i]) != 0) {
-                        return compare(_1.rhs[i], _2.rhs[i]);
-                    }
-                }
-                return _1.rhs.length - _2.rhs.length;
-            })
-        );
+        expect(result.map((items) => items.rhs.map((item) => item))).toStrictEqual([["B"], ["B"], ["C"]]);
     });
 
     it("test ARSortBy CONF", async () => {
@@ -151,17 +93,11 @@ describe("test filters on AR task", () => {
         const result = await getFilteredDeps<Ar>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             ARSortBy: "CONF",
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                return _1.confidence - _2.confidence;
-            })
-        );
+        expect(result.map((item) => item.confidence)).toStrictEqual([0.6, 0.8, 0.9]);
     });
+
 });

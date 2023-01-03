@@ -1,15 +1,16 @@
-import { testQuery } from "../../util";
+import { testQuery, toAuthorizationHeader } from "../../util";
 import { sessions, sessionsVariables } from "./queries/__generated__/sessions";
 import { createTestUser } from "../../../db/initTestData";
+import { basePagination } from "../../headers";
 
-let invalidToken: string;
-let validToken: string;
+let userToken: string;
+let adminToken: string;
 
 describe("test access rights for sessions query", () => {
 
     beforeAll(async () => {
-        await createTestUser("USER").then(_ => invalidToken = _.token);
-        await createTestUser("ADMIN").then(_ => validToken = _.token);
+        await createTestUser("USER").then(({ token }) => userToken = token);
+        await createTestUser("ADMIN").then(({ token }) => adminToken = token);
     });
 
     it("using sessions without permission", async () => {
@@ -18,14 +19,11 @@ describe("test access rights for sessions query", () => {
             dirname: __dirname,
             queryName: "sessions",
             variables: {
-                pagination: {
-                    offset: 0,
-                    limit: 10,
-                },
+                ...basePagination,
                 onlyValid: true,
             },
             headers: {
-                authorization: "Bearer " + invalidToken,
+                authorization: toAuthorizationHeader(userToken),
             },
         });
 
@@ -39,14 +37,11 @@ describe("test access rights for sessions query", () => {
             dirname: __dirname,
             queryName: "sessions",
             variables: {
-                pagination: {
-                    offset: 0,
-                    limit: 10,
-                },
+                ...basePagination,
                 onlyValid: true,
             },
             headers: {
-                authorization: "Bearer " + validToken,
+                authorization: toAuthorizationHeader(adminToken),
             },
         });
 

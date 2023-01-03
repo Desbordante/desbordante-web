@@ -1,15 +1,16 @@
-import { testQuery } from "../../util";
+import { testQuery, toAuthorizationHeader } from "../../util";
 import { tasksInfo, tasksInfoVariables } from "./queries/__generated__/tasksInfo";
 import { createTestUser } from "../../../db/initTestData";
+import { basePagination } from "../../headers";
 
-let invalidToken: string;
-let validToken: string;
+let userToken: string;
+let adminToken: string;
 
 describe("test access rights for tasksInfo query", () => {
 
     beforeAll(async () => {
-        await createTestUser("USER").then(_ => invalidToken = _.token);
-        await createTestUser("ADMIN").then(_ => validToken = _.token);
+        await createTestUser("USER").then(({ token }) => userToken = token);
+        await createTestUser("ADMIN").then(({ token }) => adminToken = token);
     });
 
     it("using tasksInfo without permission", async () => {
@@ -18,13 +19,10 @@ describe("test access rights for tasksInfo query", () => {
             dirname: __dirname,
             queryName: "tasksInfo",
             variables: {
-                pagination: {
-                    offset: 0,
-                    limit: 10,
-                },
+                ...basePagination,
             },
             headers: {
-                authorization: "Bearer " + invalidToken,
+                authorization: toAuthorizationHeader(userToken),
             },
         });
 
@@ -38,13 +36,10 @@ describe("test access rights for tasksInfo query", () => {
             dirname: __dirname,
             queryName: "tasksInfo",
             variables: {
-                pagination: {
-                    offset: 0,
-                    limit: 10,
-                },
+                ...basePagination,
             },
             headers: {
-                authorization: "Bearer " + validToken,
+                authorization: toAuthorizationHeader(adminToken),
             },
         });
 

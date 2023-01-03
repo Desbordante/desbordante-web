@@ -1,7 +1,7 @@
 import { createTestUser } from "../../../db/initTestData";
 import { getDatasetForPrimitive } from "../Resolvers/utils";
-import { testQuery } from "../../util";
-import { createMainTaskWithDatasetChoosing, createMainTaskWithDatasetChoosingVariables } from "../Filters/queries/__generated__/createMainTaskWithDatasetChoosing";
+import { testQuery, toAuthorizationHeader } from "../../util";
+import { createMainTask, createMainTaskVariables } from "./queries/__generated__/createMainTaskWithDatasetChoosing";
 
 let accessToken: string;
 let fileID: string;
@@ -18,7 +18,7 @@ describe("test filters on CFD task", () => {
 
     it("create CFD task with all the right parameters", async () => {
 
-        const result = await testQuery<createMainTaskWithDatasetChoosing, createMainTaskWithDatasetChoosingVariables>({
+        const result = await testQuery<createMainTask, createMainTaskVariables>({
             dirname: __dirname,
             queryName: "createMainTaskWithDatasetChoosing",
             variables: {
@@ -33,7 +33,7 @@ describe("test filters on CFD task", () => {
                 forceCreate: true,
             },
             headers: {
-                authorization: "Bearer " + accessToken,
+                authorization: toAuthorizationHeader(accessToken),
             },
         });
 
@@ -43,7 +43,7 @@ describe("test filters on CFD task", () => {
 
     it("create CFD task with the wrong algorithm name", async () => {
 
-        const result = await testQuery<createMainTaskWithDatasetChoosing, createMainTaskWithDatasetChoosingVariables>({
+        const result = await testQuery<createMainTask, createMainTaskVariables>({
             dirname: __dirname,
             queryName: "createMainTaskWithDatasetChoosing",
             variables: {
@@ -58,7 +58,7 @@ describe("test filters on CFD task", () => {
                 forceCreate: true,
             },
             headers: {
-                authorization: "Bearer " + accessToken,
+                authorization: toAuthorizationHeader(accessToken),
             },
         });
 
@@ -68,7 +68,7 @@ describe("test filters on CFD task", () => {
 
     it("create CFD task with the wrong min support", async () => {
 
-        const result = await testQuery<createMainTaskWithDatasetChoosing, createMainTaskWithDatasetChoosingVariables>({
+        const result = await testQuery<createMainTask, createMainTaskVariables>({
             dirname: __dirname,
             queryName: "createMainTaskWithDatasetChoosing",
             variables: {
@@ -83,7 +83,7 @@ describe("test filters on CFD task", () => {
                 forceCreate: true,
             },
             headers: {
-                authorization: "Bearer " + accessToken,
+                authorization: toAuthorizationHeader(accessToken),
             },
         });
 

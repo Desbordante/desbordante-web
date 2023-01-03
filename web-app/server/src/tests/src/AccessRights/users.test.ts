@@ -1,15 +1,16 @@
-import { testQuery } from "../../util";
+import { testQuery, toAuthorizationHeader } from "../../util";
 import { users, usersVariables } from "./queries/__generated__/users";
 import { createTestUser } from "../../../db/initTestData";
+import { basePagination } from "../../headers";
 
-let invalidToken: string;
-let validToken: string;
+let userToken: string;
+let adminToken: string;
 
 describe("test access rights for users query", () => {
 
     beforeAll(async () => {
-        await createTestUser("USER").then(_ => invalidToken = _.token);
-        await createTestUser("ADMIN").then(_ => validToken = _.token);
+        await createTestUser("USER").then(({ token }) => userToken = token);
+        await createTestUser("ADMIN").then(({ token }) => adminToken = token);
     });
 
     it("using users without permission", async () => {
@@ -18,18 +19,15 @@ describe("test access rights for users query", () => {
             dirname: __dirname,
             queryName: "users",
             variables: {
-                pagination: {
-                    offset: 0,
-                    limit: 10,
-                },
+                ...basePagination,
             },
             headers: {
-                authorization: "Bearer " + invalidToken,
+                authorization: toAuthorizationHeader(userToken),
             },
         });
 
         expect(result.errors).toBeTruthy();
-        expect(result.data).toBeFalsy(); // data is null - no users?
+        expect(result.data).toBeFalsy();
     });
 
     it("using users with permission", async () => {
@@ -38,13 +36,10 @@ describe("test access rights for users query", () => {
             dirname: __dirname,
             queryName: "users",
             variables: {
-                pagination: {
-                    offset: 0,
-                    limit: 10,
-                },
+                ...basePagination,
             },
             headers: {
-                authorization: "Bearer " + validToken,
+                authorization: toAuthorizationHeader(adminToken),
             },
         });
 

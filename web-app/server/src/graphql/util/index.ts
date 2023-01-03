@@ -12,7 +12,7 @@ export const applyPagination = <T>(
 ) => {
     const { offset, limit } = pagination;
     if (config.isTest && limit === -1) {
-        return data; //for test purposes only!!!
+        return data;
     }
     if (offset < 0) {
         throw new UserInputError("Offset cannot be less, than 0", pagination);

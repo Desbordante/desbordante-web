@@ -1,5 +1,5 @@
 import { MainPrimitiveType } from "../../../db/models/TaskData/configs/GeneralTaskConfig";
-import { testQuery } from "../../util";
+import { testQuery, toAuthorizationHeader } from "../../util";
 import { datasets, datasetsVariables } from "./queries/__generated__/datasets";
 
 export const getDatasetForPrimitive = async (primitive: MainPrimitiveType, accessToken: string, fileName = ""): Promise<string> => {
@@ -13,9 +13,11 @@ export const getDatasetForPrimitive = async (primitive: MainPrimitiveType, acces
             filter: {},
         },
         headers: {
-            authorization: "Bearer " + accessToken,
+            authorization: toAuthorizationHeader(accessToken),
         },
     });
+
+    console.log(result);
 
     if (result && result.data && result.data.datasets) {
 

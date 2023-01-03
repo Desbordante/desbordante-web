@@ -1,54 +1,23 @@
-import { testQuery } from "../../util";
-import { createMainTaskWithDatasetChoosing, createMainTaskWithDatasetChoosingVariables } from "./queries/__generated__/createMainTaskWithDatasetChoosing";
-import { compare, getFilteredDeps, waitWileTaskFinishes } from "./util";
-import { getDatasetForPrimitive } from "../Resolvers/utils";
+import { cleanUp, createTestData, getFilteredDeps } from "./util";
 import { Cfd } from "../../__generated__/types";
-import { createTestUser } from "../../../db/initTestData";
+import { basePagination } from "../../headers";
 
-let accessToken: string;
-let fileID: string;
 let taskID: string;
+let fileID: string;
 
 jest.setTimeout(10000);
 
 describe("test filters on СFD task", () => {
 
     beforeAll(async () => {
-        await createTestUser("ADMIN").then(_ => accessToken = _.token);
-        fileID = await getDatasetForPrimitive("CFD",  accessToken, "TestLong.csv");
+        await createTestData("CFD", "0.7:2=1:2=1:2;0.5:1=0:0=1:1;0.8:0=2,1=3:1=3:3", "CTane").then(({ taskUUID, fileUUID }) => {
+            taskID = taskUUID;
+            fileID = fileUUID;
+        });
     });
 
-
-    it("create CFD task", async () => {
-
-        const result = await testQuery<createMainTaskWithDatasetChoosing, createMainTaskWithDatasetChoosingVariables>({
-            dirname: __dirname,
-            queryName: "createMainTaskWithDatasetChoosing",
-            variables: {
-                props: {
-                    algorithmName: "CTane",
-                    type: "CFD",
-                    maxLHS: -1,
-                    minSupportCFD: 1,
-                    minConfidence: 0.5,
-                },
-                fileID: fileID,
-                forceCreate: true,
-            },
-            headers: {
-                authorization: "Bearer " + accessToken,
-            },
-        });
-
-        expect(result).toBeTruthy();
-        expect(result.data).toBeTruthy();
-        expect(result.data.createMainTaskWithDatasetChoosing).toBeTruthy();
-        expect(result.data.createMainTaskWithDatasetChoosing.taskID).toBeTruthy();
-        expect(result.data.createMainTaskWithDatasetChoosing.isExecuted).toBeDefined();
-        expect(result.data.createMainTaskWithDatasetChoosing.processStatus).toBeTruthy();
-
-        taskID = result.data.createMainTaskWithDatasetChoosing.taskID;
-        await waitWileTaskFinishes(taskID, 10);
+    afterAll(async () => {
+        await cleanUp("CFD", taskID, fileID);
     });
 
     it("test orderBY parameter", async () => {
@@ -73,14 +42,15 @@ describe("test filters on СFD task", () => {
             CFDSortBy: "DEFAULT",
         });
 
+        expect(depsASC).toBeTruthy();
+        expect(depsDESC).toBeTruthy();
         expect(depsASC).toStrictEqual(depsDESC.reverse());
     });
 
-
-    it("test filter string \"First\"", async () => {
+    it("test filter string \"A\"", async () => {
 
         const result = await getFilteredDeps<Cfd>(taskID, {
-            filterString: "First",
+            filterString: "A",
             orderBy: "ASC",
             pagination: {
                 offset: 0,
@@ -89,51 +59,39 @@ describe("test filters on СFD task", () => {
             CFDSortBy: "DEFAULT",
         });
 
-        expect(result.every(_ => {
-            return _.lhs.some(_ => {
-                return _.column.name === "First";
-                }) || _.rhs.column.name === "First";
-        })).toBeTruthy();
+        expect(result.map(({ lhs, rhs }) =>
+            [...lhs, rhs]).every((items) => items.some((item) => item.column.name === "A"))
+        ).toBeTruthy();
     });
 
-    it("test filter string \"First=_\"", async () => {
+    it("test filter string \"A=_\"", async () => {
 
         const result = await getFilteredDeps<Cfd>(taskID, {
-            filterString: "First=_",
+            filterString: "A=_",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             CFDSortBy: "DEFAULT",
         });
 
-        expect(result.every(_ => {
-            return (_.lhs.some(_ => {
-                return _.column.name === "First";
-            }) || _.rhs.column.name === "First") && (_.lhs.some(_ => {
-                return _.pattern === "_";
-            }) || _.rhs.pattern === "_");
-        })).toBeTruthy();
+        expect(result).toBeTruthy();
+        expect(result.map(({ lhs, rhs }) =>
+            [...lhs, rhs]).every((items) => items.some((item) => item.column.name === "A" && item.pattern === "_"))
+        ).toBeTruthy();
     });
-
 
     it("test mustContainLhs filter", async () => {
 
         const result = await getFilteredDeps<Cfd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             CFDSortBy: "DEFAULT",
             mustContainLhsColIndices: [0],
         });
 
-        expect(result.every(_ => {
-            return _.lhs.some(_ => {
-                return _.column.index === 0;
+        expect(result.every((items) => {
+            return items.lhs.some((item) => {
+                return item.column.index === 0;
             });
         })).toBeTruthy();
     });
@@ -143,16 +101,13 @@ describe("test filters on СFD task", () => {
         const result = await getFilteredDeps<Cfd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             CFDSortBy: "DEFAULT",
             mustContainRhsColIndices: [0],
         });
 
-        expect(result.every(_ => {
-            return _.rhs.column.index === 0;
+        expect(result.every((item) => {
+            return item.rhs.column.index === 0;
         })).toBeTruthy();
     });
 
@@ -161,23 +116,11 @@ describe("test filters on СFD task", () => {
         const result = await getFilteredDeps<Cfd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             CFDSortBy: "LHS_COL_ID",
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                for (let i = 0; i < Math.min(_1.lhs.length, _2.lhs.length); ++i) {
-                    if (_1.lhs[i].column.index - _2.lhs[i].column.index != 0) {
-                        return _1.lhs[i].column.index - _2.lhs[i].column.index;
-                    }
-                }
-                return _1.lhs.length - _2.lhs.length;
-            })
-        );
+        expect(result.map((items) => items.lhs.map((item) => item.column.index))).toStrictEqual([[0, 1], [1], [2]]);
     });
 
     it("test СFDSortBy RHS_COL_ID", async () => {
@@ -185,18 +128,11 @@ describe("test filters on СFD task", () => {
         const result = await getFilteredDeps<Cfd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             CFDSortBy: "RHS_COL_ID",
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                return _1.rhs.column.index - _2.rhs.column.index;
-            })
-        );
+        expect(result.map((items) => items.rhs.column.index)).toStrictEqual([0, 1, 2]);
     });
 
     it("test СFDSortBy LHS_NAME", async () => {
@@ -204,23 +140,11 @@ describe("test filters on СFD task", () => {
         const result = await getFilteredDeps<Cfd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             CFDSortBy: "LHS_COL_NAME",
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                for (let i = 0; i < Math.min(_1.lhs.length, _2.lhs.length); ++i) {
-                    if (compare(_1.lhs[i].column.name, _2.lhs[i].column.name) != 0) {
-                        return _1.lhs[i].column.index - _2.lhs[i].column.index;
-                    }
-                }
-                return _1.lhs.length - _2.lhs.length;
-            })
-        );
+        expect(result.map((items) => items.lhs.map((item) => item.column.name))).toStrictEqual([["A", "B"], ["B"], ["C"]]);
     });
 
     it("test CFDSortBy RHS_NAME", async () => {
@@ -228,18 +152,11 @@ describe("test filters on СFD task", () => {
         const result = await getFilteredDeps<Cfd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             CFDSortBy: "RHS_COL_NAME",
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                return compare(_1.rhs.column.name, _2.rhs.column.name);
-            })
-        );
+        expect(result.map((items) => items.rhs.column.name)).toStrictEqual(["A", "B", "C"]);
     });
 
     it("test СFDSortBy CONF", async () => {
@@ -247,18 +164,11 @@ describe("test filters on СFD task", () => {
         const result = await getFilteredDeps<Cfd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             CFDSortBy: "CONF",
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                return _1.confidence - _2.confidence;
-            })
-        );
+        expect(result.map((item) => item.confidence)).toStrictEqual([0.5, 0.7, 0.8]);
     });
 
     it("test CFDSortBy SUP", async () => {
@@ -266,18 +176,11 @@ describe("test filters on СFD task", () => {
         const result = await getFilteredDeps<Cfd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             CFDSortBy: "SUP",
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                return _1.support - _2.support;
-            })
-        );
+        expect(result.map((item) => item.support)).toStrictEqual([1, 2, 3]);
     });
 
     it("test СFDSortBy LHS_PATTERN", async () => {
@@ -285,22 +188,11 @@ describe("test filters on СFD task", () => {
         const result = await getFilteredDeps<Cfd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             CFDSortBy: "LHS_PATTERN",
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                for (let i = 0; i < Math.min(_1.lhs.length, _2.lhs.length); ++i) {
-                    if (compare(_1.lhs[i].pattern, _2.lhs[i].pattern) != 0) {
-                        return compare(_1.lhs[i].pattern, _2.lhs[i].pattern);
-                    }
-                }
-                return _1.lhs.length - _2.lhs.length;
-            })
+        expect(result.map((items) => items.lhs.map((item) => item.pattern))).toStrictEqual([["_"], ["1"], ["2", "3"]]
         );
     });
 
@@ -309,17 +201,10 @@ describe("test filters on СFD task", () => {
         const result = await getFilteredDeps<Cfd>(taskID, {
             filterString: "",
             orderBy: "ASC",
-            pagination: {
-                offset: 0,
-                limit: 10,
-            },
+            ...basePagination,
             CFDSortBy: "RHS_PATTERN",
         });
 
-        expect(result).toStrictEqual(
-            [...result].sort((_1, _2): number => {
-                return compare(_1.rhs.pattern, _2.rhs.pattern);
-            })
-        );
+        expect(result.map((item) => item.rhs.pattern)).toStrictEqual(["1", "1", "3"]);
     });
 });
