@@ -8,19 +8,20 @@ export const config = {
     isDevelopment: process.env.NODE_ENV === "development",
     isProduction: process.env.NODE_ENV === "production",
     isTest: process.env.NODE_ENV === "test",
+    inContainer: process.env.IS_IN_DOCKER === "true",
     hosts: {
         server: {
             host: process.env.SERVER_HOST,
             port: parseInt(process.env.SERVER_PORT || "5000"),
         },
         postfix: {
-          host: process.env.POSTFIX_HOST,
-          port: 25,
+            host: process.env.POSTFIX_HOST,
+            port: 25,
         },
     },
     postfix: {
-      email: process.env.POSTFIX_EMAIL,
-      enabled: process.env.POSTFIX_ENABLED === "true",
+        email: process.env.POSTFIX_EMAIL,
+        enabled: process.env.POSTFIX_ENABLED === "true",
     },
     producer: {
         clientId: "tasks-producer-1",

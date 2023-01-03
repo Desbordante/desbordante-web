@@ -27,6 +27,7 @@ import { FileFormat } from "./FileFormat";
 import { GeneralTaskConfig } from "../TaskData/configs/GeneralTaskConfig";
 import { Row } from "@fast-csv/parse";
 import { User } from "../UserData/User";
+import config from "../../../config";
 import { finished } from "stream/promises";
 import fs from "fs";
 import { generateHeaderByPath } from "../../../graphql/schema/TaskCreating/generateHeader";
@@ -37,6 +38,7 @@ import isUUID = validator.isUUID;
 interface FileInfoModelMethods {
     getColumnNames: () => string[];
     getColumns: () => SchemaColumn[];
+    getPath: () => string;
 }
 
 @Table({
@@ -106,25 +108,34 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     @Column({ type: STRING, unique: true })
     path!: string;
 
-    static getPathToUploadedDataset = (fileName: string) => {
+    static getPathToMainFile = () => {
         if (!require.main) {
-            throw Error("FATAL SERVER ERROR");
+            throw new ApolloError("Cannot find main");
         }
-        const rootPath = path.dirname(require.main.filename).split("/");
-        rootPath.pop();
-        rootPath.pop(); // remove folder 'bin'
-        rootPath.push("uploads"); // add folder 'uploads'
-        rootPath.push(fileName); // add file '${fileID}.csv'
-        return rootPath.join("/");
+        return path.dirname(require.main.filename).split("/");
     };
+
+    static getPathToUploadedDataset = (fileName: string) => `/server/uploads/${fileName}`;
+
+    static resolvePath = (path: string, isBuiltIn: boolean) => {
+        if (config.inContainer) {
+            return path;
+        } else {
+            const prefix = FileInfo.getPathToMainFile().slice(0, -3).join("/");
+            const postfix = isBuiltIn ? "datasets" : "uploads";
+            return `${prefix}/volumes/${postfix}/${path.split("/").pop()}`;
+        }
+    };
+
+    getPath = () => FileInfo.resolvePath(this.path, this.isBuiltIn);
 
     generateHeader = async () => {
         const file = await FileInfo.findByPk(this.fileID);
         if (!file) {
             throw new ApolloError("File not found");
         }
-        const { path, hasHeader, delimiter } = file;
-        return await generateHeaderByPath(path, hasHeader, delimiter);
+        const { hasHeader, delimiter } = file;
+        return await generateHeaderByPath(file.getPath(), hasHeader, delimiter);
     };
 
     getColumnNames = () => JSON.parse(this.renamedHeader) as string[];
@@ -146,30 +157,31 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     static saveBuiltInDataset = async (props: BuiltInDatasetInfoType) => {
         const { fileName, datasetProps } = props;
         const withFileFormat = props.datasetProps.inputFormat != null;
+        const isBuiltIn = true;
 
-        const path = getPathToBuiltInDataset(props.fileName);
+        const dbPath = getPathToBuiltInDataset(props.fileName);
+        const path = FileInfo.resolvePath(dbPath, isBuiltIn);
         const { hasHeader, delimiter } = datasetProps;
         const header = await generateHeaderByPath(path, hasHeader, delimiter);
         const renamedHeader = JSON.stringify(header);
 
         const [file, created] = await FileInfo.findOrCreate({
-            where: { path, isValid: true },
+            where: { fileName, isBuiltIn, isValid: true },
             defaults: {
-                fileName,
+                path: dbPath,
                 originalFileName: fileName,
                 renamedHeader,
-                isBuiltIn: true,
                 hasHeader,
                 delimiter,
             },
         });
-        if (created) {
-            console.log(`Built in dataset ${fileName} was created`);
-        } else {
-            console.log(`Built in dataset ${fileName} already exists`);
+        console.log(
+            `Built in dataset ${fileName} ${created ? "was created" : "already exists"}`
+        );
+        if (!created) {
             return file;
         }
-        const counters = await findRowsAndColumnsNumber(path, delimiter);
+        const counters = await findRowsAndColumnsNumber(dbPath, isBuiltIn, delimiter);
         await file.update(counters);
 
         if (withFileFormat) {
@@ -183,6 +195,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         table: any,
         userID: string | null = null
     ) => {
+        const isBuiltIn = false;
         const {
             createReadStream,
             filename: originalFileName,
@@ -202,15 +215,12 @@ export class FileInfo extends Model implements FileInfoModelMethods {
 
         const { fileID } = file;
         const fileName = `${fileID}.csv`;
-
         const path = FileInfo.getPathToUploadedDataset(fileName);
-
         await file.update({ fileName, path });
 
-        const out = fs.createWriteStream(`uploads/${fileName}`);
+        const out = fs.createWriteStream(`../../volumes/uploads/${fileName}`);
         stream.pipe(out);
         await finished(out);
-
         await file.update({
             renamedHeader: JSON.stringify(await file.generateHeader()),
         });
@@ -235,6 +245,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
             // Find rows count before creating new file
             let counters = await findRowsAndColumnsNumber(
                 path,
+                isBuiltIn,
                 datasetProps.delimiter,
                 specificFileFormat
             );
@@ -243,6 +254,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
             if (datasetProps.inputFormat === "SINGULAR") {
                 const newPath = await createTabularFileFromSingular(
                     path,
+                    isBuiltIn,
                     datasetProps.delimiter,
                     datasetProps.tidColumnIndex!,
                     datasetProps.itemColumnIndex!
@@ -259,6 +271,7 @@ export class FileInfo extends Model implements FileInfoModelMethods {
                 });
                 counters = await findRowsAndColumnsNumber(
                     newPath,
+                    isBuiltIn,
                     datasetProps.delimiter,
                     specificFileFormat
                 );
@@ -269,7 +282,11 @@ export class FileInfo extends Model implements FileInfoModelMethods {
                 });
             }
         } else {
-            const counters = await findRowsAndColumnsNumber(path, datasetProps.delimiter);
+            const counters = await findRowsAndColumnsNumber(
+                path,
+                isBuiltIn,
+                datasetProps.delimiter
+            );
             await file.update(counters);
         }
         await file.update({ isValid: true });
@@ -277,14 +294,19 @@ export class FileInfo extends Model implements FileInfoModelMethods {
     };
 
     static GetRowsByIndices = async (
-        fileInfo: { path: fs.PathLike; delimiter: string; hasHeader: boolean },
+        fileInfo: {
+            path: fs.PathLike;
+            delimiter: string;
+            hasHeader: boolean;
+            isBuiltIn: boolean;
+        },
         indices: number[]
     ): Promise<Map<number, string[]>> => {
         const sortedIndices = indices.sort((a, b) => a - b);
         const rows = new Map<number, string[]>();
         let curRowNum = sortedIndices[0];
-
-        const { delimiter, hasHeader, path } = fileInfo;
+        const { delimiter, hasHeader } = fileInfo;
+        const path = FileInfo.resolvePath(fileInfo.path.toString(), fileInfo.isBuiltIn);
 
         return new Promise((resolve) => {
             const parser: CsvParserStream<Row, Row> = parse({

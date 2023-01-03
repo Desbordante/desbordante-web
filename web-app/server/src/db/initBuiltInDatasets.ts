@@ -1,23 +1,9 @@
 import { FileProps, InputFileFormat } from "../graphql/types/types";
 import { FileInfo } from "./models/FileData/FileInfo";
 import { MainPrimitiveType } from "./models/TaskData/configs/GeneralTaskConfig";
-import path from "path";
 
-export const getPathToBuiltInDataset = (fileName: string) => {
-    if (!require.main) {
-        throw Error("FATAL SERVER ERROR");
-    }
-    const rootPath = path.dirname(require.main.filename).split("/");
-    rootPath.pop();
-    rootPath.pop(); // remove folder 'bin'
-    rootPath.pop(); // remove folder 'server'
-    rootPath.pop(); // remove folder 'web-app'
-    rootPath.push("build"); // add folder 'build'
-    rootPath.push("target"); // add folder 'target'
-    rootPath.push("input_data"); // add folder 'input_data'
-    rootPath.push(fileName); // add file '*.csv'
-    return rootPath.join("/");
-};
+export const getPathToBuiltInDataset = (fileName: string) =>
+    `build/target/input_data/${fileName}`;
 
 export type BuiltInDatasetInfoType = {
     fileName: string;

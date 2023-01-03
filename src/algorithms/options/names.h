@@ -1,19 +1,8 @@
-//
-// Created by Shlyonskikh Alexey on 2022-07-30.
-// https://github.com/BUYT-1
-//
-
 #pragma once
 
-namespace program_option_strings {
-constexpr auto kHelp = "help";
-constexpr auto kTask = "task";
-constexpr auto kAlgorithm = "algorithm";
+namespace algos::config::names {
 constexpr auto kData = "data";
-#define SEPARATOR "separator"
-constexpr auto kSeparatorConfig = SEPARATOR;
-constexpr auto kSeparatorLibArg = SEPARATOR ",s";
-#undef SEPARATOR
+constexpr auto kSeparator = "separator";
 constexpr auto kHasHeader = "has_header";
 constexpr auto kEqualNulls = "is_null_equal_null";
 constexpr auto kThreads = "threads";
@@ -30,7 +19,7 @@ constexpr auto kMetric = "metric";
 constexpr auto kLhsIndices = "lhs_indices";
 constexpr auto kRhsIndices = "rhs_indices";
 constexpr auto kParameter = "parameter";
-constexpr auto kDistToNullIsInfinity = "dist_to_null_infinity";
+constexpr auto kDistFromNullIsInfinity = "dist_from_null_is_infinity";
 constexpr auto kQGramLength = "q";
 constexpr auto kMetricAlgorithm = "metric_algorithm";
 constexpr auto kRadius = "radius";
@@ -42,4 +31,6 @@ constexpr auto kWeight = "weight";
 constexpr auto kBumpsLimit = "bumps_limit";
 constexpr auto kIterationsLimit = "iterations_limit";
 constexpr auto kPairingRule = "pairing_rule";
-}  // namespace program_option_strings
+constexpr auto kPreciseAlgorithm = "precise_algorithm";
+constexpr auto kApproximateAlgorithm = "approximate_algorithm";
+}  // namespace algos::config::names

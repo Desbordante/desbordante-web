@@ -1,3 +1,4 @@
+import { FileInfo } from "../../../db/models/FileData/FileInfo";
 import { UserInputError } from "apollo-server-core";
 import config from "../../../config";
 import fs from "fs";
@@ -23,7 +24,7 @@ function csvLinetoArray(line: string, sep: string) {
         if (m1 !== undefined) {
             a.push(m1.replace(/\\'/g, "'"));
         } else if (m2 !== undefined) {
-            a.push(m2.replace(/\\"/g, '"'));
+            a.push(m2.replace(/\\"/g, "\""));
         } else if (m3 !== undefined) {
             a.push(m3);
         }
@@ -93,9 +94,11 @@ export type SingularFileFormatProps = {
 
 export const findRowsAndColumnsNumber = async (
     path: fs.PathLike,
+    isBuiltIn: boolean,
     sep: string,
     fileFormat: TabularFileFormatProps | SingularFileFormatProps | undefined = undefined
 ) => {
+    path = FileInfo.resolvePath(path.toString(), isBuiltIn);
     const fileStream = fs.createReadStream(path);
 
     const rl = readline.createInterface({
@@ -162,11 +165,14 @@ export const findRowsAndColumnsNumber = async (
 
 export const createTabularFileFromSingular = async (
     path: fs.PathLike,
+    isBuiltIn: boolean,
     sep: string,
     tidColumnIndex: number,
     itemColumnIndex: number
 ) => {
-    const fileStream = fs.createReadStream(path);
+    const fileStream = fs.createReadStream(
+        FileInfo.resolvePath(path.toString(), isBuiltIn)
+    );
     const newPath = path.toString().replace(".csv", "_SINGULAR.csv");
     const writeFileStream = fs.createWriteStream(newPath);
 

@@ -10,17 +10,14 @@
 #include "algorithms/fun.h"
 #include "algorithms/hyfd/hyfd.h"
 #include "algorithms/pyro.h"
-#include "algorithms/statistics/csv_stats.h"
+#include "algorithms/statistics/data_stats.h"
 #include "algorithms/tane.h"
 
 /*Association rule mining algorithms */
 #include "algorithms/association_rules/apriori.h"
 
 /* Conditional functional dependency mining algorithms */
-#include "algorithms/c_tane/c_tane.h"
+#include "algorithms/ctane/ctane.h"
 
 /* Metric FD verifier */
-#include "algorithms/metric_verifier.h"
-
-/* Algebraic constraints mining algorithm */
-#include "algorithms/ac_algorithm.h"
+#include "algorithms/metric/metric_verifier.h"
