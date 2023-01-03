@@ -1,9 +1,11 @@
 #pragma once
 
+#include <future>
+
+#include <easylogging++.h>
+
 #include "../db/task_config.h"
 #include "algo_factory.h"
-#include <future>
-#include <easylogging++.h>
 
 namespace consumer {
 
@@ -40,10 +42,10 @@ class TaskProcessor {
         return result;
     };
 
-    template <typename C, typename DepType>
+    template <typename T, typename C = const std::list<T>&>
     std::string GetCompactDeps(
-        const C& deps,
-        std::function<bool(const DepType&)> filter = [](const DepType&) { return true; }) const {
+            const C& deps,
+            std::function<bool(const T&)> filter = [](const T&) { return true; }) const {
         std::vector<std::string> compact_deps;
         for (const auto& dep : deps) {
             if (filter(dep)) {
@@ -68,7 +70,7 @@ class TaskProcessor {
         return dynamic_cast<const T*>(algo_.get());
     }
 
-    static std::string GetCompactString(const std::vector<const Column *>& columns) {
+    static std::string GetCompactString(const std::vector<const Column*>& columns) {
         std::vector<std::string> key_cols_indices(columns.size());
         for (const auto* col : columns) {
             key_cols_indices.push_back(std::to_string(col->GetIndex()));
@@ -78,7 +80,6 @@ class TaskProcessor {
 
     static std::string GetPieChartData(const std::list<FD>& deps, int degree = 1);
     static std::string GetPieChartData(const std::list<model::CFD>& deps, int degree = 1);
-//    static std::string GetPieChartDataWithPatterns(const std::list<model::CFD>& deps, int degree = 1);
 
     void SaveFdTaskResult() const;
     void SaveCfdTaskResult() const;
@@ -91,6 +92,20 @@ class TaskProcessor {
     void MineDeps();
     void MineClusters();
     void MineSpecificClusters();
+
+    void SaveResults(std::map<std::string, std::string>&& values) const {
+        query::UpdateQuery query{std::move(values),
+                                 GetConfig().GetResultTableName(),
+                                 {std::make_pair(fields::kTaskID, GetConfig().GetTaskID())}};
+        GetDBManager()->Send(std::move(query));
+    }
+
+    void UpdateState(std::map<std::string, std::string>&& values) const {
+        GetDBManager()->Send(
+                query::UpdateQuery{std::move(values),
+                                   tables::kState,
+                                   {std::make_pair(fields::kTaskID, GetConfig().GetTaskID())}});
+    }
 
 public:
     explicit TaskProcessor(std::unique_ptr<TaskConfig> task_config)
@@ -112,7 +127,11 @@ public:
         return *task_;
     }
 
+    DBManager const* GetDBManager() const {
+        return GetConfig().GetDBManager();
+    }
+
     void Execute();
 };
 
-}
+}  // namespace consumer

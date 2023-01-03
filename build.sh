@@ -2,12 +2,13 @@
 
 function print_help() {
 cat << EOF
-Usage: ./build.sh [-h|--help] [-p|--pybind] [-t|--tests] [-j[=N]|--jobs[=N]]
+Usage: ./build.sh [-h|--help] [-p|--pybind] [-t|--tests] [-j[=N]|--jobs[=N]] [-d|--debug]
 
 -p,     --pybind,        Enable python bindings compile
 -t,     --tests,         Enable tests build and datasets unpacking
 -h,     --help,          Display help
 -j[=N], --jobs[=N],      Allow N jobs at once. (Default [=1])
+-d,     --debug          Build in DEBUG mode
 
 EOF
 }
@@ -26,6 +27,9 @@ for i in "$@"
             ;;
         -j=*|--jobs=*)
             JOBS_AMOUNT="${i#*=}"
+            ;;
+        -d|--debug)
+            POSTFIX="-DCMAKE_BUILD_TYPE=DEBUG"
             ;;
         -h|--help|*) # Display help.
             print_help
@@ -54,5 +58,5 @@ fi
 cd ..
 mkdir -p build
 cd build
-cmake $PREFIX .. "-DCMAKE_BUILD_TYPE=RELEASE"
+cmake $PREFIX .. $POSTFIX
 make -j$JOBS_AMOUNT

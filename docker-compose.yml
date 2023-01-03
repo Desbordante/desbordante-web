@@ -8,6 +8,8 @@ services:
       POSTGRES_DB: "${POSTGRES_DB}"
     expose:
       - "5432"
+    ports:
+      - "5432:5432"
     networks:
       - network
     restart: always
@@ -132,6 +134,8 @@ services:
     expose:
       - '9092'
       - '1234'
+    ports:
+      - "9092:9092"
     links:
       - 'prometheus'
     environment:
@@ -174,7 +178,7 @@ services:
       KAFKA_HOST: kafka
       KAFKA_PORT: 9092
       MAX_ACTIVE_TASKS: ${MAX_ACTIVE_TASKS}
-      DOCKER_NETWORK: desbordante_network
+      DOCKER_NETWORK: deb_network
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: "${POSTGRES_USER}"

@@ -27,6 +27,8 @@ import { FileInfo } from "../../../../db/models/FileData/FileInfo";
 import { TaskStatusType } from "../../../../db/models/TaskData/TaskState";
 import { allowedAlgorithms } from "../../AppConfiguration/resolvers";
 import { produce } from "../../../../producer";
+import { FileFormat } from "../../../../db/models/FileData/FileFormat";
+import _ from "lodash";
 
 export type ParentSpecificClusterTaskProps = Omit<
     SpecificClusterTaskProps,
@@ -60,6 +62,14 @@ export type PropsType =
 export type InvalidUserInput<T> = {
     property: keyof T;
     expected: string | number;
+};
+
+type BasePayloadType<PropsType> = PropsType & {
+    data: string;
+    separator: string;
+    hasHeader: boolean;
+    fileID: string;
+    taskID: string;
 };
 
 export type ValidationAnswer<T> =
@@ -157,17 +167,49 @@ export abstract class AbstractCreator<
         const status: TaskStatusType = "ADDING_TO_DB";
         const userID = this.userID;
         const { fileID } = this.fileInfo;
-        const taskState = await this.context.models.TaskState.create({
+        const state = await this.context.models.TaskState.create({
             status,
             userID,
         });
-        await taskState.$create("baseConfig", {
+        await state.$create("baseConfig", {
             ...this.props,
             fileID,
         });
-        await taskState.$create(`${this.type}Config`, { ...this.props });
-        await taskState.$create(`${this.type}Result`, {});
-        return taskState;
+        await state.$create(`${this.type}Config`, { ...this.props });
+        await state.$create(`${this.type}Result`, {});
+
+        const { path: data, delimiter: separator, hasHeader } = this.fileInfo;
+        const { taskID } = state;
+        const dataset = { data, separator, hasHeader, fileID };
+        const payload: BasePayloadType<PropsType> = {
+            ...this.props,
+            taskID,
+            ...dataset,
+        };
+        this.logger(payload);
+        delete Object.assign(payload, { primitive: payload.algorithmName }).algorithmName;
+        delete Object.assign(payload, { threads: payload.threadsCount }).threadsCount;
+        delete Object.assign(payload, { error: payload.errorThreshold }).errorThreshold;
+        if (payload.minSupportCFD != null) {
+            delete Object.assign(payload, { minsup: payload.minSupportCFD })
+                .minSupportCFD;
+        } else {
+            delete Object.assign(payload, { minsup: payload.minSupportAR }).minSupportAR;
+        }
+        delete Object.assign(payload, { minconf: payload.minConfidence }).minConfidence;
+        return { state, payload };
+    };
+
+    public abstract specificPayloadUpdate(
+        payload: BasePayloadType<PropsType>
+    ): Promise<Record<string, any>>;
+
+    private transformPayload = (payload: Record<string, any>): Record<string, any> => {
+        return Object.fromEntries(
+            Object.entries(payload)
+                .map(([key, value]) => [_.snakeCase(key), value])
+                .filter(([_, v]) => v != null)
+        );
     };
 
     private createTask = async () => {
@@ -187,13 +229,24 @@ export abstract class AbstractCreator<
                 return state!;
             }
         }
-        const task = await this.saveToDB();
-        const { taskID } = task;
+        const { state, payload } = await this.saveToDB();
+        const { taskID } = state;
 
-        await produce({ taskID }, this.context.topicNames.tasks);
-        task.status = "ADDED_TO_THE_TASK_QUEUE";
-        await task.save();
-        return task;
+        this.logger(
+            JSON.stringify(
+                this.transformPayload(await this.specificPayloadUpdate(payload))
+            )
+        );
+        await produce(
+            taskID,
+            JSON.stringify(
+                this.transformPayload(await this.specificPayloadUpdate(payload))
+            ),
+            this.context.topicNames.tasks
+        );
+        state.status = "ADDED_TO_THE_TASK_QUEUE";
+        await state.save();
+        return state;
     };
 
     public processTask = async () => {
@@ -215,6 +268,23 @@ class MainPrimitiveCreator extends AbstractCreator<
     MainPrimitiveType
 > {
     public getSchema = () => getMainTaskSchema(this.props.type);
+    public specificPayloadUpdate = async (
+        payload: BasePayloadType<IntersectionMainTaskProps>
+    ) => {
+        let specificParams = {};
+        if (this.props.type === "AR") {
+            const fileFormat = (await this.fileInfo.$get("fileFormat")) as FileFormat;
+            const { hasTid, inputFormat, tidColumnIndex, itemColumnIndex } = fileFormat;
+            specificParams = {
+                ...specificParams,
+                hasTid,
+                inputFormat,
+                tidColumnIndex,
+                itemColumnIndex,
+            };
+        }
+        return { ...payload, ...specificParams };
+    };
 }
 
 abstract class SpecificPrimitiveCreator extends AbstractCreator<
@@ -222,6 +292,12 @@ abstract class SpecificPrimitiveCreator extends AbstractCreator<
     SpecificPrimitiveType
 > {
     getSchema = () => getSpecificTaskSchema(this.props.type);
+    public specificPayloadUpdate = async (
+        payload: BasePayloadType<TransformedIntersectionSpecificTaskProps>
+    ) => {
+        const specificParams = {};
+        return { ...payload, ...specificParams };
+    };
 }
 
 class TypoClusterCreator extends SpecificPrimitiveCreator {
@@ -252,6 +328,12 @@ class SpecificClusterCreator extends AbstractCreator<
     getSchema(): SchemaType<TransformedSpecificClusterTaskProps, "SpecificTypoCluster"> {
         return getSpecificClusterTaskSchema();
     }
+    public specificPayloadUpdate = async (
+        payload: BasePayloadType<TransformedSpecificClusterTaskProps>
+    ) => {
+        const specificParams = {};
+        return { ...payload, ...specificParams };
+    };
 }
 
 const isIntersectionMainTaskProps = (

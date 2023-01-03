@@ -50,6 +50,9 @@ include_directories(
     "src/caching"
     "src/logging"
     "src"
+    "cpp-consumer/db"
+    "cpp-consumer/option"
+    "cpp-consumer/task-processors"
     )
 
 if (ENABLE_TESTS_COMPILE)
@@ -63,9 +66,6 @@ add_subdirectory("cpp-consumer")
 # adding submodules
 if (ENABLE_TESTS_COMPILE)
     add_subdirectory("lib/googletest")
-endif()
-if (ENABLE_PYBIND_COMPILE)
-    add_subdirectory("lib/pybind11")
 endif()
 
 set( CMAKE_BUILD_TYPE_COPY "${CMAKE_BUILD_TYPE}" )
@@ -82,6 +82,3 @@ if (ENABLE_TESTS_COMPILE)
 endif()
 add_subdirectory("cfg")
 
-if (ENABLE_PYBIND_COMPILE)
-    add_subdirectory("python_bindings")
-endif()

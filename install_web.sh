@@ -1,11 +1,11 @@
 #! /bin/bash
-./pull_datasets.sh
-if ! [[ -f datasets/datasets.zip ]]
-then
-    echo "Datasets were not pulled".
-    echo You can open script pull_datasets.sh manually and take commands from else part.
-    exit 1
-fi
+#./pull_datasets.sh
+#if ! [[ -f datasets/datasets.zip ]]
+#then
+#    echo "Datasets were not pulled".
+#    echo You can open script pull_datasets.sh manually and take commands from else part.
+#    exit 1
+#fi
 docker build -t cpp-consumer -f=Dockerfile-cpp-consumer .
 mkdir -m777 volumes
 cd volumes/

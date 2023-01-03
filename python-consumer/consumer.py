@@ -26,7 +26,7 @@ def create_consumer():
     return consumer
 
 
-def container_exit_handler(container, container_state, active_tasks, taskID):
+def container_exit_handler(container, container_state, active_tasks, task_id):
     class exit_codes(Enum):
         TASK_SUCCESSFULLY_PROCESSED = 0
         TASK_CRASHED_STATUS_UPDATED = 1
@@ -36,50 +36,50 @@ def container_exit_handler(container, container_state, active_tasks, taskID):
     exitCode = container_state["ExitCode"]
     match exitCode:
         case exit_codes.TASK_SUCCESSFULLY_PROCESSED:
-            logging.info(f"[{taskID}] task done successfully")
+            logging.info(f"[{task_id}] task done successfully")
             logging.info(container.logs())
 
         case exit_codes.TASK_CRASHED_STATUS_UPDATED:
-            logging.warning(f"[{taskID}] cpp-consumer has crashed, \
+            logging.warning(f"[{task_id}] cpp-consumer has crashed, \
                 status was updated by cpp-consumer")
             logging.warning(container.logs())
 
         case exit_codes.TASK_CRASHED_WITHOUT_STATUS_UPDATING:
-            logging.warning(f"[{taskID}] cpp-consumer has crashed \
+            logging.warning(f"[{task_id}] cpp-consumer has crashed \
                 without status updating")
-            update_internal_server_error(taskID,
+            update_internal_server_error(task_id,
                                          f"Crash {container.logs()}")
             logging.warning(container.logs())
 
         case exit_codes.TASK_NOT_FOUND:
-            logging.warning(f"[{taskID}] task not found")
+            logging.warning(f"[{task_id}] task not found")
 
     container.remove()
-    active_tasks.pop(taskID)
+    active_tasks.pop(task_id)
 
 
-def container_OOMKilled_handler(container, active_tasks, taskID):
-    logging.warning(f"{taskID} ML")
+def container_OOMKilled_handler(container, active_tasks, task_id):
+    logging.warning(f"{task_id} ML")
     container.remove()
-    active_tasks.pop(taskID)
-    update_resource_limit_error(taskID, "MEMORY_LIMIT")
+    active_tasks.pop(task_id)
+    update_resource_limit_error(task_id, "MEMORY_LIMIT")
 
 
 def check_active_containers(active_tasks):
-    for taskID, (container, t) in active_tasks.items():
+    for task_id, (container, t) in active_tasks.items():
         container.reload()
 
-        logging.info(f'{taskID}, {container}, {container.status}, \
+        logging.info(f'{task_id}, {container}, {container.status}, \
               {int(time.time() - t)}s')
 
         if time.time() - t >= config.TIMELIMIT:
             # TL
-            logging.info(f'time exceeded for {taskID}, \
+            logging.info(f'time exceeded for {task_id}, \
             container {container} removed')
             container.stop(timeout=1)
             container.remove()
-            active_tasks.pop(taskID)
-            update_resource_limit_error(taskID, "TIME_LIMIT")
+            active_tasks.pop(task_id)
+            update_resource_limit_error(task_id, "TIME_LIMIT")
             break
 
         container_state = docker_api_client.inspect_container(container.id)[
@@ -87,17 +87,22 @@ def check_active_containers(active_tasks):
 
         OOMKilled = container_state["OOMKilled"]
         if OOMKilled:
-            container_OOMKilled_handler(container, active_tasks, taskID)
+            container_OOMKilled_handler(container, active_tasks, task_id)
             break
 
         if container.status == "exited":
             container_exit_handler(
-                container, container_state, active_tasks, taskID)
+                container, container_state, active_tasks, task_id)
             break
 
+def create_command(j):
+    cmd = ''
+    for key, value in j.items():
+        cmd += f"--{key}={value} "
+    return cmd
 
-def create_container(taskID):
-    logging.info(f"creating container for {taskID}")
+def create_container(task_id, command):
+    logging.info(f"creating container for {task_id}")
     env_variables = {
         "POSTGRES_HOST": config.POSTGRES_HOST,
         "POSTGRES_PORT": config.POSTGRES_PORT,
@@ -106,10 +111,12 @@ def create_container(taskID):
         "POSTGRES_DBNAME": config.POSTGRES_DBNAME
     }
 
+    logging.info(f"Cmd={command}")
+
     container_properties = {
         'image': "cpp-consumer:latest",
         'network': config.DOCKER_NETWORK,
-        'command': taskID,
+        'command': command,
         'volumes': [
             'desbordante_uploads:/server/uploads/',
             'desbordante_datasets:/build/target/input_data/'],
@@ -142,12 +149,13 @@ def main(containers):
         if msg.error():
             logging.error(f"Consumer error: {msg.error()}")
             continue
+        consumer.commit()
 
-        logging.info(f'Received task: {msg.value().decode("utf-8")}')
-        taskID = json.loads(msg.value().decode('utf-8'))['taskID']
-
-        container = create_container(taskID)
-        containers[taskID] = (container, time.time())
+        msg_value = json.loads(msg.value().decode("utf-8"))
+        logging.info(f'Received task: {msg_value}')
+        task_id = msg_value['task_id']
+        container = create_container(task_id, create_command(msg_value))
+        containers[task_id] = (container, time.time())
 
     consumer.close()
 

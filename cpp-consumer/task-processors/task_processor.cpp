@@ -10,8 +10,8 @@ std::string TaskProcessor::GetPieChartData(const std::list<FD>& deps, int degree
         double divisor = std::pow(fd.GetLhs().GetArity(), degree);
 
         const auto& lhs_col_indices = fd.GetLhs().GetColumnIndices();
-        for (size_t index = lhs_col_indices.find_first();
-             index != boost::dynamic_bitset<>::npos; index = lhs_col_indices.find_next(index)) {
+        for (size_t index = lhs_col_indices.find_first(); index != boost::dynamic_bitset<>::npos;
+             index = lhs_col_indices.find_next(index)) {
             lhs_values[index] += 1 / divisor;
         }
         size_t index = fd.GetRhs().GetIndex();
@@ -38,8 +38,8 @@ std::string TaskProcessor::GetPieChartData(const std::list<model::CFD>& deps, in
         double divisor = std::pow(fd.GetLhsPattern().Size(), degree);
 
         const auto& lhs_col_indices = fd.GetLhsPattern().GetColumnIndices();
-        for (size_t index = lhs_col_indices.find_first();
-             index != boost::dynamic_bitset<>::npos; index = lhs_col_indices.find_next(index)) {
+        for (size_t index = lhs_col_indices.find_first(); index != boost::dynamic_bitset<>::npos;
+             index = lhs_col_indices.find_next(index)) {
             lhs_values[index] += 1 / divisor;
         }
         size_t index = fd.GetRhsPattern().GetColumn()->GetIndex();
@@ -58,21 +58,17 @@ std::string TaskProcessor::GetPieChartData(const std::list<model::CFD>& deps, in
     return get_compact_data(lhs_values) + "|" + get_compact_data(rhs_values);
 }
 
-//std::string TaskProcessor::GetPieChartDataWithPatterns(const std::list<model::CFD>& deps, int degree) {
-//    // TODO(implement)
-//}
-
+using namespace query;
+using namespace fields;
 
 void TaskProcessor::SaveFdTaskResult() const {
     auto algo = GetAlgoAs<FDAlgorithm>();
 
     const auto& deps = algo->FdList();
-    task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
-                        {{"pk", GetCompactString(algo->GetKeys())},
-                         {"deps", GetCompactDeps<const std::list<FD>&, FD>(deps)},
-                         {"chart_data_without_patterns", GetPieChartData(deps, 1)},
-                         {"deps_amount", std::to_string(deps.size())}});
-    std::cout << "params was successfully updated\n";
+    SaveResults({{kPKColumnIndices, GetCompactString(algo->GetKeys())},
+                 {kDeps, GetCompactDeps<FD>(deps)},
+                 {kWithoutPatterns, GetPieChartData(deps, 1)},
+                 {kDepsAmount, std::to_string(deps.size())}});
 }
 
 void TaskProcessor::SaveCfdTaskResult() const {
@@ -80,81 +76,72 @@ void TaskProcessor::SaveCfdTaskResult() const {
     const auto& item_names = algo->ItemNames();
 
     const auto& deps = algo->CFDList();
-    task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
-                        {{"pk", GetCompactString(algo->GetKeys())},
-                         {"value_dictionary", boost::join(item_names, ",")},
-                         {"deps", GetCompactDeps<const std::list<model::CFD>&, model::CFD>(deps)},
-                         {"chart_data_without_patterns", GetPieChartData(deps, 1)},
-//                         {"chart_data_with_patterns", GetPieChartDataWithPatterns(deps, 1)},
-                         {"deps_amount", std::to_string(deps.size())}});
-    std::cout << "params was successfully updated\n";
+    SaveResults({{kPKColumnIndices, GetCompactString(algo->GetKeys())},
+                 {kValueDictionary, boost::join(item_names, ",")},
+                 {kDeps, GetCompactDeps<model::CFD>(deps)},
+                 {kWithoutPatterns, GetPieChartData(deps, 1)},
+                 {kDepsAmount, std::to_string(deps.size())}});
 }
 
 void TaskProcessor::SaveArTaskResult() const {
     auto algo = GetAlgoAs<ARAlgorithm>();
     const auto& item_names = algo->GetItemNamesVector();
     const auto& ar_list = algo->GetArIDsList();
-    task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
-                        {{"value_dictionary", boost::join(item_names, ",")},
-                         {"deps", GetCompactDeps<const std::list<model::ArIDs>, model::ArIDs>(ar_list)},
-                         {"deps_amount", std::to_string(ar_list.size())}});
+    SaveResults({{kValueDictionary, boost::join(item_names, ",")},
+                 {kDeps, GetCompactDeps<model::ArIDs>(ar_list)},
+                 {kDepsAmount, std::to_string(ar_list.size())}});
 }
 
 void TaskProcessor::SaveTypoFdTaskResult() const {
     auto algo = GetAlgoAs<TypoMiner>();
     const auto& typo_fds = algo->GetApproxFDs();
-    LOG(INFO) << "Update params for typo fd result";
-    task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
-                        {{"deps", GetCompactDeps<const std::vector<FD>&, FD>(typo_fds)},
-                         {"pk", GetCompactString(algo->GetKeys())},
-                         {"deps_amount", std::to_string(typo_fds.size())}});
+    SaveResults({{kDeps, GetCompactDeps<FD>(typo_fds)},
+                 {kPKColumnIndices, GetCompactString(algo->GetKeys())},
+                 {kDepsAmount, std::to_string(typo_fds.size())}});
 }
 
 void TaskProcessor::SaveStatsResult() const {
     auto algo = GetAlgoAs<DataStats>();
     const auto& stats = algo->GetAllStats();
-    const std::string file_id = task_->GetParam("fileID");
-    LOG(INFO) << "Insert params for stats result";
-    for(unsigned i = 0; i < stats.size(); ++i) {
+    for (unsigned i = 0; i < stats.size(); ++i) {
         auto stats_result = stats[i].ToKeyValueMap();
-        stats_result.insert({{"fileID", file_id}, {"columnIndex", std::to_string(i)}});
-        task_->GetDBManager()->SendInsertQuery(stats_result, "ColumnStats");
+        stats_result.insert(
+                {{fields::kFileID, task_->GetFileID()}, {kColumnIndex, std::to_string(i)}});
+        GetDBManager()->Send(InsertQuery{tables::kColumnStats, std::move(stats_result)});
     }
-    LOG(INFO) << "Stats was successfully calculated, results saved\n";
 }
 
 void TaskProcessor::SaveResults() const {
     switch (task_->GetPreciseMiningType()) {
-    case TaskMiningType::AR:
-        SaveArTaskResult();
-        break;
-    case TaskMiningType::FD:
-        SaveFdTaskResult();
-        break;
-    case TaskMiningType::CFD:
-        SaveCfdTaskResult();
-        break;
-    case TaskMiningType::TypoFD:
-        SaveTypoFdTaskResult();
-        break;
-    case TaskMiningType::TypoCluster:
-    case TaskMiningType::SpecificTypoCluster:
-        break;
-    case TaskMiningType::Stats:
-        SaveStatsResult();
-        break;
-    default:
-        throw std::runtime_error("Not implemented yet");
+        case TaskMiningType::AR:
+            SaveArTaskResult();
+            break;
+        case TaskMiningType::FD:
+            SaveFdTaskResult();
+            break;
+        case TaskMiningType::CFD:
+            SaveCfdTaskResult();
+            break;
+        case TaskMiningType::TypoFD:
+            SaveTypoFdTaskResult();
+            break;
+        case TaskMiningType::TypoCluster:
+        case TaskMiningType::SpecificTypoCluster:
+            break;
+        case TaskMiningType::Stats:
+            SaveStatsResult();
+            break;
+        default:
+            throw std::runtime_error("Unreachable code");
     }
-    task_->UpdateParams(BaseTablesType::state, {{"status", "COMPLETED"}});
+    UpdateState({{kStatus, "COMPLETED"}});
 }
 
 void TaskProcessor::UpdateProgress() {
     std::tie(cur_phase_, phase_progress_) = algo_->GetProgress();
-    task_->UpdateParams(BaseTablesType::state,
-                        {{"progress", std::to_string(phase_progress_)},
-                         {"current_phase", std::to_string(cur_phase_ + 1)},
-                         {"phase_name", phase_names_[cur_phase_].data()}});
+    UpdateState({{kProgress, std::to_string(phase_progress_)},
+                 {kCurrentPhase, std::to_string(cur_phase_ + 1)},
+                 {kPhaseName, phase_names_[cur_phase_].data()}});
 }
 
 void TaskProcessor::MineDeps() {
@@ -166,11 +153,10 @@ void TaskProcessor::MineDeps() {
     do {
         status = execution_thread.wait_for(std::chrono::seconds(0));
         if (status == std::future_status::ready) {
-            std::cout << "Algorithm was executed" << std::endl;
-            task_->UpdateParams(BaseTablesType::state,
-                                {{"elapsed_time", std::to_string(elapsed_time)}});
+            LOG(INFO) << "Algorithm was executed";
+            UpdateState({{kElapsedTime, std::to_string(elapsed_time)}});
             UpdateProgress();
-            task_->UpdateParams(BaseTablesType::state, {{"progress", "100"}});
+            UpdateState({{kProgress, "100"}});
         } else if (status == std::future_status::timeout) {
             if (algo_has_progress_) {
                 UpdateProgress();
@@ -185,42 +171,39 @@ void TaskProcessor::MineDeps() {
 void TaskProcessor::MineClusters() {
     auto algo = GetAlgoAs<TypoMiner>();
 
-    auto typo_fd_indices = GetIndicesFromString(task_->GetParam("typo_fd"));
+    auto typo_fd_indices = GetIndicesFromString(task_->GetParam(kTypoFD));
 
     auto schema = algo->GetRelationData().GetSchema();
-    auto bitset = schema->IndicesToBitset(typo_fd_indices.cbegin(),
-                                          std::prev(typo_fd_indices.cend()));
+    auto bitset =
+            schema->IndicesToBitset(typo_fd_indices.cbegin(), std::prev(typo_fd_indices.cend()));
 
     FD fd(schema->GetVertical(std::move(bitset)), *schema->GetColumn(typo_fd_indices.back()));
     auto clusters_with_typos = algo->FindClustersAndLinesWithTypos(fd);
 
-    auto compact_clusters =
-        GetCompactData<std::pair<std::vector<int>, std::vector<int>>>(
+    auto compact_clusters = GetCompactData<std::pair<std::vector<int>, std::vector<int>>>(
             clusters_with_typos,
             [](const std::pair<std::vector<int>, std::vector<int>>& cluster_with_typos) {
                 return GetStringFromIndices(cluster_with_typos.first);
             });
-    auto compact_suspicious_indices =
-        GetCompactData<std::pair<std::vector<int>, std::vector<int>>>(
+    auto compact_suspicious_indices = GetCompactData<std::pair<std::vector<int>, std::vector<int>>>(
             clusters_with_typos,
             [](const std::pair<std::vector<int>, std::vector<int>>& cluster_with_typos) {
                 return GetStringFromIndices(cluster_with_typos.second);
             });
-    task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
-                        {{"typo_clusters", compact_clusters},
-                         {"suspicious_indices", compact_suspicious_indices},
-                         {"clusters_count", std::to_string(clusters_with_typos.size())}});
+    SaveResults({{kTypoClusters, compact_clusters},
+                 {kSuspiciousIndices, compact_suspicious_indices},
+                 {kClustersCount, std::to_string(clusters_with_typos.size())}});
 }
 
 void TaskProcessor::MineSpecificClusters() {
     auto algo = GetAlgoAs<TypoMiner>();
 
-    auto cluster_id = task_->GetParam<unsigned int>("cluster_id");
-    auto clusters_count = task_->GetParam<unsigned int>("clusters_count");
+    auto cluster_id = task_->GetParam<unsigned int>(kClusterID);
+    auto clusters_count = task_->GetParam<unsigned int>(kClustersCount);
     if (cluster_id >= clusters_count) {
         throw std::runtime_error("Cluster id must be less than clusters amount");
     }
-    auto clusters_str = task_->GetParam("typo_clusters");
+    auto clusters_str = task_->GetParam(kTypoClusters);
 
     std::stringstream ss(clusters_str);
     unsigned int count = 0;
@@ -236,11 +219,11 @@ void TaskProcessor::MineSpecificClusters() {
         throw std::runtime_error("Received empty cluster");
     }
 
-    auto typo_fd_indices = GetIndicesFromString(task_->GetParam("typo_fd"));
+    auto typo_fd_indices = GetIndicesFromString(task_->GetParam(kTypoFD));
 
     auto schema = algo->GetRelationData().GetSchema();
     auto bitset =
-        schema->IndicesToBitset(typo_fd_indices.cbegin(), std::prev(typo_fd_indices.cend()));
+            schema->IndicesToBitset(typo_fd_indices.cbegin(), std::prev(typo_fd_indices.cend()));
 
     FD fd(schema->GetVertical(std::move(bitset)), *schema->GetColumn(typo_fd_indices.back()));
 
@@ -250,30 +233,28 @@ void TaskProcessor::MineSpecificClusters() {
         return std::to_string(element.tuple_index) + "," + std::to_string(element.amount);
     };
     auto sq_sorted =
-        GetCompactData<TypoMiner::SquashedElement>(squashed_cluster, to_compact_string);
+            GetCompactData<TypoMiner::SquashedElement>(squashed_cluster, to_compact_string);
     algo->RestoreLineOrder(squashed_cluster);
 
     auto sq_not_sorted =
-        GetCompactData<TypoMiner::SquashedElement>(squashed_cluster, to_compact_string);
+            GetCompactData<TypoMiner::SquashedElement>(squashed_cluster, to_compact_string);
 
     algo->RestoreLineOrder(cluster);
     std::string not_sq_not_sorted = GetStringFromIndices(cluster);
 
-    task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
-                        {{"suspicious_indices", task_->GetParam("suspicious_indices")},
-                         {"sq_not_sorted", sq_not_sorted},
-                         {"sq_sorted", sq_sorted},
-                         {"not_sq_not_sorted", not_sq_not_sorted},
-                         {"not_sq_sorted", not_sq_sorted},
-                         {"not_sq_amount", std::to_string(clusters_count)},
-                         {"sq_amount", std::to_string(squashed_cluster.size())}});
+    SaveResults({{kSuspiciousIndices, task_->GetParam(kSuspiciousIndices)},
+                 {kSquashedNotSortedCluster, sq_not_sorted},
+                 {kSquashedSortedCluster, sq_sorted},
+                 {kNotSquashedNotSortedCluster, not_sq_not_sorted},
+                 {kNotSquashedSortedCluster, not_sq_sorted},
+                 {kNotSquashedItemsAmount, std::to_string(clusters_count)},
+                 {kSquashedItemsAmount, std::to_string(squashed_cluster.size())}});
 }
 
 void TaskProcessor::Execute() {
     try {
         UpdateProgress();
-        task_->UpdateParams(BaseTablesType::state, {{"status", "IN_PROCESS"},
-                                                    {"max_phase", std::to_string(max_phase_)}});
+        UpdateState({{kStatus, "IN_PROCESS"}, {kMaxPhase, std::to_string(max_phase_)}});
         if (task_->GetPreciseMiningType() == +TaskMiningType::TypoCluster) {
             MineClusters();
         } else if (task_->GetPreciseMiningType() == +TaskMiningType::SpecificTypoCluster) {
@@ -281,18 +262,21 @@ void TaskProcessor::Execute() {
         } else {
             MineDeps();
         }
-        if (!task_->IsTaskValid()) {
-            throw std::runtime_error("Task isn't valid (Algo was executed successfully");
-        } else {
+        //        if (!task_->IsTaskValid()) {
+        //            throw std::runtime_error("Task isn't valid (Algo was executed successfully");
+        //        } else
+        {
             SaveResults();
-            task_->UpdateParams(BaseTablesType::state, {{"is_executed", "true"}});
+            UpdateState({{kIsExecuted, "true"}});
         }
         LOG(INFO) << "Algorithm was successfully executed, results saved\n";
         return;
     } catch (std::runtime_error& e) {
         LOG(INFO) << "Error while executing " << e.what() << std::endl;
+        UpdateState(
+                {{fields::kStatus, "INTERNAL_SERVER_ERROR"}, {fields::kErrorMsg, e.what()}});
         throw e;
     }
 }
 
-}
+}  // namespace consumer

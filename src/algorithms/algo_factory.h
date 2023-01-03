@@ -138,9 +138,7 @@ std::unique_ptr<Primitive> CreateCFDAlgorithmInstance(ParamsMap&& params) {
     c.data = details::ExtractOptionValue<std::filesystem::path>(params, config::names::kData);
     c.separator = details::ExtractOptionValue<char>(params, config::names::kSeparator);
     c.has_header = details::ExtractOptionValue<bool>(params, config::names::kHasHeader);
-    c.is_null_equal_null = details::ExtractOptionValue<bool>(params, config::names::kEqualNulls);
     c.max_lhs = details::ExtractOptionValue<unsigned int>(params, config::names::kMaximumLhs);
-    c.parallelism = details::ExtractOptionValue<ushort>(params, config::names::kThreads);
     c.min_conf = details::ExtractOptionValue<double>(params, config::names::kMinimumConfidence);
     c.min_sup = details::ExtractOptionValue<double>(params, config::names::kMinimumSupport);
 
@@ -161,6 +159,13 @@ std::unique_ptr<Primitive> CreatePrimitive(std::string const& primitive_name,
     }
     PrimitiveType const primitive_enum = PrimitiveType::_from_string_nocase(primitive_name.c_str());
     return CreatePrimitive(primitive_enum, std::forward<OptionMap>(options));
+}
+
+template <typename OptionMap>
+std::unique_ptr<Primitive> CreatePrimitive(OptionMap&& options) {
+    using namespace algos::config::names;
+    std::string const& primitive = details::ExtractOptionValue<std::string>(options, kPrimitive);
+    return CreatePrimitive(primitive, std::forward<OptionMap>(options));
 }
 
 }  // namespace algos
