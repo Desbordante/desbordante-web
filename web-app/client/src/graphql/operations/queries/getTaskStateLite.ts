@@ -1,16 +1,11 @@
 import { gql } from '@apollo/client';
-import { BASE_CONFIG, TASK_STATE } from '@graphql/operations/fragments';
+import { TASK_STATE } from '@graphql/operations/fragments';
 
-export const GET_TASK_STATE = gql`
-  ${BASE_CONFIG}
+// Spamming query.
+export const GET_TASK_STATE_LITE = gql`
   ${TASK_STATE}
-  query getTaskState($taskID: ID!) {
+  query getTaskStateLite($taskID: ID!) {
     taskInfo(taskID: $taskID) {
-      data {
-        baseConfig {
-          ...BaseConfig
-        }
-      }
       state {
         ... on TaskState {
           ...TaskState

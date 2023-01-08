@@ -3,14 +3,13 @@ import checkFill from '@assets/icons/check-fill.svg';
 import resourcesLimit from '@assets/icons/resources-limit.svg';
 import serverError from '@assets/icons/server-error.svg';
 import usersQueue from '@assets/icons/users-queue.svg';
+import { TaskState } from '@atoms/primaryAtoms/taskStateAtom';
 import { getTaskInfo } from '@graphql/operations/queries/__generated__/getTaskInfo';
 
 const getTaskStatusData = (
   error: ApolloError | undefined,
-  taskInfo: getTaskInfo | undefined
+  state: TaskState | undefined
 ) => {
-  const state = taskInfo?.taskInfo.state;
-
   if (error) {
     return {
       icon: serverError,

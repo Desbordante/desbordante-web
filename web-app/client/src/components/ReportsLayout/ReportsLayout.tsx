@@ -7,6 +7,7 @@ import ClusterIcon from '@assets/icons/cluster.svg?component';
 import DatatableIcon from '@assets/icons/datatable.svg?component';
 import DropDownIcon from '@assets/icons/list-dropdown.svg?component';
 import { useTaskContext } from '@components/TaskContext';
+import useTaskState from '@hooks/useTaskState';
 import { PrimitiveType } from 'types/globalTypes';
 import styles from './ReportsLayout.module.scss';
 
@@ -20,13 +21,11 @@ const menuStatistics = {
   pathname: '/reports/charts',
   icon: <ChartIcon />,
 };
-
 const menuClusters = {
   label: 'Clusters',
   pathname: '/reports/clusters',
   icon: <ClusterIcon />,
 };
-
 const menuPrimitiveList = {
   label: 'Primitive list',
   pathname: '/reports/dependencies',
@@ -36,6 +35,11 @@ const menuDatasetSnippet = {
   label: 'Dataset snippet',
   pathname: '/reports/snippet',
   icon: <DatatableIcon />,
+};
+const menuMFDClusters = {
+  label: 'Clusters',
+  pathname: '/reports/metric-dependencies',
+  icon: <ClusterIcon />,
 };
 
 export const reportsTabs: Record<
@@ -47,6 +51,8 @@ export const reportsTabs: Record<
   [PrimitiveType.CFD]: [menuStatistics, menuPrimitiveList, menuDatasetSnippet],
   [PrimitiveType.AR]: [menuPrimitiveList, menuDatasetSnippet],
   [PrimitiveType.TypoFD]: [menuPrimitiveList, menuClusters, menuDatasetSnippet],
+  [PrimitiveType.MFD]: [menuMFDClusters],
+  [PrimitiveType.Stats]: [],
 };
 
 export const ReportsLayout: FC<Props> = ({
@@ -55,8 +61,8 @@ export const ReportsLayout: FC<Props> = ({
   children,
 }) => {
   const router = useRouter();
-  const { taskInfo } = useTaskContext();
-  const primitive = taskInfo?.taskInfo.data.baseConfig.type;
+  const { data } = useTaskState();
+  const type = data.type as PrimitiveType;
 
   return (
     <div className={classNames(styles.page, pageClass)}>
@@ -68,8 +74,9 @@ export const ReportsLayout: FC<Props> = ({
       />
       <div className={styles.menu}>
         <ul>
-          {primitive &&
-            reportsTabs[primitive].map(({ icon, label, pathname }) => (
+          {type &&
+            // primitive
+            reportsTabs[type].map(({ icon, label, pathname }) => (
               <li
                 key={pathname}
                 className={classNames(
