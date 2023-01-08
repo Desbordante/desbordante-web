@@ -45,10 +45,10 @@
       outline: 2px solid $error;
     }
   }
-  
+
   .multiValue {
     padding: 3px 8px;
-  
+
     background: rgba(118, 0, 209, 0.1);
     border-radius: 4px;
     margin: 2px;
@@ -59,7 +59,7 @@
     color: $primary-1;
 
     margin: auto;
-    
+
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -99,7 +99,7 @@
     transition: 100ms;
     opacity: 0.5;
     margin-right: 2px;
-  
+
     &:hover {
       opacity: 0.75;
     }
@@ -110,7 +110,7 @@
     transition: 100ms;
     opacity: 0.5;
     margin-left: 2px;
-    
+
     &:hover {
       opacity: 0.75;
     }
@@ -119,7 +119,7 @@
   .indicatorsContainer {
     margin: 0;
   }
-  
+
   .option {
     @include paragraph;
     padding: 16px;
@@ -127,46 +127,45 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 4px;
-  
+
     .optionText {
       // min-width: 50%;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-  
+
     // .optionBadgeContainer {
-    //   // TODO: make items "magnet" to the right edge with margin-left: auto;
     //   display: flex;
     //   flex-wrap: wrap;
     //   justify-content: flex-end;
     //   align-items: center;
     // }
-    
+
     &.once {
       justify-content: space-between;
     }
-  
+
     &.focused {
       background: $primary-02;
     }
-  
+
     &.selected {
       background: $primary-10;
     }
   }
-  
+
   .noOptionsMessage {
     color: $black-50;
     text-align: center;
   }
-  
+
   p.error {
     @include paragraph-small;
     margin: 8px 0 0;
     color: $error;
   }
-  
+
   &.disabled {
     opacity: 0.5;
   }
