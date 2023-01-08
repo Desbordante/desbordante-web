@@ -568,7 +568,6 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
         ),
       },
       [MainPrimitiveType.MFD]: {
-        // TODO: add hidden field
         lhsIndices: ({ field: { onChange, value, ...field } }) => (
           <MultiSelect
             {...field}
@@ -669,7 +668,10 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
           <NumberInput
             {...field}
             disabled={
-              !optionsByMetrics[watchMetric as MFDMetric].includes('qgram')
+              !optionsByMetrics[
+                MFDMetricOptions.find((option) => option.value === watchMetric)
+                  ?.label || 'Euclidean'
+              ].includes('qgram')
             }
             numberProps={{
               defaultNum: 1,

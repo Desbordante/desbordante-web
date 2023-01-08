@@ -1,13 +1,35 @@
 import { bool } from 'yup';
-import { capitalize, CapitalizedOption } from '@utils/capitalizeOptions';
+// import { capitalize, CapitalizedOption } from '@utils/capitalizeOptions';
+import { upperCase, UpperCaseOption } from '@utils/uppercaseOptions';
 import { MainPrimitiveType } from 'types/globalTypes';
 
-const toCapitalizedOption: <T extends string>(
+// const toCapitalizedOption: <T extends string>(
+//   value: T
+// ) => CapitalizedOption<T> = (value) => ({
+//   value,
+//   label: capitalize(value),
+// });
+
+// const toUpperCaseOption: <T extends string>(value: T) => UpperCaseOption<T> = (
+//   value
+// ) => ({
+//   value: upperCase(value),
+//   label: value,
+// });
+function toScreamingSnakeOption<T extends string>(
   value: T
-) => CapitalizedOption<T> = (value) => ({
-  value,
-  label: capitalize(value),
-});
+): UpperCaseOption<T> {
+  return {
+    value: upperCase(value.replaceAll(' ', '_') as T),
+    label: value,
+  };
+}
+// const toScreamingSnakeOption: <T extends string>(
+//   value: T
+// ) => UpperCaseOption<T> = (value) => ({
+//   value: upperCase(value.replaceAll(' ', '_') as T),
+//   label: value,
+// });
 
 const FDAlgorithms = [
   'Pyro',
@@ -25,7 +47,8 @@ type FDAlgorithm = typeof FDAlgorithms[number];
 type CFDAlgorithm = 'CTane';
 type ARAlgorithm = 'Apriori';
 
-const MFDAlgorithms = ['BRUTE', 'APPROX', 'CALIPERS'] as const;
+// const MFDAlgorithms = ['BRUTE', 'APPROX', 'CALIPERS'] as const;
+const MFDAlgorithms = ['Brute', 'Approx', 'Calipers'] as const;
 
 type MFDAlgorithm = typeof MFDAlgorithms[number];
 
@@ -49,13 +72,25 @@ export const CFDoptions: AlgoOption[] = [toAlgoOption('CTane')];
 export const ARoptions: AlgoOption[] = [toAlgoOption('Apriori')];
 export const ApproxOptions: AlgoOption[] = [toAlgoOption('Pyro')];
 
-const toCapitalizedAlgoOption = (algo: Algorithms): AlgoOption => ({
-  value: algo,
-  label: capitalize(algo) as Algorithms,
+// const toCapitalizedAlgoOption = (algo: Algorithms): AlgoOption => ({
+//   value: algo,
+//   label: capitalize(algo) as Algorithms,
+// });
+
+// const toUpperCaseAlgoOption = (algo: Algorithms): AlgoOption => ({
+//   value: upperCase(algo) as Algorithms,
+//   label: algo,
+// });
+const toScreamingSnakeAlgoOption = (algo: Algorithms): AlgoOption => ({
+  value: upperCase(algo.replaceAll(' ', '_')) as Algorithms,
+  label: algo,
 });
 
+// export const MFDAlgoOptions: AlgoOption[] = MFDAlgorithms.map(
+//   toCapitalizedAlgoOption
+// );
 export const MFDAlgoOptions: AlgoOption[] = MFDAlgorithms.map(
-  toCapitalizedAlgoOption
+  toScreamingSnakeAlgoOption
 );
 
 export const optionsByPrimitive: Record<MainPrimitiveType, AlgoOption[]> = {
@@ -79,23 +114,27 @@ export const optionsByAlgorithms: Record<Algorithms, AlgoProps[]> = {
   FUN: [],
   CTane: [],
   Apriori: [],
-  BRUTE: [], // Metric Algorithms
-  APPROX: [], // Metric Algorithms
-  CALIPERS: [], // Metric Algorithms
+  Brute: [], // Metric Algorithms
+  Approx: [], // Metric Algorithms
+  Calipers: [], // Metric Algorithms
 };
 
 // ------------------------ METRIC FUNCTIONAL DEPENDENCIES ONLY PARAMETERS ---------------------------
 
 // Metrics Options
 
-const MFDMetrics = ['EUCLIDEAN', 'COSINE', 'LEVENSHTEIN'] as const;
+const MFDMetrics = ['Euclidean', 'Cosine', 'Levenshtein'] as const;
 
 export type MFDMetric = typeof MFDMetrics[number];
 
-export type MFDMetricOption = CapitalizedOption<MFDMetric>;
+// export type MFDMetricOption = CapitalizedOption<MFDMetric>;
+export type MFDMetricOption = UpperCaseOption<MFDMetric>;
 
-export const MFDMetricOptions: MFDMetricOption[] =
-  MFDMetrics.map(toCapitalizedOption);
+// export const MFDMetricOptions: MFDMetricOption[] =
+//   MFDMetrics.map(toCapitalizedOption);
+export const MFDMetricOptions: MFDMetricOption[] = MFDMetrics.map(
+  toScreamingSnakeOption
+);
 
 export const metricOptionsByPrimitive: Record<
   MainPrimitiveType,
@@ -110,9 +149,9 @@ export const metricOptionsByPrimitive: Record<
 };
 
 export const optionsByMetrics: Record<MFDMetric, string[]> = {
-  EUCLIDEAN: [],
-  COSINE: ['qgram'],
-  LEVENSHTEIN: [],
+  Euclidean: [],
+  Cosine: ['qgram'],
+  Levenshtein: [],
 };
 
 // Column Types
