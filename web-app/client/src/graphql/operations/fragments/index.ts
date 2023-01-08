@@ -1,5 +1,26 @@
 import { gql } from '@apollo/client';
 
+export const BASE_CONFIG = gql`
+  fragment BaseConfig on BaseTaskConfig {
+    algorithmName
+    type
+  }
+`;
+
+export const TASK_STATE = gql`
+  fragment TaskState on TaskState {
+    isPrivate
+    attemptNumber
+    processStatus
+    phaseName
+    currentPhase
+    progress
+    maxPhase
+    isExecuted
+    elapsedTime
+  }
+`;
+
 export const COLUMN = gql`
   fragment Column on Column {
     name

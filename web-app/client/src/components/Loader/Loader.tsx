@@ -1,13 +1,12 @@
 import { useQuery } from '@apollo/client';
 import cn from 'classnames';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { FC, useEffect } from 'react';
-import {
-  getTaskInfo,
-  getTaskInfoVariables,
-} from '@graphql/operations/queries/__generated__/getTaskInfo';
-import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
+import { primitivePathnames } from '@constants/primitiveReportPathnames';
+import useTaskState from '@hooks/useTaskState';
 import getTaskStatusData from '@utils/getTaskStatusData';
+import { PrimitiveType } from 'types/globalTypes';
 import styles from './Loader.module.scss';
 
 type Props = {
@@ -15,29 +14,31 @@ type Props = {
   onComplete: () => void;
 };
 
-const Loader: FC<Props> = ({ taskID, onComplete }) => {
-  const { data, error, startPolling } = useQuery<
-    getTaskInfo,
-    getTaskInfoVariables
-  >(GET_TASK_INFO, { variables: { taskID } });
-
-  const status = getTaskStatusData(error, data);
+const Loader: FC = () => {
+  const router = useRouter();
+  const { data, error } = useTaskState();
+  const status = getTaskStatusData(error, data.state);
 
   useEffect(() => {
-    const state = data?.taskInfo.state;
+    const state = data.state;
+    const type = data.type;
 
     if (
       state &&
       'processStatus' in state &&
-      state.processStatus === 'COMPLETED'
+      state.processStatus === 'COMPLETED' &&
+      type !== ''
     ) {
-      setTimeout(onComplete, 500);
+      setTimeout(() => {
+        router.push({
+          pathname: primitivePathnames[type as PrimitiveType],
+          query: {
+            taskID: data.taskID,
+          },
+        });
+      }, 500);
     }
-  }, [data?.taskInfo.state]);
-
-  useEffect(() => {
-    startPolling(2000);
-  }, []);
+  }, [data]);
 
   const icon = status.isAnimated ? (
     <video

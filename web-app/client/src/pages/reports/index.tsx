@@ -5,28 +5,12 @@ import styles from '@styles/Reports.module.scss';
 
 const ReportsHome: NextPage = () => {
   const router = useRouter();
-  const taskID = router.query.taskID;
+  const taskID = router.query.taskID as string;
 
-  return (
-    <div className={styles.container}>
-      {taskID && (
-        <Loader
-          onComplete={() =>
-            router.push({
-              pathname: 'reports/dependencies',
-              query: {
-                taskID,
-              },
-            })
-          }
-          taskID={taskID as string}
-        />
-      )}
-    </div>
-  );
+  return <div className={styles.container}>{taskID && <Loader />}</div>;
 };
 
-export const getServerSideProps: GetServerSideProps = (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   if (!context.query.taskID) {
     return { notFound: true };
   }
