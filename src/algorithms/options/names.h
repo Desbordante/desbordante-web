@@ -2,6 +2,7 @@
 
 namespace algos::config::names {
 constexpr auto kData = "data";
+constexpr auto kDatas = "datas";
 constexpr auto kSeparator = "separator";
 constexpr auto kHasHeader = "has_header";
 constexpr auto kEqualNulls = "is_null_equal_null";

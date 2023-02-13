@@ -1,7 +1,7 @@
 #include "algorithms/primitive.h"
 
 #include <cassert>
-
+#include <iostream>
 namespace algos {
 
 bool Primitive::HandleUnknownOption([[maybe_unused]] std::string_view const& option_name,
