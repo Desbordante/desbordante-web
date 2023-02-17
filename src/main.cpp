@@ -67,18 +67,37 @@ void validate(boost::any& v, const std::vector<std::string>& values, InputFormat
 }
 
 }  // namespace algos
+//template <typename T>
+//static std::unique_ptr<T> Create(
+//        std::string const& filename,
+//        char separator = ',',
+//        bool has_header = false,
+//        std::size_t threads = 16) {
+//    std::filesystem::path path = std::filesystem::current_path() /"build"/ "target"/"input_data" / filename;
+//    algos::IDAlgorithm::Config conf{
+//            .path = path,
+//            .separator = separator,
+//            .has_header = has_header,
+//            .threads = threads
+//    };
+//    auto ptr = std::make_unique<T>(conf);
+//    ptr->Fit(ptr->getStream());
+//    return ptr;
+//}
 template <typename T>
 static std::unique_ptr<T> Create(
-        std::string const& filename,
+        std::vector<std::filesystem::path> const& paths,
+        std::size_t ram_limit,
         char separator = ',',
         bool has_header = false,
         std::size_t threads = 16) {
-    std::filesystem::path path = std::filesystem::current_path() /"build"/ "target"/"input_data" / filename;
+//    std::filesystem::path path = std::filesystem::current_path() /"build"/ "target"/"input_data" / filename;
     algos::IDAlgorithm::Config conf{
-            .path = path,
+            .paths = paths,
             .separator = separator,
             .has_header = has_header,
-            .threads = threads
+            .threads = threads,
+            .ram_limit = ram_limit
     };
     auto ptr = std::make_unique<T>(conf);
     ptr->Fit(ptr->getStream());
@@ -87,17 +106,31 @@ static std::unique_ptr<T> Create(
 int main(int argc, char const* argv[]) {
 //    std::cout << argc << argv[1] << std::endl;
     char sep = '|';
-    if (argc >= 4) {
-        sep = *argv[3];
+//    if (argc >= 4) {
+//        sep = *argv[3];
+//    }
+//    if (argc >=3 && argv[2] == std::string{"b"}) {
+//        auto algo = Create<algos::BruteForce>(argv[1], sep, false);
+//        algo->Execute();
+//    } else {
+    std::vector<std::filesystem::path> paths;
+    auto is_spider = argv[1] == std::string{"spider"};
+//    std::string dir{"tpc-lnk"};
+    std::string dir{"tpch"};
+    std::size_t ram_memory_limit = 4 >> 30;
+    for (int i = 2; i < argc; ++i) {
+        paths.emplace_back(std::filesystem::current_path() / "build" / "target" / "input_data" /
+                           dir / (argv[i] + std::string{".tbl"}));
     }
-    if (argc >=3 && argv[2] == std::string{"b"}) {
-        auto algo = Create<algos::BruteForce>(argv[1], sep, false);
+    if (is_spider) {
+        auto algo = Create<algos::Spider>(paths, ram_memory_limit,sep, false);
         algo->Execute();
     } else {
-        auto algo = Create<algos::Spider>(argv[1], sep, false);
+        auto algo = Create<algos::BruteForce>(paths,ram_memory_limit, sep, false);
         algo->Execute();
     }
-
+//    }
+//./build/target/Desbordante_run customer supplier lineitem region nation orders part partsupp
 //    std::string primitive;
 //
 //    /*Options for algebraic constraints algorithm*/

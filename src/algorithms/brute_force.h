@@ -56,8 +56,8 @@ protected:
     };
 
     unsigned long long ExecuteInternal() final;
-    void processTable(model::IDatasetStream& stream);
-    void createSortedColumns();
+//    void processTable(model::IDatasetStream& stream);
+//    void createSortedColumns();
 
     virtual void ComputeUIDs();
 
