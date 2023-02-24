@@ -17,6 +17,4 @@
 #include "algorithms/association_rules/apriori.h"
 
 /* Metric FD verifier */
-#include "algorithms/brute_force.h"
-#include "algorithms/spider.h"
 #include "algorithms/metric/metric_verifier.h"

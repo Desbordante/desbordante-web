@@ -45,8 +45,8 @@ private:
     }
 
     static void SortAndSaveToDisk(std::ofstream& fd, ColumnValues& values) {
-//        std::sort(values.begin(), values.end());
-//        values.erase(unique(values.begin(), values.end()), values.end());
+        std::sort(values.begin(), values.end());
+        values.erase(unique(values.begin(), values.end()), values.end());
         for (std::string const& value : values) {
             fd << value << '\n';
         }
@@ -106,9 +106,11 @@ private:
         for (std::size_t i = 0; i != n; ++i) {
             fds.emplace_back(GetNthOFStream(stats_->n_cols + i));
         }
-        std::size_t count = 0;
-        //        std::vector<ColumnValues> data(n, ColumnValues(6001215, ""));
-                std::vector<ColumnValues> data(n, ColumnValues {});
+//        std::size_t count = 0;
+        std::vector<ColumnValues> data(n, ColumnValues {});
+        for (auto& values : data) {
+            values.reserve(6001215);
+        }
 
         std::vector<std::string> swapped{};
         while (stream.HasNextRow()) {
@@ -116,12 +118,7 @@ private:
             if (row.size() != n) {
                 continue;
             }
-//            if (++count == memory_check_frequency_) {
-//                std::cout << "check\n";
-//            }
-
             for (std::size_t i = 0; i != n; ++i) {
-//                data[i].insert(row[i]);
                 data[i].emplace_back(row[i]);
             }
         }

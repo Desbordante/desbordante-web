@@ -7,6 +7,9 @@ class Cursor {
 
 public:
     explicit Cursor(std::unique_ptr<std::ifstream> fd) : fd_(std::move(fd)) {
+        if (fd_->fail()) {
+            throw std::runtime_error("received incorrect fd");
+        }
         value_ = GetNext();
     }
     T const& GetValue() const {

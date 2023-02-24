@@ -17,8 +17,7 @@ public:
 
     class Attribute {
     public:
-        using SSet = std::set<std::size_t>;
-//        using SSet = std::unordered_set<std::size_t>;
+        using SSet = std::set<std::size_t>;  // unordered_set
 
     private:
         std::size_t id_;
@@ -29,8 +28,6 @@ public:
         Attribute(std::size_t id, std::size_t n_cols, std::shared_ptr<StrCursor> cursor,
                   std::vector<std::string> const& max_values)
             : id_(id), cursor_(std::move(cursor)) {
-
-
             for (std::size_t i = 0; i != n_cols; ++i) {
                 if (id_ == i) {
                     continue;
@@ -53,29 +50,35 @@ public:
         StrCursor const& GetCursor() const {
             return *cursor_;
         }
-        const SSet& getRefs() const {
+        const SSet& GetRefs() const {
             return refs_;
         }
-        const SSet& getDeps() const {
+        SSet& GetRefs() {
+            return refs_;
+        }
+        const SSet& GetDeps() const {
+            return deps_;
+        }
+        SSet& GetDeps() {
             return deps_;
         }
 
-
-        void intersectRefs(SSet const& referencedAttributes,
-                           std::unordered_map<std::size_t, std::shared_ptr<Attribute>>& attributeMap) {
+        void IntersectRefs(
+                SSet const& referencedAttributes,
+                std::unordered_map<std::size_t, std::shared_ptr<Attribute>>& attributeMap) {
             for (auto referenced_it = refs_.begin(); referenced_it != refs_.end();) {
                 auto referenced = *referenced_it;
-                if (referencedAttributes.find(referenced) != std::end(referencedAttributes)) {
-                    referenced_it++;
-                } else {
+                if (referencedAttributes.find(referenced) == std::end(referencedAttributes)) {
                     referenced_it = refs_.erase(referenced_it);
                     attributeMap.at(referenced)->removeDependent(id_);
+                } else {
+                    referenced_it++;
                 }
             }
         }
 
         void removeDependent(std::size_t dep) {
-            deps_.erase(dep);
+            GetDeps().erase(dep);
         }
         bool hasFinished() {
             return !cursor_->HasNext() || (refs_.empty() && deps_.empty());
@@ -114,45 +117,15 @@ private:
     bool is_null_equal_null_ = true;
 
 protected:
-//    std::size_t num_inds = 0;
-//    std::size_t n_cols_ = 0;
     std::vector<UID> result_;
-    SMap attributeId2attributeObject;
-//    std::priority_queue<std::shared_ptr<Attribute>, std::vector<std::shared_ptr<Attribute>>,
-//                        std::function<int(std::shared_ptr<Attribute>, std::shared_ptr<Attribute>)>>
-//            attributeObjectQueue{
-//                    [](std::shared_ptr<Attribute> const& lhs, std::shared_ptr<Attribute> const& rhs)
-//                    { return lhs->CompareTo(*rhs) >= 0; }};
+    SMap objects;
     std::priority_queue<std::shared_ptr<Attribute>, std::vector<std::shared_ptr<Attribute>>,
                         std::function<int(std::shared_ptr<Attribute>, std::shared_ptr<Attribute>)>>
             attributeObjectQueue{[](std::shared_ptr<Attribute> const& lhs,
                                     std::shared_ptr<Attribute> const& rhs) {
-                if (!lhs->GetCursor().HasNext() && !rhs->GetCursor().HasNext()) {
-                    return lhs->getID() >= rhs->getID();
-                }
-                if (!lhs->GetCursor().HasNext()) {
-                    return true;
-                }
-                if (!rhs->GetCursor().HasNext()) {
-                    return false;
-                }
-
-                int order = lhs->GetCursor().GetValue().compare(rhs->GetCursor().GetValue());
-                if (order == 0) {
-                    return lhs->getID() >= rhs->getID();
-                }
-                return order >= 0;
+                return lhs->CompareTo(*rhs) >= 0;
             }};
 
-    static std::filesystem::path GetNthFilePath(std::size_t n) {
-        return std::filesystem::path{TEMP_DIR} / std::to_string(n);
-    }
-    static std::unique_ptr<std::ofstream> GetNthOFStream(std::size_t n) {
-        return std::make_unique<std::ofstream>(GetNthFilePath(n));
-    }
-    static std::unique_ptr<std::ifstream> GetNthIFStream(std::size_t n) {
-        return std::make_unique<std::ifstream>(GetNthFilePath(n));
-    }
 
     unsigned long long ExecuteInternal() final;
     void initializeAttributes();
@@ -166,10 +139,10 @@ protected:
     }
     void printResult(std::ostream& out) const {
         std::vector<std::string> columns;
-        columns.reserve(column_stats_.n_cols);
-        for (std::size_t i = 0; i != streams_.size(); ++i) {
-            for (std::size_t j = 0; j != streams_[i]->GetNumberOfColumns(); ++j) {
-                std::string name = std::to_string(i) + "." + streams_[i]->GetColumnName(j);
+        columns.reserve(state.n_cols);
+        for (std::size_t i = 0; i != config_.paths.size(); ++i) {
+            for (std::size_t j = 0; j != state.number_of_columns[i]; ++j) {
+                std::string name = std::to_string(i) + "." + std::to_string(j);
                 columns.emplace_back(name);
             }
         }
@@ -191,14 +164,3 @@ public:
 };
 
 }  // namespace algos
-
-//            std::cout << "BSZ -> " << refs_.size() << std::endl;
-
-//                std::cout << "remove " << id_ << " for " << referenced << std::endl;
-
-//                std::cout << "check " << referenced << " in [ ";
-//                for (auto i : referencedAttributes) std::cout << i << " ";
-//                std::cout << "]\n";
-//                std::cout << "ISZ -> " << refs_.size() << std::endl;
-
-//            std::cout << "ASZ -> " << refs_.size() << std::endl;

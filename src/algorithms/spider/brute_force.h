@@ -75,9 +75,9 @@ protected:
     void printResult(std::ostream& out) const {
         std::vector<std::string> columns;
         columns.reserve(n_cols_);
-        for (std::size_t i = 0; i != streams_.size(); ++i) {
-            for (std::size_t j = 0; j != streams_[i]->GetNumberOfColumns(); ++j) {
-                std::string name = std::to_string(i) + "." + streams_[i]->GetColumnName(j);
+        for (std::size_t i = 0; i != config_.paths.size(); ++i) {
+            for (std::size_t j = 0; j != state.number_of_columns[i]; ++j) {
+                std::string name = std::to_string(i) + "." + std::to_string(j);
                 columns.emplace_back(name);
             }
         }

@@ -1,284 +1,145 @@
 #include <algorithm>
+#include <cstring>
+#include <fcntl.h>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <malloc.h>
+#include <memory>
 #include <optional>
+#include <set>
 #include <stdexcept>
 #include <string>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/sysinfo.h>
+#include <thread>
+#include <unistd.h>
+#include <utility>
 #include <vector>
-
-#include <boost/program_options.hpp>
-#include <easylogging++.h>
 
 #include "algorithms/algo_factory.h"
 #include "algorithms/ar_algorithm_enums.h"
+#include "algorithms/create_primitive.h"
 #include "algorithms/metric/enums.h"
 #include "algorithms/options/descriptions.h"
 #include "algorithms/options/names.h"
-#include "algorithms/create_primitive.h"
+#include "algorithms/spider/brute_force.h"
+#include "algorithms/spider/spider.h"
+// namespace util {
+// template <typename T>
+// static auto toMB(T value) {
+//     return (std::size_t)(std::abs((double)value)) >> 20;
+// }
+// template <typename T>
+// static auto toGB(T value) {
+//     return (std::size_t)(std::abs((double)value)) >> 30;
+// }
+// template <typename T>
+// static auto printGB(T value, bool is_negative) {
+//     std::cout << " (" << (is_negative ? "-" : "") << toGB(value) << " gb)";
+// }
+// template <typename T>
+// static auto printMB(T value, bool is_negative) {
+//     std::cout << " (" << (is_negative ? "-" : "") << toMB(value) << " mb)";
+// }
+//
+// template <typename T>
+// static void PrintSingleOption(std::string const& name, T value) {
+//     std::cout << name << ": ";
+//     bool is_negative = value < 0;
+//     printMB(value, is_negative);
+//     printGB(value, is_negative);
+//     std::cout << std::endl;
+// }
+//
+// static auto PrintAndGetSysInfo(std::string const& context, bool print) {
+//     std::cout << "[" << context << "]" << std::endl;
+//     auto info = std::make_unique<struct sysinfo>();
+//     sysinfo(info.get());
+//     if (print) {
+//         PrintSingleOption("freeram", info->freeram);
+//         PrintSingleOption("sharedram", info->sharedram);
+//         PrintSingleOption("bufferram", info->bufferram);
+//         std::cout << std::endl;
+//     }
+//     return info;
+// }
+// static void PrintDiff(struct sysinfo* lhs, struct sysinfo* rhs) {
+//     PrintSingleOption("freeram", (double)lhs->freeram - rhs->freeram);
+//     PrintSingleOption("sharedram", (double)lhs->sharedram - rhs->sharedram);
+//     PrintSingleOption("bufferram", (double)lhs->bufferram - rhs->bufferram);
+//     std::cout << "\n";
+// }
+// }  // namespace util
 
-namespace po = boost::program_options;
-namespace onam = algos::config::names;
-namespace desc = algos::config::descriptions;
-
-using algos::EnumToAvailableValues;
-
-INITIALIZE_EASYLOGGINGPP
-
-namespace algos::metric {
-
-void validate(boost::any& v, const std::vector<std::string>& values, Metric*, int) {
-    const std::string& s = po::validators::get_single_string(values);
-    try {
-        v = boost::any(Metric::_from_string_nocase(s.c_str()));
-    } catch (std::runtime_error&e) {
-        throw po::validation_error(po::validation_error::invalid_option_value);
+std::vector<std::filesystem::path> GetPathsFromData(std::filesystem::path const& data) {
+    if (std::filesystem::is_regular_file(data)) {
+        return {data};
     }
+
+    std::vector<std::filesystem::path> paths;
+    for (const auto& entry : std::filesystem::directory_iterator(data)) {
+        paths.push_back(entry);
+    }
+    return paths;
 }
 
-void validate(boost::any& v, const std::vector<std::string>& values, MetricAlgo*, int) {
-    const std::string& s = po::validators::get_single_string(values);
-    try {
-        v = boost::any(MetricAlgo::_from_string_nocase(s.c_str()));
-    } catch (std::runtime_error &e) {
-        throw po::validation_error(po::validation_error::invalid_option_value);
-    }
-}
-
-}  // namespace algos::metric
-
-namespace algos {
-
-void validate(boost::any& v, const std::vector<std::string>& values, PrimitiveType*, int) {
-    const std::string& s = po::validators::get_single_string(values);
-    try {
-        v = boost::any(PrimitiveType::_from_string_nocase(s.c_str()));
-    } catch (std::runtime_error &e) {
-        throw po::validation_error(po::validation_error::invalid_option_value);
-    }
-}
-
-void validate(boost::any& v, const std::vector<std::string>& values, InputFormat*, int) {
-    const std::string& s = po::validators::get_single_string(values);
-    try {
-        v = boost::any(InputFormat::_from_string_nocase(s.c_str()));
-    } catch (std::runtime_error &e) {
-        throw po::validation_error(po::validation_error::invalid_option_value);
-    }
-}
-
-}  // namespace algos
-//template <typename T>
-//static std::unique_ptr<T> Create(
-//        std::string const& filename,
-//        char separator = ',',
-//        bool has_header = false,
-//        std::size_t threads = 16) {
-//    std::filesystem::path path = std::filesystem::current_path() /"build"/ "target"/"input_data" / filename;
-//    algos::IDAlgorithm::Config conf{
-//            .path = path,
-//            .separator = separator,
-//            .has_header = has_header,
-//            .threads = threads
-//    };
-//    auto ptr = std::make_unique<T>(conf);
-//    ptr->Fit(ptr->getStream());
-//    return ptr;
-//}
 template <typename T>
-static std::unique_ptr<T> Create(
-        std::vector<std::filesystem::path> const& paths,
-        std::size_t ram_limit,
-        char separator = ',',
-        bool has_header = false,
-        std::size_t threads = 16) {
-//    std::filesystem::path path = std::filesystem::current_path() /"build"/ "target"/"input_data" / filename;
-    algos::IDAlgorithm::Config conf{
-            .paths = paths,
-            .separator = separator,
-            .has_header = has_header,
-            .threads = threads,
-            .ram_limit = ram_limit
-    };
+static std::unique_ptr<T> Create(std::vector<std::string> const& filenames, algos::IMPL impl,
+                                 std::size_t ram_limit, std::size_t mem_check_frequency,char separator = ',',
+                                 bool has_header = false) {
+    std::cout << "[[" << impl._to_string() << "]]" << std::endl;
+    std::vector<std::filesystem::path> paths;
+    paths.reserve(filenames.size());
+    for (auto const& filename : filenames) {
+        auto path{std::filesystem::current_path() / "build" / "target" / "input_data" / filename};
+        auto found_files = GetPathsFromData(path);
+        paths.insert(paths.end(), found_files.begin(), found_files.end());
+    }
+    algos::IDAlgorithm::Config conf{.paths = paths,
+                                    .separator = separator,
+                                    .has_header = has_header,
+                                    .ram_limit = ram_limit,
+                                    .mem_check_frequency=mem_check_frequency,
+                                    .impl = impl};
     auto ptr = std::make_unique<T>(conf);
     ptr->Fit(ptr->getStream());
     return ptr;
 }
 int main(int argc, char const* argv[]) {
-//    std::cout << argc << argv[1] << std::endl;
+    std::cout << sizeof(std::_Rb_tree_node<unsigned int>) << std::endl;
+    std::cout << sizeof(std::_Rb_tree_node<char *>) << std::endl;
+    std::cout << sizeof(std::_Rb_tree_node<std::string_view>) << std::endl;
+    auto impl{algos::IMPL::VECTORUI};
+    if (argc >= 2) {
+        impl = algos::IMPL::_from_string_nocase(argv[1]);
+    }
+    auto ram_memory_limit{8 * (std::size_t)std::pow(2, 30)};
+    if (argc >= 3) {
+        ram_memory_limit = std::stoull(argv[2]) * (std::size_t)std::pow(2, 30);
+    }
+    bool has_header = false;
+    if (argc >= 4) {
+        has_header = std::string{argv[3]} == "true";
+    }
     char sep = '|';
-//    if (argc >= 4) {
-//        sep = *argv[3];
-//    }
-//    if (argc >=3 && argv[2] == std::string{"b"}) {
-//        auto algo = Create<algos::BruteForce>(argv[1], sep, false);
-//        algo->Execute();
-//    } else {
-    std::vector<std::filesystem::path> paths;
-    auto is_spider = argv[1] == std::string{"spider"};
-//    std::string dir{"tpc-lnk"};
-    std::string dir{"tpch"};
-    std::size_t ram_memory_limit = 4 >> 30;
-    for (int i = 2; i < argc; ++i) {
-        paths.emplace_back(std::filesystem::current_path() / "build" / "target" / "input_data" /
-                           dir / (argv[i] + std::string{".tbl"}));
+    if (argc >= 5) {
+        sep = *argv[4];
     }
-    if (is_spider) {
-        auto algo = Create<algos::Spider>(paths, ram_memory_limit,sep, false);
-        algo->Execute();
+    std::vector<std::string> files;
+    if (argc >= 6) {
+        files.insert(files.end(), &argv[5], &argv[argc]);
     } else {
-        auto algo = Create<algos::BruteForce>(paths,ram_memory_limit, sep, false);
-        algo->Execute();
+//        files.emplace_back("tpch");
+//files.emplace_back("tpc-lnk/lineitem.tbl");
+        files.emplace_back("tpc-lnk");
     }
-//    }
-//./build/target/Desbordante_run customer supplier lineitem region nation orders part partsupp
-//    std::string primitive;
-//
-//    /*Options for algebraic constraints algorithm*/
-//    char bin_operation = '+';
-//    double fuzziness = 0.15;
-//    double p_fuzz = 0.9;
-//    double weight = 0.05;
-//    size_t bumps_limit = 5;
-//    size_t iterations_limit = 10;
-//    std::string pairing_rule = "trivial";
-//
-//    std::string const separator_arg = std::string{onam::kSeparator} + ",s";
-//    std::string const prim_desc = "algorithm to use for data profiling\n" +
-//                                  EnumToAvailableValues<algos::PrimitiveType>() + " + [ac]";
-//    constexpr auto help_opt = "help";
-//    constexpr auto prim_opt = "primitive";
-//    std::string const separator_opt = std::string(onam::kSeparator) + ",s";
-//
-//    po::options_description info_options("Desbordante information options");
-//    info_options.add_options()
-//        (help_opt, "print the help message and exit")
-//        // --version, if needed, goes here too
-//        ;
-//
-//    po::options_description general_options("General options");
-//    general_options.add_options()
-//            (prim_opt, po::value<std::string>(&primitive)->required(), prim_desc.c_str())
-//            (onam::kData, po::value<std::string>()->required(), desc::kDData)
-//            (separator_opt.c_str(), po::value<char>()->default_value(','), desc::kDSeparator)
-//            (onam::kHasHeader, po::value<bool>()->default_value(true), desc::kDHasHeader)
-//            (onam::kEqualNulls, po::value<bool>(), desc::kDEqualNulls)
-//            (onam::kThreads, po::value<ushort>(), desc::kDThreads)
-//            ;
-//
-//    po::options_description fd_options("FD options");
-//    fd_options.add_options()
-//            (onam::kError, po::value<double>(), desc::kDError)
-//            (onam::kMaximumLhs, po::value<unsigned int>(), desc::kDMaximumLhs)
-//            (onam::kSeed, po::value<int>(), desc::kDSeed)
-//            ;
-//
-//    po::options_description typo_options("Typo mining options");
-//    typo_options.add_options()
-//            (onam::kRatio, po::value<double>(), desc::kDRatio)
-//            (onam::kRadius, po::value<double>(), desc::kDRadius)
-//            (onam::kApproximateAlgorithm, po::value<algos::PrimitiveType>(),
-//             desc::kDApproximateAlgorithm)
-//            (onam::kPreciseAlgorithm, po::value<algos::PrimitiveType>(), desc::kDPreciseAlgorithm)
-//            ;
-//
-//    po::options_description ar_options("AR options");
-//    ar_options.add_options()
-//            (onam::kMinimumSupport, po::value<double>(), desc::kDMinimumSupport)
-//            (onam::kMinimumConfidence, po::value<double>(), desc::kDMinimumConfidence)
-//            (onam::kInputFormat, po::value<algos::InputFormat>(), desc::kDInputFormat)
-//            ;
-//
-//    po::options_description ar_singular_options("AR \"singular\" input format options");
-//    ar_singular_options.add_options()
-//            (onam::kTIdColumnIndex, po::value<unsigned>(), desc::kDTIdColumnIndex)
-//            (onam::kItemColumnIndex, po::value<unsigned>(), desc::kDItemColumnIndex)
-//            ;
-//
-//    po::options_description ar_tabular_options("AR \"tabular\" input format options");
-//    ar_tabular_options.add_options()
-//            (onam::kFirstColumnTId, po::bool_switch(), desc::kDFirstColumnTId)
-//            ;
-//
-//    ar_options.add(ar_singular_options).add(ar_tabular_options);
-//
-//    po::options_description mfd_options("MFD options");
-//    mfd_options.add_options()
-//            (onam::kMetric, po::value<algos::metric::Metric>(), desc::kDMetric)
-//            (onam::kMetricAlgorithm, po::value<algos::metric::MetricAlgo>(), desc::kDMetricAlgorithm)
-//            (onam::kLhsIndices, po::value<std::vector<unsigned int>>()->multitoken(),
-//             desc::kDLhsIndices)
-//            (onam::kRhsIndices, po::value<std::vector<unsigned int>>()->multitoken(),
-//             desc::kDRhsIndices)
-//            (onam::kParameter, po::value<long double>(), desc::kDParameter)
-//            (onam::kDistFromNullIsInfinity, po::bool_switch(), desc::kDDistFromNullIsInfinity)
-//            ;
-//
-//    po::options_description cosine_options("Cosine metric options");
-//    cosine_options.add_options()
-//            (onam::kQGramLength, po::value<unsigned int>(), desc::kDQGramLength)
-//            ;
-//
-//    mfd_options.add(cosine_options);
-//
-//    po::options_description ac_options("AC options");
-//    ac_options.add_options()
-//        (onam::kBinaryOperation, po::value<char>(&bin_operation)->default_value(bin_operation),
-//         "one of availible operations: /, *, +, - ")
-//        (onam::kFuzziness, po::value<double>(&fuzziness)->default_value(0.15),
-//         "fraction of exceptional records")
-//        (onam::kFuzzinessProbability, po::value<double>(&p_fuzz)->default_value(p_fuzz),
-//         "probability, the fraction of exceptional records that lie outside the "
-//         "bump intervals is at most Fuzziness")
-//        (onam::kWeight, po::value<double>(&weight)->default_value(weight),
-//         "value between 0 and 1. Closer to 0 - many short intervals. "
-//         "Closer to 1 - small number of long intervals")
-//        (onam::kBumpsLimit, po::value<size_t>(&bumps_limit)->default_value(bumps_limit),
-//         "max considered intervals amount. Pass 0 to remove limit")
-//        (onam::kIterationsLimit, po::value<size_t>(&iterations_limit)->default_value(iterations_limit),
-//         "limit for iterations of sampling")
-//        (onam::kPairingRule, po::value<std::string>(&pairing_rule)->default_value(pairing_rule),
-//         "one of available pairing rules: trivial")
-//        ;
-//
-//    po::options_description all_options("Allowed options");
-//    all_options.add(info_options).add(general_options).add(fd_options)
-//        .add(mfd_options).add(ar_options).add(ac_options).add(typo_options);
-//
-//    po::variables_map vm;
-//    try {
-//        po::store(po::parse_command_line(argc, argv, all_options), vm);
-//    } catch (po::error &e) {
-//        std::cout << e.what() << std::endl;
-//        return 1;
-//    }
-//    if (vm.count(help_opt))
-//    {
-//        std::cout << all_options << std::endl;
-//        return 0;
-//    }
-//    try {
-//        po::notify(vm);
-//    } catch (po::error &e) {
-//        std::cout << e.what() << std::endl;
-//        return 1;
-//    }
-//
-//    el::Loggers::configureFromGlobal("logging.conf");
-//
-//    std::unique_ptr<algos::Primitive> algorithm_instance;
-//    try {
-//        algorithm_instance = algos::CreatePrimitive(primitive, vm);
-//    } catch (std::exception& e) {
-//        std::cout << e.what() << std::endl;
-//        return 1;
-//    }
-//    try {
-//        unsigned long long elapsed_time = algorithm_instance->Execute();
-//        std::cout << "> ELAPSED TIME: " << elapsed_time << std::endl;
-//    } catch (std::runtime_error& e) {
-//        std::cout << e.what() << std::endl;
-//        return 1;
-//    }
+    std::size_t mem_check_frequency = 100000;
+//    std::cout << (+impl)._to_string() << " " << ram_memory_limit << " " << has_header << " " << sep << std::endl;
+    auto instance = Create<algos::Spider>(files, impl, ram_memory_limit, mem_check_frequency, sep,
+                                          has_header);
+    instance->Execute();
 
     return 0;
 }
