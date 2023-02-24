@@ -63,6 +63,7 @@ private:
     std::size_t memory_limit_check_frequency;
 
     // VECTOR-specific
+    std::size_t threads_count_;
     std::size_t file_count_;
     std::size_t rows_limit_;
 
@@ -79,13 +80,14 @@ private:
 
 public:
     TableProcessor(fs::path const& file_path, char separator, std::size_t memory_limit,
-                   std::size_t mem_check_frequency,
+                   std::size_t mem_check_frequency, std::size_t threads_count,
              std::size_t attribute_offset)
         : fd_{open(file_path.c_str(), O_RDONLY)},
           file_size_{fs::file_size(file_path)},
           separator(separator),
           delimiters(std::string{"\n"} + separator),
           memory_limit_check_frequency(mem_check_frequency),
+          threads_count_(threads_count),
           m_limit_(memory_limit),
           attribute_offset(attribute_offset) {
         if (fd_ == -1) {
@@ -511,89 +513,66 @@ public:
         if constexpr (std::is_same_v<T, VectorStringView> || std::is_same_v<T, VectorCharPtr> ||
                       std::is_same_v<T, VectorUInt>) {
             auto sort_time = std::chrono::system_clock::now();
-            if constexpr (1 == ParallelN) {
-                for (auto& values : columns_) {
-                    std::sort(values.begin(), values.end());
-                    values.erase(unique(values.begin(), values.end()), values.end());
-                }
-            } else {
-                std::vector<std::thread> threads;
-                auto compare_uint = [begin = cur_chunk_data_begin_, delimiters = delimiters](
-                                            unsigned int str1_off, unsigned int str2_off) {
-                    auto str1_ptr = begin + str1_off;
-                    auto str2_ptr = begin + str2_off;
-                    std::string_view s1(str1_ptr, strcspn(str1_ptr, delimiters.c_str()));
-                    std::string_view s2(str2_ptr, strcspn(str2_ptr, delimiters.c_str()));
-                    return s1 < s2;
-                };
 
-                auto is_equal_uint = [begin = cur_chunk_data_begin_, delimiters = delimiters](
-                                             unsigned int str1_off, unsigned int str2_off) {
-                    auto str1_ptr = begin + str1_off;
-                    auto str2_ptr = begin + str2_off;
-                    std::string_view s1(str1_ptr, strcspn(str1_ptr, delimiters.c_str()));
-                    std::string_view s2(str2_ptr, strcspn(str2_ptr, delimiters.c_str()));
-                    return s1 == s2;
-                };
+            std::vector<std::thread> threads;
+            for (std::size_t j = 0; j < header_size_; ++j) {
+                threads.emplace_back(std::thread{[this, j]() {
+                    if constexpr (std::is_same_v<T, VectorStringView>) {
+                        std::sort(columns_[j].begin(), columns_[j].end());
+                        columns_[j].erase(unique(columns_[j].begin(), columns_[j].end()),
+                                          columns_[j].end());
+                    } else if constexpr (std::is_same_v<T, VectorCharPtr>) {
+                        auto compare_char_ptr = [delimiters = delimiters](char* str1, char* str2) {
+                            std::string_view s1(str1, strcspn(str1, delimiters.c_str()));
+                            std::string_view s2(str2, strcspn(str2, delimiters.c_str()));
+                            return s1 < s2;
+                        };
 
-                for (std::size_t j = 0; j < header_size_; ++j) {
-                    threads.emplace_back(std::thread{[this, j]() {
-                        if constexpr (std::is_same_v<T, VectorStringView>) {
-                            std::sort(columns_[j].begin(), columns_[j].end());
-                            columns_[j].erase(unique(columns_[j].begin(), columns_[j].end()),
-                                              columns_[j].end());
-                        } else if constexpr (std::is_same_v<T, VectorCharPtr>) {
-                            auto compare_char_ptr = [delimiters = delimiters](char* str1,
-                                                                              char* str2) {
-                                std::string_view s1(str1, strcspn(str1, delimiters.c_str()));
-                                std::string_view s2(str2, strcspn(str2, delimiters.c_str()));
-                                return s1 < s2;
-                            };
-
-                            auto is_equal_char_ptr = [delimiters = delimiters](char* str1,
-                                                                               char* str2) {
-                                std::string_view s1(str1, strcspn(str1, delimiters.c_str()));
-                                std::string_view s2(str2, strcspn(str2, delimiters.c_str()));
-                                return s1 == s2;
-                            };
-                            std::sort(columns_[j].begin(), columns_[j].end(), compare_char_ptr);
-                            columns_[j].erase(unique(columns_[j].begin(), columns_[j].end(),
-                                                     is_equal_char_ptr),
-                                              columns_[j].end());
-                        } else if constexpr (std::is_same_v<T, VectorUInt>) {
-                            std::sort(columns_[j].begin(), columns_[j].end(),
-                                      [begin = cur_chunk_data_begin_, delimiters = delimiters](
-                                              unsigned int str1_off, unsigned int str2_off) {
-                                          auto str1_ptr = begin + str1_off;
-                                          auto str2_ptr = begin + str2_off;
-                                          std::string_view s1(
-                                                  str1_ptr, strcspn(str1_ptr, delimiters.c_str()));
-                                          std::string_view s2(
-                                                  str2_ptr, strcspn(str2_ptr, delimiters.c_str()));
-                                          return s1 < s2;
-                                      });
-                            columns_[j].erase(
-                                    unique(columns_[j].begin(), columns_[j].end(),
-                                           [begin = cur_chunk_data_begin_, delimiters = delimiters](
-                                                   unsigned int str1_off, unsigned int str2_off) {
-                                               auto str1_ptr = begin + str1_off;
-                                               auto str2_ptr = begin + str2_off;
-                                               std::string_view s1(
-                                                       str1_ptr,
-                                                       strcspn(str1_ptr, delimiters.c_str()));
-                                               std::string_view s2(
-                                                       str2_ptr,
-                                                       strcspn(str2_ptr, delimiters.c_str()));
-                                               return s1 == s2;
-                                           }),
-                                    columns_[j].end());
-                        } else {
-                            throw std::runtime_error("hz");
-                        }
-                    }});
-                }
-                for (auto& th : threads) {
-                    th.join();
+                        auto is_equal_char_ptr = [delimiters = delimiters](char* str1, char* str2) {
+                            std::string_view s1(str1, strcspn(str1, delimiters.c_str()));
+                            std::string_view s2(str2, strcspn(str2, delimiters.c_str()));
+                            return s1 == s2;
+                        };
+                        std::sort(columns_[j].begin(), columns_[j].end(), compare_char_ptr);
+                        columns_[j].erase(
+                                unique(columns_[j].begin(), columns_[j].end(), is_equal_char_ptr),
+                                columns_[j].end());
+                    } else if constexpr (std::is_same_v<T, VectorUInt>) {
+                        std::sort(columns_[j].begin(), columns_[j].end(),
+                                  [begin = cur_chunk_data_begin_, delimiters = delimiters](
+                                          unsigned int str1_off, unsigned int str2_off) {
+                                      auto str1_ptr = begin + str1_off;
+                                      auto str2_ptr = begin + str2_off;
+                                      std::string_view s1(str1_ptr,
+                                                          strcspn(str1_ptr, delimiters.c_str()));
+                                      std::string_view s2(str2_ptr,
+                                                          strcspn(str2_ptr, delimiters.c_str()));
+                                      return s1 < s2;
+                                  });
+                        columns_[j].erase(
+                                unique(columns_[j].begin(), columns_[j].end(),
+                                       [begin = cur_chunk_data_begin_, delimiters = delimiters](
+                                               unsigned int str1_off, unsigned int str2_off) {
+                                           auto str1_ptr = begin + str1_off;
+                                           auto str2_ptr = begin + str2_off;
+                                           std::string_view s1(
+                                                   str1_ptr, strcspn(str1_ptr, delimiters.c_str()));
+                                           std::string_view s2(
+                                                   str2_ptr, strcspn(str2_ptr, delimiters.c_str()));
+                                           return s1 == s2;
+                                       }),
+                                columns_[j].end());
+                    } else {
+                        throw std::runtime_error("hz");
+                    }
+                }});
+                if ((j != 0 && j % threads_count_ == 0) || j == header_size_ - 1) {
+                    std::cout << " wait " << j << " " << threads_count_ << " " << header_size_
+                              << std::endl;
+                    for (auto& th : threads) {
+                        th.join();
+                    }
+                    threads.clear();
                 }
             }
             auto sorting_time = std::chrono::duration_cast<std::chrono::milliseconds>(

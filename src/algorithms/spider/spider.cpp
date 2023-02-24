@@ -40,14 +40,12 @@ void Spider::initializeAttributes() {
     objects.reserve(state.n_cols);
     for (std::size_t attribute = 0; attribute != state.n_cols; ++attribute) {
         auto path = TableProcessor<VectorStringView>::GeneratePath(attribute);
-        auto spiderAttr = std::make_shared<Attribute>(
-                attribute, state.n_cols,
-                std::make_shared<StrCursor>(std::make_unique<std::ifstream>(path)),
-                state.max_values);
-        objects.insert({attribute, spiderAttr});
+        auto spiderAttr = std::make_unique<Attribute>(
+                attribute, state.n_cols, std::make_shared<StrCursor>(path), state.max_values);
         if (!spiderAttr->hasFinished()) {
-            attributeObjectQueue.emplace(spiderAttr);
+            attributeObjectQueue.emplace(spiderAttr.get());
         }
+        objects.insert({attribute, std::move(spiderAttr)});
     }
 }
 
@@ -68,7 +66,7 @@ void Spider::ComputeUIDs() {
             objects.at(attribute)->IntersectRefs(min, objects);
         }
         for (auto attribute : min) {
-            auto spiderAttribute = objects.at(attribute);
+            auto spiderAttribute = objects.at(attribute).get();
             if (!spiderAttribute->hasFinished()) {
                 spiderAttribute->GetCursor().GetNext();
                 attributeObjectQueue.emplace(spiderAttribute);

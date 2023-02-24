@@ -65,7 +65,7 @@ public:
 
         void IntersectRefs(
                 SSet const& referencedAttributes,
-                std::unordered_map<std::size_t, std::shared_ptr<Attribute>>& attributeMap) {
+                std::unordered_map<std::size_t, std::unique_ptr<Attribute>>& attributeMap) {
             for (auto referenced_it = refs_.begin(); referenced_it != refs_.end();) {
                 auto referenced = *referenced_it;
                 if (referencedAttributes.find(referenced) == std::end(referencedAttributes)) {
@@ -110,22 +110,15 @@ public:
             return order;
         }
     };
-    using SMap = std::unordered_map<std::size_t, std::shared_ptr<Attribute>>;
-
-private:
-    static constexpr auto TEMP_DIR = "temp";
-    bool is_null_equal_null_ = true;
+    using SMap = std::unordered_map<std::size_t, std::unique_ptr<Attribute>>;
 
 protected:
     std::vector<UID> result_;
     SMap objects;
-    std::priority_queue<std::shared_ptr<Attribute>, std::vector<std::shared_ptr<Attribute>>,
-                        std::function<int(std::shared_ptr<Attribute>, std::shared_ptr<Attribute>)>>
-            attributeObjectQueue{[](std::shared_ptr<Attribute> const& lhs,
-                                    std::shared_ptr<Attribute> const& rhs) {
-                return lhs->CompareTo(*rhs) >= 0;
-            }};
-
+    std::priority_queue<Attribute*, std::vector<Attribute*>,
+                        std::function<int(Attribute*, Attribute*)>>
+            attributeObjectQueue{
+                    [](Attribute* lhs, Attribute* rhs) { return lhs->CompareTo(*rhs) >= 0; }};
 
     unsigned long long ExecuteInternal() final;
     void initializeAttributes();

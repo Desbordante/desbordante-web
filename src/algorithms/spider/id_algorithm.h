@@ -24,6 +24,7 @@ public:
         bool has_header;
         std::size_t ram_limit;
         std::size_t mem_check_frequency = 100000;
+        std::size_t threads_count = 1;
         IMPL impl = +IMPL::VECTORUI;
     };
 
@@ -84,7 +85,7 @@ public:
             std::cout << "Dataset: " << path.filename() << std::endl;
             auto processor = CreateTableProcessorInstance(
                     config_.impl, path, config_.separator, config_.ram_limit,
-                    config_.mem_check_frequency, state.n_cols);
+                    config_.mem_check_frequency, config_.threads_count, state.n_cols);
             processor->Execute();
             state.tableColumnStartIndexes.emplace_back(state.n_cols);
             state.n_cols += processor->getHeaderSize();
