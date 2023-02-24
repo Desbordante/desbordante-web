@@ -88,8 +88,7 @@ std::vector<std::filesystem::path> GetPathsFromData(std::filesystem::path const&
 template <typename T>
 static std::unique_ptr<T> Create(std::vector<std::string> const& filenames, algos::IMPL impl,
                                  std::size_t ram_limit, std::size_t mem_check_frequency,
-                                 std::size_t threads,
-                                 char separator = ',',
+                                 std::size_t threads, char separator = ',',
                                  bool has_header = false) {
     std::cout << "[[" << impl._to_string() << "]]" << std::endl;
     std::vector<std::filesystem::path> paths;
@@ -103,7 +102,7 @@ static std::unique_ptr<T> Create(std::vector<std::string> const& filenames, algo
                                     .separator = separator,
                                     .has_header = has_header,
                                     .ram_limit = ram_limit,
-                                    .mem_check_frequency=mem_check_frequency,
+                                    .mem_check_frequency = mem_check_frequency,
                                     .threads_count = threads,
                                     .impl = impl};
     auto ptr = std::make_unique<T>(conf);
@@ -112,37 +111,36 @@ static std::unique_ptr<T> Create(std::vector<std::string> const& filenames, algo
 }
 int main(int argc, char const* argv[]) {
     auto impl{algos::IMPL::VECTORUI};
-    if (argc >= 2) {
-        impl = algos::IMPL::_from_string_nocase(argv[1]);
+    int cur_arg = 2;
+    auto get_cur_arg = [&cur_arg, &argv]() -> const char*& { return argv[cur_arg++ - 1]; };
+    if (argc >= cur_arg) {
+        impl = algos::IMPL::_from_string_nocase(get_cur_arg());
     }
     auto ram_memory_limit{8 * (std::size_t)std::pow(2, 30)};
-    if (argc >= 3) {
-        ram_memory_limit = std::stoull(argv[2]) * (std::size_t)std::pow(2, 30);
+    if (argc >= cur_arg) {
+        ram_memory_limit = std::stoull(get_cur_arg()) * (std::size_t)std::pow(2, 30);
     }
     std::size_t threads = 8;
-    if (argc >= 4) {
-        threads = std::stoull(argv[3]);
+    if (argc >= cur_arg) {
+        threads = std::stoull(get_cur_arg());
     }
     bool has_header = false;
-    if (argc >= 5) {
-        has_header = std::string{argv[4]} == "true";
+    if (argc >= cur_arg) {
+        has_header = std::string{get_cur_arg()} == "true";
     }
     char sep = '|';
-    if (argc >= 6) {
-        sep = *argv[5];
+    if (argc >= cur_arg) {
+        sep = *get_cur_arg();
     }
     std::vector<std::string> files;
-    if (argc >= 7) {
-        files.insert(files.end(), &argv[6], &argv[argc]);
+    if (argc >= cur_arg) {
+        files.insert(files.end(), &get_cur_arg(), &argv[argc]);
     } else {
-//        files.emplace_back("tpch");
-//files.emplace_back("tpc-lnk/lineitem.tbl");
         files.emplace_back("tpc-lnk");
     }
     std::size_t mem_check_frequency = 100000;
-//    std::cout << (+impl)._to_string() << " " << ram_memory_limit << " " << has_header << " " << sep << std::endl;
-    auto instance = Create<algos::Spider>(files, impl, ram_memory_limit, mem_check_frequency, threads, sep,
-                                          has_header);
+    auto instance = Create<algos::Spider>(files, impl, ram_memory_limit, mem_check_frequency,
+                                          threads, sep, has_header);
     instance->Execute();
 
     return 0;

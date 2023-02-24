@@ -12,20 +12,19 @@ namespace algos {
 
 class Spider : public IDAlgorithm {
 public:
-    using StrCursor = Cursor<std::string>;
     using UID = std::pair<std::size_t, std::size_t>;
 
     class Attribute {
     public:
-        using SSet = std::set<std::size_t>;  // unordered_set
+        using SSet = std::set<std::size_t>;
 
     private:
         std::size_t id_;
-        std::shared_ptr<StrCursor> cursor_;
+        StrCursor cursor_;
         SSet refs_, deps_;
 
     public:
-        Attribute(std::size_t id, std::size_t n_cols, std::shared_ptr<StrCursor> cursor,
+        Attribute(std::size_t id, std::size_t n_cols, StrCursor cursor,
                   std::vector<std::string> const& max_values)
             : id_(id), cursor_(std::move(cursor)) {
             for (std::size_t i = 0; i != n_cols; ++i) {
@@ -45,10 +44,10 @@ public:
             return id_;
         }
         StrCursor& GetCursor() {
-            return *cursor_;
+            return cursor_;
         }
         StrCursor const& GetCursor() const {
-            return *cursor_;
+            return cursor_;
         }
         const SSet& GetRefs() const {
             return refs_;
@@ -81,7 +80,7 @@ public:
             GetDeps().erase(dep);
         }
         bool hasFinished() {
-            return !cursor_->HasNext() || (refs_.empty() && deps_.empty());
+            return !cursor_.HasNext() || (refs_.empty() && deps_.empty());
         }
         static int CompareID(std::size_t id_lhs, std::size_t id_rhs) {
             if (id_lhs > id_rhs) {

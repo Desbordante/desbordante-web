@@ -40,8 +40,8 @@ void Spider::initializeAttributes() {
     objects.reserve(state.n_cols);
     for (std::size_t attribute = 0; attribute != state.n_cols; ++attribute) {
         auto path = TableProcessor<VectorStringView>::GeneratePath(attribute);
-        auto spiderAttr = std::make_unique<Attribute>(
-                attribute, state.n_cols, std::make_shared<StrCursor>(path), state.max_values);
+        auto spiderAttr = std::make_unique<Attribute>(attribute, state.n_cols, StrCursor{path},
+                                                      state.max_values);
         if (!spiderAttr->hasFinished()) {
             attributeObjectQueue.emplace(spiderAttr.get());
         }

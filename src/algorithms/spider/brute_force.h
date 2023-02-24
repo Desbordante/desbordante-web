@@ -24,31 +24,28 @@ protected:
     static std::filesystem::path GetNthFilePath(std::size_t n) {
         return std::filesystem::path{TEMP_DIR} / std::to_string(n);
     }
-    static std::unique_ptr<std::ofstream> GetNthOFStream(std::size_t n) {
-        return std::make_unique<std::ofstream>(GetNthFilePath(n));
-    }
-    static std::unique_ptr<std::ifstream> GetNthIFStream(std::size_t n) {
-        return std::make_unique<std::ifstream>(GetNthFilePath(n));
-    }
 
     template <typename T>
     class Cursor {
-        std::unique_ptr<std::ifstream> fd;
+        std::ifstream fd;
         T value;
 
     public:
-        explicit Cursor(std::size_t n) : fd(GetNthIFStream(n)) {
+        explicit Cursor(std::size_t n) : fd(GetNthFilePath(n)) {
+            if (fd.fail()) {
+                throw std::runtime_error("Error while creating cursor");
+            }
             value = GetNext();
         }
         T const& GetValue() const {
             return value;
         }
         T const& GetNext() {
-            *fd >> value >> std::ws;
+            fd >> value >> std::ws;
             return GetValue();
         }
         bool HasNext() const {
-            return !fd->eof();
+            return !fd.eof();
         }
         void print(std::ostream& out) const {
             out << value << " " << std::boolalpha << HasNext();
@@ -56,8 +53,6 @@ protected:
     };
 
     unsigned long long ExecuteInternal() final;
-//    void processTable(model::IDatasetStream& stream);
-//    void createSortedColumns();
 
     virtual void ComputeUIDs();
 

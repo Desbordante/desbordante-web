@@ -567,8 +567,6 @@ public:
                     }
                 }});
                 if ((j != 0 && j % threads_count_ == 0) || j == header_size_ - 1) {
-                    std::cout << " wait " << j << " " << threads_count_ << " " << header_size_
-                              << std::endl;
                     for (auto& th : threads) {
                         th.join();
                     }
