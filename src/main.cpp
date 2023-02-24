@@ -124,6 +124,10 @@ int main(int argc, char const* argv[]) {
     if (argc >= cur_arg) {
         threads = std::stoull(get_cur_arg());
     }
+    std::size_t mem_check_frequency = 100000;
+    if (argc >= cur_arg) {
+        mem_check_frequency = std::stoull(get_cur_arg());
+    }
     bool has_header = false;
     if (argc >= cur_arg) {
         has_header = std::string{get_cur_arg()} == "true";
@@ -138,7 +142,6 @@ int main(int argc, char const* argv[]) {
     } else {
         files.emplace_back("tpc-lnk");
     }
-    std::size_t mem_check_frequency = 100000;
     auto instance = Create<algos::Spider>(files, impl, ram_memory_limit, mem_check_frequency,
                                           threads, sep, has_header);
     instance->Execute();

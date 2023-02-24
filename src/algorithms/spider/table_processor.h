@@ -19,6 +19,11 @@
 #include <unistd.h>
 #include <vector>
 
+#if defined(__GLIBC__) && defined(__GLIBC_MINOR__)
+#define GLIBC_VERSION (__GLIBC__ * 1000 + __GLIBC_MINOR__)
+#else
+#define GLIBC_VERSION 0
+#endif
 
 static std::size_t PAGE_SIZE = sysconf(_SC_PAGE_SIZE);
 
@@ -34,9 +39,9 @@ using VectorUInt = std::vector<unsigned int>;
 class BaseTableProcessor {
 public:
     virtual void Execute() = 0;
-    virtual std::size_t getHeaderSize() const  =0;
-    virtual std::vector<std::string> const& getHeader() const =0;
-    virtual std::vector<std::string> GetMaxValues() const =0;
+    virtual std::size_t GetHeaderSize() const = 0;
+    virtual std::vector<std::string> const& GetHeader() const = 0;
+    virtual std::vector<std::string> GetMaxValues() const = 0;
     virtual ~BaseTableProcessor() = default;
 };
 
@@ -81,7 +86,7 @@ private:
 public:
     TableProcessor(fs::path const& file_path, char separator, std::size_t memory_limit,
                    std::size_t mem_check_frequency, std::size_t threads_count,
-             std::size_t attribute_offset)
+                   std::size_t attribute_offset)
         : fd_{open(file_path.c_str(), O_RDONLY)},
           file_size_{fs::file_size(file_path)},
           separator(separator),
@@ -207,7 +212,7 @@ public:
     }
 
     static std::pair<std::size_t, std::size_t> GetChunksInfo(std::size_t const& file_size,
-                                                     std::size_t const& m_limit) {
+                                                             std::size_t const& m_limit) {
         double available_memory;
         if constexpr (std::is_same_v<T, VectorStringView> || std::is_same_v<T, VectorCharPtr> ||
                       std::is_same_v<T, VectorUInt>) {
@@ -284,8 +289,8 @@ public:
         return dir;
     }
 
-    static fs::path GeneratePath(std::size_t index, std::size_t swap_count = 0, std::size_t chunk_count = 0,
-                                 std::size_t chunks_n = 1) {
+    static fs::path GeneratePath(std::size_t index, std::size_t swap_count = 0,
+                                 std::size_t chunk_count = 0, std::size_t chunks_n = 1) {
         return GenerateDirectory(swap_count, chunk_count, chunks_n) / std::to_string(index);
     }
 
@@ -307,7 +312,6 @@ public:
 
     void WriteAllColumns(bool is_final) {
         Sort();
-//        PrintCurrentSizeInfo();
 
         auto write_time = std::chrono::system_clock::now();
 
@@ -404,8 +408,6 @@ public:
         for (std::size_t i = 0; i < chunks_n_; ++i) {
             inputFiles.emplace_back(GeneratePath(attr_id + attribute_offset, 0, i, chunks_n_));
         }
-        // Open the output file
-
         std::ofstream outputFile(GeneratePath(attr_id + attribute_offset));
         MergeAndRemoveDuplicates(std::move(inputFiles), std::move(outputFile), attr_id);
     }
@@ -429,8 +431,8 @@ public:
         }
         if (is_final) {
             auto getValue = [this, i]() {
-                if constexpr (std::is_same_v<SetStringView, T> ||
-                              std::is_same_v<SetUInt, T> || std::is_same_v<SetCharPtr, T>) {
+                if constexpr (std::is_same_v<SetStringView, T> || std::is_same_v<SetUInt, T> ||
+                              std::is_same_v<SetCharPtr, T>) {
                     return *(--columns_[i].end());
                 } else {
                     return columns_[i].back();
@@ -452,10 +454,6 @@ public:
 
     void ProcessColumns() {
         std::size_t counter = 0;
-//        if (fs::remove_all(GenerateDirectory(0, current_chunk_, chunks_n_)) <= 0) {
-//            std::cout << "Error deleting directory: "
-//                      << GenerateDirectory(0, current_chunk_, chunks_n_) << std::endl;
-//        }
         char* pos = cur_chunk_data_begin_;
         std::size_t i = 0;
         auto insert_time = std::chrono::system_clock::now();
@@ -582,11 +580,20 @@ public:
     auto GetCurrentMemory() const {
         if constexpr (std::is_same_v<SetCharPtr, T> || std::is_same_v<SetStringView, T> ||
                       std::is_same_v<SetUInt, T>) {
+#if GLIBC_VERSION >= 2033
             return mallinfo2().uordblks;
+#else
+            double magic_number = 200.0 / 167;
+            std::size_t rough_estimation = sizeof(T);
+            for (auto const& column : columns_) {
+                rough_estimation +=
+                        column.size() * sizeof(std::_Rb_tree_node<typename T::key_type>);
+            }
+            return (std::size_t)(magic_number * (double)rough_estimation);
+#endif
         } else {
             std::size_t row_memory = header_size_ * sizeof(typename T::value_type);
             return row_memory * rows_limit_;
-            //            return mallinfo2().hblkhd;
         }
     }
 
@@ -598,13 +605,13 @@ public:
         close(fd_);
     }
 
-    std::size_t getHeaderSize() const override {
+    std::size_t GetHeaderSize() const override {
         return header_size_;
     }
-    std::vector<std::string> const& getHeader() const override {
+    std::vector<std::string> const& GetHeader() const override {
         return header_;
     }
-    std::vector<std::string> GetMaxValues() const override{
+    std::vector<std::string> GetMaxValues() const override {
         return max_values;
     }
 };

@@ -88,8 +88,8 @@ public:
                     config_.mem_check_frequency, config_.threads_count, state.n_cols);
             processor->Execute();
             state.tableColumnStartIndexes.emplace_back(state.n_cols);
-            state.n_cols += processor->getHeaderSize();
-            state.number_of_columns.emplace_back(processor->getHeaderSize());
+            state.n_cols += processor->GetHeaderSize();
+            state.number_of_columns.emplace_back(processor->GetHeaderSize());
             auto max_values = processor->GetMaxValues();
             state.max_values.insert(state.max_values.end(), max_values.begin(), max_values.end());
             std::cout << "DATASET PROCESSED\n\n";
