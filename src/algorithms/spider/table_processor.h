@@ -19,6 +19,9 @@
 #include <unistd.h>
 #include <vector>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/tokenizer.hpp>
+
 #if defined(__GLIBC__) && defined(__GLIBC_MINOR__)
 #define GLIBC_VERSION (__GLIBC__ * 1000 + __GLIBC_MINOR__)
 #else
@@ -55,7 +58,7 @@ private:
     int fd_;
     uintmax_t file_size_;
     char separator;
-    bool has_header = false;
+    bool has_header;
 
     char* cur_chunk_data_begin_;
     char* cur_chunk_data_end_;
@@ -82,14 +85,17 @@ private:
 
     std::vector<std::string> max_values;
     ColVec columns_;
+    char escape_symbol_ = '\\';
+    char quote_ = '\"';
 
 public:
-    TableProcessor(fs::path const& file_path, char separator, std::size_t memory_limit,
-                   std::size_t mem_check_frequency, std::size_t threads_count,
-                   std::size_t attribute_offset)
+    TableProcessor(fs::path const& file_path, char separator, bool has_header,
+                   std::size_t memory_limit, std::size_t mem_check_frequency,
+                   std::size_t threads_count, std::size_t attribute_offset)
         : fd_{open(file_path.c_str(), O_RDONLY)},
           file_size_{fs::file_size(file_path)},
           separator(separator),
+          has_header(has_header),
           delimiters(std::string{"\n"} + separator),
           memory_limit_check_frequency(mem_check_frequency),
           threads_count_(threads_count),
@@ -266,6 +272,9 @@ public:
             }
             header_size_++;
             pos = next_pos + (*next_pos == separator);
+        }
+        if (has_header) {
+            cur_chunk_data_begin_ = (char*)pos;
         }
     }
 
@@ -452,12 +461,29 @@ public:
         }
     }
 
+    std::vector<std::string> ParseString(const char* p, const char* q) const {
+        std::vector<std::string> tokens;
+        tokens.reserve(header_size_);
+        boost::escaped_list_separator<char> list_sep(escape_symbol_, separator, quote_);
+        boost::tokenizer<boost::escaped_list_separator<char>, const char*> tokenizer(p, q,
+                                                                                     list_sep);
+
+        for (auto& token : tokenizer) {
+            tokens.push_back(token);
+        }
+        return tokens;
+    }
+
     void ProcessColumns() {
         std::size_t counter = 0;
         char* pos = cur_chunk_data_begin_;
         std::size_t i = 0;
         auto insert_time = std::chrono::system_clock::now();
         while (*pos != '\0' && pos < cur_chunk_data_end_) {
+            if (*pos == separator) {
+                i = (i == header_size_) ? 0 : i + 1;
+                continue;
+            }
             while (*pos != '\0' && *pos != separator && *pos != '\n') {
                 char* next_pos = pos;
                 while (*next_pos != '\0' && *next_pos != separator && *next_pos != '\n') {

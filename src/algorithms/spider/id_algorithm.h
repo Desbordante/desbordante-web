@@ -84,7 +84,7 @@ public:
             std::cout << "PROCESS NEXT DATASET\n";
             std::cout << "Dataset: " << path.filename() << std::endl;
             auto processor = CreateTableProcessorInstance(
-                    config_.impl, path, config_.separator, config_.ram_limit,
+                    config_.impl, path, config_.separator, config_.has_header, config_.ram_limit,
                     config_.mem_check_frequency, config_.threads_count, state.n_cols);
             processor->Execute();
             state.tableColumnStartIndexes.emplace_back(state.n_cols);
