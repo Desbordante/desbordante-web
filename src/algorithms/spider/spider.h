@@ -32,12 +32,12 @@ public:
                     continue;
                 }
 
-                if (max_values[id_] <= max_values[i]) {
+//                if (max_values[id_] <= max_values[i]) {
                     refs_.insert(i);
-                }
-                if (max_values[id_] >= max_values[i]) {
+//                }
+//                if (max_values[id_] >= max_values[i]) {
                     deps_.insert(i);
-                }
+//                }
             }
         }
         std::size_t getID() const {
@@ -139,11 +139,26 @@ protected:
             }
         }
         for (UID const& uid : result_) {
-            printUID(out, uid, columns);
+            out << uid.first << "->" << uid.second ;
             out << std::endl;
         }
         out << std::endl;
     }
+//    void printResult(std::ostream& out) const {
+//        std::vector<std::string> columns;
+//        columns.reserve(state.n_cols);
+//        for (std::size_t i = 0; i != config_.paths.size(); ++i) {
+//            for (std::size_t j = 0; j != state.number_of_columns[i]; ++j) {
+//                std::string name = std::to_string(i) + "." + std::to_string(j);
+//                columns.emplace_back(name);
+//            }
+//        }
+//        for (UID const& uid : result_) {
+//            printUID(out, uid, columns);
+//            out << std::endl;
+//        }
+//        out << std::endl;
+//    }
 
 public:
     explicit Spider(Config const& config)

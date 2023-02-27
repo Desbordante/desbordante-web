@@ -19,7 +19,7 @@
 #include <unistd.h>
 #include <vector>
 
-#include <boost/algorithm/string.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <boost/tokenizer.hpp>
 
 #if defined(__GLIBC__) && defined(__GLIBC_MINOR__)
@@ -35,9 +35,12 @@ namespace fs = std::filesystem;
 using SetCharPtr = std::set<char*, std::function<bool(char*, char*)>>;
 using SetStringView = std::set<std::string_view>;
 using SetUInt = std::set<unsigned int, std::function<bool(unsigned int, unsigned int)>>;
+using PairOffset = std::pair<unsigned int, unsigned int>;
+using SetPair = std::set<PairOffset, std::function<bool(PairOffset, PairOffset)>>;
 using VectorCharPtr = std::vector<char*>;
 using VectorStringView = std::vector<std::string_view>;
 using VectorUInt = std::vector<unsigned int>;
+using VectorPair = std::vector<PairOffset>;
 
 class BaseTableProcessor {
 public:
@@ -51,7 +54,6 @@ public:
 template <typename T>
 class TableProcessor : public BaseTableProcessor {
 private:
-    static constexpr std::size_t ParallelN = 16;
     std::vector<std::string> header_;
     std::size_t header_size_ = 0;
     using ColVec = std::vector<T>;
@@ -73,7 +75,7 @@ private:
     // VECTOR-specific
     std::size_t threads_count_;
     std::size_t file_count_;
-    std::size_t rows_limit_;
+    std::size_t rows_limit_ = 0;
 
     std::size_t data_m_limit_;
     std::size_t m_limit_;
@@ -110,16 +112,17 @@ public:
     void Execute() override {
         data_m_limit_ = m_limit_ - chunk_size_;
 
+        std::cout << "ChunkSize: " << (chunk_size_) <<'\n';
+
         for (; current_chunk_ != chunks_n_; ++current_chunk_) {
+            if (chunks_n_ != 1) {
+                std::cout << "Chunk: " << current_chunk_ << '\n';
+            }
+
             auto offset = current_chunk_ * chunk_size_;
             auto length = chunk_size_ + PAGE_SIZE;
             if (current_chunk_ == chunks_n_ - 1) {
                 length = file_size_ - offset;
-            }
-            if (current_chunk_ == chunks_n_ - 1) {
-                if (offset + length != file_size_) {
-                    throw std::runtime_error("offset + length != file_size for last chunk");
-                }
             }
             auto data = mmap(nullptr, length, PROT_READ, MAP_PRIVATE, fd_, (off_t)offset);
             if (data == MAP_FAILED) {
@@ -140,7 +143,13 @@ public:
         }
         if (chunks_n_ != 1) {
             std::cout << "Merge chunks\n";
+            auto merge_time = std::chrono::system_clock::now();
+
             MergeChunks();
+
+            auto inserting_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::system_clock::now() - merge_time);
+            std::cout << "MergeChunks: " << inserting_time.count() << std::endl;
         }
     }
 
@@ -162,16 +171,9 @@ public:
         cur_chunk_data_end_ = FindChunkEnd(static_cast<char*>(data) + length);
     }
 
-    void PrintChunksInfo() const {
-        std::cout << "Memory limit - ";
-        To(m_limit_, "mb");
-        std::cout << "Chunks number - " << chunks_n_ << ", chunk size - " << (chunk_size_);
-        To(chunk_size_, "mb");
-    }
-
     void CountRowsAndReserve() {
         if constexpr (std::is_same_v<VectorCharPtr, T> || std::is_same_v<T, VectorStringView> ||
-                      std::is_same_v<VectorUInt, T>) {
+                      std::is_same_v<VectorUInt, T> || std::is_same_v<VectorPair, T>) {
             auto count_time = std::chrono::system_clock::now();
             file_count_ = std::count(cur_chunk_data_begin_, cur_chunk_data_end_ + 1, '\n');
 
@@ -211,6 +213,7 @@ public:
         if (current_chunk_ == chunks_n_ - 1) {
             return data;
         }
+        data--;
         while (*(data) != '\n') {
             --data;
         }
@@ -221,10 +224,13 @@ public:
                                                              std::size_t const& m_limit) {
         double available_memory;
         if constexpr (std::is_same_v<T, VectorStringView> || std::is_same_v<T, VectorCharPtr> ||
-                      std::is_same_v<T, VectorUInt>) {
+                      std::is_same_v<T, VectorUInt> || std::is_same_v<VectorPair, T>) {
             available_memory = (double)m_limit / 2;
         } else {
             available_memory = (double)m_limit / 3 * 2;
+        }
+        if constexpr (std::is_same_v<T, SetPair> || std::is_same_v<T, VectorPair>) {
+            available_memory = std::min((double)4290000000, available_memory);
         }
         std::size_t n_chunks = std::ceil((double)file_size / available_memory);
         auto chunk_size = (file_size / n_chunks) & ~(PAGE_SIZE - 1);
@@ -236,7 +242,8 @@ public:
 
     void ReserveColumns() {
         if constexpr (std::is_same_v<T, VectorStringView> || std::is_same_v<T, SetStringView> ||
-                      std::is_same_v<T, VectorCharPtr> || std::is_same_v<T, VectorUInt>) {
+                      std::is_same_v<T, VectorCharPtr> || std::is_same_v<T, VectorUInt> ||
+                      std::is_same_v<VectorPair, T>) {
             columns_.assign(header_size_, {});
         } else if constexpr (std::is_same_v<T, SetCharPtr>) {
             auto cmp = [delimiters = delimiters](char* str1, char* str2) {
@@ -246,7 +253,7 @@ public:
             };
             columns_ = std::vector<SetCharPtr>(header_size_, SetCharPtr{cmp});
         } else if constexpr (std::is_same_v<T, SetUInt>) {
-            auto cmp = [begin = cur_chunk_data_begin_, delimiters = delimiters](
+            auto cmp = [&begin = cur_chunk_data_begin_, delimiters = delimiters](
                                unsigned int str1_off, unsigned int str2_off) {
                 auto str1_ptr = begin + str1_off;
                 auto str2_ptr = begin + str2_off;
@@ -254,7 +261,16 @@ public:
                 std::string_view s2(str2_ptr, strcspn(str2_ptr, delimiters.c_str()));
                 return s1 < s2;
             };
-            columns_ = std::vector<SetUInt>(header_size_, SetUInt{cmp});
+            columns_ = std::vector<T>(header_size_, T{cmp});
+        } else if constexpr (std::is_same_v<T, SetPair>) {
+            auto cmp = [&begin=cur_chunk_data_begin_](PairOffset str1_off, PairOffset str2_off) {
+                std::string_view view1(begin + str1_off.first, str1_off.second);
+                std::string_view view2(begin + str2_off.first, str2_off.second);
+                return view1 < view2;
+            };
+            columns_ = std::vector<T>(header_size_, T{cmp});
+        } else {
+            throw std::runtime_error("err");
         }
     }
 
@@ -434,99 +450,118 @@ public:
                 auto value_ptr = cur_chunk_data_begin_ + value;
                 out << std::string_view{value_ptr, strcspn(value_ptr, delimiters.c_str())}
                     << std::endl;
+            } else if constexpr (std::is_same_v<VectorPair, T> || std::is_same_v<SetPair, T>) {
+                auto& [begin, size] = value;
+                auto val_ptr = cur_chunk_data_begin_ + begin;
+                out << std::string_view{val_ptr, size} << std::endl;
             } else {
                 out << std::string_view{value, strcspn(value, delimiters.c_str())} << std::endl;
             }
         }
+
         if (is_final) {
             auto getValue = [this, i]() {
                 if constexpr (std::is_same_v<SetStringView, T> || std::is_same_v<SetUInt, T> ||
-                              std::is_same_v<SetCharPtr, T>) {
+                              std::is_same_v<SetCharPtr, T> || std::is_same_v<SetPair, T>) {
                     return *(--columns_[i].end());
                 } else {
                     return columns_[i].back();
                 }
             };
-            auto value = getValue();
-            if constexpr (std::is_same_v<SetStringView, T> || std::is_same_v<VectorStringView, T>) {
-                max_values[i] = std::string{value};
+
+            if (columns_[i].empty()) {
+                max_values[i] = "";
+            } else if constexpr (std::is_same_v<SetStringView, T> || std::is_same_v<VectorStringView, T>) {
+                max_values[i] = std::string{getValue()};
             } else if constexpr (std::is_same_v<VectorUInt, T> || std::is_same_v<SetUInt, T>) {
-                auto value_ptr = cur_chunk_data_begin_ + value;
+                auto value_ptr = cur_chunk_data_begin_ + getValue();
                 max_values[i] = std::string{
                         std::string_view{value_ptr, strcspn(value_ptr, delimiters.c_str())}};
+            } else if constexpr (std::is_same_v<SetPair, T> || std::is_same_v<VectorPair, T>) {
+                auto [begin, size] = getValue();
+                auto val_ptr = cur_chunk_data_begin_ + begin;
+                max_values[i] = std::string{std::string_view{val_ptr, size}};
             } else {
+                auto value = getValue();
                 max_values[i] =
                         std::string{std::string_view{value, strcspn(value, delimiters.c_str())}};
             }
         }
     }
 
-    std::vector<std::string> ParseString(const char* p, const char* q) const {
-        std::vector<std::string> tokens;
-        tokens.reserve(header_size_);
-        boost::escaped_list_separator<char> list_sep(escape_symbol_, separator, quote_);
-        boost::tokenizer<boost::escaped_list_separator<char>, const char*> tokenizer(p, q,
-                                                                                     list_sep);
-
-        for (auto& token : tokenizer) {
-            tokens.push_back(token);
-        }
-        return tokens;
-    }
 
     void ProcessColumns() {
-        std::size_t counter = 0;
-        char* pos = cur_chunk_data_begin_;
-        std::size_t i = 0;
         auto insert_time = std::chrono::system_clock::now();
-        while (*pos != '\0' && pos < cur_chunk_data_end_) {
-            if (*pos == separator) {
-                i = (i == header_size_) ? 0 : i + 1;
-                continue;
-            }
-            while (*pos != '\0' && *pos != separator && *pos != '\n') {
-                char* next_pos = pos;
-                while (*next_pos != '\0' && *next_pos != separator && *next_pos != '\n') {
-                    next_pos++;
+
+        std::size_t length = cur_chunk_data_end_ - cur_chunk_data_begin_;
+        auto line_begin = cur_chunk_data_begin_;
+        auto next_pos = line_begin;
+        auto line_end = (char*)memchr(line_begin, '\n', length);
+        using escaped_list_t = boost::escaped_list_separator<char>;
+        escaped_list_t escaped_list(escape_symbol_, separator, quote_);
+        std::size_t cur_index;
+
+        std::size_t counter = 0;
+        while (line_end != nullptr && line_end < cur_chunk_data_end_) {
+            if constexpr (std::is_same_v<VectorStringView, T> || std::is_same_v<VectorCharPtr, T> ||
+                          std::is_same_v<VectorUInt, T> || std::is_same_v<VectorPair, T>) {
+                counter++;
+                if (file_count_ != rows_limit_ && counter == rows_limit_) {
+                    counter = 0;
+                    std::cout << "SWAP " << swap_count << std::endl;
+                    WriteAllColumns(false);
+                    std::cout << "SWAPPED" << std::endl;
                 }
-                if constexpr (std::is_same_v<T, VectorStringView>) {
-                    columns_[i++].emplace_back(pos, next_pos - pos);
-                } else if constexpr (std::is_same_v<T, SetStringView>) {
-                    columns_[i++].insert(std::string_view(pos, next_pos - pos));
-                } else if constexpr (std::is_same_v<T, SetCharPtr>) {
-                    columns_[i++].insert(pos);
-                } else if constexpr (std::is_same_v<T, SetUInt>) {
-                    columns_[i++].insert(pos - cur_chunk_data_begin_);
-                } else if constexpr (std::is_same_v<T, VectorCharPtr>) {
-                    columns_[i++].emplace_back(pos);
-                } else if constexpr (std::is_same_v<T, VectorUInt>) {
-                    columns_[i++].emplace_back(pos - cur_chunk_data_begin_);
-                } else {
-                    throw std::runtime_error("wht");
-                }
-                pos = next_pos + (*next_pos == separator);
-            }
-            if (*pos == '\n') {
-                pos++;
-                i = 0;
-                if constexpr (std::is_same_v<VectorStringView, T> ||
-                              std::is_same_v<VectorCharPtr, T> || std::is_same_v<VectorUInt, T>) {
-                    counter++;
-                    if (file_count_ != rows_limit_ && counter == rows_limit_) {
-                        counter = 0;
-                        std::cout << "SWAP " << swap_count << std::endl;
+            } else {
+                if (++counter == memory_limit_check_frequency) {
+                    counter = 0;
+                    if (IsMemoryLimitReached()) {
                         WriteAllColumns(false);
-                        std::cout << "SWAPPED" << std::endl;
-                    }
-                } else {
-                    if (++counter == memory_limit_check_frequency) {
-                        counter = 0;
-                        if (IsMemoryLimitReached()) {
-                            WriteAllColumns(false);
-                        }
                     }
                 }
             }
+            boost::tokenizer<escaped_list_t, char const*> tokens(line_begin, line_end,
+                                                                 escaped_list);
+            for (std::string const& value : tokens) {
+                if (!value.empty()) {
+                    bool is_quoted = (*next_pos == '\"' && *(next_pos + value.size() + 1) == '\"');
+                    if (is_quoted) {
+                        next_pos++;
+                    }
+                    if constexpr (std::is_same_v<T, VectorStringView>) {
+                        columns_[cur_index].emplace_back(next_pos, value.size());
+                    } else if constexpr (std::is_same_v<T, SetStringView>) {
+                        columns_[cur_index].insert(std::string_view(next_pos, value.size()));
+                    } else if constexpr (std::is_same_v<T, SetCharPtr>) {
+                        columns_[cur_index].insert(next_pos);
+                    } else if constexpr (std::is_same_v<T, SetUInt>) {
+                        columns_[cur_index].insert(next_pos - cur_chunk_data_begin_);
+                    } else if constexpr (std::is_same_v<T, VectorCharPtr>) {
+                        columns_[cur_index].emplace_back(next_pos);
+                    } else if constexpr (std::is_same_v<T, VectorUInt>) {
+                        columns_[cur_index].emplace_back(next_pos - cur_chunk_data_begin_);
+                    } else if constexpr (std::is_same_v<T, VectorPair>) {
+                        columns_[cur_index].emplace_back(next_pos - cur_chunk_data_begin_,
+                                                         value.size());
+                    } else if constexpr (std::is_same_v<T, SetPair>) {
+                        columns_[cur_index].emplace(next_pos - cur_chunk_data_begin_, value.size());
+                    } else {
+                        throw std::runtime_error("wht3");
+                    }
+                    if (is_quoted) {
+                        next_pos++;
+                    }
+                    next_pos += value.size();
+                }
+                next_pos++;
+                cur_index++;
+            }
+            cur_index = 0;
+
+            line_begin = line_end + 1;
+            next_pos = line_begin;
+            length = cur_chunk_data_end_ - line_begin;
+            line_end = (char*)memchr(line_begin, '\n', length);
         }
         auto inserting_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::system_clock::now() - insert_time);
@@ -535,7 +570,7 @@ public:
     }
     void Sort() {
         if constexpr (std::is_same_v<T, VectorStringView> || std::is_same_v<T, VectorCharPtr> ||
-                      std::is_same_v<T, VectorUInt>) {
+                      std::is_same_v<T, VectorUInt> || std::is_same_v<T, VectorPair>) {
             auto sort_time = std::chrono::system_clock::now();
 
             std::vector<std::thread> threads;
@@ -586,6 +621,25 @@ public:
                                            return s1 == s2;
                                        }),
                                 columns_[j].end());
+                    } else if (std::is_same_v<T, VectorPair>) {
+                        std::sort(
+                                columns_[j].begin(), columns_[j].end(),
+                                [begin = cur_chunk_data_begin_](PairOffset str1_off,
+                                                                PairOffset str2_off) {
+                                    std::string_view view1(begin + str1_off.first, str1_off.second);
+                                    std::string_view view2(begin + str2_off.first, str2_off.second);
+                                    return view1 < view2;
+                                });
+                        columns_[j].erase(unique(columns_[j].begin(), columns_[j].end(),
+                                                 [begin = cur_chunk_data_begin_](
+                                                         PairOffset str1_off, PairOffset str2_off) {
+                                                     std::string_view view1(begin + str1_off.first,
+                                                                            str1_off.second);
+                                                     std::string_view view2(begin + str2_off.first,
+                                                                            str2_off.second);
+                                                     return view1 == view2;
+                                                 }),
+                                          columns_[j].end());
                     } else {
                         throw std::runtime_error("hz");
                     }
@@ -605,7 +659,7 @@ public:
 
     auto GetCurrentMemory() const {
         if constexpr (std::is_same_v<SetCharPtr, T> || std::is_same_v<SetStringView, T> ||
-                      std::is_same_v<SetUInt, T>) {
+                      std::is_same_v<SetUInt, T> || std::is_same_v<SetPair, T>) {
 #if GLIBC_VERSION >= 2033
             return mallinfo2().uordblks;
 #else

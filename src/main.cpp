@@ -110,7 +110,7 @@ static std::unique_ptr<T> Create(std::vector<std::string> const& filenames, algo
     return ptr;
 }
 int main(int argc, char const* argv[]) {
-    auto impl{algos::IMPL::VECTORUI};
+    auto impl{algos::IMPL::VECTORPAIR};
     int cur_arg = 2;
     auto get_cur_arg = [&cur_arg, &argv]() -> const char*& { return argv[cur_arg++ - 1]; };
     if (argc >= cur_arg) {

@@ -11,10 +11,9 @@
 
 namespace algos {
 
-BETTER_ENUM(IMPL, char, SETUI, SETCP, SETSV, VECTORUI, VECTORCP, VECTORSV)
+BETTER_ENUM(IMPL, char, SETSV, SETPAIR, VECTORSV, VECTORPAIR)
 
-using impl_tuple =
-        std::tuple<SetUInt, SetCharPtr, SetStringView, VectorUInt, VectorCharPtr, VectorStringView>;
+using impl_tuple = std::tuple<SetStringView, SetPair, VectorStringView, VectorPair>;
 
 class IDAlgorithm : public Primitive {
 public:
@@ -25,7 +24,7 @@ public:
         std::size_t ram_limit;
         std::size_t mem_check_frequency = 100000;
         std::size_t threads_count = 1;
-        IMPL impl = +IMPL::VECTORUI;
+        IMPL impl;
     };
 
     static std::vector<std::filesystem::path> GetPathsFromData(std::filesystem::path const& data) {
