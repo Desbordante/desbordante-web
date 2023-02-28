@@ -135,6 +135,7 @@ const typeDefs = gql`
         TypoFD
         TypoCluster
         Stats
+        MFD
     }
 
     enum MainPrimitiveType {
@@ -143,6 +144,7 @@ const typeDefs = gql`
         AR
         TypoFD
         Stats
+        MFD
     }
 
     enum SpecificTaskType {
@@ -223,6 +225,17 @@ const typeDefs = gql`
         minConfidence: Float!
     }
 
+    type MFDTaskConfig implements PrimitiveTaskConfig {
+        taskID: String!
+        parameter: Float!
+        lhsIndices: [Int!]!
+        rhsIndices: [Int!]!
+        distanceToNullIsInfinity: Boolean!
+        q: Int!
+        metricAlgorithm: MetricAlgorithmType!
+        metric: MetricType!
+    }
+
     type ARTaskConfig implements PrimitiveTaskConfig {
         taskID: String!
         minSupportAR: Float!
@@ -273,6 +286,20 @@ const typeDefs = gql`
         support: Int!
     }
 
+    type MFDCluster {
+        value: String!
+        highlightsTotalCount: Int!
+        highlights: [MFDHighlight!]!
+    }
+
+    type MFDHighlight {
+        index: Int!
+        withinLimit: Boolean!
+        maximumDistance: Float!
+        furthestPointIndex: Int!
+        value: String!
+    }
+
     type AR {
         lhs: [String!]!
         rhs: [String!]!
@@ -321,6 +348,7 @@ const typeDefs = gql`
         filteredDepsAmount: Int!
         deps: [AR!]!
     }
+
     type FilteredCFDs implements FilteredDepsBase {
         filteredDepsAmount: Int!
         deps: [CFD!]!
@@ -393,6 +421,10 @@ const typeDefs = gql`
         """
         FDSortBy: FDSortBy
         """
+        MFD
+        """
+        MFDSortBy: MFDSortBy
+        """
         FDs, CFDs
         """
         mustContainRhsColIndices: [Int!]
@@ -436,6 +468,11 @@ const typeDefs = gql`
         LHS_NAME
         RHS_NAME
     }
+    enum MFDSortBy {
+        POINT_INDEX
+        FURTHEST_POINT_INDEX
+        MAXIMUM_DISTANCE
+    }
     enum OrderBy {
         ASC
         DESC
@@ -463,6 +500,14 @@ const typeDefs = gql`
         depsAmount: Int!
         PKs: [Column!]!
         pieChartData: CFDPieChartData!
+    }
+
+    type MFDTaskResult implements SpecificTaskResult {
+        taskID: String!
+        result: Boolean!
+        clustersTotalCount: Int
+        clusterRow(clusterIndex: Int!, rowIndex: Int!): MFDHighlight
+        cluster(clusterIndex: Int!, pagination: Pagination!, sortBy: MFDSortBy!, orderBy: OrderBy!): MFDCluster
     }
 
     type FDTaskResult implements TaskWithDepsResult & ResultsWithPKs {
@@ -734,8 +779,16 @@ const typeDefs = gql`
     }
 
     enum MetricType {
+        EUCLIDEAN
         MODULUS_OF_DIFFERENCE
         LEVENSHTEIN
+        COSINE
+    }
+
+    enum MetricAlgorithmType {
+        BRUTE
+        APPROX
+        CALIPERS
     }
 
     input IntersectionMainTaskProps {
@@ -764,6 +817,13 @@ const typeDefs = gql`
         defaultRadius: Float
         "TypoFD (0..1)"
         defaultRatio: Float
+        "MFD"
+        parameter: Float
+        lhsIndices: [Int!]
+        rhsIndices: [Int!]
+        distanceToNullIsInfinity: Boolean
+        q: Int
+        metricAlgorithm: MetricAlgorithmType
     }
 
     input IntersectionSpecificTaskProps {

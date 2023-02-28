@@ -4,6 +4,7 @@ import {
     PrimitiveType,
     SpecificPrimitiveType,
 } from "../../db/models/TaskData/configs/GeneralTaskConfig";
+import { MFDCluster, MFDHighlight } from "../schema/TaskInfo/DependencyFilters/CompactData";
 import { ResourceLimitErrorType, TaskErrorStatusType } from "./types";
 import { $GetType } from "sequelize-typescript/dist/model/model/model";
 import { AbstractFilter } from "../schema/TaskInfo/DependencyFilters/AbstractFilter";
@@ -101,6 +102,9 @@ export type SquashedClusterModel = {
         rowIndicesWithAmount: { rowIndex: number; amount: number }[];
     };
 };
+export type MFDClusterModel = MFDCluster;
+export type MFDHighlightModel = MFDHighlight;
+
 export type ClusterBaseModel = {
     clusterID: number;
     rows: Map<number, string[]>;
@@ -120,9 +124,10 @@ export type FDTaskResultModel = PrimitiveTaskResultModel;
 export type TypoFDTaskResultModel = PrimitiveTaskResultModel;
 export type CFDTaskResultModel = PrimitiveTaskResultModel;
 export type ARTaskResultModel = PrimitiveTaskResultModel;
+export type MFDTaskResultModel = PrimitiveTaskResultModel;
 export type SnippetModel = FileInfo;
 export type TypoClusterTaskResultModel = PrimitiveTaskResultModel;
 export type SpecificTypoClusterTaskResultModel = PrimitiveTaskResultModel;
 export type FilteredDepsBaseModel = Awaited<
     ReturnType<typeof AbstractFilter.prototype.getFilteredTransformedDeps>
-> & { prefix: MainPrimitiveType };
+> & { prefix: Exclude<MainPrimitiveType, "MFD"> };

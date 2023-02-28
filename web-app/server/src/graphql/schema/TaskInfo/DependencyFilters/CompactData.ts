@@ -18,6 +18,18 @@ export type CFDCompactType = {
     support: number;
     confidence: number;
 };
+export type MFDCluster = {
+  value: string
+  highlightsTotalCount: number
+  highlights: MFDHighlight[]
+}
+export type MFDHighlight = {
+    index: number;
+    withinLimit: boolean;
+    maximumDistance: number;
+    furthestPointIndex: number;
+    value: string;
+};
 
 export type ItemsInfo = { itemValues: string[] };
 export type ColumnsInfo = { columnNames: string[]; columnIndicesOrder: number[] };
@@ -57,6 +69,36 @@ export class CompactData {
     public static toCompactFD = (data: string): FDCompactType => {
         const dep = data.split(",").map(Number);
         return { lhs: dep.slice(0, dep.length - 1), rhs: dep[dep.length - 1] };
+    };
+    
+    public static findMFDClusterRow = (data: string, clusterIndex: number, rowIndex: number): MFDHighlight | undefined => {
+        const cluster = CompactData.toCompactMFDClusters(data)[clusterIndex];
+        
+        return cluster.highlights.find((highlight: MFDHighlight) => {
+            return highlight.index === rowIndex;
+        });
+    };
+
+    public static toCompactMFDClusters = (data: string): MFDCluster[] => {
+        const clusters = data.split("\n\n");
+
+        return clusters.map((cluster) => {
+          const highlights = cluster.split("\n");
+          return {
+            value: highlights[0],
+            highlightsTotalCount: highlights.length - 1,
+            highlights: highlights.slice(1).map((highlight) => {
+              const parts = highlight.split(";");
+              return {
+                  withinLimit: parts[0] == "1",
+                  value: parts[1],
+                  index: Number(parts[2]),
+                  furthestPointIndex: Number(parts[3]),
+                  maximumDistance: Number(parts[4]),
+                };
+            }),
+          };
+        });
     };
 
     ///

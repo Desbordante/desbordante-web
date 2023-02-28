@@ -1,6 +1,6 @@
 import { constants } from "os";
 import { isMainPrimitiveType } from "../../../db/models/TaskData/configs/GeneralTaskConfig";
-import { TypoClusterTaskResult } from "../../__generated__/types";
+import { TypoClusterTaskResult, MfdTaskResult } from "../../__generated__/types";
 import {
     CheckTaskState,
     CheckTaskStateVariables,
@@ -186,6 +186,10 @@ export const getTypoClusters: TaskProcessingFunction<
     if (taskInfo.__typename !== expectedTypename) {
         throw new Error(`Expected ${expectedTypename}`);
     }
+    expect(taskInfo?.data?.result?.__typename).toBe("TypoClusterTaskResult")
+    if (taskInfo?.data?.result?.__typename !== "TypoClusterTaskResult") {
+        throw new Error(`Expected ${expectedTypename}`);
+    }
     const {
         data: { result },
     } = taskInfo;
@@ -241,6 +245,10 @@ export const getSpecificCluster: TaskProcessingFunction<
             if (taskInfo.__typename !== expectedTypename) {
                 throw new Error(`Expected ${expectedTypename}`);
             }
+            expect(taskInfo?.data?.result?.__typename).toBe("TypoClusterTaskResult")
+            if (taskInfo?.data?.result?.__typename !== "TypoClusterTaskResult") {
+                throw new Error(`Expected ${expectedTypename}`);
+            }
             const {
                 data: { result },
             } = taskInfo;
@@ -286,6 +294,9 @@ export const testTaskWithDeps = async (
 
     expect(result.__typename).toBe(`${type}TaskResult` as const);
     if (result.__typename !== (`${type}TaskResult` as const)) {
+        throw new Error("Received incorrect result type");
+    }
+    if (result.__typename === "MFDTaskResult") {
         throw new Error("Received incorrect result type");
     }
     expect(result.depsAmount).toBe(expected.depsAmount);
