@@ -1,5 +1,5 @@
+import { BOOLEAN, FLOAT, INTEGER, REAL, STRING, UUID } from "sequelize";
 import { Column, ForeignKey, IsUUID, Table } from "sequelize-typescript";
-import { FLOAT, INTEGER, REAL, STRING, UUID } from "sequelize";
 import { ApolloError } from "apollo-server-core";
 import { BaseSpecificTaskConfig } from "./BaseSpecificTaskConfig";
 import { GeneralTaskConfig } from "./GeneralTaskConfig";
@@ -39,8 +39,8 @@ export class ARTaskConfig extends BaseSpecificTaskConfig {
     minConfidence!: number;
 }
 
-const ALL_METRICS = ["LEVENSHTEIN", "MODULUS_OF_DIFFERENCE"] as const;
-type MetricType = typeof ALL_METRICS[number];
+const FD_METRICS = ["LEVENSHTEIN", "MODULUS_OF_DIFFERENCE"] as const;
+type FDMetricType = typeof FD_METRICS[number];
 
 @Table(getConfigTableOptions("TypoFD"))
 export class TypoFDTaskConfig extends BaseSpecificTaskConfig {
@@ -60,7 +60,7 @@ export class TypoFDTaskConfig extends BaseSpecificTaskConfig {
     approximateAlgorithm!: string;
 
     @Column({ type: STRING, allowNull: false })
-    metric!: MetricType;
+    metric!: FDMetricType;
 
     @Column({ type: FLOAT, allowNull: false })
     defaultRadius!: number;
@@ -147,4 +147,57 @@ export class SpecificTypoClusterTaskConfig
 export class StatsTaskConfig extends BaseSpecificTaskConfig {
     @Column({ type: INTEGER, allowNull: false })
     threadsCount!: number;
+}
+
+const MFD_METRICS = ["EUCLIDEAN", "LEVENSHTEIN", "MODULUS_OF_DIFFERENCE"] as const;
+type MFDMetricType = typeof MFD_METRICS[number];
+
+const MFD_METRIC_ALGORITHMS = ["BRUTE", "APPROX", "CALIPERS"] as const;
+type MFDMetricAlgorithmsType = typeof MFD_METRIC_ALGORITHMS[number];
+
+@Table(getConfigTableOptions("MFD"))
+export class MFDTaskConfig extends BaseSpecificTaskConfig {
+    @Column({ type: REAL, allowNull: false })
+    parameter!: number;
+
+    @Column({
+        type: STRING,
+        allowNull: false,
+        set(this: MFDTaskConfig, value: number[]) {
+            this.setDataValue("lhsIndices", value.join(", "));
+        },
+    })
+    lhsIndices!: number[];
+
+    @Column({
+        type: STRING,
+        allowNull: false,
+        set(this: MFDTaskConfig, value: number[]) {
+            this.setDataValue("rhsIndices", value.join(", "));
+        },
+    })
+    rhsIndices!: number[];
+
+    @Column({ type: BOOLEAN, allowNull: false })
+    distanceToNullIsInfinity!: boolean;
+
+    @Column({
+        type: STRING,
+        allowNull: false,
+        set(this: MFDTaskConfig, value: string) {
+          this.setDataValue("metric", value.toLowerCase());
+        },
+    })
+    metric!: MFDMetricType;
+
+    @Column({ type: INTEGER, allowNull: false })
+    q: number;
+
+    @Column({
+        type: STRING,
+        set(this: MFDTaskConfig, value: string) {
+          this.setDataValue("metricAlgorithm", value.toLowerCase());
+        },
+    })
+    metricAlgorithm!: MFDMetricAlgorithmsType;
 }
