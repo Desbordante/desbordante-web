@@ -32,14 +32,10 @@ static std::size_t PAGE_SIZE = sysconf(_SC_PAGE_SIZE);
 
 namespace fs = std::filesystem;
 
-using SetCharPtr = std::set<char*, std::function<bool(char*, char*)>>;
 using SetStringView = std::set<std::string_view>;
-using SetUInt = std::set<unsigned int, std::function<bool(unsigned int, unsigned int)>>;
 using PairOffset = std::pair<unsigned int, unsigned int>;
-using SetPair = std::set<PairOffset, std::function<bool(PairOffset, PairOffset)>>;
-using VectorCharPtr = std::vector<char*>;
+using SetPair = std::set<PairOffset, std::function<bool(const PairOffset&, const PairOffset&)>>;
 using VectorStringView = std::vector<std::string_view>;
-using VectorUInt = std::vector<unsigned int>;
 using VectorPair = std::vector<PairOffset>;
 
 class BaseTableProcessor {
@@ -51,40 +47,136 @@ public:
     virtual ~BaseTableProcessor() = default;
 };
 
+class ChunkGenerator {
+public:
+    struct Config {
+        uintmax_t file_size;
+        int fd_;
+        std::size_t available_memory;
+    };
+    using CharPtr = char*;
+
+private:
+    Config config_;
+    using ChunkData = std::unique_ptr<char, std::function<void(CharPtr)>>;
+    ChunkData data_;
+
+    // Specified values
+    CharPtr begin_;
+    CharPtr end_;
+
+    std::size_t chunk_size_;
+    std::size_t specified_chunk_size_;
+
+    std::size_t chunks_n_;
+    std::size_t current_chunk_ = 0;
+
+    void SetChunkBorders() {
+        begin_ = SpecifyChunkStart(data_.get());
+        end_ = SpecifyChunkEnd(data_.get() + specified_chunk_size_);
+    }
+    CharPtr SpecifyChunkStart(CharPtr data) const {
+        if (current_chunk_ == 0) {
+            return data;
+        }
+        while (*(data++) != '\n') {
+        }
+        return data;
+    }
+
+    CharPtr SpecifyChunkEnd(CharPtr data) const {
+        if (current_chunk_ == chunks_n_ - 1) {
+            return data;
+        }
+        while (*(--data) != '\n') {
+        }
+        return data;
+    }
+
+public:
+    explicit ChunkGenerator(Config config) : config_(config) {
+        if (config.fd_ == -1) {
+            throw std::runtime_error("Failed to open file.");
+        }
+        chunks_n_ = std::ceil((double)config_.file_size / (double)config_.available_memory);
+        chunk_size_ = (config_.file_size / chunks_n_) & ~(PAGE_SIZE - 1);
+        specified_chunk_size_ = std::min(chunk_size_ + PAGE_SIZE, config_.file_size);
+        current_chunk_ = -1;
+        GetNext();
+    }
+    bool Splitted() const {
+        return chunks_n_ != 1;
+    }
+    std::size_t ChunksNumber() const {
+        return chunks_n_;
+    }
+    std::size_t ChunkSize() const {
+        return chunk_size_;
+    }
+    std::size_t CurrentChunk() const {
+        return current_chunk_;
+    }
+    std::pair<CharPtr, CharPtr> GetCurrent() {
+        return {begin_, end_};
+    }
+    bool HasNext() const {
+        return current_chunk_ != chunks_n_ - 1;
+    }
+    std::pair<CharPtr, CharPtr> GetNext() {
+        if (!HasNext()) {
+            throw std::runtime_error("Invalid function call, no more chunks");
+        }
+        current_chunk_++;
+        auto offset = current_chunk_ * chunk_size_;
+        if (current_chunk_ == chunks_n_ - 1) {
+            specified_chunk_size_ = config_.file_size - offset;
+        }
+        if (chunks_n_ != 1) {
+            std::cout << "Chunk: " << current_chunk_ << '\n';
+        }
+        data_.reset();
+        auto data = (char*)mmap(nullptr, specified_chunk_size_, PROT_READ, MAP_PRIVATE, config_.fd_,
+                                (off_t)offset);
+        if (data == MAP_FAILED) {
+            close(config_.fd_);
+            throw std::runtime_error("Failed to mmap file.");
+        }
+        if (current_chunk_ == 0) {
+            data_ = ChunkData(data, [&length = specified_chunk_size_](CharPtr data) {
+                munmap(data, length);
+            });
+        } else {
+            data_.reset(data);
+        }
+        SetChunkBorders();
+        return GetCurrent();
+    }
+};
+
 template <typename T>
 class TableProcessor : public BaseTableProcessor {
 private:
-    std::vector<std::string> header_;
-    std::size_t header_size_ = 0;
+    using BufferPtr = ChunkGenerator::CharPtr;
     using ColVec = std::vector<T>;
-    int fd_;
-    uintmax_t file_size_;
+
+    fs::path const file_path_;
     char separator;
     bool has_header;
 
-    char* cur_chunk_data_begin_;
-    char* cur_chunk_data_end_;
     std::size_t swap_count = 0;
-
-    // char */uint-specific
-    std::string delimiters;
 
     // SET-specific
     std::size_t memory_limit_check_frequency;
 
     // VECTOR-specific
     std::size_t threads_count_;
-    std::size_t file_count_;
-    std::size_t rows_limit_ = 0;
-
-    std::size_t data_m_limit_;
-    std::size_t m_limit_;
-    std::size_t chunks_n_;
-    std::size_t current_chunk_ = 0;
-    std::size_t chunk_size_;
 
     std::size_t attribute_offset;
 
+    uintmax_t file_size_;
+    std::size_t memory_limit_;
+    std::size_t chunk_m_limit_;
+    std::vector<std::string> header_;
     std::vector<std::string> max_values;
     ColVec columns_;
     char escape_symbol_ = '\\';
@@ -94,70 +186,67 @@ public:
     TableProcessor(fs::path const& file_path, char separator, bool has_header,
                    std::size_t memory_limit, std::size_t mem_check_frequency,
                    std::size_t threads_count, std::size_t attribute_offset)
-        : fd_{open(file_path.c_str(), O_RDONLY)},
-          file_size_{fs::file_size(file_path)},
-          separator(separator),
+        : separator(separator),
           has_header(has_header),
-          delimiters(std::string{"\n"} + separator),
+          file_path_(file_path),
+          file_size_(fs::file_size(file_path)),
+          memory_limit_(memory_limit),
           memory_limit_check_frequency(mem_check_frequency),
           threads_count_(threads_count),
-          m_limit_(memory_limit),
           attribute_offset(attribute_offset) {
-        if (fd_ == -1) {
-            throw std::runtime_error("Failed to open file.");
+        if constexpr (std::is_same_v<T, VectorStringView> || std::is_same_v<T, VectorPair>) {
+            chunk_m_limit_ = (double)memory_limit_ / 2;
+        } else {
+            chunk_m_limit_ = (double)memory_limit_ / 3 * 2;
         }
-        std::tie(chunks_n_, chunk_size_) = GetChunksInfo(file_size_, memory_limit);
+        if constexpr (std::is_same_v<T, SetPair> || std::is_same_v<T, VectorPair>) {
+            chunk_m_limit_ = std::min((double)std::numeric_limits<unsigned int>::max(),
+                                      (double)chunk_m_limit_);
+        }
+    }
+
+    std::size_t HeaderSize() const {
+        return header_.size();
     }
 
     void Execute() override {
-        data_m_limit_ = m_limit_ - chunk_size_;
-
-        std::cout << "ChunkSize: " << (chunk_size_) <<'\n';
-
-        for (; current_chunk_ != chunks_n_; ++current_chunk_) {
-            if (chunks_n_ != 1) {
-                std::cout << "Chunk: " << current_chunk_ << '\n';
+        ChunkGenerator chunk_generator_{{.file_size = file_size_,
+                                         .fd_ = open(file_path_.c_str(), O_RDONLY),
+                                         .available_memory = chunk_m_limit_ }};
+        do {
+            auto [buffer, end] = chunk_generator_.GetCurrent();
+            if (chunk_generator_.CurrentChunk() == 0) {
+                if (chunk_generator_.ChunksNumber() != 1) {
+                    std::cout << "SPLIT DATASET IN " << chunk_generator_.ChunksNumber() << " CHUNKS"
+                              << std::endl;
+                }
+                buffer = InitHeader(buffer);
+                max_values = std::vector(HeaderSize(), std::numeric_limits<std::string>::min());
+                ReserveColumns(buffer);
             }
+            ProcessColumns(buffer, end, chunk_generator_.CurrentChunk(),
+                           chunk_generator_.Splitted());
+        } while (chunk_generator_.HasNext());
 
-            auto offset = current_chunk_ * chunk_size_;
-            auto length = chunk_size_ + PAGE_SIZE;
-            if (current_chunk_ == chunks_n_ - 1) {
-                length = file_size_ - offset;
-            }
-            auto data = mmap(nullptr, length, PROT_READ, MAP_PRIVATE, fd_, (off_t)offset);
-            if (data == MAP_FAILED) {
-                close(fd_);
-                throw std::runtime_error("Failed to mmap file.");
-            }
-            SetChunkBorders(data, length);
+        std::cout << "ChunkSize: " << chunk_generator_.ChunkSize() << '\n';
 
-            if (current_chunk_ == 0) {
-                InitHeader();
-                max_values = std::vector<std::string>(header_size_,
-                                                      std::numeric_limits<std::string>::min());
-                ReserveColumns();
-            }
-            CountRowsAndReserve();
-            ProcessColumns();
-            munmap(data, length);
-        }
-        if (chunks_n_ != 1) {
+        if (chunk_generator_.ChunksNumber() > 1) {
             std::cout << "Merge chunks\n";
             auto merge_time = std::chrono::system_clock::now();
 
-            MergeChunks();
+            MergeChunks(chunk_generator_.ChunksNumber());
 
-            auto inserting_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+            auto merging_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::system_clock::now() - merge_time);
-            std::cout << "MergeChunks: " << inserting_time.count() << std::endl;
+            std::cout << "MergeChunks: " << merging_time.count() << std::endl;
         }
     }
 
     void To(std::size_t value, std::string const& to = "mb") {
-        if (to == "mb") {
-            std::cout << (value >> 20);
-        } else if (to == "kb") {
+        if (to == "kb") {
             std::cout << (value >> 10);
+        } else if (to == "mb") {
+            std::cout << (value >> 20);
         } else if (to == "gb") {
             std::cout << (value >> 30);
         } else {
@@ -166,116 +255,45 @@ public:
         std::cout << " " << to << std::endl;
     }
 
-    void SetChunkBorders(void* data, std::size_t length) {
-        cur_chunk_data_begin_ = FindNearestLineStart(static_cast<char*>(data));
-        cur_chunk_data_end_ = FindChunkEnd(static_cast<char*>(data) + length);
-    }
+    std::size_t CalculateRowsLimit(std::size_t rows_number) {
+        std::size_t row_memory = HeaderSize() * sizeof(typename T::value_type);
+        std::size_t needed_memory = rows_number * row_memory;
+        std::size_t data_memory_limit = memory_limit_ - chunk_m_limit_;
 
-    void CountRowsAndReserve() {
-        if constexpr (std::is_same_v<VectorCharPtr, T> || std::is_same_v<T, VectorStringView> ||
-                      std::is_same_v<VectorUInt, T> || std::is_same_v<VectorPair, T>) {
-            auto count_time = std::chrono::system_clock::now();
-            file_count_ = std::count(cur_chunk_data_begin_, cur_chunk_data_end_ + 1, '\n');
-
-            auto counting_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::system_clock::now() - count_time);
-
-            std::cout << "Counting time: " << counting_time.count() << std::endl;
-            std::size_t row_memory = header_size_ * sizeof(typename T::value_type);
-            std::size_t needed_memory = file_count_ * row_memory;
-
-            if (needed_memory > data_m_limit_) {
-                std::size_t times = std::ceil((double)needed_memory / (double)data_m_limit_);
-                rows_limit_ = std::ceil((double)file_count_ / (double)times);
-                std::cout << (needed_memory >> 20) << " > " << (data_m_limit_ >> 20) << " ["
-                          << times << "]\n";
-            } else {
-                rows_limit_ = file_count_;
-            }
-
-            for (auto& col : columns_) {
-                col.reserve(rows_limit_);
-            }
-        }
-    }
-
-    char* FindNearestLineStart(char* data) {
-        if (current_chunk_ == 0) {
-            return data;
-        }
-        while (*(data++) != '\n') {
-            ;
-        }
-        return data;
-    }
-
-    char* FindChunkEnd(char* data) {
-        if (current_chunk_ == chunks_n_ - 1) {
-            return data;
-        }
-        data--;
-        while (*(data) != '\n') {
-            --data;
-        }
-        return data;
-    }
-
-    static std::pair<std::size_t, std::size_t> GetChunksInfo(std::size_t const& file_size,
-                                                             std::size_t const& m_limit) {
-        double available_memory;
-        if constexpr (std::is_same_v<T, VectorStringView> || std::is_same_v<T, VectorCharPtr> ||
-                      std::is_same_v<T, VectorUInt> || std::is_same_v<VectorPair, T>) {
-            available_memory = (double)m_limit / 2;
+        std::size_t rows_limit;
+        if (needed_memory > data_memory_limit) {
+            std::size_t times = std::ceil((double)needed_memory / (double)data_memory_limit);
+            rows_limit = std::ceil((double)rows_number / (double)times);
+            std::cout << (needed_memory >> 20) << " > " << (data_memory_limit >> 20) << " [" << times
+                      << "]\n";
         } else {
-            available_memory = (double)m_limit / 3 * 2;
+            rows_limit = rows_number;
         }
-        if constexpr (std::is_same_v<T, SetPair> || std::is_same_v<T, VectorPair>) {
-            available_memory = std::min((double)4290000000, available_memory);
-        }
-        std::size_t n_chunks = std::ceil((double)file_size / available_memory);
-        auto chunk_size = (file_size / n_chunks) & ~(PAGE_SIZE - 1);
-        if (n_chunks != 1) {
-            std::cout << "SPLIT DATASET IN " << n_chunks << " CHUNKS" << std::endl;
-        }
-        return {n_chunks, chunk_size};
+        return rows_limit;
     }
 
-    void ReserveColumns() {
+    void ReserveColumns(BufferPtr buffer) {
         if constexpr (std::is_same_v<T, VectorStringView> || std::is_same_v<T, SetStringView> ||
-                      std::is_same_v<T, VectorCharPtr> || std::is_same_v<T, VectorUInt> ||
-                      std::is_same_v<VectorPair, T>) {
-            columns_.assign(header_size_, {});
-        } else if constexpr (std::is_same_v<T, SetCharPtr>) {
-            auto cmp = [delimiters = delimiters](char* str1, char* str2) {
-                std::string_view s1(str1, strcspn(str1, delimiters.c_str()));
-                std::string_view s2(str2, strcspn(str2, delimiters.c_str()));
-                return s1 < s2;
-            };
-            columns_ = std::vector<SetCharPtr>(header_size_, SetCharPtr{cmp});
-        } else if constexpr (std::is_same_v<T, SetUInt>) {
-            auto cmp = [&begin = cur_chunk_data_begin_, delimiters = delimiters](
-                               unsigned int str1_off, unsigned int str2_off) {
-                auto str1_ptr = begin + str1_off;
-                auto str2_ptr = begin + str2_off;
-                std::string_view s1(str1_ptr, strcspn(str1_ptr, delimiters.c_str()));
-                std::string_view s2(str2_ptr, strcspn(str2_ptr, delimiters.c_str()));
-                return s1 < s2;
-            };
-            columns_ = std::vector<T>(header_size_, T{cmp});
+                      std::is_same_v<T, VectorPair>) {
+            columns_.assign(HeaderSize(), {});
         } else if constexpr (std::is_same_v<T, SetPair>) {
-            auto cmp = [&begin=cur_chunk_data_begin_](PairOffset str1_off, PairOffset str2_off) {
-                std::string_view view1(begin + str1_off.first, str1_off.second);
-                std::string_view view2(begin + str2_off.first, str2_off.second);
-                return view1 < view2;
+            auto cmp = [buffer](const std::pair<size_t, size_t>& a,
+                                const std::pair<size_t, size_t>& b) {
+                int cmp = std::memcmp(buffer + a.first, buffer + b.first,
+                                      std::min(a.second, b.second));
+                if (cmp == 0) {
+                    return a.second < b.second;
+                }
+                return cmp < 0;
             };
-            columns_ = std::vector<T>(header_size_, T{cmp});
+            columns_ = std::vector(HeaderSize(), T{cmp});
         } else {
             throw std::runtime_error("err");
         }
     }
 
-    void InitHeader() {
-        char const* pos = cur_chunk_data_begin_;
+    BufferPtr InitHeader(BufferPtr buffer) {
+        char const* pos = buffer;
         while (*pos != '\0' && *pos != '\n') {
             char const* next_pos = pos;
             while (*next_pos != '\0' && *next_pos != separator && *next_pos != '\n') {
@@ -284,70 +302,63 @@ public:
             if (has_header) {
                 header_.emplace_back(pos, next_pos - pos);
             } else {
-                header_.emplace_back(std::to_string(header_size_));
+                header_.emplace_back(std::to_string(HeaderSize()));
             }
-            header_size_++;
             pos = next_pos + (*next_pos == separator);
         }
         if (has_header) {
-            cur_chunk_data_begin_ = (char*)pos;
+            buffer = (BufferPtr)pos;
         }
+        return has_header ? (BufferPtr)pos : buffer;
     }
 
     static fs::path GenerateDirectory(std::size_t swap_count, std::size_t chunk_count,
-                                      std::size_t chunks_n) {
+                                      bool splitted = false) {
         fs::path dir = fs::current_path();
-        if (chunks_n != 1) {
+        if (splitted) {
             dir /= "temp" + std::to_string(chunk_count);
         } else {
             dir /= "temp";
         }
         if (swap_count != 0) {
-            if (!fs::exists(dir) && fs::create_directory(dir)) {
-                //                std::cout << "Directory created: " << dir << std::endl;
+            if (!fs::exists(dir)) {
+                fs::create_directory(dir);
             }
             dir /= "swap" + std::to_string(swap_count);
         }
-        if (!fs::exists(dir) && fs::create_directory(dir)) {
-            //            std::cout << "Directory created: " << dir << std::endl;
+        if (!fs::exists(dir)) {
+            fs::create_directory(dir);
         }
         return dir;
     }
 
     static fs::path GeneratePath(std::size_t index, std::size_t swap_count = 0,
-                                 std::size_t chunk_count = 0, std::size_t chunks_n = 1) {
-        return GenerateDirectory(swap_count, chunk_count, chunks_n) / std::to_string(index);
+                                 std::size_t chunk_count = 0, bool splitted = false) {
+        return GenerateDirectory(swap_count, chunk_count, splitted) / std::to_string(index);
     }
 
     void PrintCurrentSizeInfo(std::string const& context = "") {
-        if (chunks_n_ != 1) {
-            return;
-        }
         if (!context.empty()) {
             std::cout << context << std::endl;
         }
-        if (columns_.size() != header_size_) {
-            throw std::logic_error("column size is not equal to header_size");
-        }
-        for (std::size_t i = 0; i != header_size_; ++i) {
+        assert(columns_.size() == HeaderSize());
+        for (std::size_t i = 0; i != HeaderSize(); ++i) {
             std::cout << header_[i] << "-" << columns_[i].size() << " | ";
         }
         std::cout << std::endl;
     }
 
-    void WriteAllColumns(bool is_final) {
-        Sort();
+    void WriteAllColumns(BufferPtr buffer, bool is_final, std::size_t cur_chunk, bool splitted) {
+        Sort(buffer);
 
         auto write_time = std::chrono::system_clock::now();
 
-        fs::path path;
         if (!is_final || swap_count != 0) {
             swap_count++;
         }
         for (std::size_t i = 0; i != columns_.size(); ++i) {
-            WriteColumn(i,
-                        GeneratePath(i + attribute_offset, swap_count, current_chunk_, chunks_n_),
-                        is_final);
+            auto path = GeneratePath(i + attribute_offset, swap_count, cur_chunk, splitted);
+            WriteColumn(buffer, i, path, is_final);
         }
         std::cout << "Memory: " << (GetCurrentMemory() >> 20) << std::endl;
 
@@ -356,13 +367,13 @@ public:
         }
         if (is_final && swap_count != 0) {
             std::cout << "Merge files\n";
-            for (std::size_t i = 0; i != header_size_; ++i) {
-                MergeAndRemoveDuplicates(i);
+            for (std::size_t i = 0; i != HeaderSize(); ++i) {
+                MergeAndRemoveDuplicates(i, cur_chunk, splitted);
             }
-            for (std::size_t i = 0; i != header_size_; ++i) {
-                if (fs::remove_all(GenerateDirectory(i + 1, current_chunk_, chunks_n_)) <= 0) {
-                    std::cout << "Error deleting directory: "
-                              << GenerateDirectory(0, current_chunk_, chunks_n_) << std::endl;
+            for (std::size_t i = 0; i != HeaderSize(); ++i) {
+                auto dir = GenerateDirectory(i + 1, cur_chunk, splitted);
+                if (fs::remove_all(dir) <= 0) {
+                    std::cout << "Error deleting directory: " << dir << std::endl;
                 }
             }
         }
@@ -381,11 +392,9 @@ public:
         for (std::size_t i = 0; i < inputFiles.size(); ++i) {
             std::string value;
             if (std::getline(inputFiles[i], value)) {
-                queue.push({value, i});
+                queue.emplace(value, i);
             }
         }
-
-        // Merge the files and remove duplicates
         std::string prev;
         while (!queue.empty()) {
             auto [value, fileIndex] = queue.top();
@@ -397,47 +406,47 @@ public:
             }
 
             if (std::getline(inputFiles[fileIndex], value)) {
-                queue.push({value, fileIndex});
+                queue.emplace(value, fileIndex);
             }
         }
         max_values[attr_id] = prev;
     }
 
-    void MergeAndRemoveDuplicates(std::size_t attr_id) {
+    void MergeAndRemoveDuplicates(std::size_t attr_id, std::size_t cur_chunk, bool splitted) {
         // Open all the input files
         std::vector<std::ifstream> inputFiles;
         for (std::size_t i = 0; i < swap_count; ++i) {
             inputFiles.emplace_back(
-                    GeneratePath(attr_id + attribute_offset, i + 1, current_chunk_, chunks_n_));
+                    GeneratePath(attr_id + attribute_offset, i + 1, cur_chunk, splitted));
         }
         // Open the output file
-        std::ofstream outputFile(
-                GeneratePath(attr_id + attribute_offset, 0, current_chunk_, chunks_n_));
+        std::ofstream outputFile(GeneratePath(attr_id + attribute_offset, 0, cur_chunk, splitted));
         MergeAndRemoveDuplicates(std::move(inputFiles), std::move(outputFile), attr_id);
     }
 
-    void MergeChunks() {
-        for (std::size_t i = 0; i != header_size_; ++i) {
-            MergeChunk(i);
+    void MergeChunks(std::size_t chunks_n) {
+        for (std::size_t i = 0; i != HeaderSize(); ++i) {
+            MergeChunk(i, chunks_n);
         }
-        for (std::size_t i = 0; i != chunks_n_; ++i) {
-            if (fs::remove_all(GenerateDirectory(0, i, chunks_n_)) <= 0) {
-                std::cout << "Error deleting directory: " << GenerateDirectory(0, i, chunks_n_)
-                          << std::endl;
+        for (std::size_t i = 0; i != chunks_n; ++i) {
+            auto dir = GenerateDirectory(0, i, chunks_n != 1);
+            if (fs::remove_all(dir) <= 0) {
+                std::cout << "Error deleting directory: " << dir << std::endl;
             }
         }
     }
 
-    void MergeChunk(std::size_t attr_id) {
+    void MergeChunk(std::size_t attr_id, std::size_t chunks_n) {
         std::vector<std::ifstream> inputFiles;
-        for (std::size_t i = 0; i < chunks_n_; ++i) {
-            inputFiles.emplace_back(GeneratePath(attr_id + attribute_offset, 0, i, chunks_n_));
+        for (std::size_t i = 0; i < chunks_n; ++i) {
+            inputFiles.emplace_back(GeneratePath(attr_id + attribute_offset, 0, i, chunks_n != 1));
         }
         std::ofstream outputFile(GeneratePath(attr_id + attribute_offset));
         MergeAndRemoveDuplicates(std::move(inputFiles), std::move(outputFile), attr_id);
     }
 
-    void WriteColumn(std::size_t i, std::filesystem::path const& path, bool is_final) {
+    void WriteColumn(BufferPtr buffer, std::size_t i, std::filesystem::path const& path,
+                     bool is_final) {
         std::ofstream out{path};
         if (!out.is_open()) {
             throw std::runtime_error("cannot open");
@@ -445,78 +454,84 @@ public:
         auto& values = columns_[i];
         for (auto const& value : values) {
             if constexpr (std::is_same_v<SetStringView, T> || std::is_same_v<VectorStringView, T>) {
-                out << value << std::endl;
-            } else if constexpr (std::is_same_v<VectorUInt, T> || std::is_same_v<SetUInt, T>) {
-                auto value_ptr = cur_chunk_data_begin_ + value;
-                out << std::string_view{value_ptr, strcspn(value_ptr, delimiters.c_str())}
-                    << std::endl;
+                out << value;
             } else if constexpr (std::is_same_v<VectorPair, T> || std::is_same_v<SetPair, T>) {
-                auto& [begin, size] = value;
-                auto val_ptr = cur_chunk_data_begin_ + begin;
-                out << std::string_view{val_ptr, size} << std::endl;
-            } else {
-                out << std::string_view{value, strcspn(value, delimiters.c_str())} << std::endl;
+                auto [begin, size] = value;
+                auto val_ptr = buffer + begin;
+                out << std::string_view{val_ptr, size};
             }
+            out << std::endl;
         }
 
         if (is_final) {
             auto getValue = [this, i]() {
-                if constexpr (std::is_same_v<SetStringView, T> || std::is_same_v<SetUInt, T> ||
-                              std::is_same_v<SetCharPtr, T> || std::is_same_v<SetPair, T>) {
+                if constexpr (std::is_same_v<SetStringView, T> || std::is_same_v<SetPair, T>) {
                     return *(--columns_[i].end());
                 } else {
                     return columns_[i].back();
                 }
             };
 
-            if (columns_[i].empty()) {
-                max_values[i] = "";
-            } else if constexpr (std::is_same_v<SetStringView, T> || std::is_same_v<VectorStringView, T>) {
-                max_values[i] = std::string{getValue()};
-            } else if constexpr (std::is_same_v<VectorUInt, T> || std::is_same_v<SetUInt, T>) {
-                auto value_ptr = cur_chunk_data_begin_ + getValue();
-                max_values[i] = std::string{
-                        std::string_view{value_ptr, strcspn(value_ptr, delimiters.c_str())}};
-            } else if constexpr (std::is_same_v<SetPair, T> || std::is_same_v<VectorPair, T>) {
-                auto [begin, size] = getValue();
-                auto val_ptr = cur_chunk_data_begin_ + begin;
-                max_values[i] = std::string{std::string_view{val_ptr, size}};
-            } else {
-                auto value = getValue();
-                max_values[i] =
-                        std::string{std::string_view{value, strcspn(value, delimiters.c_str())}};
+            if (!columns_[i].empty()) {
+                if constexpr (std::is_same_v<SetStringView, T> ||
+                              std::is_same_v<VectorStringView, T>) {
+                    max_values[i] = std::string{getValue()};
+                } else if constexpr (std::is_same_v<SetPair, T> || std::is_same_v<VectorPair, T>) {
+                    auto [begin, size] = getValue();
+                    auto val_ptr = buffer + begin;
+                    max_values[i] = std::string{std::string_view{val_ptr, size}};
+                }
             }
         }
     }
 
+    std::size_t GetRowsNumber(BufferPtr buffer, BufferPtr buffer_end) const {
+        auto count_time = std::chrono::system_clock::now();
+        std::size_t rows_count = std::count(buffer, buffer_end, '\n');
 
-    void ProcessColumns() {
+        auto counting_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now() - count_time);
+
+        std::cout << "Counting time: " << counting_time.count() << std::endl;
+
+        return rows_count;
+    }
+
+    void ProcessColumns(BufferPtr buffer, BufferPtr buffer_end,
+                        std::size_t cur_chunk,
+                        bool splitted) {
+        std::size_t rows_limit = 0, chunk_lines_count = 0;
+        if constexpr (std::is_same_v<T, VectorStringView> || std::is_same_v<VectorPair, T>) {
+            chunk_lines_count = GetRowsNumber(buffer, buffer_end);
+            rows_limit = CalculateRowsLimit(chunk_lines_count);
+            for (auto& col : columns_) {
+                col.reserve(rows_limit);
+            }
+        }
         auto insert_time = std::chrono::system_clock::now();
 
-        std::size_t length = cur_chunk_data_end_ - cur_chunk_data_begin_;
-        auto line_begin = cur_chunk_data_begin_;
-        auto next_pos = line_begin;
+        std::size_t length = buffer_end - buffer;
+        auto line_begin = buffer, next_pos = line_begin;
         auto line_end = (char*)memchr(line_begin, '\n', length);
         using escaped_list_t = boost::escaped_list_separator<char>;
         escaped_list_t escaped_list(escape_symbol_, separator, quote_);
         std::size_t cur_index;
 
         std::size_t counter = 0;
-        while (line_end != nullptr && line_end < cur_chunk_data_end_) {
-            if constexpr (std::is_same_v<VectorStringView, T> || std::is_same_v<VectorCharPtr, T> ||
-                          std::is_same_v<VectorUInt, T> || std::is_same_v<VectorPair, T>) {
+        while (line_end != nullptr && line_end < buffer_end) {
+            if constexpr (std::is_same_v<VectorStringView, T> || std::is_same_v<VectorPair, T>) {
                 counter++;
-                if (file_count_ != rows_limit_ && counter == rows_limit_) {
+                if (chunk_lines_count != rows_limit && counter == rows_limit) {
                     counter = 0;
                     std::cout << "SWAP " << swap_count << std::endl;
-                    WriteAllColumns(false);
+                    WriteAllColumns(buffer, false, cur_chunk, splitted);
                     std::cout << "SWAPPED" << std::endl;
                 }
             } else {
                 if (++counter == memory_limit_check_frequency) {
                     counter = 0;
                     if (IsMemoryLimitReached()) {
-                        WriteAllColumns(false);
+                        WriteAllColumns(buffer, false, cur_chunk, splitted);
                     }
                 }
             }
@@ -532,19 +547,10 @@ public:
                         columns_[cur_index].emplace_back(next_pos, value.size());
                     } else if constexpr (std::is_same_v<T, SetStringView>) {
                         columns_[cur_index].insert(std::string_view(next_pos, value.size()));
-                    } else if constexpr (std::is_same_v<T, SetCharPtr>) {
-                        columns_[cur_index].insert(next_pos);
-                    } else if constexpr (std::is_same_v<T, SetUInt>) {
-                        columns_[cur_index].insert(next_pos - cur_chunk_data_begin_);
-                    } else if constexpr (std::is_same_v<T, VectorCharPtr>) {
-                        columns_[cur_index].emplace_back(next_pos);
-                    } else if constexpr (std::is_same_v<T, VectorUInt>) {
-                        columns_[cur_index].emplace_back(next_pos - cur_chunk_data_begin_);
                     } else if constexpr (std::is_same_v<T, VectorPair>) {
-                        columns_[cur_index].emplace_back(next_pos - cur_chunk_data_begin_,
-                                                         value.size());
+                        columns_[cur_index].emplace_back(next_pos - buffer, value.size());
                     } else if constexpr (std::is_same_v<T, SetPair>) {
-                        columns_[cur_index].emplace(next_pos - cur_chunk_data_begin_, value.size());
+                        columns_[cur_index].emplace(next_pos - buffer, value.size());
                     } else {
                         throw std::runtime_error("wht3");
                     }
@@ -560,91 +566,45 @@ public:
 
             line_begin = line_end + 1;
             next_pos = line_begin;
-            length = cur_chunk_data_end_ - line_begin;
+            length = buffer_end - line_begin;
             line_end = (char*)memchr(line_begin, '\n', length);
         }
         auto inserting_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::system_clock::now() - insert_time);
         std::cout << "Inserting: " << inserting_time.count() << std::endl;
-        WriteAllColumns(true);
+        WriteAllColumns(buffer, true, cur_chunk, splitted);
     }
-    void Sort() {
-        if constexpr (std::is_same_v<T, VectorStringView> || std::is_same_v<T, VectorCharPtr> ||
-                      std::is_same_v<T, VectorUInt> || std::is_same_v<T, VectorPair>) {
+    void Sort(BufferPtr buffer) {
+        if constexpr (std::is_same_v<T, VectorStringView> || std::is_same_v<T, VectorPair>) {
             auto sort_time = std::chrono::system_clock::now();
-
             std::vector<std::thread> threads;
-            for (std::size_t j = 0; j < header_size_; ++j) {
-                threads.emplace_back(std::thread{[this, j]() {
+            for (std::size_t j = 0; j < HeaderSize(); ++j) {
+                threads.emplace_back(std::thread{[this, j, buffer]() {
                     if constexpr (std::is_same_v<T, VectorStringView>) {
                         std::sort(columns_[j].begin(), columns_[j].end());
                         columns_[j].erase(unique(columns_[j].begin(), columns_[j].end()),
                                           columns_[j].end());
-                    } else if constexpr (std::is_same_v<T, VectorCharPtr>) {
-                        auto compare_char_ptr = [delimiters = delimiters](char* str1, char* str2) {
-                            std::string_view s1(str1, strcspn(str1, delimiters.c_str()));
-                            std::string_view s2(str2, strcspn(str2, delimiters.c_str()));
-                            return s1 < s2;
-                        };
-
-                        auto is_equal_char_ptr = [delimiters = delimiters](char* str1, char* str2) {
-                            std::string_view s1(str1, strcspn(str1, delimiters.c_str()));
-                            std::string_view s2(str2, strcspn(str2, delimiters.c_str()));
-                            return s1 == s2;
-                        };
-                        std::sort(columns_[j].begin(), columns_[j].end(), compare_char_ptr);
-                        columns_[j].erase(
-                                unique(columns_[j].begin(), columns_[j].end(), is_equal_char_ptr),
-                                columns_[j].end());
-                    } else if constexpr (std::is_same_v<T, VectorUInt>) {
+                    } else if (std::is_same_v<T, VectorPair>) {
                         std::sort(columns_[j].begin(), columns_[j].end(),
-                                  [begin = cur_chunk_data_begin_, delimiters = delimiters](
-                                          unsigned int str1_off, unsigned int str2_off) {
-                                      auto str1_ptr = begin + str1_off;
-                                      auto str2_ptr = begin + str2_off;
-                                      std::string_view s1(str1_ptr,
-                                                          strcspn(str1_ptr, delimiters.c_str()));
-                                      std::string_view s2(str2_ptr,
-                                                          strcspn(str2_ptr, delimiters.c_str()));
-                                      return s1 < s2;
+                                  [buffer](const PairOffset& lhs, const PairOffset& rhs) {
+                                      size_t len1 = lhs.second, len2 = rhs.second;
+                                      int cmp = std::memcmp(buffer + lhs.first, buffer + rhs.first,
+                                                            std::min(len1, len2));
+                                      return (cmp == 0 && len1 < len2) || cmp < 0;
                                   });
                         columns_[j].erase(
                                 unique(columns_[j].begin(), columns_[j].end(),
-                                       [begin = cur_chunk_data_begin_, delimiters = delimiters](
-                                               unsigned int str1_off, unsigned int str2_off) {
-                                           auto str1_ptr = begin + str1_off;
-                                           auto str2_ptr = begin + str2_off;
-                                           std::string_view s1(
-                                                   str1_ptr, strcspn(str1_ptr, delimiters.c_str()));
-                                           std::string_view s2(
-                                                   str2_ptr, strcspn(str2_ptr, delimiters.c_str()));
-                                           return s1 == s2;
+                                       [buffer](const PairOffset& lhs, const PairOffset& rhs) {
+                                           if (lhs.second != rhs.second) {
+                                               return false;
+                                           }
+                                           return std::memcmp(buffer + lhs.first,
+                                                              buffer + rhs.first, lhs.second) == 0;
                                        }),
                                 columns_[j].end());
-                    } else if (std::is_same_v<T, VectorPair>) {
-                        std::sort(
-                                columns_[j].begin(), columns_[j].end(),
-                                [begin = cur_chunk_data_begin_](PairOffset str1_off,
-                                                                PairOffset str2_off) {
-                                    std::string_view view1(begin + str1_off.first, str1_off.second);
-                                    std::string_view view2(begin + str2_off.first, str2_off.second);
-                                    return view1 < view2;
-                                });
-                        columns_[j].erase(unique(columns_[j].begin(), columns_[j].end(),
-                                                 [begin = cur_chunk_data_begin_](
-                                                         PairOffset str1_off, PairOffset str2_off) {
-                                                     std::string_view view1(begin + str1_off.first,
-                                                                            str1_off.second);
-                                                     std::string_view view2(begin + str2_off.first,
-                                                                            str2_off.second);
-                                                     return view1 == view2;
-                                                 }),
-                                          columns_[j].end());
-                    } else {
-                        throw std::runtime_error("hz");
                     }
                 }});
-                if ((j != 0 && j % threads_count_ == 0) || j == header_size_ - 1) {
+                if ((j != 0 && j % threads_count_ == 0) || j == HeaderSize() - 1) {
                     for (auto& th : threads) {
                         th.join();
                     }
@@ -658,8 +618,7 @@ public:
     }
 
     auto GetCurrentMemory() const {
-        if constexpr (std::is_same_v<SetCharPtr, T> || std::is_same_v<SetStringView, T> ||
-                      std::is_same_v<SetUInt, T> || std::is_same_v<SetPair, T>) {
+        if constexpr (std::is_same_v<SetStringView, T> || std::is_same_v<SetPair, T>) {
 #if GLIBC_VERSION >= 2033
             return mallinfo2().uordblks;
 #else
@@ -672,21 +631,19 @@ public:
             return (std::size_t)(magic_number * (double)rough_estimation);
 #endif
         } else {
-            std::size_t row_memory = header_size_ * sizeof(typename T::value_type);
-            return row_memory * rows_limit_;
+            std::size_t row_memory = HeaderSize() * sizeof(typename T::value_type);
+            return row_memory * columns_.front().capacity();
         }
     }
 
-    bool IsMemoryLimitReached() {
-        return GetCurrentMemory() > data_m_limit_;
+    bool IsMemoryLimitReached() const {
+        return GetCurrentMemory() > (memory_limit_ - chunk_m_limit_);
     }
 
-    ~TableProcessor() override {
-        close(fd_);
-    }
+    ~TableProcessor() override = default;
 
     std::size_t GetHeaderSize() const override {
-        return header_size_;
+        return header_.size();
     }
     std::vector<std::string> const& GetHeader() const override {
         return header_;

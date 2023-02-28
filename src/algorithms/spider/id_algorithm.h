@@ -34,7 +34,7 @@ public:
 
         std::vector<std::filesystem::path> paths;
         for (const auto& entry : std::filesystem::directory_iterator(data)) {
-            paths.push_back(entry);
+            paths.emplace_back(entry);
         }
         return paths;
     }

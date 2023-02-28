@@ -13,6 +13,8 @@ namespace algos {
 class Spider : public IDAlgorithm {
 public:
     using UID = std::pair<std::size_t, std::size_t>;
+    class Attribute;
+    using AttrMap = std::unordered_map<std::size_t, Attribute>;
 
     class Attribute {
     public:
@@ -28,19 +30,18 @@ public:
                   std::vector<std::string> const& max_values)
             : id_(id), cursor_(std::move(cursor)) {
             for (std::size_t i = 0; i != n_cols; ++i) {
-                if (id_ == i) {
+                if (GetID() == i) {
                     continue;
                 }
-
-//                if (max_values[id_] <= max_values[i]) {
-                    refs_.insert(i);
-//                }
-//                if (max_values[id_] >= max_values[i]) {
-                    deps_.insert(i);
-//                }
+                if (max_values[GetID()] <= max_values[i]) {
+                    GetRefs().insert(i);
+                }
+                if (max_values[GetID()] >= max_values[i]) {
+                    GetDeps().insert(i);
+                }
             }
         }
-        std::size_t getID() const {
+        std::size_t GetID() const {
             return id_;
         }
         StrCursor& GetCursor() {
@@ -62,25 +63,23 @@ public:
             return deps_;
         }
 
-        void IntersectRefs(
-                SSet const& referencedAttributes,
-                std::unordered_map<std::size_t, std::unique_ptr<Attribute>>& attributeMap) {
-            for (auto referenced_it = refs_.begin(); referenced_it != refs_.end();) {
+        void IntersectRefs(SSet const& referencedAttrsIds, AttrMap& attributeMap) {
+            for (auto referenced_it = GetRefs().begin(); referenced_it != GetRefs().end();) {
                 auto referenced = *referenced_it;
-                if (referencedAttributes.find(referenced) == std::end(referencedAttributes)) {
-                    referenced_it = refs_.erase(referenced_it);
-                    attributeMap.at(referenced)->removeDependent(id_);
+                if (referencedAttrsIds.find(referenced) == std::end(referencedAttrsIds)) {
+                    referenced_it = GetRefs().erase(referenced_it);
+                    attributeMap.at(referenced).RemoveDependent(GetID());
                 } else {
                     referenced_it++;
                 }
             }
         }
 
-        void removeDependent(std::size_t dep) {
+        void RemoveDependent(std::size_t dep) {
             GetDeps().erase(dep);
         }
-        bool hasFinished() {
-            return !cursor_.HasNext() || (refs_.empty() && deps_.empty());
+        bool HasFinished() const {
+            return !GetCursor().HasNext() || (GetRefs().empty() && GetDeps().empty());
         }
         static int CompareID(std::size_t id_lhs, std::size_t id_rhs) {
             if (id_lhs > id_rhs) {
@@ -91,39 +90,35 @@ public:
             return 0;
         }
         int CompareTo(Attribute const& other) const {
-            if ((!GetCursor().HasNext()) && (!other.GetCursor().HasNext())) {
-                return CompareID(id_, other.id_);
-            }
-
-            if (!GetCursor().HasNext()) {
+            if (!GetCursor().HasNext() && !other.GetCursor().HasNext()) {
+                return CompareID(GetID(), other.GetID());
+            } else if (!GetCursor().HasNext()) {
                 return 1;
-            }
-            if (!other.GetCursor().HasNext()) {
+            } else if (!other.GetCursor().HasNext()) {
                 return -1;
             }
 
             int order = GetCursor().GetValue().compare(other.GetCursor().GetValue());
             if (order == 0) {
-                return CompareID(id_, other.id_);
+                return CompareID(GetID(), other.GetID());
             }
             return order;
         }
     };
-    using SMap = std::unordered_map<std::size_t, std::unique_ptr<Attribute>>;
 
 protected:
     std::vector<UID> result_;
-    SMap objects;
+    AttrMap attrs;
     std::priority_queue<Attribute*, std::vector<Attribute*>,
                         std::function<int(Attribute*, Attribute*)>>
             attributeObjectQueue{
                     [](Attribute* lhs, Attribute* rhs) { return lhs->CompareTo(*rhs) >= 0; }};
 
     unsigned long long ExecuteInternal() final;
-    void initializeAttributes();
+    void InitializeAttributes();
     virtual void ComputeUIDs();
     void Output();
-    void registerUID(UID uid);
+    void RegisterUID(UID uid);
 
     static void printUID(std::ostream& out, UID const& uid, std::vector<std::string>& columns) {
         const auto& [dep, ref] = uid;

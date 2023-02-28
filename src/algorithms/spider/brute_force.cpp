@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <set>
+#include "model/cursor.h"
 
 using namespace algos;
 
@@ -23,47 +24,44 @@ unsigned long long BruteForce::ExecuteInternal() {
     return 0;
 }
 
-bool BruteForce::checkUID(UID const& uid) const {
+bool BruteForce::CheckUID(UID const& uid) {
     const auto& [dep, ref] = uid;
-    auto dc = Cursor<std::string>(dep);
-    auto rc = Cursor<std::string>(ref);
-    if (state.max_values[dep] > state.max_values[ref]) {
-        return false;
-    }
+    StrCursor dep_cursor{GetNthFilePath(dep)};
+    StrCursor ref_cursor{GetNthFilePath(ref)};
     while (true) {
-        if (dc.GetValue() == rc.GetValue()) {
-            if (!dc.HasNext()) {
+        if (dep_cursor.GetValue() == ref_cursor.GetValue()) {
+            if (!dep_cursor.HasNext()) {
                 return true;
             }
-            dc.GetNext();
-            if (!rc.HasNext()) {
+            dep_cursor.GetNext();
+            if (!ref_cursor.HasNext()) {
                 return false;
             }
-            rc.GetNext();
-        } else if (dc.GetValue() > rc.GetValue()) {
-            if (!rc.HasNext()) {
+            ref_cursor.GetNext();
+        } else if (dep_cursor.GetValue() > ref_cursor.GetValue()) {
+            if (!ref_cursor.HasNext()) {
                 return false;
             }
-            rc.GetNext();
+            ref_cursor.GetNext();
         } else {
             return false;
         }
-    };
+    }
 }
 
-void BruteForce::registerUID(UID uid) {
+void BruteForce::RegisterUID(UID uid) {
     result_.emplace_back(std::move(uid));
 }
 
 void BruteForce::ComputeUIDs() {
-    for (std::size_t i = 0; i != n_cols_; ++i) {
-        for (std::size_t j = 0; j != n_cols_; ++j) {
-            if (i == j) {
+    for (std::size_t dep = 0; dep != state.n_cols; ++dep) {
+        for (std::size_t ref = 0; ref != state.n_cols; ++ref) {
+            if (dep == ref || state.max_values[dep] > state.max_values[ref]) {
                 continue;
             }
-            UID uid{i, j};
-            if (checkUID(uid)) {
-                registerUID(uid);
+            UID uid{dep, ref};
+            if (CheckUID(uid)) {
+                RegisterUID(uid);
             }
         }
     }
