@@ -63,6 +63,34 @@ class TaskProcessor {
         return boost::join(compact_data, ";");
     }
 
+    std::string GetCompactHighlight(const algos::metric::MetricVerifier* algo, const algos::metric::Highlight highlight) const {
+        std::vector<std::string> compact_highlight;
+        auto parameter = algo->GetParameter();
+        compact_highlight.emplace_back(std::to_string(highlight.max_distance <= parameter));
+        compact_highlight.emplace_back(algo->GetStringValue(algo->getRhsIndices(), highlight.furthest_data_index));
+        compact_highlight.emplace_back(std::to_string(highlight.data_index));
+        compact_highlight.emplace_back(std::to_string(highlight.furthest_data_index));
+        compact_highlight.emplace_back(std::to_string(highlight.max_distance));
+
+        return boost::join(compact_highlight, ";");
+    }
+
+    std::string GetCompactHighlights(const algos::metric::MetricVerifier* algo) const {
+        const auto highlights = algo->GetHighlights();
+
+        std::vector<std::string> compact_data;
+        for (const auto cluster_highlights : highlights) {
+            std::vector<std::string> compact_cluster_data;
+            compact_cluster_data.emplace_back(algo->GetStringValue(algo->getLhsIndices(), cluster_highlights[0].data_index));
+            for (const auto highlight : cluster_highlights) {
+                compact_cluster_data.emplace_back(GetCompactHighlight(algo, highlight));
+            }
+            compact_data.emplace_back(boost::join(compact_cluster_data, "\n"));
+        }
+
+        return boost::join(compact_data, "\n\n");
+    }
+
     template <typename T>
     const T* GetAlgoAs() const {
         return dynamic_cast<const T*>(algo_.get());
@@ -85,6 +113,7 @@ class TaskProcessor {
     void SaveArTaskResult() const;
     void SaveTypoFdTaskResult() const;
     void SaveStatsResult() const;
+    void SaveMfdTaskResult() const;
 
     void SaveResults() const;
     void UpdateProgress();
@@ -99,7 +128,17 @@ public:
         LOG(INFO) << "Get algo name";
         std::string algo_name = task_->GetAlgoName();
         LOG(INFO) << "Get algo " << algo_name << '\n';
-        algo_ = algos::CreatePrimitive(algo_name, task_->GetParamsIntersection());
+
+        if (algo_name == "metric") {
+          auto params = task_->GetParamsIntersection();
+          params["lhs_indices"] = GetIndicesFromString<unsigned int>(task_->GetParam("lhs_indices"));
+          params["rhs_indices"] = GetIndicesFromString<unsigned int>(task_->GetParam("rhs_indices"));
+          params["metric"] = algos::metric::Metric::_from_string_nocase(task_->GetParam("metric").c_str());
+          params["metric_algorithm"] = algos::metric::MetricAlgo::_from_string_nocase(task_->GetParam("metric_algorithm").c_str());
+          algo_ = algos::CreatePrimitive(algo_name, params);
+        } else {
+          algo_ = algos::CreatePrimitive(algo_name, task_->GetParamsIntersection());
+        }
         LOG(INFO) << "Set algo has progress";
         algo_has_progress_ = !algo_->GetPhaseNames().empty();
         LOG(INFO) << "Phase name init";

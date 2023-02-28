@@ -12,6 +12,9 @@ static std::string ResolveAlgoName(std::string algo) {
     if (algo == "Typo Miner") {
         return "typo_miner";
     }
+    if (algo == "MetricVerification") {
+        return "metric";
+    }
     algo.erase(remove_if(algo.begin(), algo.end(), isspace), algo.end());
     std::transform(algo.begin(), algo.end(), algo.begin(), ::tolower);
     return algo;

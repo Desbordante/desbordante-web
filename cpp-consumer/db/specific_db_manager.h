@@ -63,7 +63,7 @@ public:
         }
     }
 
-    pqxx::result SendInsertQuery(const std::unordered_map<std::string, std::string> insertions, 
+    pqxx::result SendInsertQuery(const std::unordered_map<std::string, std::string> insertions,
                                  const std::string& table_name) const {
         std::vector<std::string> keys;
         std::vector<std::string> values;

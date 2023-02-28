@@ -13,7 +13,7 @@
 
 namespace consumer {
 
-BETTER_ENUM(TaskMiningType, char, AR, CFD, FD, SpecificTypoCluster, TypoCluster, TypoFD, Stats)
+BETTER_ENUM(TaskMiningType, char, AR, CFD, FD, MFD, SpecificTypoCluster, TypoCluster, TypoFD, Stats)
 
 BETTER_ENUM(BaseTablesType, char, state, config, fileinfo, fileformat)
 BETTER_ENUM(SpecificTablesType, char, config, result)

@@ -90,6 +90,16 @@ void TaskProcessor::SaveCfdTaskResult() const {
     std::cout << "params was successfully updated\n";
 }
 
+void TaskProcessor::SaveMfdTaskResult() const {
+    auto algo = GetAlgoAs<algos::metric::MetricVerifier>();
+    const bool result = algo->GetResult();
+    const auto highlights = algo->GetHighlights();
+
+    task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
+                        {{"result", std::to_string(result)},
+                         {"highlights", GetCompactHighlights(algo)}});
+}
+
 void TaskProcessor::SaveArTaskResult() const {
     auto algo = GetAlgoAs<ARAlgorithm>();
     const auto& item_names = algo->GetItemNamesVector();
@@ -142,6 +152,9 @@ void TaskProcessor::SaveResults() const {
         break;
     case TaskMiningType::Stats:
         SaveStatsResult();
+        break;
+    case TaskMiningType::MFD:
+        SaveMfdTaskResult();
         break;
     default:
         throw std::runtime_error("Not implemented yet");
