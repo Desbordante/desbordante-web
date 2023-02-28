@@ -16,6 +16,7 @@ const ALL_PRIMITIVES = [
     "AR",
     "CFD",
     "FD",
+    "MFD",
     "TypoFD",
     "TypoCluster",
     "SpecificTypoCluster",
@@ -31,13 +32,14 @@ export type MainPrimitiveType = Exclude<
 type OtherPrimitiveType = Exclude<DBTaskPrimitiveType, MainPrimitiveType>;
 export type SpecificPrimitiveType = Exclude<
     OtherPrimitiveType,
-    "SpecificTypoCluster" | StatsType
+    "SpecificTypoCluster" | StatsType | "MFD"
 >;
 export const SPECIFIC_TASKS: DBTaskPrimitiveType[] = [
     "TypoCluster",
     "SpecificTypoCluster",
+    "MFD"
 ];
-export type RealPrimitiveType = Exclude<MainPrimitiveType, "TypoFD" | StatsType>;
+export type RealPrimitiveType = Exclude<MainPrimitiveType, "TypoFD" | "MFD" | StatsType>;
 
 export const isMainPrimitiveType = (
     type: DBTaskPrimitiveType

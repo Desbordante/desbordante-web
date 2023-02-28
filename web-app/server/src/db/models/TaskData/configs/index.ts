@@ -2,6 +2,7 @@ import {
     ARTaskConfig,
     CFDTaskConfig,
     FDTaskConfig,
+    MFDTaskConfig,
     SpecificTypoClusterTaskConfig,
     StatsTaskConfig,
     TypoClusterTaskConfig,
@@ -18,6 +19,7 @@ export const taskConfigs = {
     SpecificTypoClusterTaskConfig,
     StatsTaskConfig,
     GeneralTaskConfig,
+    MFDTaskConfig,
 } as const;
 
 export default taskConfigs;

@@ -1,12 +1,14 @@
+import { BOOLEAN, TEXT, UUID } from "sequelize";
 import {
     BelongsTo,
     Column,
     ForeignKey,
     IsUUID,
     Model,
+    Table,
 } from "sequelize-typescript";
 import { TaskState } from "../TaskState";
-import { UUID } from "sequelize";
+import { getResultTableOptions } from "../tableOptions";
 
 export class BaseSpecificTaskResult extends Model {
     @IsUUID(4)
@@ -16,4 +18,13 @@ export class BaseSpecificTaskResult extends Model {
 
     @BelongsTo(() => TaskState)
     taskState!: TaskState;
+}
+
+@Table(getResultTableOptions("MFD"))
+export class MFDTaskResult extends BaseSpecificTaskResult {
+    @Column({ type: BOOLEAN, allowNull: true })
+    result!: boolean;
+
+    @Column({ type: TEXT, allowNull: true })
+    highlights: string;
 }

@@ -2,6 +2,7 @@ import {
     ARTaskConfig,
     CFDTaskConfig,
     FDTaskConfig,
+    MFDTaskConfig,
     SpecificTypoClusterTaskConfig,
     StatsTaskConfig,
     TypoClusterTaskConfig,
@@ -34,6 +35,7 @@ import {
     TypoClusterResult,
 } from "./results/SubTasks";
 import { ApolloError } from "apollo-server-core";
+import { MFDTaskResult } from "./results/BaseTaskResult";
 import { User } from "../UserData/User";
 import _ from "lodash";
 
@@ -129,6 +131,9 @@ export class TaskState extends Model implements TaskInfoModelMethods {
     @HasOne(() => StatsTaskConfig)
     StatsConfig?: StatsTaskConfig;
 
+    @HasOne(() => MFDTaskConfig)
+    MFDConfig?: MFDTaskConfig;
+
     ///
 
     @HasOne(() => ARTaskResult)
@@ -151,6 +156,9 @@ export class TaskState extends Model implements TaskInfoModelMethods {
 
     @HasOne(() => StatsResult)
     StatsResult?: StatsResult;
+
+    @HasOne(() => MFDTaskResult)
+    MFDResult?: MFDTaskResult;
 
     ///
 
@@ -208,6 +216,23 @@ export class TaskState extends Model implements TaskInfoModelMethods {
             );
         }
         return result.value || "";
+    };
+
+    getResultFieldAsBoolean = async (prefix: DBTaskPrimitiveType, attribute: string) => {
+        const result = (await this.$get(`${prefix}Result`, {
+            attributes: [[attribute, "value"]],
+            raw: true,
+        })) as unknown as { value: string | boolean | undefined };
+        const value =
+            typeof result.value == "boolean"
+                ? result.value
+                : (result.value || "").toLowerCase() == "true";
+        if (!result) {
+            throw new ApolloError(
+                `Not found result field ${attribute} for ${this.taskID}, primitiveType = ${prefix}`
+            );
+        }
+        return value;
     };
 
     getResultFieldsAsString = async (
