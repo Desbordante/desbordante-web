@@ -100,6 +100,17 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
         return "\"" + std::string((+type)._to_string()) + "TasksResult\"";
     };
     return {
+        {{SpecificTablesType::config, TaskMiningType::MFD},
+         {get_specific_config_table_name(TaskMiningType::MFD),
+          SearchByAttr::taskID,
+          {std::make_shared<ExtendedAttribute<long double>>("parameter", onam::kParameter),
+           std::make_shared<ExtendedAttribute<unsigned>>("q", onam::kQGramLength),
+           std::make_shared<ExtendedAttribute<std::string>>("metric", onam::kMetric),
+           std::make_shared<ExtendedAttribute<bool>>("distanceToNullIsInfinity", onam::kDistFromNullIsInfinity),
+           std::make_shared<ExtendedAttribute<std::string>>("lhsIndices", onam::kLhsIndices),
+           std::make_shared<ExtendedAttribute<std::string>>("rhsIndices", onam::kRhsIndices),
+           std::make_shared<ExtendedAttribute<std::string>>("metricAlgorithm", onam::kMetricAlgorithm)
+         }}},
         {{SpecificTablesType::config, TaskMiningType::FD},
          {get_specific_config_table_name(TaskMiningType::FD),
           SearchByAttr::taskID,
@@ -145,6 +156,13 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
         {{SpecificTablesType::config, TaskMiningType::Stats},
          {get_specific_config_table_name(TaskMiningType::Stats), SearchByAttr::taskID,
          {std::make_shared<ExtendedAttribute<ushort>>("threadsCount", onam::kThreads)}}},
+       {{SpecificTablesType::result, TaskMiningType::MFD},
+        {get_specific_result_table_name(TaskMiningType::MFD),
+         SearchByAttr::taskID,
+         {
+             std::make_shared<ExtendedAttribute<std::string>>("result", "result"),
+             std::make_shared<ExtendedAttribute<std::string>>("highlights", "highlights"),
+         }}},
         {{SpecificTablesType::result, TaskMiningType::FD},
          {get_specific_result_table_name(TaskMiningType::FD),
           SearchByAttr::taskID,
