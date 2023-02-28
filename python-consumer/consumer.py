@@ -35,24 +35,27 @@ def container_exit_handler(container, container_state, active_tasks, taskID):
 
     exitCode = container_state["ExitCode"]
     match exitCode:
-        case exit_codes.TASK_SUCCESSFULLY_PROCESSED:
+        case exit_codes.TASK_SUCCESSFULLY_PROCESSED.value:
             logging.info(f"[{taskID}] task done successfully")
             logging.info(container.logs())
 
-        case exit_codes.TASK_CRASHED_STATUS_UPDATED:
+        case exit_codes.TASK_CRASHED_STATUS_UPDATED.value:
             logging.warning(f"[{taskID}] cpp-consumer has crashed, \
                 status was updated by cpp-consumer")
             logging.warning(container.logs())
 
-        case exit_codes.TASK_CRASHED_WITHOUT_STATUS_UPDATING:
+        case exit_codes.TASK_CRASHED_WITHOUT_STATUS_UPDATING.value:
             logging.warning(f"[{taskID}] cpp-consumer has crashed \
                 without status updating")
             update_internal_server_error(taskID,
                                          f"Crash {container.logs()}")
             logging.warning(container.logs())
 
-        case exit_codes.TASK_NOT_FOUND:
+        case exit_codes.TASK_NOT_FOUND.value:
             logging.warning(f"[{taskID}] task not found")
+
+        case _:
+            logging.warning(container.logs())
 
     container.remove()
     active_tasks.pop(taskID)
