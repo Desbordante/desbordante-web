@@ -128,7 +128,7 @@ export abstract class AbstractFilter<CompactDep, Dep> {
     };
 
     public static getRealPrimitiveType = (type: MainPrimitiveType): RealPrimitiveType => {
-        if (type === "Stats") {
+        if (type === "Stats" || type === "MFD") {
             throw new ApolloError("Use DatasetInfo to get info about stats");
         }
         return type === "TypoFD" ? "FD" : type;

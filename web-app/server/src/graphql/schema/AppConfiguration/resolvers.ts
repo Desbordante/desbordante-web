@@ -87,6 +87,15 @@ export const allowedCFDAlgorithms = [
     },
 ];
 
+export const allowedMFDAlgorithms = [
+    {
+        name: "MetricVerification",
+        properties: {
+            hasSupport: true,
+        },
+    },
+];
+
 export const allowedARAlgorithms = [
     { name: "Apriori", properties: { hasSupport: true, hasConfidence: true } },
 ];
@@ -115,6 +124,7 @@ export const allowedAlgorithms = new Map([
     ["TypoCluster", { algorithms: [...allowedTypoMinerAlgorithms] }],
     ["SpecificTypoCluster", { algorithms: [...allowedTypoMinerAlgorithms] }],
     ["Stats", { algorithms: [...allowedStatsAlgorithms] }],
+    ["MFD", { algorithms: [...allowedMFDAlgorithms] }],
 ]);
 
 const applicationConfig = {

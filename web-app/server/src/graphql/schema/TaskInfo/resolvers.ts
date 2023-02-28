@@ -32,18 +32,25 @@ export const TaskInfoResolvers: Resolvers = {
     TaskWithDepsResult: {
         __resolveType: ({ prefix }) => {
             // TODO: Fix
-            if (prefix === "Stats") {
-                throw new UserInputError("Stats tasks doesn't have config");
+            if (prefix === "Stats" || prefix === "MFD") {
+                throw new UserInputError(`${prefix} tasks dont have config`);
             }
+
             return `${prefix}TaskResult`;
         },
         depsAmount: async ({ prefix, state }) =>
             await state.getResultField(prefix, "depsAmount"),
         filteredDeps: async ({ state, prefix, fileID }, { filter }, context) => {
+<<<<<<< HEAD
             if (!filter.pagination) {
                 throw new UserInputError("Pagination shouldn't be null for taskInfo");
             }
 
+=======
+            if (prefix === "MFD") {
+                throw new UserInputError(`${prefix} tasks dont have config`);
+            }
+>>>>>>> 75066eda (Tweak GraphQL scheme to support MFD queries)
             const deps = await state.getResultFieldAsString(prefix, "deps");
             const params = [filter, fileID, prefix, state, context] as const;
             const specificFilter = await getSpecificFilter(prefix, [...params]);
@@ -61,7 +68,7 @@ export const TaskInfoResolvers: Resolvers = {
     PrimitiveTaskConfig: {
         __resolveType: ({ prefix }) => {
             if (prefix === "Stats") {
-                throw new UserInputError("Stats tasks doesn't have config");
+                throw new UserInputError("Stats tasks dont have config");
             }
             return `${prefix}TaskConfig`;
         },
@@ -399,6 +406,41 @@ export const TaskInfoResolvers: Resolvers = {
     },
     CFDTaskResult: {
         pieChartData: returnParent,
+    },
+    MFDTaskResult: {
+        result: async ({ prefix, state }) =>
+            await state.getResultFieldAsBoolean(prefix, "result"),
+        clustersTotalCount: async ({ prefix, state }) => {
+            const result = await state.getResultFieldAsBoolean(prefix, "result")
+            if (result) { return null; }
+
+            const highlights = await state.getResultFieldAsString(prefix, "highlights");
+            const compactData = CompactData.toCompactMFDClusters(highlights);
+
+            return compactData.length;
+        },
+        clusterRow: async({ prefix, state }, { clusterIndex, rowIndex }) => {
+          const highlights = await state.getResultFieldAsString(prefix, "highlights");
+          const highlight = CompactData.findMFDClusterRow(highlights, clusterIndex, rowIndex);
+          if (highlight === undefined) {
+              throw new ApolloError("Unreachable code")
+          }
+
+          return highlight;
+        },
+        cluster: async ({ prefix, state }, { clusterIndex, pagination, sortBy, orderBy }) => {
+            const result = await state.getResultFieldAsBoolean(prefix, "result")
+            if (result) { return null; }
+
+            const highlights = await state.getResultFieldAsString(prefix, "highlights");
+            const compactData = CompactData.toCompactMFDClusters(highlights)[clusterIndex];
+
+            return new MFDHighlightsFilter(compactData).getFilteredClusterHighlights(
+                pagination,
+                sortBy,
+                orderBy
+            );
+        },
     },
     FileFormat: {
         dataset: async ({ fileID }, obj, { models }) => {
