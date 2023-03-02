@@ -51,13 +51,17 @@ import { useErrorContext } from '@hooks/useErrorContext'; // to delete?
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
 import { showError } from '@utils/toasts';
-import { form, fignya, dependencies, formDefaultValues } from 'testFormUserr';
+import { test_form } from 'test2FormUser';
 import { MainPrimitiveType } from 'types/globalTypes';
 
-type QueryProps = {
-  primitive: MainPrimitiveType;
-  fileID: string;
-  formParams: { [key: string]: string | string[] | undefined };
+const primitives = {
+  [MainPrimitiveType.FD]: test_form,
+  [MainPrimitiveType.FD]: test_form,
+  [MainPrimitiveType.AR]: test_form,
+  [MainPrimitiveType.CFD]: test_form,
+  [MainPrimitiveType.TypoFD]: test_form,
+  [MainPrimitiveType.MFD]: test_form,
+  [MainPrimitiveType.Stats]: test_form,
 };
 
 const ConfigureAlgorithm: NextPage = () => {
@@ -65,36 +69,104 @@ const ConfigureAlgorithm: NextPage = () => {
   const { primitive, fileID, config } = useTaskUrlParams();
 
   if (router.isReady && !primitive.value) {
-    router.push({
-      pathname: '/create-task/choose-primitive',
-      query: router.query,
-    });
+    router
+      .push({
+        pathname: '/create-task/choose-primitive',
+        query: router.query,
+      })
+      .then();
   }
 
   if (router.isReady && !fileID.value) {
-    router.push({
-      pathname: '/create-task/choose-file',
-      query: router.query,
-    });
+    router
+      .push({
+        pathname: '/create-task/choose-file',
+        query: router.query,
+      })
+      .then();
   }
+
+  return (
+    <>
+      {primitive.value && fileID.value && (
+        <FormComponent
+          primitive={primitive.value}
+          fileID={fileID.value}
+          formParams={config.value}
+        />
+      )}
+    </>
+  );
+};
+
+type QueryProps = {
+  primitive: MainPrimitiveType;
+  fileID: string;
+  formParams: { [key: string]: string | string[] | undefined };
+};
+
+const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
+  const router = useRouter();
+
+  const formObject = primitives[primitive];
+
+  const formDefaultValues = formObject.formDefaults;
+  const formFields = formObject.formFields;
+
+  const formProcessor = formObject.formProcessor;
+  const formLogic = formProcessor.formLogic;
+  const formLogicDeps = formProcessor.deps;
 
   const methods = useForm({ defaultValues: formDefaultValues });
   const onSubmit = methods.handleSubmit((data) => {
     console.log(data);
   });
-  const [formState, setFormState] = useState(form);
+
+  formLogic(fileID, formFields, methods);
+
+  const [formState, setFormState] = useState(formFields);
   useEffect(() => {
-    setFormState((formSnapshot) => fignya(formSnapshot, methods));
-  }, methods.watch(dependencies));
+    setFormState((formSnapshot) => formLogic(fileID, formSnapshot, methods));
+  }, methods.watch(formLogicDeps));
+
+  const header = (
+    <>
+      <h2 className={styles.name_main}>Configure Algorithm</h2>
+      <h6 className={styles.description}>
+        Vitae ipsum leo ut tincidunt viverra nec cum.
+      </h6>
+    </>
+  );
+
+  const footer = (
+    <>
+      <Button
+        variant="secondary"
+        onClick={() =>
+          router.push({
+            pathname: '/create-task/choose-file',
+            query: router.query,
+          })
+        }
+      >
+        Go Back
+      </Button>
+      <Button variant="primary" icon={<IdeaIcon />} type={'submit'}>
+        Analyze
+      </Button>
+    </>
+  );
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={onSubmit}>
-        {Object.entries(formState)
-          .sort((A, B) => B[1].order - A[1].order)
-          .map(([name, field]) => null)}
-      </form>
-    </FormProvider>
+    <WizardLayout header={header} footer={footer}>
+      <FormProvider {...methods}>
+        <form onSubmit={onSubmit}>
+          {Object.entries(formState)
+            .sort((A, B) => B[1].order - A[1].order)
+            .map(([name, field]) => null)}
+        </form>
+      </FormProvider>
+    </WizardLayout>
   );
 };
 
