@@ -1,5 +1,7 @@
 #pragma once
 
+#include "table_processor.h"
+
 #include <enum.h>
 #include <filesystem>
 #include <utility>
@@ -7,13 +9,18 @@
 #include <boost/mp11.hpp>
 
 #include "algorithms/primitive.h"
-#include "table_processor.h"
 
 namespace algos {
 
-BETTER_ENUM(IMPL, char, SETSV, SETPAIR, VECTORSV, VECTORPAIR)
+//BETTER_ENUM(IMPL, char, SETSV, SETPAIR, VECTORSV, VECTORPAIR)
+BETTER_ENUM(DataType, char, SET, VECTOR)
 
-using impl_tuple = std::tuple<SetStringView, SetPair, VectorStringView, VectorPair>;
+using set_impl_tuple =
+        std::tuple<SetBasedTableProcessor<+KeyType::STRING_VIEW>,
+                   SetBasedTableProcessor<+KeyType::UINT_PAIR>>;
+using vec_impl_tuple =
+        std::tuple<VectorTableProcessor<+KeyType::STRING_VIEW>,
+                   VectorTableProcessor<+KeyType::UINT_PAIR>>;
 
 class IDAlgorithm : public Primitive {
 public:
@@ -24,7 +31,8 @@ public:
         std::size_t ram_limit;
         std::size_t mem_check_frequency = 100000;
         std::size_t threads_count = 1;
-        IMPL impl;
+        DataType data_type;
+        KeyType key_type;
     };
 
     static std::vector<std::filesystem::path> GetPathsFromData(std::filesystem::path const& data) {
@@ -59,11 +67,11 @@ public:
     auto& getStream() const {
         return *(streams__[0]);
     }
-    template <typename TableProcessorBase = BaseTableProcessor, typename... Ts>
-    static std::unique_ptr<TableProcessorBase> CreateTableProcessorInstance(IMPL primitive,
+    template <typename impl_tuple, typename TableProcessorBase = BaseTableProcessor, typename... Ts>
+    static std::unique_ptr<TableProcessorBase> CreateTableProcessorInstance(KeyType primitive,
                                                                             Ts&&... args) {
         auto const create = [&args...](auto I) -> std::unique_ptr<TableProcessorBase> {
-            using ImplType = TableProcessor<std::tuple_element_t<I, impl_tuple>>;
+            using ImplType = std::tuple_element_t<I, impl_tuple>;
             if constexpr (std::is_convertible_v<ImplType*, TableProcessorBase*>) {
                 return std::make_unique<ImplType>(std::forward<Ts>(args)...);
             } else {
@@ -82,13 +90,21 @@ public:
         for (const auto& path : config_.paths) {
             std::cout << "PROCESS NEXT DATASET\n";
             std::cout << "Dataset: " << path.filename() << std::endl;
-            auto processor = CreateTableProcessorInstance(
-                    config_.impl, path, config_.separator, config_.has_header, config_.ram_limit,
-                    config_.mem_check_frequency, config_.threads_count, state.n_cols);
+            std::unique_ptr<BaseTableProcessor> processor;
+            if (config_.data_type == +DataType::SET) {
+                processor = CreateTableProcessorInstance<set_impl_tuple>(
+                        config_.key_type, path, config_.separator, config_.has_header, config_.ram_limit,
+                        state.n_cols, config_.mem_check_frequency);
+            }
+            else {
+                processor = CreateTableProcessorInstance<vec_impl_tuple>(
+                        config_.key_type, path, config_.separator, config_.has_header, config_.ram_limit,
+                        state.n_cols, config_.threads_count);
+            }
             processor->Execute();
             state.tableColumnStartIndexes.emplace_back(state.n_cols);
-            state.n_cols += processor->GetHeaderSize();
-            state.number_of_columns.emplace_back(processor->GetHeaderSize());
+            state.n_cols += processor->HeaderSize();
+            state.number_of_columns.emplace_back(processor->HeaderSize());
             auto max_values = processor->GetMaxValues();
             state.max_values.insert(state.max_values.end(), max_values.begin(), max_values.end());
             std::cout << "DATASET PROCESSED\n\n";

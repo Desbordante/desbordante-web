@@ -40,7 +40,7 @@ void Spider::RegisterUID(UID uid) {
 void Spider::InitializeAttributes() {
     attrs.reserve(state.n_cols);
     for (std::size_t attr_id = 0; attr_id != state.n_cols; ++attr_id) {
-        auto path = TableProcessor<VectorStringView>::GeneratePath(attr_id);
+        auto path = BaseTableProcessor::GetResultColumnPath(attr_id);
         auto attr_ptr = new Attribute{attr_id, state.n_cols, StrCursor{path}, state.max_values};
         auto [attr_it, is_inserted] = attrs.emplace(attr_id, std::move(*attr_ptr));
         if (!is_inserted) {

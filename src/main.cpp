@@ -1,29 +1,10 @@
-#include <algorithm>
 #include <cstring>
-#include <fcntl.h>
 #include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <malloc.h>
-#include <memory>
-#include <optional>
-#include <set>
-#include <stdexcept>
 #include <string>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <sys/sysinfo.h>
-#include <thread>
-#include <unistd.h>
-#include <utility>
 #include <vector>
 
-#include "algorithms/algo_factory.h"
-#include "algorithms/ar_algorithm_enums.h"
 #include "algorithms/create_primitive.h"
-#include "algorithms/metric/enums.h"
-#include "algorithms/options/descriptions.h"
-#include "algorithms/options/names.h"
 #include "algorithms/spider/brute_force.h"
 #include "algorithms/spider/spider.h"
 // namespace util {
@@ -86,11 +67,12 @@ std::vector<std::filesystem::path> GetPathsFromData(std::filesystem::path const&
 }
 
 template <typename T>
-static std::unique_ptr<T> Create(std::vector<std::string> const& filenames, algos::IMPL impl,
+static std::unique_ptr<T> Create(std::vector<std::string> const& filenames, algos::DataType data,
+                                 KeyType key,
                                  std::size_t ram_limit, std::size_t mem_check_frequency,
                                  std::size_t threads, char separator = ',',
                                  bool has_header = false) {
-    std::cout << "[[" << impl._to_string() << "]]" << std::endl;
+    std::cout << "[[" << data._to_string() << " " << key._to_string() << "]]" << std::endl;
     std::vector<std::filesystem::path> paths;
     paths.reserve(filenames.size());
     for (auto const& filename : filenames) {
@@ -104,17 +86,22 @@ static std::unique_ptr<T> Create(std::vector<std::string> const& filenames, algo
                                     .ram_limit = ram_limit,
                                     .mem_check_frequency = mem_check_frequency,
                                     .threads_count = threads,
-                                    .impl = impl};
+                                    .data_type=data,
+                                    .key_type=key};
     auto ptr = std::make_unique<T>(conf);
     ptr->Fit(ptr->getStream());
     return ptr;
 }
 int main(int argc, char const* argv[]) {
-    auto impl{algos::IMPL::VECTORPAIR};
+    auto data{algos::DataType::VECTOR};
     int cur_arg = 2;
     auto get_cur_arg = [&cur_arg, &argv]() -> const char*& { return argv[cur_arg++ - 1]; };
     if (argc >= cur_arg) {
-        impl = algos::IMPL::_from_string_nocase(get_cur_arg());
+        data = algos::DataType::_from_string_nocase(get_cur_arg());
+    }
+    auto key{KeyType::STRING_VIEW};
+    if (argc >= cur_arg) {
+        key = KeyType::_from_string_nocase(get_cur_arg());
     }
     auto ram_memory_limit{8 * (std::size_t)std::pow(2, 30)};
     if (argc >= cur_arg) {
@@ -142,7 +129,7 @@ int main(int argc, char const* argv[]) {
     } else {
         files.emplace_back("tpc-lnk");
     }
-    auto instance = Create<algos::Spider>(files, impl, ram_memory_limit, mem_check_frequency,
+    auto instance = Create<algos::Spider>(files, data, key, ram_memory_limit, mem_check_frequency,
                                           threads, sep, has_header);
     instance->Execute();
 
