@@ -5,6 +5,25 @@
 
 using namespace algos;
 
+void Spider::PreprocessData() {
+    SpilledFilesManager spilled_manager{temp_dir};
+
+    for (const auto& path : paths_) {
+        std::cout << "PROCESS NEXT DATASET\n";
+        std::cout << "Dataset: " << path.filename() << std::endl;
+
+        auto processor = CreateChunkProcessor(path, spilled_manager);
+        processor->Execute();
+        state.tableColumnStartIndexes.emplace_back(state.n_cols);
+        state.n_cols += processor->GetHeaderSize();
+        state.number_of_columns.emplace_back(processor->GetHeaderSize());
+
+        std::cout << "DATASET PROCESSED\n\n";
+    }
+    state.max_values = spilled_manager.GetMaxValues();
+}
+
+
 unsigned long long Spider::ExecuteInternal() {
     auto preprocess_time = std::chrono::system_clock::now();
     PreprocessData();
@@ -40,7 +59,7 @@ void Spider::RegisterUID(UID uid) {
 void Spider::InitializeAttributes() {
     attrs.reserve(state.n_cols);
     for (std::size_t attr_id = 0; attr_id != state.n_cols; ++attr_id) {
-        auto path = BaseTableProcessor::GetResultColumnPath(attr_id);
+        auto path = SpilledFilesManager::GetResultColumnPath(attr_id);
         auto attr_ptr = new Attribute{attr_id, state.n_cols, StrCursor{path}, state.max_values};
         auto [attr_it, is_inserted] = attrs.emplace(attr_id, std::move(*attr_ptr));
         if (!is_inserted) {

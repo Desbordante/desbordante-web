@@ -15,21 +15,17 @@
 #include <sys/mman.h>
 #include <thread>
 #include <unistd.h>
+#include <utility>
 #include <vector>
-
-namespace fs = std::filesystem;
 
 class ChunkGenerator {
 public:
-    struct Config {
-        uintmax_t file_size;
-        int fd_;
-        std::size_t memory_limit;
-    };
     using CharPtr = char*;
 
 private:
-    Config config_;
+    std::size_t file_size_;
+    int fd_;
+
     using ChunkData = std::unique_ptr<char, std::function<void(CharPtr)>>;
     ChunkData data_;
 
@@ -47,12 +43,13 @@ private:
         begin_ = SpecifyChunkStart(data_.get());
         end_ = SpecifyChunkEnd(data_.get() + specified_chunk_size_);
     }
+
     CharPtr SpecifyChunkStart(CharPtr data) const {
         if (current_chunk_ == 0) {
             return data;
         }
-        while (*(data++) != '\n') {
-        }
+        while (*(data++) != '\n')
+            ;
         return data;
     }
 
@@ -60,24 +57,26 @@ private:
         if (current_chunk_ == chunks_n_ - 1) {
             return data;
         }
-        while (*(--data) != '\n') {
-        }
+        while (*(--data) != '\n')
+            ;
         return data;
     }
 
 public:
-    explicit ChunkGenerator(Config config) : config_(config), begin_(nullptr), end_(nullptr) {
-        if (config.fd_ == -1) {
-            throw std::runtime_error("Failed to open file.");
+    ChunkGenerator(std::filesystem::path const& path, std::size_t memory_limit)
+        : file_size_(std::filesystem::file_size(path)),
+          fd_(open(path.c_str(), O_RDONLY)),
+          begin_(nullptr),
+          end_(nullptr) {
+        if (fd_ == -1) {
+            throw std::runtime_error("Failed to open file " + std::string(path));
         }
-        chunks_n_ = std::ceil((double)config_.file_size / (double)config_.memory_limit);
-//        chunks_n_ = std::max((std::size_t)2, chunks_n_);
-        chunk_size_ = (config_.file_size / chunks_n_) & ~(sysconf(_SC_PAGE_SIZE) - 1);
-        specified_chunk_size_ = std::min(chunk_size_ + sysconf(_SC_PAGE_SIZE), config_.file_size);
+        chunks_n_ = std::ceil((double)file_size_ / (double)memory_limit);
+        //        chunks_n_ = std::max((std::size_t)2, chunks_n_);
+        auto page_size = sysconf(_SC_PAGE_SIZE);
+        chunk_size_ = (file_size_ / chunks_n_) & ~(page_size - 1);
+        specified_chunk_size_ = std::min(chunk_size_ + page_size, file_size_);
         current_chunk_ = -1;
-    }
-    bool Splitted() const {
-        return chunks_n_ != 1;
     }
     std::size_t ChunksNumber() const {
         return chunks_n_;
@@ -88,7 +87,7 @@ public:
     std::size_t CurrentChunk() const {
         return current_chunk_;
     }
-    std::pair<CharPtr, CharPtr> GetCurrent() {
+    std::pair<CharPtr, CharPtr> GetCurrent() const {
         return {begin_, end_};
     }
     bool HasNext() const {
@@ -101,20 +100,20 @@ public:
         current_chunk_++;
         auto offset = current_chunk_ * chunk_size_;
         if (current_chunk_ == chunks_n_ - 1) {
-            specified_chunk_size_ = config_.file_size - offset;
+            specified_chunk_size_ = file_size_ - offset;
         }
         if (chunks_n_ != 1) {
             std::cout << "Chunk: " << current_chunk_ << '\n';
         }
         data_.reset();
-        auto data = (char*)mmap(nullptr, specified_chunk_size_, PROT_READ, MAP_PRIVATE, config_.fd_,
+        auto data = (char*)mmap(nullptr, specified_chunk_size_, PROT_READ, MAP_PRIVATE, fd_,
                                 (off_t)offset);
         if (data == MAP_FAILED) {
-            close(config_.fd_);
+            close(fd_);
             throw std::runtime_error("Failed to mmap file.");
         }
         data_ = ChunkData(data,
-                          [length =specified_chunk_size_](auto data) { munmap(data, length); });
+                          [length = specified_chunk_size_](auto data) { munmap(data, length); });
 
         SetChunkBorders();
         return GetCurrent();

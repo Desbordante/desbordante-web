@@ -4,8 +4,14 @@
 #include <set>
 #include <string>
 #include <utility>
+#include <boost/mp11.hpp>
+#include <boost/mp11/algorithm.hpp>
+#include <boost/mp11/list.hpp>
 
-#include "brute_force.h"
+#include "algorithms/primitive.h"
+#include "table_processor.h"
+
+#include "id_algorithm.h"
 #include "model/cursor.h"
 
 namespace algos {
@@ -106,15 +112,56 @@ public:
         }
     };
 
-protected:
+private:
+    template <ColTypeImpl col_type, typename... Args>
+    decltype(auto) CreateConcreteChunkProcessor(ColTypeImpl value, Args&&... args) const {
+        auto create = [&args...](auto i) -> std::unique_ptr<BaseTableProcessor> {
+            constexpr auto key_type_v = static_cast<KeyTypeImpl>(static_cast<std::size_t>(i));
+            using ConcreteChunkProcessor = ChunkProcessor<key_type_v, col_type>;
+            return std::make_unique<ConcreteChunkProcessor>(std::forward<Args>(args)...);
+        };
+        return boost::mp11::mp_with_index<std::tuple_size<details::KeysTuple>>(
+                static_cast<std::size_t>(value), create);
+    }
+
+    decltype(auto) CreateChunkProcessor(std::filesystem::path const& path,
+                                        SpilledFilesManager& manager) const {
+        BaseTableProcessor::DatasetConfig dataset{
+                .path = path, .separator = separator_, .has_header = has_header_};
+        auto col_type_v = static_cast<ColTypeImpl>(col_type._to_index());
+
+        if (col_type == +ColType::SET) {
+            return CreateConcreteChunkProcessor<ColTypeImpl::SET>(
+                    col_type_v, manager, dataset, ram_limit, mem_check_frequency);
+        } else {
+            return CreateConcreteChunkProcessor<ColTypeImpl::VECTOR>(
+                    col_type_v, manager, dataset, ram_limit, threads_count);
+        }
+    }
+
+    std::filesystem::path temp_dir = "temp";
+    std::size_t ram_limit;
+    std::size_t mem_check_frequency = 100000;
+    std::size_t threads_count = 1;
+    ColType col_type = +ColType::SET;
+    KeyType key_type = +KeyType::STRING_VIEW;
+
     std::vector<UID> result_;
     AttrMap attrs;
     std::priority_queue<Attribute*, std::vector<Attribute*>,
                         std::function<int(Attribute*, Attribute*)>>
             attributeObjectQueue{
                     [](Attribute* lhs, Attribute* rhs) { return lhs->CompareTo(*rhs) >= 0; }};
+    struct InnerState {
+        std::size_t n_cols = 0;
+        std::vector<std::string> max_values{};
+        std::vector<std::size_t> number_of_columns{};
+        std::vector<std::size_t> tableColumnStartIndexes{};
+    } state;
 
+protected:
     unsigned long long ExecuteInternal() final;
+    void PreprocessData();
     void InitializeAttributes();
     virtual void ComputeUIDs();
     void Output();
@@ -127,7 +174,7 @@ protected:
     void printResult(std::ostream& out) const {
         std::vector<std::string> columns;
         columns.reserve(state.n_cols);
-        for (std::size_t i = 0; i != config_.paths.size(); ++i) {
+        for (std::size_t i = 0; i != paths_.size(); ++i) {
             for (std::size_t j = 0; j != state.number_of_columns[i]; ++j) {
                 std::string name = std::to_string(i) + "." + std::to_string(j);
                 columns.emplace_back(name);
@@ -139,25 +186,9 @@ protected:
         }
         out << std::endl;
     }
-//    void printResult(std::ostream& out) const {
-//        std::vector<std::string> columns;
-//        columns.reserve(state.n_cols);
-//        for (std::size_t i = 0; i != config_.paths.size(); ++i) {
-//            for (std::size_t j = 0; j != state.number_of_columns[i]; ++j) {
-//                std::string name = std::to_string(i) + "." + std::to_string(j);
-//                columns.emplace_back(name);
-//            }
-//        }
-//        for (UID const& uid : result_) {
-//            printUID(out, uid, columns);
-//            out << std::endl;
-//        }
-//        out << std::endl;
-//    }
 
 public:
-    explicit Spider(Config const& config)
-        : IDAlgorithm(config, {"Data processing", "IND calculation"}) {}
+    explicit Spider(): IDAlgorithm({}) {}
 
     void FitInternal(model::IDatasetStream&) override {}
     const std::vector<UID>& getUIDs() const {
