@@ -39,6 +39,7 @@ export type FormSelect<
   type: 'select';
 
   options: string[];
+  isLoading?: boolean;
 };
 
 // Field with multiple select
@@ -49,6 +50,7 @@ export type FormMultiSelect<
   type: 'multi_select';
 
   options: string[];
+  isLoading?: boolean;
 };
 
 // Field with number slider
@@ -122,14 +124,19 @@ export type FormFields<TFields extends Defaults> = {
   [Key in keyof TFields]: FormInput<TFields, Key>; // TODO: add extraction for correct form input
 };
 
-export type FormLogic<
+export type FormHook<
   TFields extends Defaults,
   TFormFields extends FormFields<TFields>
 > = (
   fileID: string,
   form: TFormFields,
   methods: UseFormReturn<TFields>
-) => TFormFields;
+) => void;
+
+export type FormLogic<
+  TFields extends Defaults,
+  TFormFields extends FormFields<TFields>
+> = (form: TFormFields, methods: UseFormReturn<TFields>) => TFormFields;
 
 export type FormProcessor<
   TFields extends Defaults,
@@ -158,6 +165,7 @@ export type Form<
 > = {
   formDefaults: TFields;
   formFields: TFormFields;
+  useFormHook: FormHook<TFields, TFormFields>;
   formProcessor: FormProcessor<TFields, TFormFields>;
 };
 
@@ -167,11 +175,25 @@ export const CreateForm: <
 >(
   formDefaults: TFields,
   formFields: TFormFields,
-  formProcessor: FormProcessor<TFields, TFormFields>
-) => Form<TFields, TFormFields> = (formDefaults, formFields, formProcessor) => {
+  useFormHook?: FormHook<TFields, TFormFields>,
+  formProcessor?: FormProcessor<TFields, TFormFields>
+) => Form<TFields, TFormFields> = (
+  formDefaults,
+  formFields,
+  useFormHook = undefined,
+  formProcessor = undefined
+) => {
   return {
     formDefaults,
     formFields,
-    formProcessor,
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    useFormHook: useFormHook || (() => {}),
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    formProcessor: formProcessor || {
+      formLogic: (form) => {
+        return form;
+      },
+      deps: [],
+    },
   };
 };

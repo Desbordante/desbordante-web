@@ -10,12 +10,14 @@ import {
   FormFields,
   CreateFormProcessor,
   CreateForm,
+  FormHook,
 } from 'types/form';
 import { MainPrimitiveType } from 'types/globalTypes';
 
 const test_defaults = {
   algoName: '',
   maxLHS: 123,
+  LHSColumn: [] as string[],
   testIUFDSHUI: 'asd',
 } satisfies Defaults;
 
@@ -36,6 +38,12 @@ const test_fields = {
     label: 'Maximum LHS',
     type: 'checkbox',
   },
+  LHSColumn: {
+    order: 2,
+    label: 'LHS Columns',
+    type: 'multi_select',
+    options: [] as string[],
+  },
   testIUFDSHUI: {
     order: 3,
     type: 'custom',
@@ -45,10 +53,11 @@ const test_fields = {
   },
 } satisfies FormFields<typeof test_defaults>;
 
-const test_processor = CreateFormProcessor<
-  typeof test_defaults,
-  typeof test_fields
->((fileID, form, methods) => {
+const useTestHook: FormHook<typeof test_defaults, typeof test_fields> = (
+  fileID,
+  form, // TODO: add function to edit form
+  methods
+) => {
   const { loading, error, data } = useQuery<
     getCountOfColumns,
     getCountOfColumnsVariables
@@ -61,9 +70,31 @@ const test_processor = CreateFormProcessor<
       );
     },
   });
-  form.testIUFDSHUI.test = 'asd';
 
-  return form;
-}, []);
+  form.LHSColumn.options =
+    data?.datasetInfo.header ||
+    [...Array(data?.datasetInfo.countOfColumns || 0)].map((_, i) => String(i));
 
-export const test_form = CreateForm(test_defaults, test_fields, test_processor);
+  console.log('Hello from field hook!', data);
+};
+
+const test_processor = CreateFormProcessor<
+  typeof test_defaults,
+  typeof test_fields
+>(
+  (form, methods) => {
+    form.testIUFDSHUI.test = 'asd';
+
+    console.log('Hello from field logic!');
+
+    return form;
+  },
+  ['maxLHS']
+);
+
+export const test_form = CreateForm(
+  test_defaults,
+  test_fields,
+  useTestHook,
+  test_processor
+);

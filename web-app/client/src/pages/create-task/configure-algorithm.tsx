@@ -49,9 +49,9 @@ import {
 import { GET_COUNT_OF_COLUMNS } from '@graphql/operations/queries/getDatasetColumnCount';
 import { useErrorContext } from '@hooks/useErrorContext'; // to delete?
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
+import { test_form } from '@pages/create-task/configurator-forms/test2FormUser';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
 import { showError } from '@utils/toasts';
-import { test_form } from 'test2FormUser';
 import { MainPrimitiveType } from 'types/globalTypes';
 
 const primitives = {
@@ -122,12 +122,14 @@ const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
     console.log(data);
   });
 
-  formLogic(fileID, formFields, methods);
-
   const [formState, setFormState] = useState(formFields);
+
+  formObject.useFormHook(fileID, formState, methods);
+
   useEffect(() => {
-    setFormState((formSnapshot) => formLogic(fileID, formSnapshot, methods));
-  }, methods.watch(formLogicDeps));
+    setFormState((formSnapshot) => formLogic(formSnapshot, methods));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formLogic, methods, ...methods.watch(formLogicDeps)]);
 
   const header = (
     <>
@@ -151,7 +153,7 @@ const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
       >
         Go Back
       </Button>
-      <Button variant="primary" icon={<IdeaIcon />} type={'submit'}>
+      <Button variant="primary" icon={<IdeaIcon />} onClick={onSubmit}>
         Analyze
       </Button>
     </>
@@ -161,9 +163,15 @@ const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
     <WizardLayout header={header} footer={footer}>
       <FormProvider {...methods}>
         <form onSubmit={onSubmit}>
-          {Object.entries(formState)
-            .sort((A, B) => B[1].order - A[1].order)
-            .map(([name, field]) => null)}
+          {Object.entries(formState) // TODO: move to useMemo
+            .sort((A, B) => A[1].order - B[1].order)
+            .map(([name, field]) => (
+              <div key={field.order}>
+                <div>{name}</div>
+                <div>{JSON.stringify(field)}</div>
+                <br />
+              </div>
+            ))}
         </form>
       </FormProvider>
     </WizardLayout>
