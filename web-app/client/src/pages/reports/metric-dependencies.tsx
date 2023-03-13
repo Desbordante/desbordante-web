@@ -5,9 +5,10 @@ import React, {
   ReactElement,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react';
-import { FormProvider, useForm, useFormContext } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import EyeIcon from '@assets/icons/eye.svg?component';
 import OrderingIcon from '@assets/icons/ordering.svg?component';
@@ -19,17 +20,13 @@ import ListPropertiesModal from '@components/ListPropertiesModal';
 import Pagination from '@components/Pagination/Pagination';
 import ReportsLayout from '@components/ReportsLayout';
 
-import Table, {
-  Row,
-  ScrollDirection,
-  TableProps,
-} from '@components/ScrollableNodeTable';
+import { ScrollDirection } from '@components/ScrollableNodeTable';
 import { MFDTable } from '@components/ScrollableNodeTable/implementations/MFDTable';
 import useMFDHighlight from '@hooks/useMFDHighlight';
 import useMFDTask from '@hooks/useMFDTask';
 import styles from '@styles/MetricDependencies.module.scss';
 
-import { MFDSortBy, OrderBy, PrimitiveType } from 'types/globalTypes';
+import { MFDSortBy, OrderBy } from 'types/globalTypes';
 
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
@@ -47,26 +44,25 @@ const ReportsMFD: NextPageWithLayout = () => {
   const router = useRouter();
   const taskID = router.query.taskID as string;
 
-  const [scrollingEnabled, setScrollingEnabled] = useState(true);
+  const shouldIgnoreScrollEvent = useRef(false);
   const [clusterIndex, setClusterIndex] = useState(0);
-  const [offset, setOffset] = useState(0);
   const [limit, setLimit] = useState(defaultLimit);
-  const [sortBy, setSortBy] = useState(MFDSortBy.FURTHEST_POINT_INDEX);
-  // TODO: Add direction of sorting
+  const [sortBy, setSortBy] = useState(MFDSortBy.POINT_INDEX);
+  const [orderBy, setOrderBy] = useState(OrderBy.ASC);
 
   const { data, loading, error } = useMFDTask(
     taskID,
     clusterIndex,
-    offset,
     limit,
-    sortBy
+    sortBy,
+    orderBy
   );
 
   useEffect(() => {
     if (!loading && !error && data) {
-      setScrollingEnabled(true);
+      shouldIgnoreScrollEvent.current = false;
     }
-  }, [data, error, loading]);
+  }, [data, error, loading, limit]);
 
   const [isOrderingShown, setIsOrderingShown] = useState(false);
   const [showFullValue, setShowFullValue] = useState(false);
@@ -76,10 +72,7 @@ const ReportsMFD: NextPageWithLayout = () => {
   const [RowIndex, setRowIndex] = useState(0);
   const [furthestData, setFurthestData] = useState(undefined as InsertedRow);
 
-  const [
-    loadMFDHighlight,
-    { loading: highlightLoading, error: highlightError, data: highlightData },
-  ] = useMFDHighlight();
+  const [loadMFDHighlight, { data: highlightData }] = useMFDHighlight();
 
   useEffect(() => {
     if (isInserted) {
@@ -88,11 +81,9 @@ const ReportsMFD: NextPageWithLayout = () => {
         highlightData?.taskInfo?.data.__typename === 'SpecificTaskData' &&
         highlightData?.taskInfo.data.result?.__typename === 'MFDTaskResult' &&
         highlightData.taskInfo.data.result.__typename === 'MFDTaskResult' &&
-        highlightData.taskInfo.data.result.cluster &&
-        highlightData.taskInfo.data.result.cluster.highlights.length > 0
+        highlightData.taskInfo.data.result.clusterRow
       ) {
-        const highlight =
-          highlightData.taskInfo.data.result.cluster.highlights[0];
+        const highlight = highlightData.taskInfo.data.result.clusterRow;
 
         setFurthestData({
           position: RowIndex,
@@ -126,8 +117,8 @@ const ReportsMFD: NextPageWithLayout = () => {
       setIsInserted(true);
       loadMFDHighlight({
         // TODO: Wait for backend to implement getting highlight by index
-        variables: { taskID, clusterIndex, pointIndex: furthestIndex },
-      });
+        variables: { taskID, clusterIndex, rowIndex: furthestIndex },
+      }).then();
     },
     [loadMFDHighlight, taskID, clusterIndex]
   );
@@ -136,58 +127,29 @@ const ReportsMFD: NextPageWithLayout = () => {
     setIsInserted(false);
   }, []);
 
-  // TEST DATA
-  const tableData: MFDHighlight[] = [...Array(150)].map(
-    (_, i) =>
-      ({
-        index: i + offset,
-        rowIndex: i + offset,
-        withinLimit: !!(i % 2),
-        maximumDistance: 1,
-        furthestPointIndex: 1,
-        value: '' + i,
-      } as MFDHighlight)
-  );
-
-  console.log(offset);
-
-  // console.log(tableData);
-  // TODO: test this with test data
-  // we have buffer of 150 rows, and we offset by 50 rows
+  // TODO: move logic to the table component and make API for that
   const onScroll = useCallback(
     (direction: ScrollDirection) => {
-      if (scrollingEnabled) {
-        console.log(scrollingEnabled, direction);
+      console.log(
+        shouldIgnoreScrollEvent.current,
+        direction,
+        defaultOffsetDifference
+      );
+
+      if (!shouldIgnoreScrollEvent.current && direction === 'down') {
         // forbid scrolling until data is loaded
-        setScrollingEnabled(false);
-        // if direction is 'up'
-        if (direction === 'up') {
-          // and offset is bigger than 50
-          if (offset - defaultOffsetDifference > 0) {
-            // decrease offset by 50
-            setOffset((offset) => offset - defaultOffsetDifference);
-          }
-          // and offset is less than 50
-          else {
-            // snap to the top
-            setOffset(0);
-          }
-        }
-        // if direction is 'down'
-        if (direction === 'down') {
-          // and offset + 150 don't exceed the total number of rows
-          if (offset + defaultLimit < data.cluster.highlightsTotalCount) {
-            // increase offset by 50
-            setOffset((offset) => offset + defaultOffsetDifference);
-          }
-          // and if offset + 150 exceed the total number of rows we do nothing because we already have buffer of 150 rows
+        shouldIgnoreScrollEvent.current = true;
+        // and limit less than total count of highlights
+        if (limit < data.cluster.highlightsTotalCount) {
+          // increase limit by 50
+          setLimit((limit) => limit + defaultOffsetDifference);
+        } else {
+          shouldIgnoreScrollEvent.current = false;
         }
       }
     },
-    [data.cluster.highlightsTotalCount, offset, scrollingEnabled]
+    [data.cluster.highlightsTotalCount, limit]
   );
-
-  // console.log(data);
 
   return (
     <>
@@ -195,6 +157,7 @@ const ReportsMFD: NextPageWithLayout = () => {
         <OrderingWindow
           setIsOrderingShown={setIsOrderingShown}
           setSortBy={setSortBy}
+          setOrderBy={setOrderBy}
         />
       )}
 
@@ -223,7 +186,7 @@ const ReportsMFD: NextPageWithLayout = () => {
                     icon={<OrderingIcon />}
                     onClick={() => setIsOrderingShown(true)}
                   >
-                    Ordering
+                    Ordering {/* FIXME: Maybe change to "Sorting"?*/}
                   </Button>
                   <Button
                     variant="secondary"
@@ -289,35 +252,38 @@ const ReportFiller: FC<ReportFillerProps> = ({ title, description }) => {
 type OrderingProps = {
   setIsOrderingShown: (arg: boolean) => void;
   setSortBy: (arg: MFDSortBy) => void;
+  setOrderBy: (arg: OrderBy) => void;
 };
 
 type SortingProps = {
-  ordering: MFDSortBy;
+  sorting: MFDSortBy;
+  ordering: OrderBy;
 };
 
 const OrderingWindow: FC<OrderingProps> = ({
   setIsOrderingShown,
   setSortBy,
+  setOrderBy,
 }) => {
-  const orderingOptions = [
-    { value: MFDSortBy.FURTHEST_POINT_INDEX, label: 'Furthest point index' },
+  const sortingOptions = [
     { value: MFDSortBy.POINT_INDEX, label: 'Point index' },
+    { value: MFDSortBy.FURTHEST_POINT_INDEX, label: 'Furthest point index' },
     { value: MFDSortBy.MAXIMUM_DISTANCE, label: 'Maximum distance' },
   ];
 
-  // const directionOptions = {
-  //   [OrderBy.ASC]: { value: OrderBy.ASC, label: 'Ascending' },
-  //   [OrderBy.DESC]: { value: OrderBy.DESC, label: 'Descending' },
-  // };
+  const orderingOptions = {
+    [OrderBy.ASC]: { value: OrderBy.ASC, label: 'Ascending' },
+    [OrderBy.DESC]: { value: OrderBy.DESC, label: 'Descending' },
+  };
 
   const { control, watch, reset } = useForm<SortingProps>({
     defaultValues: {
-      ordering: MFDSortBy.FURTHEST_POINT_INDEX,
-      // direction: baseForm.watch('direction'),
+      sorting: MFDSortBy.POINT_INDEX,
+      ordering: OrderBy.ASC,
     },
   });
 
-  const { ordering } = watch();
+  const { sorting, ordering } = watch();
 
   // TODO: Fix "value.match..." error when changing form parameter (this error is present on deployed version, btw)
   return (
@@ -328,11 +294,18 @@ const OrderingWindow: FC<OrderingProps> = ({
         setIsOrderingShown(false);
       }}
       onApply={() => {
-        setSortBy(ordering);
+        setSortBy(sorting);
+        setOrderBy(ordering);
         // baseForm.setValue('direction', direction);
         setIsOrderingShown(false);
       }}
     >
+      <ControlledSelect
+        control={control}
+        controlName="sorting"
+        label="Sort by"
+        options={_.values(sortingOptions)}
+      />
       <ControlledSelect
         control={control}
         controlName="ordering"

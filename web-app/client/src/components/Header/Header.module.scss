@@ -28,6 +28,14 @@
 
   .brand {
     cursor: pointer;
+
+    .brandName {
+      color: $black;
+    }
+  }
+
+  a {
+    text-decoration: none;
   }
 
   .brandName {
