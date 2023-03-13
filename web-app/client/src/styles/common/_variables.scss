@@ -58,3 +58,7 @@ $error-05: rgba($error, 0.05);
 $success-05: rgba($success, 0.05);
 
 $background: rgb(242, 245, 251);
+
+/* Breakpoints */
+$screen-sm-max: 768px;
+$screen-md-min: $screen-sm-max + 1px;

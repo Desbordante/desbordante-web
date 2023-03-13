@@ -9,6 +9,10 @@
   padding: 24px 64px;
   z-index: 1000;
 
+  @include sm {
+    padding: 24px 28px;
+  }
+
   .brand,
   .auth {
     display: flex;
@@ -16,8 +20,26 @@
     gap: 16px;
   }
 
+  .auth {
+    @include sm {
+      display: none;
+    }
+  }
+
   .brand {
     cursor: pointer;
+  }
+
+  .brandName {
+    @include sm {
+      display: none;
+    }
+  }
+
+  .menu {
+    @include sm-up {
+      display: none;
+    }
   }
 }
 
