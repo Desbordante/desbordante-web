@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import ListIcon from '@assets/icons/list.svg?component';
 import Button from '@components/Button';
 import { useAuthContext } from '@hooks/useAuthContext';
 import useModal from '@hooks/useModal';
@@ -45,6 +46,13 @@ const Header = () => {
           <h6 className={styles.brandName}>Desbordante</h6>
         </div>
       </Link>
+      <Button
+        variant="secondary"
+        size="sm"
+        aria-label="open menu"
+        icon={<ListIcon />}
+        className={styles.menu}
+      />
       <div className={styles.auth}>
         {user?.name ? (
           <>
