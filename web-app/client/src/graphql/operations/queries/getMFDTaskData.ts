@@ -8,6 +8,7 @@ export const GET_MFD_TASK_DATA = gql`
     $offset: Int!
     $limit: Int!
     $sortBy: MFDSortBy!
+    $orderBy: OrderBy!
   ) {
     taskInfo(taskID: $taskID) {
       __typename
@@ -24,6 +25,7 @@ export const GET_MFD_TASK_DATA = gql`
                   clusterIndex: $clusterIndex
                   pagination: { offset: $offset, limit: $limit }
                   sortBy: $sortBy
+                  orderBy: $orderBy
                 ) {
                   value
                   highlightsTotalCount

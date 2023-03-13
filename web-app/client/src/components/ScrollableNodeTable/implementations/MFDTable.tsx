@@ -74,9 +74,10 @@ const getMFDRow: (
       <div // furthest point index or close icon
         key={highlight.rowIndex + 'furthestIndex'}
         onClick={callbackFunction}
+        className={styles.clickableIndex}
       >
         {isHighlighted ? (
-          <AngleArrow height={20} width={20} />
+          <AngleArrow height={14} width={14} />
         ) : (
           highlight.furthestPointIndex
         )}
@@ -90,7 +91,7 @@ const getMFDRow: (
       </div>,
     ],
     style: getRowColor(highlight.withinLimit, position, isHighlighted),
-    key: isHighlighted ? 'Highlight-' + position : position,
+    globalIndex: isHighlighted ? 'Highlight-' + position : position,
   };
 };
 
@@ -112,7 +113,7 @@ export const MFDTable: FC<MFDTableProps> = ({
       : undefined;
 
     const highlightData = highlights.map((highlight, index) =>
-      getMFDRow(highlight, index, false, isFullValueShown, () =>
+      getMFDRow(highlight, highlight.rowIndex, false, isFullValueShown, () =>
         insertRow(highlight.furthestPointIndex, highlight.index)
       )
     );

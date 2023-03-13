@@ -4,25 +4,19 @@ export const GET_MFD_HIGHLIGHT_DATA = gql`
   query GetMFDHighlightData(
     $taskID: ID!
     $clusterIndex: Int!
-    $pointIndex: Int!
+    $rowIndex: Int!
   ) {
     taskInfo(taskID: $taskID) {
       data {
         ... on SpecificTaskData {
           result {
             ... on MFDTaskResult {
-              cluster(
-                clusterIndex: $clusterIndex
-                pagination: { offset: $pointIndex, limit: 1 }
-                sortBy: POINT_INDEX
-              ) {
-                highlights {
-                  index
-                  withinLimit
-                  maximumDistance
-                  furthestPointIndex
-                  value
-                }
+              clusterRow(clusterIndex: $clusterIndex, rowIndex: $rowIndex) {
+                index
+                withinLimit
+                maximumDistance
+                furthestPointIndex
+                value
               }
             }
           }
