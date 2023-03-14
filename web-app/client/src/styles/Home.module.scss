@@ -7,6 +7,10 @@
   width: 100%;
   height: 100%;
 
+  @include sm {
+    align-items: flex-start;
+  }
+
   .background {
     position: fixed;
     top: 0;
@@ -36,10 +40,27 @@
       justify-content: center;
     }
 
+    @include sm {
+      flex-direction: column-reverse;
+      margin: 0;
+      height: 100%;
+    }
+
     .content {
+      @include sm {
+        margin: 24px 32px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
       .name {
         margin: 0;
         color: $black;
+
+        @include sm {
+          @include heading-4;
+        }
       }
 
       .description {
@@ -47,6 +68,11 @@
         align-items: flex-end;
         margin: 1.2rem 0 0;
         color: $black;
+
+        @include sm {
+          @include paragraph;
+          margin-top: 8px;
+        }
 
         .unidataLogo {
           position: relative;
@@ -77,6 +103,26 @@
         gap: 48px;
         display: flex;
         margin-top: 2.9rem;
+
+        @include sm {
+          flex-direction: column;
+          justify-content: space-between;
+          flex-grow: 1;
+          margin-top: 28px;
+
+          button {
+            width: 100%;
+          }
+        }
+
+        .external {
+          display: inherit;
+          gap: inherit;
+
+          @include sm {
+            gap: 16px;
+          }
+        }
       }
     }
 
@@ -95,6 +141,11 @@
 
       @media (max-width: 1200px) {
         display: none;
+      }
+
+      @include sm {
+        display: block;
+        height: 72vw;
       }
 
       video {

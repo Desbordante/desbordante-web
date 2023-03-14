@@ -49,13 +49,14 @@ const Home: NextPage = () => {
             >
               Get Started
             </Button>
-
-            <ExternalLink href="https://github.com/Mstrutov/Desbordante">
-              GitHub
-            </ExternalLink>
-            <ExternalLink href="https://mstrutov.github.io/Desbordante">
-              User Guide
-            </ExternalLink>
+            <div className={styles.external}>
+              <ExternalLink href="https://github.com/Mstrutov/Desbordante">
+                GitHub
+              </ExternalLink>
+              <ExternalLink href="https://mstrutov.github.io/Desbordante">
+                User Guide
+              </ExternalLink>
+            </div>
           </div>
         </div>
         <div className={styles.videoContainer}>
