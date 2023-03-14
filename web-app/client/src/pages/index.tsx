@@ -31,16 +31,19 @@ const Home: NextPage = () => {
         <div className={styles.content}>
           <h1 className={styles.name}>Desbordante</h1>
           <h6 className={styles.description}>
-            Open-source data profiling tool supported by
-            <a
-              className={styles.unidataLogo}
-              href="https://unidata-platform.ru"
-              target="_blank"
-              rel="noreferrer"
-              title="Unidata"
-            >
-              <UnidataLogo width={150} height={26} />
-            </a>
+            Open-source data profiling tool{' '}
+            <span className={styles.supported}>
+              supported by
+              <a
+                className={styles.unidataLogo}
+                href="https://unidata-platform.ru"
+                target="_blank"
+                rel="noreferrer"
+                title="Unidata"
+              >
+                <UnidataLogo width={150} height={26} />
+              </a>
+            </span>
           </h6>
           <div className={styles.links}>
             <Button
