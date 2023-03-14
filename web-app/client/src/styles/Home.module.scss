@@ -64,8 +64,6 @@
       }
 
       .description {
-        display: flex;
-        align-items: flex-end;
         margin: 1.2rem 0 0;
         color: $black;
 
@@ -74,11 +72,15 @@
           margin-top: 8px;
         }
 
+        .supported {
+          white-space: nowrap;
+        }
+
         .unidataLogo {
           position: relative;
-          transform: translateY(-1px);
-          display: flex;
-          margin: auto 0 0 8px;
+          bottom: -4px;
+          display: inline-flex;
+          margin-left: 8px;
 
           &:hover {
             cursor: pointer;
@@ -92,6 +94,15 @@
               width: 117px;
               height: 2px;
               background: #000000;
+            }
+          }
+
+          @include sm {
+            bottom: -2px;
+
+            svg {
+              width: 110px;
+              height: 19px;
             }
           }
         }
