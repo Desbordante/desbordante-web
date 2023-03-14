@@ -5,6 +5,7 @@ import {
     GeneralTaskConfig,
     MainPrimitiveType,
     SPECIFIC_TASKS,
+    isMainPrimitiveType,
     isSpecificPrimitiveType,
     mainPrimitives,
 } from "../../../db/models/TaskData/configs/GeneralTaskConfig";
@@ -14,15 +15,18 @@ import { AbstractFilter } from "./DependencyFilters/AbstractFilter";
 import { AuthenticationError } from "apollo-server-express";
 import { CompactData } from "./DependencyFilters/CompactData";
 import { FDFilter } from "./DependencyFilters/FDFilter";
+import { FileInfo } from "../../../db/models/FileData/FileInfo";
 import { Row } from "@fast-csv/parse";
 import { TaskCreatorFactory } from "../TaskCreating/Creator/AbstractCreator";
+
 import { builtInDatasets } from "../../../db/initBuiltInDatasets";
 import fs from "fs";
 import { getSpecificFilter } from "./DependencyFilters";
+import { getSpecificWriter } from "./CsvWriters";
+
 import validator from "validator";
 
 import isUUID = validator.isUUID;
-import { FileInfo } from "../../../db/models/FileData/FileInfo";
 
 export const TaskInfoResolvers: Resolvers = {
     TaskWithDepsResult: {
@@ -36,6 +40,10 @@ export const TaskInfoResolvers: Resolvers = {
         depsAmount: async ({ prefix, state }) =>
             await state.getResultField(prefix, "depsAmount"),
         filteredDeps: async ({ state, prefix, fileID }, { filter }, context) => {
+            if (!filter.pagination) {
+                throw new UserInputError("Pagination shouldn't be null for taskInfo");
+            }
+
             const deps = await state.getResultFieldAsString(prefix, "deps");
             const params = [filter, fileID, prefix, state, context] as const;
             const specificFilter = await getSpecificFilter(prefix, [...params]);
@@ -690,6 +698,38 @@ export const TaskInfoResolvers: Resolvers = {
         },
     },
     Mutation: {
+        downloadResults: async (_, { taskID, filter }, context) => {
+            if (!isUUID(taskID, 4)) {
+                throw new UserInputError("Invalid taskID was provided", {
+                    taskID,
+                });
+            }
+
+            const { models } = context;
+            const { fileID, type } = await models.GeneralTaskConfig.getTaskConfig(taskID);
+
+            if (!isMainPrimitiveType(type)) {
+                throw new UserInputError("Invalid task type", {
+                    type,
+                });
+            }
+
+            const state = await models.TaskState.getTaskState(taskID);
+
+            const deps = await state.getResultFieldAsString(type, "deps");
+            const params = [filter, fileID, type, state, context] as const;
+
+            const specificFilter = await getSpecificFilter(type, [...params]);
+            const depsInfo = await specificFilter.getFilteredTransformedDeps(deps);
+
+            const writer = getSpecificWriter(type, depsInfo.deps);
+            const url = await writer.toCsv();
+
+            return {
+                url,
+            };
+        },
+
         changeTaskResultsPrivacy: async (
             _,
             { isPrivate, taskID },

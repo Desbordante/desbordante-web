@@ -11,8 +11,9 @@ export const config = {
     inContainer: process.env.IS_IN_DOCKER === "true",
     hosts: {
         server: {
-            host: process.env.SERVER_HOST,
-            port: parseInt(process.env.SERVER_PORT || "5000"),
+            host: process.env.HOST_SERVER_IP,
+            port: parseInt(process.env.HOST_SERVER_PORT || "5000"),
+            protocol: process.env.HOST_SERVER_PROTOCOL || "http",
         },
         postfix: {
             host: process.env.POSTFIX_HOST,
@@ -50,6 +51,9 @@ export const config = {
     },
     topicNames: {
         tasks: process.env.KAFKA_TOPIC_NAME!,
+    },
+    directories: {
+        results: "results",
     },
 };
 

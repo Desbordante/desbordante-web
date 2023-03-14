@@ -1,9 +1,5 @@
 import { ARCompactType, CompactData, ItemsInfo } from "./CompactData";
-import {
-    AbstractFilter,
-    ComparatorWithParam,
-    ConditionFunction,
-} from "./AbstractFilter";
+import { AbstractFilter, ComparatorWithParam, ConditionFunction } from "./AbstractFilter";
 import { compareArrays, isIntersects } from "./util";
 import { Ar } from "../../../types/types";
 
@@ -42,13 +38,9 @@ export class ARFilter extends AbstractFilter<ARCompactType, Ar> {
         ];
     };
 
-    public static getItemIndicesOrder = ({
-        itemValues,
-    }: ItemsInfo): number[] => {
+    public static getItemIndicesOrder = ({ itemValues }: ItemsInfo): number[] => {
         const itemIndicesOrder = [...Array(itemValues.length).keys()];
-        itemIndicesOrder.sort((l, r) =>
-            itemValues[l] < itemValues[r] ? -1 : 1
-        );
+        itemIndicesOrder.sort((l, r) => (itemValues[l] < itemValues[r] ? -1 : 1));
         return itemIndicesOrder;
     };
 

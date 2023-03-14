@@ -16,6 +16,7 @@ function setMiddlewares(app: Application) {
     app.use(cors());
     app.use(graphqlUploadExpress());
     app.use(morgan("dev"));
+    app.use(`/${config.results.directory}`, express.static(config.results.directory));
 }
 
 async function configureDB() {
