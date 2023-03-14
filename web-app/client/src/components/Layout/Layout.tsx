@@ -2,6 +2,7 @@ import { useAtom } from 'jotai';
 import Head from 'next/head';
 import visibleModalsAtom from '@atoms/visibleModalsAtom';
 import Header from '@components/Header';
+import { MobileBanner } from '@components/MobileBanner';
 import { FCWithChildren } from 'types/react';
 import styles from './Layout.module.scss';
 
@@ -17,6 +18,7 @@ const Layout: FCWithChildren = ({ children }) => {
       <Header />
       {visibleModals.map((modal) => modal.node)}
       <main className={styles.content}>{children}</main>
+      <MobileBanner />
     </>
   );
 };
