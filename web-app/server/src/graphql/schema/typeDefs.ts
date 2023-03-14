@@ -377,9 +377,9 @@ const typeDefs = gql`
         """
         orderBy: OrderBy!
         """
-        All deps
+        All deps. Can be null, but only for downloadResults mutation
         """
-        pagination: Pagination!
+        pagination: Pagination
         """
         ARs
         """
@@ -784,6 +784,10 @@ const typeDefs = gql`
         message: String!
     }
 
+    type DownloadResult {
+        url: String
+    }
+
     union ChangePasswordAnswer = TokenPair | SuccessfulMessage
 
     type Mutation {
@@ -858,6 +862,13 @@ const typeDefs = gql`
         User can choose his own datasets (pass fileID) in query createMainTaskWithDatasetChoosing.
         """
         uploadDataset(datasetProps: FileProps!, table: Upload!): DatasetInfo!
+
+        """
+        This query allows users to download task results.
+        User can choose his own datasets (pass fileID).
+        Works only for FD, CFD and AR
+        """
+        downloadResults(taskID: ID!, filter: IntersectionFilter!): DownloadResult!
 
         """
         This query supports several restrictions:
