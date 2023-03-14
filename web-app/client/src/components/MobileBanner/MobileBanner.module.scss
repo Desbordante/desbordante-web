@@ -1,0 +1,24 @@
+@import "styles/common";
+
+.root {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: $warning;
+  display: flex;
+  padding: 16px 16px 16px 24px;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  @include sm-up {
+    display: none;
+  }
+
+  .close {
+    padding: 0;
+    background: none;
+    border: none;
+    margin-left: 24px;
+  }
+}
+
