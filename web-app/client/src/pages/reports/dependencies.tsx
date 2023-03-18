@@ -1,12 +1,10 @@
 import { useLazyQuery } from '@apollo/client';
-import type { GetServerSideProps } from 'next';
-import { ReactElement, useEffect, useState } from 'react';
-import { FormProvider } from 'react-hook-form';
 import EyeIcon from '@assets/icons/eye.svg?component';
 import FilterIcon from '@assets/icons/filter.svg?component';
 import OrderingIcon from '@assets/icons/ordering.svg?component';
 import Button from '@components/Button';
 import DependencyList from '@components/DependencyList/DependencyList';
+import DownloadResult from '@components/DownloadResult';
 import {
   FilteringWindow,
   getSortingParams,
@@ -27,7 +25,10 @@ import { GET_MAIN_TASK_DEPS } from '@graphql/operations/queries/getDeps';
 import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 import styles from '@styles/Dependencies.module.scss';
 import { convertDependencies } from '@utils/convertDependencies';
-import { OrderBy, PrimitiveType } from 'types/globalTypes';
+import type { GetServerSideProps } from 'next';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { FormProvider } from 'react-hook-form';
+import { IntersectionFilter, OrderBy, PrimitiveType } from 'types/globalTypes';
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
 type Props = {
@@ -58,43 +59,46 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
   const [isOrderingShown, setIsOrderingShown] = useState(false);
   const [isFilteringShown, setIsFilteringShown] = useState(false);
 
-  useEffect(() => {
-    if (!primitive) return;
+  const filter = useMemo<IntersectionFilter>(() => {
     const sortingParams = {
       [(primitive === PrimitiveType.TypoFD ? PrimitiveType.FD : primitive) +
       'SortBy']: ordering,
     };
 
-    getDeps({
-      variables: {
-        taskID: taskID,
-        filter: {
-          withoutKeys: showKeys,
-          filterString: search,
-          pagination: { limit: 10, offset: (page - 1) * 10 },
-          ...sortingParams,
-          orderBy: direction,
-          mustContainRhsColIndices: mustContainRhsColIndices.length
-            ? mustContainRhsColIndices
-            : null,
-          mustContainLhsColIndices: mustContainLhsColIndices.length
-            ? mustContainLhsColIndices
-            : null,
-        },
-      },
-    });
+    return {
+      withoutKeys: showKeys,
+      filterString: search,
+      pagination: { limit: 10, offset: (page - 1) * 10 },
+      ...sortingParams,
+      orderBy: direction,
+      mustContainRhsColIndices: mustContainRhsColIndices.length
+        ? mustContainRhsColIndices
+        : null,
+      mustContainLhsColIndices: mustContainLhsColIndices.length
+        ? mustContainLhsColIndices
+        : null,
+    };
   }, [
-    taskID,
     primitive,
     search,
     page,
     ordering,
     direction,
-    getDeps,
     showKeys,
     mustContainRhsColIndices,
     mustContainLhsColIndices,
   ]);
+
+  useEffect(() => {
+    if (!primitive) return;
+
+    getDeps({
+      variables: {
+        taskID,
+        filter,
+      },
+    });
+  }, [taskID, primitive, getDeps, filter]);
 
   // todo add loading text/animation, maybe in Pagination component too
   const shownData = (loading ? previousData : data) || defaultData;
@@ -132,6 +136,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
         <Text
           label="Search"
           placeholder="Attribute name or regex"
+          className={styles.search}
           {...register('search')}
         />
         <div className={styles.buttons}>
@@ -151,17 +156,23 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
           >
             Ordering
           </Button>
-          {primitive &&
-            [PrimitiveType.AR, PrimitiveType.CFD].includes(primitive) && (
-              <Button
-                variant="secondary"
-                size="md"
-                icon={<EyeIcon />}
-                onClick={() => setInfoVisible((e) => !e)}
-              >
-                Visibility
-              </Button>
-            )}
+          {primitive && (
+            <>
+              {[PrimitiveType.AR, PrimitiveType.CFD].includes(primitive) && (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  icon={<EyeIcon />}
+                  onClick={() => setInfoVisible((e) => !e)}
+                >
+                  Visibility
+                </Button>
+              )}
+              {primitive !== PrimitiveType.TypoFD && (
+                <DownloadResult filter={filter} disabled={!deps.length} />
+              )}
+            </>
+          )}
         </div>
       </div>
 
