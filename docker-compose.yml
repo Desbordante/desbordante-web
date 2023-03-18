@@ -19,6 +19,7 @@ services:
         max-size: 20m
 
   client:
+    image: desbordante_client
     build:
       context: ./web-app/
       dockerfile: Dockerfile-client
@@ -48,6 +49,7 @@ services:
         max-size: 20m
 
   server:
+    image: desbordante_server
     build:
       context: ./web-app/
       dockerfile: Dockerfile-server
@@ -92,6 +94,7 @@ services:
         max-size: 20m
 
   postfix:
+    image: desbordante_postfix
     build:
       context: ./web-app/
       dockerfile: Dockerfile-postfix
@@ -160,6 +163,7 @@ services:
         max-size: 20m
 
   python-consumer:
+    image: desbordante_python-consumer
     build:
       context: ./python-consumer
       dockerfile: Dockerfile
