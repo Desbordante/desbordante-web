@@ -1,16 +1,15 @@
 import { useLazyQuery } from '@apollo/client';
-import classNames from 'classnames';
-import { FC, useCallback, useEffect, useState } from 'react';
 import ClusterOptions from '@components/ClusterOptions';
 import { useTaskContext } from '@components/TaskContext';
-import _ from 'lodash';
 import {
   getSpecificCluster,
   getSpecificClusterVariables,
 } from '@graphql/operations/queries/EDP/__generated__/getSpecificCluster';
 import { GET_SPECIFIC_CLUSTER } from '@graphql/operations/queries/EDP/getSpecificCluster';
 import { useErrorContext } from '@hooks/useErrorContext';
-import Table from './ScrollableTable';
+import classNames from 'classnames';
+import { FC, useCallback, useEffect, useState } from 'react';
+import ScrollableTable from './ScrollableTable';
 import styles from './Table.module.scss';
 
 type ClusterTableProps = {
@@ -21,6 +20,9 @@ type ClusterTableProps = {
   header?: string[];
 };
 
+const DEFAULT_LIMIT = 20;
+const LIMIT_INCREMENT = 20;
+
 const ClusterTable: FC<ClusterTableProps> = ({
   data: defaultData,
   totalCount,
@@ -28,7 +30,7 @@ const ClusterTable: FC<ClusterTableProps> = ({
   clusterID,
   header,
 }) => {
-  const [offset, setOffset] = useState(0);
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const [data, setData] = useState(defaultData || []);
   const [squash, setSquash] = useState(false);
   const [sort, setSort] = useState(false);
@@ -56,6 +58,7 @@ const ClusterTable: FC<ClusterTableProps> = ({
     );
   const pageRows =
     pageCompleted &&
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     pageResult?.taskInfo.data.result.specificCluster?.items.map(
       squash ? parseSquashItem : parseItem
@@ -63,7 +66,7 @@ const ClusterTable: FC<ClusterTableProps> = ({
 
   useEffect(() => {
     setData((!squash && !sort && defaultData) || []);
-    setOffset(0);
+    setLimit(DEFAULT_LIMIT);
   }, [squash, sort]);
 
   useEffect(() => {
@@ -75,10 +78,10 @@ const ClusterTable: FC<ClusterTableProps> = ({
           sort,
           squash,
         },
-        pagination: { offset, limit: 20 },
+        pagination: { offset: 0, limit },
       },
     });
-  }, [offset, sort, squash, clusterID]);
+  }, [limit, sort, squash, clusterID]);
 
   useEffect(() => {
     if (pageCompleted) {
@@ -91,14 +94,14 @@ const ClusterTable: FC<ClusterTableProps> = ({
   }, [pageResult]);
 
   const onScroll = useCallback(() => {
-    if (offset + 20 < totalCount) {
-      setOffset((offset) => offset + 20);
+    if (limit + LIMIT_INCREMENT < totalCount) {
+      setLimit((prev) => prev + LIMIT_INCREMENT);
     }
-  }, [totalCount, offset]);
+  }, [totalCount, limit]);
 
   useEffect(() => {
     if (pageRows) {
-      setData(_.uniq(data.concat(pageRows)));
+      setData(pageRows);
     }
   }, [pageResult]);
 
@@ -112,7 +115,7 @@ const ClusterTable: FC<ClusterTableProps> = ({
 
   return (
     <div className={styles.clusterContainer}>
-      <Table
+      <ScrollableTable
         header={
           header && squash
             ? ['Rows count'].concat(
@@ -133,4 +136,5 @@ const ClusterTable: FC<ClusterTableProps> = ({
     </div>
   );
 };
+
 export default ClusterTable;

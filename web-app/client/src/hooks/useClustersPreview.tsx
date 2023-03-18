@@ -1,9 +1,9 @@
 import { ApolloError, useLazyQuery } from '@apollo/client';
-import { GET_CLUSTERS_PREVIEW } from '@graphql/operations/queries/EDP/getClustersPreview';
 import {
   getClustersPreview,
   getClustersPreviewVariables,
 } from '@graphql/operations/queries/EDP/__generated__/getClustersPreview';
+import { GET_CLUSTERS_PREVIEW } from '@graphql/operations/queries/EDP/getClustersPreview';
 import { useEffect, useState } from 'react';
 import { useErrorContext } from './useErrorContext';
 

@@ -1,5 +1,23 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { Column } from '@graphql/operations/fragments/__generated__/Column';
+import {
+  createSpecificTask,
+  createSpecificTaskVariables,
+} from '@graphql/operations/mutations/__generated__/createSpecificTask';
+import { CREATE_SPECIFIC_TASK } from '@graphql/operations/mutations/createSpecificTask';
+import {
+  getDataset,
+  getDatasetVariables,
+} from '@graphql/operations/queries/__generated__/getDataset';
+import {
+  getTaskInfo,
+  getTaskInfoVariables,
+} from '@graphql/operations/queries/__generated__/getTaskInfo';
+import { GET_DATASET } from '@graphql/operations/queries/getDataset';
+import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
+import useClustersPreview from '@hooks/useClustersPreview';
+import { useErrorContext } from '@hooks/useErrorContext';
+import { GeneralColumn } from '@utils/convertDependencies';
 import { useRouter } from 'next/router';
 import {
   createContext,
@@ -12,24 +30,6 @@ import {
   useState,
 } from 'react';
 import { PrimitiveType, SpecificTaskType } from 'types/globalTypes';
-import { CREATE_SPECIFIC_TASK } from '@graphql/operations/mutations/createSpecificTask';
-import {
-  createSpecificTask,
-  createSpecificTaskVariables,
-} from '@graphql/operations/mutations/__generated__/createSpecificTask';
-import { GET_DATASET } from '@graphql/operations/queries/getDataset';
-import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
-import {
-  getDataset,
-  getDatasetVariables,
-} from '@graphql/operations/queries/__generated__/getDataset';
-import {
-  getTaskInfo,
-  getTaskInfoVariables,
-} from '@graphql/operations/queries/__generated__/getTaskInfo';
-import useClustersPreview from '@hooks/useClustersPreview';
-import { useErrorContext } from '@hooks/useErrorContext';
-import { GeneralColumn } from '@utils/convertDependencies';
 
 export type DepAttribute = {
   column: Column;
