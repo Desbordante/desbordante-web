@@ -10,10 +10,6 @@
   justify-content: space-between;
   align-items: flex-start;
 
-  @include sm-up {
-    display: none;
-  }
-
   .close {
     padding: 0;
     background: none;
@@ -21,4 +17,3 @@
     margin-left: 24px;
   }
 }
-

@@ -31,17 +31,15 @@
 
     .brandName {
       color: $black;
+
+      @include sm {
+        display: none;
+      }
     }
   }
 
   a {
     text-decoration: none;
-  }
-
-  .brandName {
-    @include sm {
-      display: none;
-    }
   }
 
   .menu {

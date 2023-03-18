@@ -1,6 +1,4 @@
 import { useLazyQuery } from '@apollo/client';
-import { GetServerSideProps } from 'next';
-import { ReactElement, useMemo, useRef, useState } from 'react';
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
 import ScrollableTable from '@components/ScrollableTable';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
@@ -12,6 +10,8 @@ import {
 } from '@graphql/operations/queries/__generated__/getDataset';
 import { GET_DATASET } from '@graphql/operations/queries/getDataset';
 import styles from '@styles/Snippet.module.scss';
+import { GetServerSideProps } from 'next';
+import { ReactElement, useMemo, useRef, useState } from 'react';
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
 type Snippet = getDataset_taskInfo_dataset_snippet;
@@ -20,28 +20,30 @@ interface Props {
   snippet: Snippet;
 }
 
-const paginationLimit = 30;
+const DEFAULT_LIMIT = 30;
+const LIMIT_INCREMENT = 30;
+
 const ReportsSnippet: NextPageWithLayout<Props> = ({ snippet }) => {
   const { taskID, selectedDependency } = useTaskContext();
-  const paginationOffset = useRef(0);
+  const paginationLimit = useRef(DEFAULT_LIMIT);
   const [getDataset] = useLazyQuery<getDataset, getDatasetVariables>(
     GET_DATASET
   );
   const [rows, setRows] = useState<string[][]>(snippet.rows);
 
   const handleScrollToBottom = async () => {
-    paginationOffset.current += paginationLimit;
+    paginationLimit.current += LIMIT_INCREMENT;
     const { data } = await getDataset({
       variables: {
         taskID,
         pagination: {
-          offset: paginationOffset.current,
-          limit: paginationLimit,
+          offset: 0,
+          limit: paginationLimit.current,
         },
       },
     });
     const newRows = data?.taskInfo.dataset?.snippet.rows;
-    newRows && setRows((prev) => prev.concat(newRows));
+    newRows && setRows(newRows);
   };
 
   const highlightedColumnIndices = useMemo(
@@ -89,7 +91,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
       taskID,
       pagination: {
         offset: 0,
-        limit: paginationLimit,
+        limit: DEFAULT_LIMIT,
       },
     },
   });

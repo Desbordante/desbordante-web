@@ -1,15 +1,4 @@
 import { useMutation, useQuery } from '@apollo/client';
-import _ from 'lodash';
-import type { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Controller,
-  ControllerFieldState,
-  ControllerRenderProps,
-  useForm,
-  UseFormStateReturn,
-} from 'react-hook-form';
 import IdeaIcon from '@assets/icons/idea.svg?component';
 import Button from '@components/Button';
 import { Select } from '@components/Inputs';
@@ -27,13 +16,11 @@ import {
   optionsByAlgorithms,
   TypoOptions,
   MFDColumnType,
-  MFDMetric,
   MFDAlgoOptions,
   MFDMetricOptions,
   MFDColumnTypeOptions,
   MFDDistancesOptions,
   optionsByMetrics,
-  optionsByColumnTypes,
 } from '@constants/options';
 import {
   createTaskWithDatasetChoosing,
@@ -48,6 +35,17 @@ import { GET_COUNT_OF_COLUMNS } from '@graphql/operations/queries/getDatasetColu
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
 import { showError } from '@utils/toasts';
+import _ from 'lodash';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Controller,
+  ControllerFieldState,
+  ControllerRenderProps,
+  useForm,
+  UseFormStateReturn,
+} from 'react-hook-form';
 import { MainPrimitiveType } from 'types/globalTypes';
 
 type FDForm = {
@@ -357,9 +355,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   const header = (
     <>
       <h2 className={styles.name_main}>Configure Algorithm</h2>
-      <h6 className={styles.description}>
-        Vitae ipsum leo ut tincidunt viverra nec cum.
-      </h6>
+      <h6 className={styles.description}>Select algorithm parameters</h6>
     </>
   );
 
@@ -506,7 +502,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
             {...field}
             value={getSelectOption(value)}
             onChange={(e) => onChange(getSelectValue(e))}
-            label="Precise Algorithm"
+            label="Exact Algorithm"
             options={TypoOptions}
           />
         ),

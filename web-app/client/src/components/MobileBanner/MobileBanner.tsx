@@ -1,9 +1,34 @@
-import React, { FC, useReducer } from 'react';
 import Cross from '@assets/icons/white-cross.svg?component';
+import { FC, useLayoutEffect, useReducer, useRef } from 'react';
 import styles from './MobileBanner.module.scss';
 
-export const MobileBanner: FC = () => {
-  const [hidden, hide] = useReducer(() => true, false);
+const isMobile = () =>
+  typeof window !== 'undefined' && window.innerWidth <= 768;
+
+const MobileBanner: FC = () => {
+  const [hidden, hide] = useReducer(() => true, !isMobile());
+  const initialStyles = useRef<{
+    htmlOverflow: string;
+    bodyOverflow: string;
+  } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!initialStyles.current) {
+      initialStyles.current = {
+        htmlOverflow: document.documentElement.style.overflow,
+        bodyOverflow: document.body.style.overflow,
+      };
+    }
+
+    if (hidden) {
+      const { htmlOverflow, bodyOverflow } = initialStyles.current;
+      document.documentElement.style.overflow = htmlOverflow;
+      document.body.style.overflow = bodyOverflow;
+    } else {
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    }
+  }, [hidden]);
 
   const banner = (
     <div className={styles.root}>
@@ -19,3 +44,5 @@ export const MobileBanner: FC = () => {
 
   return hidden ? null : banner;
 };
+
+export default MobileBanner;

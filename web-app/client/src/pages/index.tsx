@@ -1,8 +1,8 @@
-import type { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import HomeBackground from '@assets/backgrounds/home.svg?component';
 import UnidataLogo from '@assets/images/unidata-logo.svg?component';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useLayoutEffect } from 'react';
 import Button from '../components/Button';
 import ExternalLink from '../components/ExternalLink';
 import styles from '../styles/Home.module.scss';
@@ -10,11 +10,13 @@ import styles from '../styles/Home.module.scss';
 const Home: NextPage = () => {
   const router = useRouter();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
 
     return () => {
-      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
     };
   }, []);
 
