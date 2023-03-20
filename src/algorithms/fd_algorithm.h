@@ -19,7 +19,7 @@ namespace algos {
 /* It is highly recommended to inherit your Algorithm from this class.
  * Consider TANE as an example of such a FDAlgorithm usage.
  * */
-class FDAlgorithm : public CsvPrimitive {
+class FDAlgorithm : public SingleRelationPrimitive {
 private:
     friend util::AgreeSetFactory;
 

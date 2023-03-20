@@ -158,47 +158,25 @@ void Primitive::ResetProgress() noexcept {
     cur_phase_progress_ = 0;
 }
 
-void CsvPrimitive::Fit(model::IDatasetStream& data) {
-    if (!GetNeededOptions().empty()) {
-        throw std::logic_error("All options need to be set before starting processing.");
-    }
-    FitInternal(data);
-    data.Reset();
-    ExecutePrepare();
-}
-
-void CsvPrimitive::Fit(model::IDatasetStream::DataInfo const& data_info) {
-    CSVParser data{data_info};
-    Fit(data);
-}
-
-std::vector<std::filesystem::path> MultiCsvPrimitive::GetRegularFilesFromPath(
-        std::filesystem::path const& data) {
-    if (std::filesystem::is_regular_file(data)) {
-        return {data};
-    }
-
-    std::vector<std::filesystem::path> paths;
-    for (const auto& entry : std::filesystem::directory_iterator(data)) {
-        if (std::filesystem::is_regular_file(entry.path())) {
-            paths.emplace_back(entry);
-        }
-    }
-    std::sort(paths.begin(), paths.end());
-    return paths;
-}
-
-void MultiCsvPrimitive::Fit(model::IDatasetStream::DataInfo const& data_info) {
-    if (!GetNeededOptions().empty()) {
-        throw std::logic_error("All options need to be set before starting processing.");
-    }
-    const auto paths = GetRegularFilesFromPath(data_info.path);
-    for (const auto& path : paths) {
-        CSVParser data{path, data_info.separator, data_info.has_header};
-        FitInternal(data);
-        data.Reset();
-    }
-    ExecutePrepare();
-}
+//void SingleRelationPrimitive::Fit(model::IDatasetStream& data) {
+//    if (!GetNeededOptions().empty()) {
+//        throw std::logic_error("All options need to be set before starting processing.");
+//    }
+//    FitInternal(data);
+//    data.Reset();
+//    ExecutePrepare();
+//}
+//
+//void MultipleRelationPrimitive::Fit(
+//        std::vector<std::unique_ptr<model::IDatasetStream>> const& streams) {
+//    if (!GetNeededOptions().empty()) {
+//        throw std::logic_error("All options need to be set before starting processing.");
+//    }
+//    FitInternal(streams);
+//    for (const auto& stream : streams) {
+//        stream->Reset();
+//    }
+//    ExecutePrepare();
+//}
 
 }  // namespace algos

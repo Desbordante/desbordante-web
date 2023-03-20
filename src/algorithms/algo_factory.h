@@ -95,28 +95,84 @@ void ConfigureFromMap(Primitive& primitive, OptionMap&& options) {
     }
 }
 
+//std::vector<std::filesystem::path> GetRegularFilesFromPath(std::filesystem::path const& data) {
+//    if (std::filesystem::is_regular_file(data)) {
+//        return {data};
+//    }
+//
+//    std::vector<std::filesystem::path> paths;
+//    for (const auto& entry : std::filesystem::directory_iterator(data)) {
+//        if (std::filesystem::is_regular_file(entry.path())) {
+//            paths.emplace_back(entry);
+//        }
+//    }
+//    std::sort(paths.begin(), paths.end());
+//    return paths;
+//}
+
+//void FitPrimitive(SingleRelationPrimitive *prim_ptr, CSVParser::CsvDataConfig data_config) {
+//    CSVParser parser{data_config};
+//    prim_ptr->Fit(parser);
+//}
+//
+//void FitPrimitive(MultipleRelationPrimitive *prim_ptr, CSVParser::CsvDataConfig data_config) {
+//    std::vector<std::unique_ptr<model::IDatasetStream>> streams;
+//    for (auto const& path : GetRegularFilesFromPath(data_config.path)) {
+//        data_config.path = path;
+//        streams.emplace_back(std::make_unique<CSVParser>(data_config));
+//    }
+//    prim_ptr->Fit(streams);
+//}
+
 template <typename OptionMap>
-void LoadPrimitive(Primitive& prim, OptionMap&& options) {
+void LoadPrimitiveCsv(Primitive& prim, OptionMap&& options) {
     ConfigureFromMap(prim, options);
-    model::IDatasetStream::DataInfo data_info{
+    CSVParser::CsvDataConfig data_config{
             details::ExtractOptionValue<std::filesystem::path>(options, config::names::kData),
             details::ExtractOptionValue<char>(options, config::names::kSeparator),
             details::ExtractOptionValue<bool>(options, config::names::kHasHeader)};
-    prim.Fit(data_info);
+
+    if (auto single_prim = dynamic_cast<SingleRelationPrimitive*>(&prim)) {
+        CSVParser parser{data_config};
+        single_prim->Fit(parser);
+    } else if (auto multiple_prim = dynamic_cast<MultipleRelationPrimitive*>(&prim)) {
+        std::vector<std::unique_ptr<model::IDatasetStream>> streams;
+        auto data = data_config.path;
+        std::vector<std::filesystem::path> paths{};
+        if (std::filesystem::is_regular_file(data)) {
+            paths= {data};
+        }else {
+            for (const auto& entry : std::filesystem::directory_iterator(data)) {
+                if (std::filesystem::is_regular_file(entry.path())) {
+                    paths.emplace_back(entry);
+                }
+            }
+        }
+        std::sort(paths.begin(), paths.end());
+        for (auto const& path : paths) {
+            data_config.path = path;
+            streams.emplace_back(std::make_unique<CSVParser>(data_config));
+        }
+        multiple_prim->Fit(streams);
+    } else {
+        throw std::runtime_error(
+                "Object 'prim' cannot be cast to either SingleRelationPrimitive or "
+                "MultipleRelationPrimitive");
+    }
     ConfigureFromMap(prim, options);
 }
 
 template <typename T, typename OptionMap>
 std::unique_ptr<T> CreateAndLoadPrimitive(OptionMap&& options) {
     std::unique_ptr<T> prim = std::make_unique<T>();
-    LoadPrimitive(*prim, std::forward<OptionMap>(options));
+    LoadPrimitiveCsv(*prim, std::forward<OptionMap>(options));
     return prim;
 }
 
 template <typename OptionMap>
 std::unique_ptr<Primitive> CreatePrimitive(PrimitiveType primitive_enum, OptionMap&& options) {
     std::unique_ptr<Primitive> primitive = CreatePrimitiveInstance(primitive_enum);
-    LoadPrimitive(*primitive, std::forward<OptionMap>(options));
+    LoadPrimitiveCsv(*primitive, std::forward<OptionMap>(options));
     return primitive;
 }
 
@@ -127,7 +183,7 @@ std::unique_ptr<Primitive> CreateTypoMiner(OptionMap&& options) {
     PrimitiveType approx_algo = details::ExtractOptionValue<PrimitiveType>(
             options, config::names::kApproximateAlgorithm);
     std::unique_ptr<TypoMiner> typo_miner = std::make_unique<TypoMiner>(precise_algo, approx_algo);
-    LoadPrimitive(*typo_miner, std::forward<OptionMap>(options));
+    LoadPrimitiveCsv(*typo_miner, std::forward<OptionMap>(options));
     return typo_miner;
 }
 

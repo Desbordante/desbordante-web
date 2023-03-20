@@ -1,6 +1,5 @@
 #include "csv_parser.h"
 
-#include <cassert>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -50,8 +49,8 @@ CSVParser::CSVParser(const std::filesystem::path& path, char separator, bool has
     }
 }
 
-CSVParser::CSVParser(model::IDatasetStream::DataInfo const& dataset_info)
-    : CSVParser(dataset_info.path, dataset_info.separator, dataset_info.has_header) {}
+CSVParser::CSVParser(CSVParser::CsvDataConfig const& data_config)
+    : CSVParser(data_config.path, data_config.separator, data_config.has_header) {}
 
 void CSVParser::GetNext() {
     next_line_ = "";
@@ -114,6 +113,7 @@ std::string CSVParser::GetUnparsedLine(const unsigned long long line_index) {
 
 std::vector<std::string> CSVParser::ParseString(const std::string& s) const {
     std::vector<std::string> tokens;
+    tokens.reserve(number_of_columns_);
     boost::escaped_list_separator<char> list_sep(escape_symbol_, separator_, quote_);
     boost::tokenizer<boost::escaped_list_separator<char>> tokenizer(s, list_sep);
 

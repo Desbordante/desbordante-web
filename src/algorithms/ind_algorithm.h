@@ -9,13 +9,7 @@
 
 namespace algos {
 
-template <typename BasePrimitive = algos::Primitive>
-class INDAlgorithm : public BasePrimitive {
-    static_assert(std::is_same_v<BasePrimitive, MultiCsvPrimitive> ||
-                          std::is_same_v<BasePrimitive, Primitive>,
-                  "The INDAlgorithm can either process multiple tables at once using the "
-                  "Desbordante standard parser, or use a custom parser.");
-
+class INDAlgorithm : public MultipleRelationPrimitive {
 public:
     struct DatasetInfo {
         std::string table_name;
@@ -26,13 +20,11 @@ public:
     using INDList = std::list<IND>;
 
 public:
-    using BasePrimitive::BasePrimitive;
+    using MultipleRelationPrimitive::MultipleRelationPrimitive;
 
     virtual DatasetsOrder const& GetDatasetsOrder() const = 0;
     virtual INDList IndList() const = 0;
 };
 
-using PINDAlgorithm = INDAlgorithm<Primitive>;
-using MINDAlgorithm = INDAlgorithm<MultiCsvPrimitive>;
 
 }  // namespace algos

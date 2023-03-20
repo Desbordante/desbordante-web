@@ -18,7 +18,7 @@
 
 namespace algos {
 
-class Spider : public INDAlgorithm<Primitive> {
+class Spider : public INDAlgorithm {
     using UIND = std::pair<std::size_t, std::size_t>;
     using Attribute = ind::Attribute;
     using AttrPtr = Attribute*;
@@ -28,7 +28,7 @@ class Spider : public INDAlgorithm<Primitive> {
 
 private:
     std::unique_ptr<ind::preproc::BaseTableProcessor> CreateChunkProcessor(
-            model::IDatasetStream::DataInfo const& data_info,
+            model::IDatasetStream& stream,
             ind::preproc::SortedColumnWriter& writer) const;
 
     std::filesystem::path temp_dir_ = "temp";
@@ -92,6 +92,8 @@ private:
         return {.table_index = table, .column_indices = {id}};
     }
 
+    void FitInternal(InputData& streams) final;
+
 protected:
     unsigned long long ExecuteInternal() final;
 
@@ -103,12 +105,11 @@ protected:
     void PrintResult(std::ostream& out) const;
 
 public:
-    explicit Spider() : INDAlgorithm(std::vector<std::string_view>{}) {
+    explicit Spider() : INDAlgorithm({}) {
         RegisterOptions();
         MakePreprocessOptsAvailable();
     }
 
-    void Fit(model::IDatasetStream::DataInfo const& data_info) final;
 
     DatasetsOrder const& GetDatasetsOrder() const final {
         return stats_.datasets_order;

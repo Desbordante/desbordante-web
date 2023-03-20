@@ -20,7 +20,7 @@ decltype(Spider::TempOpt) Spider::TempOpt{{config::names::kTemp, config::descrip
                                           {"temp"}};
 
 decltype(Spider::MemoryLimitMBOpt) Spider::MemoryLimitMBOpt{
-        {config::names::kMemoryLimit, config::descriptions::kDMemoryLimit}, 4 * 1024};
+        {config::names::kMemoryLimit, config::descriptions::kDMemoryLimit}, 8 * 1024};
 
 decltype(Spider::MemoryCheckFreq) Spider::MemoryCheckFreq{
         {config::names::kMemoryCheckFrequency, config::descriptions::kDMemoryCheckFrequency},
@@ -58,14 +58,14 @@ decltype(auto) CreateConcreteChunkProcessor(ColTypeImpl value, Args&&... args) {
 }
 
 std::unique_ptr<BaseTableProcessor> Spider::CreateChunkProcessor(
-        model::IDatasetStream::DataInfo const& data_info, SortedColumnWriter& writer) const {
+        model::IDatasetStream& stream, SortedColumnWriter& writer) const {
     auto col_type = static_cast<ColTypeImpl>(col_type_._to_index());
     if (col_type_ == +ColType::SET) {
         return CreateConcreteChunkProcessor<ColTypeImpl::SET>(
-                col_type, writer, data_info, GetMemoryLimitInBytes(), mem_check_frequency_);
+                col_type, writer, stream, GetMemoryLimitInBytes(), mem_check_frequency_);
     } else {
         return CreateConcreteChunkProcessor<ColTypeImpl::VECTOR>(
-                col_type, writer, data_info, GetMemoryLimitInBytes(), threads_count_);
+                col_type, writer, stream, GetMemoryLimitInBytes(), threads_count_);
     }
 }
 
@@ -87,6 +87,7 @@ unsigned long long Spider::ExecuteInternal() {
     Output();
     timings_.Print();
     LOG(INFO) << "Deps: " << uinds_.size();
+    PrintResult(std::cout);
     return 0;
 }
 
@@ -161,22 +162,19 @@ void Spider::PrintResult(std::ostream& out) const {
     out << std::endl;
 }
 
-void Spider::Fit(model::IDatasetStream::DataInfo const& data_info) {
+void Spider::FitInternal(InputData& streams) {
     auto preprocess_time = std::chrono::system_clock::now();
     ExecutePrepare();
 
     SortedColumnWriter writer{temp_dir_};
-    auto paths = MultiCsvPrimitive::GetRegularFilesFromPath(data_info.path);
-    auto dataset_info{data_info};
-    for (const auto& path : paths) {
-        dataset_info.path = path;
-        LOG(INFO) << "Process next dataset: " << path.filename();
-        auto processor = CreateChunkProcessor(dataset_info, writer);
+    for (const auto& stream : streams) {
+        LOG(INFO) << "Process next dataset";
+        auto processor = CreateChunkProcessor(*stream, writer);
         processor->Execute();
         stats_.n_cols += processor->GetHeaderSize();
         stats_.number_of_columns.emplace_back(processor->GetHeaderSize());
         stats_.datasets_order.push_back(
-                {.table_name = path.filename(), .header = processor->GetHeader()});
+                {.table_name = "path.filename()", .header = processor->GetHeader()});
     }
     stats_.max_values = writer.GetMaxValues();
 

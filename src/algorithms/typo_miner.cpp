@@ -26,7 +26,7 @@ TypoMiner::TypoMiner(PrimitiveType precise, PrimitiveType approx)
 
 TypoMiner::TypoMiner(std::unique_ptr<FDAlgorithm> precise_algo,
                      std::unique_ptr<FDAlgorithm> approx_algo)
-        : CsvPrimitive(std::vector<std::string_view>{
+        : SingleRelationPrimitive({
               /* "Precise fd algorithm execution", "Approximate fd algoritm execution",
                * "Extracting fds with non-zero error" */}),
           precise_algo_(std::move(precise_algo)),

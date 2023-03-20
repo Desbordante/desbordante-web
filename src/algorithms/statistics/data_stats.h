@@ -8,7 +8,7 @@
 
 namespace algos {
 
-class DataStats : public CsvPrimitive {
+class DataStats : public SingleRelationPrimitive {
     config::EqNullsType is_null_equal_null_;
     config::ThreadNumType threads_num_;
 

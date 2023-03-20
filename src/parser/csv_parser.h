@@ -14,6 +14,13 @@
 #include "idataset_stream.h"
 
 class CSVParser : public model::IDatasetStream {
+public:
+
+    struct CsvDataConfig {
+        std::filesystem::path path;
+        char separator = ',';
+        bool has_header = true;
+    };
 private:
     std::ifstream source_;
     char separator_;
@@ -38,7 +45,7 @@ public:
     CSVParser() = default;
     explicit CSVParser(const std::filesystem::path& path);
     CSVParser(const std::filesystem::path& path, char separator, bool has_header);
-    explicit CSVParser(DataInfo const& dataset_info);
+    explicit CSVParser(CsvDataConfig const& data_config);
 
     std::vector<std::string> GetNextRow() override;
     std::string GetUnparsedLine(const unsigned long long line_index);
@@ -51,6 +58,7 @@ public:
     }
     size_t GetNumberOfColumns() const override { return number_of_columns_; }
     std::string GetColumnName(int index) const override { return column_names_[index]; }
+    std::vector<std::string> const& GetColumnNames() const override { return column_names_; }
     std::string GetRelationName() const override { return relation_name_; }
     void Reset() override;
 };

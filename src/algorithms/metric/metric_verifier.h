@@ -23,7 +23,7 @@
 
 namespace algos::metric {
 
-class MetricVerifier : public CsvPrimitive {
+class MetricVerifier : public SingleRelationPrimitive {
 private:
     Metric metric_ = Metric::_values()[0];
     MetricAlgo algo_ = MetricAlgo::_values()[0];

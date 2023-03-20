@@ -7,7 +7,7 @@
 namespace algos {
 
 FDAlgorithm::FDAlgorithm(std::vector<std::string_view> phase_names)
-    : CsvPrimitive(std::move(phase_names)) {
+    : SingleRelationPrimitive(std::move(phase_names)) {
     RegisterOptions();
     MakeOptionsAvailable(config::GetOptionNames(config::EqualNullsOpt));
 }

@@ -54,7 +54,7 @@ decltype(MetricVerifier::QGramLengthOpt) MetricVerifier::QGramLengthOpt{
         }
 };
 
-MetricVerifier::MetricVerifier() : CsvPrimitive(std::vector<std::string_view>{}) {
+MetricVerifier::MetricVerifier() : SingleRelationPrimitive(std::vector<std::string_view>{}) {
     RegisterOptions();
     MakeOptionsAvailable(config::GetOptionNames(config::EqualNullsOpt));
 }

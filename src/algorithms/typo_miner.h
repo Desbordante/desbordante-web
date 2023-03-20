@@ -14,7 +14,7 @@
 
 namespace algos {
 
-class TypoMiner : public CsvPrimitive {
+class TypoMiner : public SingleRelationPrimitive {
 private:
     std::unique_ptr<FDAlgorithm> precise_algo_;
     std::unique_ptr<FDAlgorithm> approx_algo_;

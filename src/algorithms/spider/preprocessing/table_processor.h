@@ -52,42 +52,46 @@ private:
         }
     }
 
-    void EmplaceValuesFromChunk(BufferPtr start, BufferPtr end, const ValueHandler& handler) {
-        auto line_begin = start, line_end = (BufferPtr)memchr(line_begin, '\n', end - line_begin);
-        std::size_t cur_attr = 0, current_row = 0;
-        while (line_end != nullptr && line_end < end) {
-            MemoryLimitProcess(handler, current_row++);
-            Tokenizer tokens{line_begin, line_end, escaped_list_};
-            for (std::string const& value : tokens) {
-                if (!value.empty()) {
-                    memcpy(line_begin, value.data(), value.size() + 1);
-                    if constexpr (Is<KeyTypeImpl::STRING_VIEW>()) {
-                        EmplaceValueToColumn(cur_attr, line_begin, value.size());
-                    } else if constexpr (Is<KeyTypeImpl::PAIR>()) {
-                        EmplaceValueToColumn(cur_attr, line_begin - start, value.size());
-                    }
-                    line_begin += value.size();
-                }
-                line_begin++, cur_attr++;
-            }
-            cur_attr = 0;
-            line_begin = line_end + 1;
-            line_end = (BufferPtr)memchr(line_begin, '\n', end - line_begin);
+    void FinalSpill() final {
+        if (std::any_of(columns_.begin(), columns_.end(), [](auto const& values) { return values.size() > 0; })) {
+            writer_.SpillColumnsToDisk(handler_.print_, GetSortedColumns(handler_), false);
         }
     }
 
-    void ProcessChunk(BufferPtr start, BufferPtr end, bool is_chunk) override {
-        auto handler = CreateHandler(start);
-
-        ReserveColumns(handler);
-        auto insert_time = std::chrono::system_clock::now();
-
-        EmplaceValuesFromChunk(start, end, handler);
-        auto inserting_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::system_clock::now() - insert_time);
-
-        LOG(INFO) << "Inserting: " << inserting_time.count();
-        writer_.SpillColumnsToDisk(handler.print_, GetSortedColumns(handler), is_chunk);
+    void ProcessRow(std::vector<std::string> const& row) final {
+        std::size_t length{0};
+        for (auto const& value: row) {
+            length += value.size() + 1;
+        }
+        if (buffer_.AddRow(row, length)) {
+            char* line_begin = buffer_.GetCur() - length;
+            MemoryLimitProcess(cur_row_);
+            for (std::size_t cur_attr = 0; cur_attr != row.size();) {
+                auto& value = row[cur_attr];
+                if (!value.empty()) {
+                    memcpy(line_begin, value.data(), value.size() + 1);
+//                    if (cur_attr == 0) {
+//                        std::cout << value << " " << std::string_view {line_begin,
+//                                                                      value.size()} << '\n';
+//                    }
+                    if constexpr (Is<KeyTypeImpl::STRING_VIEW>()) {
+                        EmplaceValueToColumn(cur_attr, line_begin, value.size());
+                    } else if constexpr (Is<KeyTypeImpl::PAIR>()) {
+                        EmplaceValueToColumn(cur_attr, line_begin - buffer_.GetData().data(),
+                                             value.size());
+                    }
+                    line_begin += value.size();
+                }
+                cur_attr++;
+                line_begin++;
+            }
+        } else {
+            std::cout << "swapping\n";
+            writer_.SpillColumnsToDisk(handler_.print_, GetSortedColumns(handler_), true);
+            std::cout << "SWAP ON " << cur_row_ << "\n";
+            buffer_.Clear();
+            ProcessRow(row);
+        }
     }
 
     virtual Columns& GetSortedColumns(ValueHandler const& handler) = 0;
@@ -105,15 +109,16 @@ private:
 
     virtual void ReserveColumns(const ValueHandler& handler) = 0;
 
-    void MemoryLimitProcess(ValueHandler const& handler, std::size_t current_row) {
+    void MemoryLimitProcess(std::size_t current_row) {
         if (IsLimitReached(current_row)) {
-            writer_.SpillColumnsToDisk(handler.print_, GetSortedColumns(handler), true);
+            writer_.SpillColumnsToDisk(handler_.print_, GetSortedColumns(handler_), true);
         }
     }
     virtual std::size_t GetCurrentMemory() const = 0;
 
 protected:
     Columns columns_;
+    ValueHandler handler_;
 
     template <KeyTypeImpl key_value>
     static constexpr bool Is() {
@@ -129,7 +134,9 @@ public:
     ~TableProcessor() override = default;
 
     template <typename... Args>
-    explicit TableProcessor(Args&&... args) : BaseTableProcessor(std::forward<Args>(args)...) {
+    explicit TableProcessor(Args&&... args)
+        : BaseTableProcessor(std::forward<Args>(args)...),
+          handler_(CreateHandler(buffer_.GetData().data())) {
         if constexpr (Is<KeyTypeImpl::PAIR>()) {
             chunk_m_limit_ = std::min((double)std::numeric_limits<unsigned int>::max(),
                                       (double)chunk_m_limit_);
@@ -171,11 +178,14 @@ private:
         }
         return (std::size_t)(coeff * (double)estimation);
     }
+    void InitAdditionalChunkInfo(char*, char*) final {
+        ReserveColumns(this->handler_);
+    }
 
 public:
-    SetBasedTableProcessor(SortedColumnWriter& writer, BaseTableProcessor::DataConfig config,
+    SetBasedTableProcessor(SortedColumnWriter& writer, CSVParser::IDatasetStream& stream,
                            std::size_t memory_limit, std::size_t mem_check_frequency)
-        : ParentType(writer, std::move(config), memory_limit, memory_limit / 3 * 2),
+        : ParentType(writer, stream, memory_limit, memory_limit / 3 * 2),
           memory_check_frequency_(mem_check_frequency) {}
 
     ~SetBasedTableProcessor() final = default;
@@ -195,32 +205,39 @@ class VectorBasedTableProcessor final
     std::size_t rows_limit_;
     std::size_t rows_count_;
 
-    std::size_t CalculateRowsLimit(std::size_t rows_number) const {
+//    std::size_t CalculateRowsLimit(std::size_t rows_number) const {
+//        std::size_t row_memory = this->GetHeaderSize() * sizeof(ValueType);
+//        std::size_t needed_memory = rows_number * row_memory;
+//        std::size_t data_memory_limit = this->memory_limit_ - this->chunk_m_limit_;
+//
+//        std::size_t rows_limit;
+//        if (needed_memory > data_memory_limit) {
+//            std::size_t times = std::ceil((double)needed_memory / (double)data_memory_limit);
+//            rows_limit = std::ceil((double)rows_number / (double)times);
+//        } else {
+//            rows_limit = rows_number;
+//        }
+//        return rows_limit;
+//    }
+    std::size_t CalculateRowsLimit() const {
         std::size_t row_memory = this->GetHeaderSize() * sizeof(ValueType);
-        std::size_t needed_memory = rows_number * row_memory;
         std::size_t data_memory_limit = this->memory_limit_ - this->chunk_m_limit_;
 
-        std::size_t rows_limit;
-        if (needed_memory > data_memory_limit) {
-            std::size_t times = std::ceil((double)needed_memory / (double)data_memory_limit);
-            rows_limit = std::ceil((double)rows_number / (double)times);
-        } else {
-            rows_limit = rows_number;
-        }
-        return rows_limit;
+        return std::ceil(data_memory_limit / row_memory);
+
+//        std::size_t rows_limit;
+//        if (needed_memory > data_memory_limit) {
+//            std::size_t times = std::ceil((double)needed_memory / (double)data_memory_limit);
+//            rows_limit = std::ceil((double)rows_number / (double)times);
+//        } else {
+//            rows_limit = rows_number;
+//        }
+//        return rows_limit;
     }
 
     void InitAdditionalChunkInfo(BufferPtr start, BufferPtr end) final {
-        auto count_time = std::chrono::system_clock::now();
-
-        rows_count_ = std::count(start, end, '\n');
-
-        auto counting_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::system_clock::now() - count_time);
-
-        LOG(INFO) << "Counting time: " << counting_time.count();
-
-        rows_limit_ = CalculateRowsLimit(rows_count_);
+        rows_limit_ = CalculateRowsLimit();
+        ReserveColumns(this->handler_);
     }
 
     void ReserveColumns(ValueHandler const&) final {
@@ -266,10 +283,9 @@ class VectorBasedTableProcessor final
     }
 
 public:
-    VectorBasedTableProcessor(SortedColumnWriter& writer,
-                              const BaseTableProcessor::DataConfig& config,
+    VectorBasedTableProcessor(SortedColumnWriter& writer, CSVParser::IDatasetStream& stream,
                               std::size_t memory_limit, std::size_t threads_count)
-        : ParentType(writer, config, memory_limit, memory_limit / 2),
+        : ParentType(writer, stream, memory_limit, memory_limit / 2),
           threads_count_(threads_count) {}
 
     ~VectorBasedTableProcessor() final = default;

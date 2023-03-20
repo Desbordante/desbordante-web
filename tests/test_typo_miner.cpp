@@ -82,7 +82,7 @@ static std::unique_ptr<algos::TypoMiner> ConfToFitTypoMiner(
 static std::unique_ptr<algos::TypoMiner> CreateTypoMiner(algos::PrimitiveType const prim,
                                                          algos::StdParamsMap m) {
     auto typo_miner = std::make_unique<algos::TypoMiner>(prim);
-    algos::LoadPrimitive(*typo_miner, m);
+    algos::LoadPrimitiveCsv(*typo_miner, m);
     return typo_miner;
 }
 

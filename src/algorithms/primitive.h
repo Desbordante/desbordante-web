@@ -16,6 +16,7 @@
 #include "algorithms/options/opt_add_func_type.h"
 #include "algorithms/options/option.h"
 #include "model/idataset_stream.h"
+#include "parser/csv_parser.h"
 
 namespace algos {
 
@@ -94,7 +95,6 @@ public:
 
     explicit Primitive(std::vector<std::string_view> phase_names);
 
-    virtual void Fit(model::IDatasetStream::DataInfo const& data_info) = 0;
     bool FitCompleted() const;
 
     unsigned long long Execute();
@@ -120,29 +120,58 @@ public:
     }
 };
 
-/* This could be the base class for all algorithms that use the CSVParser
- * to process single dataset.
- * */
-class CsvPrimitive : public Primitive {
-private:
-    virtual void FitInternal(model::IDatasetStream& data_stream) = 0;
+namespace details {
 
+template <typename T>
+class TemplatePrimitive : public Primitive {
+private:
+    virtual void FitInternal(T& data_stream) = 0;
+
+protected:
+    using InputData = T;
 public:
-    using Primitive::Primitive;
-    void Fit(model::IDatasetStream& data_stream);
-    void Fit(model::IDatasetStream::DataInfo const& data_info) override;
+    explicit TemplatePrimitive(std::vector<std::string_view> phase_names):
+          Primitive(phase_names) {}
+
+    void Fit(T& data) {
+        if (!GetNeededOptions().empty()) {
+            throw std::logic_error("All options need to be set before starting processing.");
+        }
+        FitInternal(data);
+        ExecutePrepare();
+    }
 };
 
-/* This class could create and use multiple instances of CSVParser, one for each dataset. */
-class MultiCsvPrimitive : public Primitive {
-private:
-    virtual void FitInternal(model::IDatasetStream& data_stream) = 0;
+}  // namespace details
 
-public:
-    using Primitive::Primitive;
-    void Fit(model::IDatasetStream::DataInfo const& data_info) override;
-    static std::vector<std::filesystem::path> GetRegularFilesFromPath(
-            std::filesystem::path const& data);
-};
+
+
+using SingleRelationPrimitive = details::TemplatePrimitive<model::IDatasetStream>;
+using MultipleRelationPrimitive =
+        details::TemplatePrimitive<std::vector<std::unique_ptr<model::IDatasetStream>>>;
+
+/* This could be the base class for all algorithms that use to process single dataset */
+//class SingleRelationPrimitive : public Primitive {
+//private:
+//    virtual void FitInternal(model::IDatasetStream& data_stream) = 0;
+//
+//public:
+//    using Primitive::Primitive;
+//
+//    void Fit(model::IDatasetStream& data_stream);
+//};
+//
+///* This could be the base class for all algorithms that use to process multiple datasets */
+//class MultipleRelationPrimitive : public Primitive {
+//public:
+//    using StreamsVec = std::vector<std::unique_ptr<model::IDatasetStream>>;
+//
+//    virtual void FitInternal(StreamsVec const& streams) = 0;
+//
+//public:
+//    using Primitive::Primitive;
+//
+//    virtual void Fit(StreamsVec const& streams);
+//};
 
 }  // namespace algos

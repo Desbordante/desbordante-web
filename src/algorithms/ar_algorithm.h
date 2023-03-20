@@ -15,7 +15,7 @@
 
 namespace algos {
 
-class ARAlgorithm : public CsvPrimitive {
+class ARAlgorithm : public SingleRelationPrimitive {
 private:
     using MinSupType = double;
     double minconf_;
