@@ -2,7 +2,12 @@ import { AbstractWriter } from "./AbstractWriter";
 import { Ar } from "../../../types/types";
 
 export class ARWriter extends AbstractWriter<Ar> {
-    transformDep(dep: Ar): {
+
+    public constructor(deps: Ar[]) {
+        super(deps);
+        this.header = ["lhs", "rhs", "confidence"];
+    }
+    transformDepCsv(dep: Ar): {
         lhs: string;
         rhs: string;
         confidence: number;
@@ -12,5 +17,9 @@ export class ARWriter extends AbstractWriter<Ar> {
             rhs: dep.rhs.join("|"),
             confidence: dep.confidence,
         };
+    }
+
+    transformDepPdf(dep: Ar) {
+        return [dep.lhs.join("|"), dep.rhs.join("|"), dep.confidence];
     }
 }

@@ -787,6 +787,15 @@ const typeDefs = gql`
     type DownloadResult {
         url: String
     }
+    
+    enum FileExtension {
+        csv,
+        pdf
+    }
+    
+    input ResultType {
+        extension: FileExtension
+    }
 
     union ChangePasswordAnswer = TokenPair | SuccessfulMessage
 
@@ -868,7 +877,7 @@ const typeDefs = gql`
         User can choose his own datasets (pass fileID).
         Works only for FD, CFD and AR
         """
-        downloadResults(taskID: ID!, filter: IntersectionFilter!): DownloadResult!
+        downloadResults(taskID: ID!, resultType: ResultType!, filter: IntersectionFilter!): DownloadResult!
 
         """
         This query supports several restrictions:
