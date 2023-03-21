@@ -36,7 +36,7 @@ export abstract class AbstractWriter<T extends Fd | Cfd | Ar> {
     protected async write(records: TransformedDep[], path: string) {
         if (this.props.extension === "CSV") {
             const writer = createArrayCsvWriter({
-                path: path,
+                path,
                 header: this.header,
             });
 
