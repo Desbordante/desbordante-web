@@ -22,7 +22,7 @@ import { TaskCreatorFactory } from "../TaskCreating/Creator/AbstractCreator";
 import { builtInDatasets } from "../../../db/initBuiltInDatasets";
 import fs from "fs";
 import { getSpecificFilter } from "./DependencyFilters";
-import { getSpecificWriter } from "./CsvWriters";
+import { getSpecificWriter } from "./Writers";
 
 import validator from "validator";
 

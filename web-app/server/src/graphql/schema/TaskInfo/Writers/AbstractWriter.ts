@@ -11,6 +11,7 @@ export type TransformedDep = (string | number)[];
 
 export abstract class AbstractWriter<T extends Fd | Cfd | Ar> {
     protected header: string[];
+    protected static colDelimiter = "|";
     protected constructor(protected deps: T[], protected props: DownloadingTaskProps) {
         if (deps.length === 0) {
             throw new ApolloError(
@@ -32,10 +33,10 @@ export abstract class AbstractWriter<T extends Fd | Cfd | Ar> {
         return `${protocol}://${host}:${port}/${config.directories.results}/${fileName}`;
     }
 
-    protected async write(records: TransformedDep[], resultsPath: string) {
+    protected async write(records: TransformedDep[], path: string) {
         if (this.props.extension === "CSV") {
             const writer = createArrayCsvWriter({
-                path: resultsPath,
+                path: path,
                 header: this.header,
             });
 
@@ -55,7 +56,7 @@ export abstract class AbstractWriter<T extends Fd | Cfd | Ar> {
                 tableLineWidth: 0.1,
             });
 
-            doc.save(resultsPath);
+            doc.save(path);
         }
     }
 }

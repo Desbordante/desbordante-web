@@ -7,19 +7,10 @@ export class FDWriter extends AbstractWriter<Fd> {
         this.header = ["LHS", "RHS"];
     }
 
-    /*
-    transformDepCsv(dep: Fd): {
-        lhs: string;
-        rhs: string;
-    } {
-        return {
-            lhs: dep.lhs.map((dep) => dep.name).join("|"),
-            rhs: dep.rhs.name,
-        };
-    }
-    */
-
     transformDep(dep: Fd): TransformedDep {
-        return [dep.lhs.map((dep) => dep.name).join("|"), dep.rhs.name];
+        return [
+            dep.lhs.map(({ name }) => name).join(FDWriter.colDelimiter),
+            dep.rhs.name,
+        ];
     }
 }
