@@ -1,12 +1,13 @@
+import { Ar, DownloadingTaskProps } from "../../../types/types";
 import { AbstractWriter } from "./AbstractWriter";
-import { Ar } from "../../../types/types";
 
 export class ARWriter extends AbstractWriter<Ar> {
-
-    public constructor(deps: Ar[]) {
-        super(deps);
-        this.header = ["lhs", "rhs", "confidence"];
+    public constructor(deps: Ar[], props: DownloadingTaskProps) {
+        super(deps, props);
+        this.header = ["LHS", "RHS", "CONFIDENCE"];
     }
+
+    /*
     transformDepCsv(dep: Ar): {
         lhs: string;
         rhs: string;
@@ -18,8 +19,9 @@ export class ARWriter extends AbstractWriter<Ar> {
             confidence: dep.confidence,
         };
     }
+    */
 
-    transformDepPdf(dep: Ar) {
+    transformDep(dep: Ar) {
         return [dep.lhs.join("|"), dep.rhs.join("|"), dep.confidence];
     }
 }

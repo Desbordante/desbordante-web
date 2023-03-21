@@ -698,7 +698,7 @@ export const TaskInfoResolvers: Resolvers = {
         },
     },
     Mutation: {
-        downloadResults: async (_, { taskID, resultType, filter }, context) => {
+        downloadResults: async (_, { taskID, props, filter }, context) => {
             if (!isUUID(taskID, 4)) {
                 throw new UserInputError("Invalid taskID was provided", {
                     taskID,
@@ -722,10 +722,8 @@ export const TaskInfoResolvers: Resolvers = {
             const specificFilter = await getSpecificFilter(type, [...params]);
             const depsInfo = await specificFilter.getFilteredTransformedDeps(deps);
 
-            const writer = getSpecificWriter(type, depsInfo.deps);
-            const url = await (resultType.extension === "csv"
-                ? writer.toCsv()
-                : writer.toPdf());
+            const writer = getSpecificWriter(type, depsInfo.deps, props);
+            const url = await writer.getFileUrl();
 
             return {
                 url,
