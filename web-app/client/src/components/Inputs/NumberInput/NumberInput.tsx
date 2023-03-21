@@ -42,39 +42,34 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
   },
   ref
 ) => {
-  const numbersAfterDot =
-    numberProps?.numbersAfterDot !== undefined
-      ? numberProps?.numbersAfterDot
-      : null;
+  const {
+    numbersAfterDot,
+    min,
+    max,
+    includingMin = true,
+    includingMax = true,
+    defaultNum = 0,
+  } = numberProps || {};
 
-  const min = numberProps?.min !== undefined ? numberProps?.min : null; // (0 || null) === null
-  const max = numberProps?.max !== undefined ? numberProps?.max : null;
-
-  const includingMin =
-    numberProps?.includingMin !== undefined ? numberProps?.includingMin : true;
-  const includingMax =
-    numberProps?.includingMax !== undefined ? numberProps?.includingMax : true;
-
-  const defaultNum = numberProps?.defaultNum || 0;
-
-  const [tempValue, setTempValue] = useState<string>('');
+  const [displayValue, setDisplayValue] = useState('');
   useEffect(() => {
-    setTempValue(value === undefined ? '' : value?.toString());
+    setDisplayValue(value === undefined ? '' : value?.toString());
   }, [value]);
 
   const placeInsideBorders = (s: string): number => {
-    const parsed = Number.parseFloat(s);
+    const parsed = +s;
     if (!Number.isNaN(parsed)) {
-      if (min !== null && parsed <= min) return includingMin ? min : defaultNum;
-      if (max !== null && parsed >= max) return includingMax ? max : defaultNum;
+      if (min !== undefined && parsed <= min)
+        return includingMin ? min : defaultNum;
+      if (max !== undefined && parsed >= max)
+        return includingMax ? max : defaultNum;
       return parsed;
     } else return defaultNum;
   };
 
   const prepareValue = (s: string): number => {
     const parsed = placeInsideBorders(s);
-    if (numbersAfterDot !== null)
-      return Number.parseFloat(parsed.toFixed(numbersAfterDot));
+    if (numbersAfterDot !== undefined) return +parsed.toFixed(numbersAfterDot);
     return parsed;
   };
 
@@ -93,12 +88,11 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       <div className={styles.slider}>
         <Text
           {...props}
-          value={tempValue}
+          value={displayValue}
           onBlur={(e) => {
-            setTempValue(prepareValue(e.target.value).toString());
             onChange(prepareValue(e.target.value));
           }}
-          onChange={(e) => setTempValue(e.currentTarget.value)}
+          onChange={(e) => setDisplayValue(e.currentTarget.value)}
           className={styles.text}
           ref={ref}
         />

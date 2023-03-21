@@ -37,7 +37,6 @@
 
     &.focused {
       border: 1px solid $primary-0;
-      //box-shadow: 0 0 1px $primary-0 !important; /* stylelint-disable-line declaration-no-important */
     }
 
     &.error {
@@ -48,7 +47,6 @@
 
   .multiValue {
     padding: 3px 8px;
-
     background: rgba(118, 0, 209, 0.1);
     border-radius: 4px;
     margin: 2px;
@@ -57,9 +55,7 @@
   .multiValueLabel {
     @include paragraph;
     color: $primary-1;
-
     margin: auto;
-
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -67,7 +63,6 @@
 
   .multiValueRemove {
     @include paragraph;
-
     margin-left: 4px;
     cursor: pointer;
     display: flex;
@@ -134,13 +129,6 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-
-    // .optionBadgeContainer {
-    //   display: flex;
-    //   flex-wrap: wrap;
-    //   justify-content: flex-end;
-    //   align-items: center;
-    // }
 
     &.once {
       justify-content: space-between;

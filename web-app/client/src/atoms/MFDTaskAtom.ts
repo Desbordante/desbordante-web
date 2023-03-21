@@ -50,20 +50,19 @@ export const MFDAtomDefaultValues: MFDTaskAtom = {
 export const MFDAtomDefaultValuesWithParams = (
   taskID: string,
   clusterIndex = 0,
-  offset = 0,
   limit = 0,
   sortBy = MFDSortBy.POINT_INDEX,
   orderBy = OrderBy.ASC
 ) => ({
   ...MFDAtomDefaultValues,
-  taskID: taskID,
-  clusterIndex: clusterIndex,
+  taskID,
+  clusterIndex,
   pagination: {
-    offset: offset,
-    limit: limit,
+    offset: 0,
+    limit,
   },
-  sortBy: sortBy,
-  orderBy: orderBy,
+  sortBy,
+  orderBy,
 });
 
 const MFDAtom = atom<MFDTaskAtom>(MFDAtomDefaultValues);

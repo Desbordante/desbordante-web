@@ -72,7 +72,7 @@ const getMFDRow: (
       highlight.maximumDistance, // maximum distance
       highlight.index, // index
       <div // furthest point index or close icon
-        key={highlight.rowIndex + 'furthestIndex'}
+        key={`furthestIndex-${highlight.rowIndex}`}
         onClick={callbackFunction}
         className={styles.clickableIndex}
       >
@@ -83,7 +83,7 @@ const getMFDRow: (
         )}
       </div>,
       <div // value
-        key={highlight.value + 'value'}
+        key={`value-${highlight.value}`}
         className={!isFullValueShown ? styles.valueText : undefined}
         title={highlight.value}
       >
@@ -91,7 +91,7 @@ const getMFDRow: (
       </div>,
     ],
     style: getRowColor(highlight.withinLimit, position, isHighlighted),
-    globalIndex: isHighlighted ? 'Highlight-' + position : position,
+    globalIndex: isHighlighted ? `Highlight-${position}` : position,
   };
 };
 
@@ -112,7 +112,7 @@ export const MFDTable: FC<MFDTableProps> = ({
         )
       : undefined;
 
-    const highlightData = highlights.map((highlight, index) =>
+    const highlightData = highlights.map((highlight) =>
       getMFDRow(highlight, highlight.rowIndex, false, isFullValueShown, () =>
         insertRow(highlight.furthestPointIndex, highlight.index)
       )

@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 
 export type Row = {
   items: ReactNode[];
-  globalIndex?: number | string;
+  globalIndex: number | string;
   style?: string;
 };
 

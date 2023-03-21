@@ -9,7 +9,6 @@
     "dev": "next dev",
     "dev:local": "NEXT_PUBLIC_TYPE=local next dev",
     "dev:prod": "NEXT_PUBLIC_TYPE=prod next dev",
-    "dev:turbo": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
