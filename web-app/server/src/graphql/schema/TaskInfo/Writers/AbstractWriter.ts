@@ -22,7 +22,7 @@ export abstract class AbstractWriter<T extends Fd | Cfd | Ar> {
 
     abstract transformDep(dep: T): TransformedDep;
 
-    public async getFileUrl(): Promise<string> {
+    public async writeFileAndGetUrl(): Promise<string> {
         const records = this.deps.map(this.transformDep);
         const fileID = uuidv4();
         const { protocol, host, port } = config.hosts.server;

@@ -723,7 +723,7 @@ export const TaskInfoResolvers: Resolvers = {
             const depsInfo = await specificFilter.getFilteredTransformedDeps(deps);
 
             const writer = getSpecificWriter(type, depsInfo.deps, props);
-            const url = await writer.getFileUrl();
+            const url = await writer.writeFileAndGetUrl();
 
             return {
                 url,
