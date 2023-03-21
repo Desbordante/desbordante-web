@@ -1,21 +1,6 @@
-import { bool } from 'yup';
-// import { capitalize, CapitalizedOption } from '@utils/capitalizeOptions';
 import { upperCase, UpperCaseOption } from '@utils/uppercaseOptions';
 import { MainPrimitiveType } from 'types/globalTypes';
 
-// const toCapitalizedOption: <T extends string>(
-//   value: T
-// ) => CapitalizedOption<T> = (value) => ({
-//   value,
-//   label: capitalize(value),
-// });
-
-// const toUpperCaseOption: <T extends string>(value: T) => UpperCaseOption<T> = (
-//   value
-// ) => ({
-//   value: upperCase(value),
-//   label: value,
-// });
 function toScreamingSnakeOption<T extends string>(
   value: T
 ): UpperCaseOption<T> {
@@ -24,12 +9,6 @@ function toScreamingSnakeOption<T extends string>(
     label: value,
   };
 }
-// const toScreamingSnakeOption: <T extends string>(
-//   value: T
-// ) => UpperCaseOption<T> = (value) => ({
-//   value: upperCase(value.replaceAll(' ', '_') as T),
-//   label: value,
-// });
 
 const FDAlgorithms = [
   'Pyro',
@@ -43,14 +22,14 @@ const FDAlgorithms = [
   'FUN',
 ] as const;
 
-type FDAlgorithm = typeof FDAlgorithms[number];
+type FDAlgorithm = (typeof FDAlgorithms)[number];
 type CFDAlgorithm = 'CTane';
 type ARAlgorithm = 'Apriori';
 
 // const MFDAlgorithms = ['BRUTE', 'APPROX', 'CALIPERS'] as const;
 const MFDAlgorithms = ['Brute', 'Approx', 'Calipers'] as const;
 
-type MFDAlgorithm = typeof MFDAlgorithms[number];
+type MFDAlgorithm = (typeof MFDAlgorithms)[number];
 
 export type Algorithms =
   | FDAlgorithm
@@ -125,13 +104,10 @@ export const optionsByAlgorithms: Record<Algorithms, AlgoProps[]> = {
 
 const MFDMetrics = ['Euclidean', 'Cosine', 'Levenshtein'] as const;
 
-export type MFDMetric = typeof MFDMetrics[number];
+export type MFDMetric = (typeof MFDMetrics)[number];
 
-// export type MFDMetricOption = CapitalizedOption<MFDMetric>;
 export type MFDMetricOption = UpperCaseOption<MFDMetric>;
 
-// export const MFDMetricOptions: MFDMetricOption[] =
-//   MFDMetrics.map(toCapitalizedOption);
 export const MFDMetricOptions: MFDMetricOption[] = MFDMetrics.map(
   toScreamingSnakeOption
 );
@@ -153,8 +129,6 @@ export const optionsByMetrics: Record<MFDMetric, string[]> = {
   Cosine: ['qgram'],
   Levenshtein: [],
 };
-
-// Column Types
 
 export type MFDColumnType = 'Numeric' | 'String';
 
@@ -185,12 +159,10 @@ export const optionsByColumnTypes: Record<MFDColumnType, string[]> = {
   String: [],
 };
 
-// Distance to Null
-
-export type MFDDistance = 'Infinity' | 'Zero';
+export type MFDDistanceToNull = 'Infinity' | 'Zero';
 
 export type MFDDistancesOption = {
-  label: MFDDistance;
+  label: MFDDistanceToNull;
   value: boolean;
 };
 

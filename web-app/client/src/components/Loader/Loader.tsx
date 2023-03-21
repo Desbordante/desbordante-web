@@ -1,4 +1,3 @@
-import { useQuery } from '@apollo/client';
 import cn from 'classnames';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -9,19 +8,13 @@ import getTaskStatusData from '@utils/getTaskStatusData';
 import { PrimitiveType } from 'types/globalTypes';
 import styles from './Loader.module.scss';
 
-type Props = {
-  taskID: string;
-  onComplete: () => void;
-};
-
 const Loader: FC = () => {
   const router = useRouter();
   const { data, error } = useTaskState();
   const status = getTaskStatusData(error, data.state);
 
   useEffect(() => {
-    const state = data.state;
-    const type = data.type;
+    const { state, type } = data;
 
     if (
       state &&
@@ -30,15 +23,17 @@ const Loader: FC = () => {
       type !== ''
     ) {
       setTimeout(() => {
-        router.push({
-          pathname: primitivePathnames[type as PrimitiveType],
-          query: {
-            taskID: data.taskID,
-          },
-        });
+        router
+          .push({
+            pathname: primitivePathnames[type as PrimitiveType],
+            query: {
+              taskID: data.taskID,
+            },
+          })
+          .then();
       }, 500);
     }
-  }, [data]);
+  }, [data, router]);
 
   const icon = status.isAnimated ? (
     <video

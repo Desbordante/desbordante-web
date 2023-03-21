@@ -1,4 +1,3 @@
-import { cursorTo } from 'readline';
 import { useMutation, useQuery } from '@apollo/client';
 import _ from 'lodash';
 import type { NextPage } from 'next';
@@ -46,7 +45,6 @@ import {
   getCountOfColumnsVariables,
 } from '@graphql/operations/queries/__generated__/getCountOfColumns';
 import { GET_COUNT_OF_COLUMNS } from '@graphql/operations/queries/getDatasetColumnCount';
-import { useErrorContext } from '@hooks/useErrorContext'; // to delete?
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
 import { showError } from '@utils/toasts';
@@ -219,27 +217,22 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
       : [];
   };
 
-  function omit(obj: any, ...props: any) {
-    const result = { ...obj };
-    props.forEach(function (prop: any) {
-      delete result[prop];
-    });
-    return result;
-  }
-
   const [createTask] = useMutation<
     createTaskWithDatasetChoosing,
     createTaskWithDatasetChoosingVariables
   >(CREATE_TASK_WITH_CHOOSING_DATASET);
   const analyzeHandler = useCallback(
     handleSubmit((data) => {
-      data = omit(data, 'rhsColumnType');
+      const cleanData = _.omit(data, ['rhsColumnType']) as Omit<
+        AlgorithmConfig,
+        'rhsColumnType'
+      >;
       createTask({
         variables: {
           fileID: fileID,
           props: {
             type: primitive,
-            ...data,
+            ...cleanData,
           },
           forceCreate: true,
         },
@@ -394,7 +387,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
     Partial<Record<keyof AlgorithmProps, FormInput>>
   > = useMemo(
     () => ({
-      [MainPrimitiveType.Stats]: {}, // to delete
+      [MainPrimitiveType.Stats]: {},
       [MainPrimitiveType.FD]: {
         algorithmName: ({ field: { onChange, value, ...field } }) => (
           <Select

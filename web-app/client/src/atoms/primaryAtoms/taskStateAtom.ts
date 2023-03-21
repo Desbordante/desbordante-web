@@ -9,8 +9,8 @@ export type TaskState =
 
 export type TaskStateAtom = {
   taskID: string;
-  algorithmName: string; // mb to delete?
-  type: string; // mb to delete?
+  algorithmName: string;
+  type: string;
   state: TaskState;
 };
 
@@ -34,7 +34,7 @@ export const taskStateAtomDefaultValues: TaskStateAtom = {
 
 export const taskStateAtomDefaultValuesWithID = (taskID: string) => ({
   ...taskStateAtomDefaultValues,
-  taskID: taskID,
+  taskID,
 });
 
 const taskStateAtom = atom<TaskStateAtom>(taskStateAtomDefaultValues);

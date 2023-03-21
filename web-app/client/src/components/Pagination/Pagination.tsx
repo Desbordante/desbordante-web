@@ -17,7 +17,7 @@ const Pagination: FC<Props> = ({ current, count, onChange }) => {
       <ReactPaginate
         breakLabel="..."
         nextLabel={
-          <Image src={arrowRight} width={16} height={16} alt={'Next element'} />
+          <Image src={arrowRight} width={16} height={16} alt="Next element" />
         }
         onPageChange={(e) => onChange(e.selected + 1)}
         pageRangeDisplayed={5}
@@ -27,7 +27,7 @@ const Pagination: FC<Props> = ({ current, count, onChange }) => {
             src={arrowRight}
             width={16}
             height={16}
-            alt={'Previous element'}
+            alt="Previous element"
           />
         }
         className={styles.container}

@@ -1,8 +1,8 @@
 import Checkbox from './Checkbox';
+import MultiSelect from './MultiSelect';
 import NumberSlider from './NumberSlider';
 import Radio from './Radio';
 import Select from './Select';
-import MultiSelect from './MultiSelect';
 import Text from './Text';
 
 export interface InputPropsBase {

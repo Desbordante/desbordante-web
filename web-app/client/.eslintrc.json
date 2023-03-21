@@ -19,6 +19,7 @@
   },
   "plugins": ["@typescript-eslint", "prettier"],
   "rules": {
+    "object-shorthand": "warn",
     "import/order": ["error", {
       "groups": ["builtin", "external", "internal", "parent", "sibling"],
       "pathGroups": [{ "pattern": "./*.scss", "group": "sibling", "position": "after" }],

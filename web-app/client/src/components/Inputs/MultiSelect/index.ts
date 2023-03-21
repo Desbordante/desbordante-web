@@ -1,3 +1,2 @@
-import ControlledSelect from './ControlledMultiSelect';
 export { default } from './MultiSelect';
-export { ControlledSelect };
+export { default as ControlledSelect } from './ControlledMultiSelect';

@@ -1,15 +1,13 @@
 import classNames from 'classnames';
 import {
   FC,
-  ReactNode,
   UIEventHandler,
   useCallback,
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react';
-import { Row, ScrollDirection, TableProps } from './TableTypes';
+import { TableProps } from './TableTypes';
 import styles from './ScrollableNodeTable.module.scss';
 
 const mapFromArray = <T,>(array?: T[]) =>
@@ -31,9 +29,8 @@ const Table: FC<TableProps> = ({
   const isScrolledToTop = useRef(false);
 
   // move the table to the top on page load
+  // TODO: figure out how to scroll to the top then cluster changes
   useEffect(() => {
-    // console.info('scrolling to top');
-
     if (tableDivRef.current)
       tableDivRef.current.scrollTo({
         top: 0,
@@ -59,36 +56,25 @@ const Table: FC<TableProps> = ({
     [highlightColumnIndices]
   );
 
-  // TODO: handle scroll calls when position is low
   const handleScroll: UIEventHandler<HTMLDivElement> = useCallback(
     (event) => {
-      // not handling scroll if the table is not scrolled to the top
       if (!isScrolledToTop.current) return;
 
       const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
-      // scrollTop - relative position of the rows list top to the table's top
-      // scrollHeight - height of the rows list
-      // clientHeight - height of the table
-
-      // console.log(scrollTop, scrollHeight, clientHeight);
 
       if (scrollTop !== positionRef.current) {
         const scrollDifference = positionRef.current - scrollTop;
 
-        // handle scroll only if the vertical position has changed and the table is scrolled up
         positionRef.current = scrollTop;
-        if (Math.abs(scrollTop) < threshold && scrollDifference > 0) {
+        if (scrollTop < threshold && scrollDifference > 0) {
           onScroll?.('up');
-          console.log('scrolling up');
         }
 
-        // handle scroll only if the vertical position has changed and the table is scrolled down
         if (
-          Math.abs(scrollTop - (scrollHeight - clientHeight)) < threshold &&
+          scrollHeight - clientHeight - scrollTop < threshold &&
           scrollDifference < 0
         ) {
           onScroll?.('down');
-          console.log('scrolling down');
         }
       }
     },
@@ -122,20 +108,16 @@ const Table: FC<TableProps> = ({
 
         <tbody>
           {data &&
-            data.map((row, rowIndex) => (
+            data.map((row) => (
               <tr
-                key={
-                  row.globalIndex
-                    ? row.globalIndex.toString()
-                    : rowIndex.toString()
-                } // TODO: check if this is will save position on adding new rows
+                key={row.globalIndex}
                 className={classNames(styles.row, row.style)}
               >
                 {row.items.map((item, columnIndex) => (
                   <td
                     key={columnIndex}
                     className={classNames(
-                      (rowIndex in highlightedRowsMap ||
+                      (row.globalIndex in highlightedRowsMap ||
                         columnIndex in highlightedColumnsMap) &&
                         styles.highlighted,
                       hiddenColumnIndices &&

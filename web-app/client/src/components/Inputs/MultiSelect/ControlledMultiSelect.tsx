@@ -41,12 +41,10 @@ const ControlledSelect = <T extends FieldValues>({
             getSelectValues(newValue as { label: string; value: number }[])
           )
         }
-        //onChange={(option: any) => field.onChange(option?.value)}
         value={getSelectOptions(
           rest.options as ReadonlyArray<any>,
           field.value
         )}
-        //value={rest.options?.find((e: any) => e?.value === field.value)}
         {...rest}
       />
     )}

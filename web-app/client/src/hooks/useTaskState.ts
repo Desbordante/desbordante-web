@@ -1,14 +1,11 @@
-// hooks
 import { useLazyQuery, useQuery } from '@apollo/client';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/router';
-import { useEffect, useLayoutEffect } from 'react';
-// Task State Atom with data from the server
+import { useEffect } from 'react';
 import taskStateAtom, {
   taskStateAtomDefaultValues,
   taskStateAtomDefaultValuesWithID,
 } from '@atoms/primaryAtoms/taskStateAtom';
-// queries
 import {
   getTaskState,
   getTaskState_taskInfo_state,
@@ -21,17 +18,13 @@ import {
 } from '@graphql/operations/queries/__generated__/getTaskStateLite';
 import { GET_TASK_STATE } from '@graphql/operations/queries/getTaskState';
 import { GET_TASK_STATE_LITE } from '@graphql/operations/queries/getTaskStateLite';
-// error message
 import { showError } from '@utils/toasts';
 
 const useTaskState = () => {
-  // TODO: test query
   const router = useRouter();
   const taskID = router.query.taskID as string;
-  // Task State Atom
   const [taskState, setTaskState] = useAtom(taskStateAtom);
 
-  // Query
   const {
     loading: liteLoading,
     error: liteError,
@@ -42,7 +35,7 @@ const useTaskState = () => {
     GET_TASK_STATE_LITE,
     {
       variables: {
-        taskID: taskID,
+        taskID,
       },
       onError: (error) => {
         showError(error.message, "Can't fetch task state. Please try later.");
@@ -76,7 +69,7 @@ const useTaskState = () => {
         stopPolling();
         loadFullTaskState({
           variables: {
-            taskID: taskID,
+            taskID,
           },
         });
       }
@@ -92,13 +85,13 @@ const useTaskState = () => {
         if (taskState.type === '')
           loadFullTaskState({
             variables: {
-              taskID: taskID,
+              taskID,
             },
           });
       } else {
         setTaskState({
           ...taskStateAtomDefaultValuesWithID(taskID),
-          state: state, // || taskStateAtomDefaultValues.state,
+          state, // || taskStateAtomDefaultValues.state,
         });
       }
     }
@@ -106,7 +99,7 @@ const useTaskState = () => {
       stopPolling();
       setTaskState({
         ...taskStateAtomDefaultValuesWithID(taskID),
-        state: state,
+        state,
       });
     }
   }, [liteData]);
@@ -126,7 +119,7 @@ const useTaskState = () => {
 
     if (data && state && 'processStatus' in state) {
       setTaskState({
-        taskID: taskID,
+        taskID,
         algorithmName: data?.baseConfig.algorithmName || '',
         type: data?.baseConfig.type || '',
         state: state || taskStateAtomDefaultValues.state,

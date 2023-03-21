@@ -45,6 +45,8 @@ const ReportsMFD: NextPageWithLayout = () => {
   const taskID = router.query.taskID as string;
 
   const shouldIgnoreScrollEvent = useRef(false);
+
+  // TODO: move parameters in one object
   const [clusterIndex, setClusterIndex] = useState(0);
   const [limit, setLimit] = useState(defaultLimit);
   const [sortBy, setSortBy] = useState(MFDSortBy.POINT_INDEX);
@@ -116,7 +118,6 @@ const ReportsMFD: NextPageWithLayout = () => {
       setRowIndex(rowIndex);
       setIsInserted(true);
       loadMFDHighlight({
-        // TODO: Wait for backend to implement getting highlight by index
         variables: { taskID, clusterIndex, rowIndex: furthestIndex },
       }).then();
     },
@@ -130,18 +131,9 @@ const ReportsMFD: NextPageWithLayout = () => {
   // TODO: move logic to the table component and make API for that
   const onScroll = useCallback(
     (direction: ScrollDirection) => {
-      console.log(
-        shouldIgnoreScrollEvent.current,
-        direction,
-        defaultOffsetDifference
-      );
-
       if (!shouldIgnoreScrollEvent.current && direction === 'down') {
-        // forbid scrolling until data is loaded
         shouldIgnoreScrollEvent.current = true;
-        // and limit less than total count of highlights
         if (limit < data.cluster.highlightsTotalCount) {
-          // increase limit by 50
           setLimit((limit) => limit + defaultOffsetDifference);
         } else {
           shouldIgnoreScrollEvent.current = false;
@@ -161,9 +153,7 @@ const ReportsMFD: NextPageWithLayout = () => {
         />
       )}
 
-      {/* If data is not loaded yet show template */}
       {data.result === undefined && <ReportFiller title={'Loading'} />}
-      {/* If data is loaded yet show actual data */}
       {data.result !== undefined && (
         <>
           {data.result && (
@@ -186,7 +176,7 @@ const ReportsMFD: NextPageWithLayout = () => {
                     icon={<OrderingIcon />}
                     onClick={() => setIsOrderingShown(true)}
                   >
-                    Ordering {/* FIXME: Maybe change to "Sorting"?*/}
+                    Ordering
                   </Button>
                   <Button
                     variant="secondary"
@@ -296,7 +286,6 @@ const OrderingWindow: FC<OrderingProps> = ({
       onApply={() => {
         setSortBy(sorting);
         setOrderBy(ordering);
-        // baseForm.setValue('direction', direction);
         setIsOrderingShown(false);
       }}
     >
@@ -309,7 +298,7 @@ const OrderingWindow: FC<OrderingProps> = ({
       <ControlledSelect
         control={control}
         controlName="ordering"
-        label="Order by"
+        label="Direction"
         options={_.values(orderingOptions)}
       />
     </ListPropertiesModal>
