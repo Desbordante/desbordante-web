@@ -789,12 +789,12 @@ const typeDefs = gql`
     }
     
     enum FileExtension {
-        csv,
-        pdf
+        CSV,
+        PDF
     }
     
-    input ResultType {
-        extension: FileExtension
+    input DownloadingTaskProps {
+        extension: FileExtension!
     }
 
     union ChangePasswordAnswer = TokenPair | SuccessfulMessage
@@ -877,7 +877,10 @@ const typeDefs = gql`
         User can choose his own datasets (pass fileID).
         Works only for FD, CFD and AR
         """
-        downloadResults(taskID: ID!, resultType: ResultType!, filter: IntersectionFilter!): DownloadResult!
+        downloadResults(
+        taskID: ID!, 
+        props: DownloadingTaskProps! = { extension: CSV }, 
+        filter: IntersectionFilter!): DownloadResult!
 
         """
         This query supports several restrictions:
