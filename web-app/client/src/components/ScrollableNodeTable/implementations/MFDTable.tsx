@@ -16,6 +16,7 @@ import Table, {
 import styles from './MFDTable.module.scss';
 
 type MFDTableProps = {
+  clusterNumber: number;
   totalCount: number;
   highlights: MFDHighlight[];
   onScroll: (direction: ScrollDirection) => void;
@@ -96,6 +97,7 @@ const getMFDRow: (
 };
 
 export const MFDTable: FC<MFDTableProps> = ({
+  clusterNumber,
   totalCount,
   highlights,
   onScroll,
@@ -146,6 +148,7 @@ export const MFDTable: FC<MFDTableProps> = ({
   ];
 
   const props: TableProps = {
+    containerKey: clusterNumber,
     data,
     header,
     onScroll,

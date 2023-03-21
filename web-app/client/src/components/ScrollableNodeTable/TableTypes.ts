@@ -9,6 +9,7 @@ export type Row = {
 export type ScrollDirection = 'up' | 'down';
 
 export type TableProps = {
+  containerKey?: number | string;
   data: Row[];
   header?: string[];
   highlightRowIndices?: number[];
