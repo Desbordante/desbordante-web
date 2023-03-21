@@ -14,6 +14,7 @@ const mapFromArray = <T,>(array?: T[]) =>
   Object.fromEntries(array?.map((item) => [item, true]) || []);
 
 const Table: FC<TableProps> = ({
+  containerKey = null,
   data,
   header,
   highlightRowIndices,
@@ -29,7 +30,6 @@ const Table: FC<TableProps> = ({
   const isScrolledToTop = useRef(false);
 
   // move the table to the top on page load
-  // TODO: figure out how to scroll to the top then cluster changes
   useEffect(() => {
     if (tableDivRef.current)
       tableDivRef.current.scrollTo({
@@ -83,6 +83,7 @@ const Table: FC<TableProps> = ({
 
   return (
     <div
+      key={containerKey}
       className={classNames(styles.container, className)}
       onScroll={handleScroll}
       ref={tableDivRef}

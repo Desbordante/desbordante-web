@@ -192,6 +192,7 @@ const ReportsMFD: NextPageWithLayout = () => {
               <h6>Cluster value: {data.cluster.value || 'loading'}</h6>
 
               <MFDTable
+                clusterNumber={clusterIndex}
                 totalCount={data.clustersTotalCount}
                 highlights={data.cluster.highlights}
                 onScroll={onScroll}
