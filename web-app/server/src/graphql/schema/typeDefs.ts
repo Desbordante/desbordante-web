@@ -878,9 +878,10 @@ const typeDefs = gql`
         Works only for FD, CFD and AR
         """
         downloadResults(
-        taskID: ID!, 
-        props: DownloadingTaskProps! = { extension: CSV }, 
-        filter: IntersectionFilter!): DownloadResult!
+            taskID: ID!, 
+            props: DownloadingTaskProps! = { extension: CSV }, 
+            filter: IntersectionFilter!
+        ): DownloadResult!
 
         """
         This query supports several restrictions:
