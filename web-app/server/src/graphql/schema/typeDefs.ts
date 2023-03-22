@@ -291,7 +291,7 @@ const typeDefs = gql`
         withinLimit: Boolean!
         maximumDistance: Float!
         furthestPointIndex: Int!
-        furthestPointValue: String!
+        value: String!
         clusterValue: String!
     }
 

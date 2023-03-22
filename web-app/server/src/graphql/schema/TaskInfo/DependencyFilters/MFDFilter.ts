@@ -40,7 +40,7 @@ export class MFDFilter extends AbstractFilter<MFDCompactType, Mfd> {
 
         const rows = await FileInfo.GetRowsByIndices(
             fileInfo,
-            deps.map((dep) => dep.furthestPointIndex)
+            deps.map((dep) => dep.index)
         );
 
         const firstRow = await FileInfo.GetRowsByIndices(fileInfo, [deps[0].index]);
@@ -55,18 +55,13 @@ export class MFDFilter extends AbstractFilter<MFDCompactType, Mfd> {
         );
 
         for (let i = 0; i < deps.length; i++) {
-            const rowData = rows.get(deps[i].furthestPointIndex);
+            const rowData = rows.get(deps[i].index);
             if (rowData == null) {
-                throw new ApolloError(
-                    "Could not obtain row with index ${deps[i].furthestPointIndex}"
-                );
+                throw new ApolloError("Could not obtain row with index ${deps[i].index}");
             }
 
             deps[i].clusterValue = clusterValue;
-            deps[i].furthestPointValue = this.rowProjectionToString(
-                rowData,
-                taskConfig.rhsIndices
-            );
+            deps[i].value = this.rowProjectionToString(rowData, taskConfig.rhsIndices);
         }
 
         return deps;

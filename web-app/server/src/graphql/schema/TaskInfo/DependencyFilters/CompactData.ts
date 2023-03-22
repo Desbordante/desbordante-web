@@ -25,7 +25,7 @@ export type MFDCompactType = {
     withinLimit: boolean;
     maximumDistance: number;
     furthestPointIndex: number;
-    furthestPointValue: string | null;
+    value: string | null;
     clusterValue: string | null;
 };
 
@@ -72,8 +72,8 @@ export class CompactData {
             index: Number(index),
             furthestPointIndex: Number(furthestPointIndex),
             maximumDistance: Number(maximumDistance),
+            value: null,
             clusterValue: null,
-            furthestPointValue: null,
         };
     };
 
@@ -128,11 +128,11 @@ export class CompactData {
         clusterValue,
         index,
         furthestPointIndex,
-        furthestPointValue,
+        value,
         maximumDistance,
     }: MFDCompactType): Mfd => {
-        if (clusterValue == null || furthestPointValue == null) {
-            throw new ApolloError("Missing clusterValue or furthestPointValue values");
+        if (clusterValue == null || value == null) {
+            throw new ApolloError("Missing value or clusterValue values");
         }
 
         return {
@@ -140,7 +140,7 @@ export class CompactData {
             withinLimit,
             maximumDistance,
             furthestPointIndex,
-            furthestPointValue,
+            value,
             clusterValue,
         };
     };
