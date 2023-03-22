@@ -23,14 +23,12 @@ const Loader: FC = () => {
       type !== ''
     ) {
       setTimeout(() => {
-        router
-          .push({
-            pathname: primitivePathnames[type as PrimitiveType],
-            query: {
-              taskID: data.taskID,
-            },
-          })
-          .then();
+        void router.push({
+          pathname: primitivePathnames[type as PrimitiveType],
+          query: {
+            taskID: data.taskID,
+          },
+        });
       }, 500);
     }
   }, [data, router]);

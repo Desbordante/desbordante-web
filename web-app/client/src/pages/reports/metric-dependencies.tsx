@@ -119,13 +119,13 @@ const ReportsMFD: NextPageWithLayout = () => {
       setFurthestIndex(furthestIndex);
       setRowIndex(rowIndex);
       setIsInserted(true);
-      loadMFDHighlight({
+      void loadMFDHighlight({
         variables: {
           taskID,
           clusterIndex,
           rowFilter: `index=${furthestIndex}`,
         },
-      }).then();
+      });
     },
     [loadMFDHighlight, taskID, clusterIndex]
   );
