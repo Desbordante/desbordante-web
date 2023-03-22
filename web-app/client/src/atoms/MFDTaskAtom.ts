@@ -8,6 +8,7 @@ export type MFDHighlight = {
   maximumDistance: number;
   furthestPointIndex: number;
   value: string;
+  clusterValue: string;
 };
 
 export type MFDCluster = {
@@ -43,7 +44,7 @@ export const MFDAtomDefaultValues: MFDTaskAtom = {
     offset: 0,
     limit: 0,
   },
-  sortBy: MFDSortBy.POINT_INDEX,
+  sortBy: MFDSortBy.MAXIMUM_DISTANCE,
   orderBy: OrderBy.ASC,
 };
 
@@ -51,7 +52,7 @@ export const MFDAtomDefaultValuesWithParams = (
   taskID: string,
   clusterIndex = 0,
   limit = 0,
-  sortBy = MFDSortBy.POINT_INDEX,
+  sortBy = MFDSortBy.MAXIMUM_DISTANCE,
   orderBy = OrderBy.ASC
 ) => ({
   ...MFDAtomDefaultValues,
