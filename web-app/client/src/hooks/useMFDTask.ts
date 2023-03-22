@@ -3,10 +3,10 @@ import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import MFDAtom, { MFDAtomDefaultValuesWithParams } from '@atoms/MFDTaskAtom';
 import {
-  GetMFDTaskData,
-  GetMFDTaskDataVariables,
-} from '@graphql/operations/queries/__generated__/GetMFDTaskData';
-import { GET_MFD_TASK_DATA } from '@graphql/operations/queries/getMFDTaskData';
+  GetMFDTaskInfo,
+  GetMFDTaskInfoVariables,
+} from '@graphql/operations/queries/__generated__/GetMFDTaskInfo';
+import { GET_MFD_TASK_INFO } from '@graphql/operations/queries/getMFDTaskInfo';
 import { showError } from '@utils/toasts';
 import { MFDSortBy, OrderBy } from 'types/globalTypes';
 
@@ -14,14 +14,14 @@ const useMFDTask = (
   taskID: string,
   clusterIndex = 0,
   limit = 150,
-  sortBy = MFDSortBy.POINT_INDEX,
+  sortBy = MFDSortBy.MAXIMUM_DISTANCE,
   orderBy = OrderBy.ASC
 ) => {
   const [MFDTask, setMFDTask] = useAtom(MFDAtom);
   const [loadMFDData, { loading, error, data }] = useLazyQuery<
-    GetMFDTaskData,
-    GetMFDTaskDataVariables
-  >(GET_MFD_TASK_DATA, {
+    GetMFDTaskInfo,
+    GetMFDTaskInfoVariables
+  >(GET_MFD_TASK_INFO, {
     variables: {
       taskID,
       clusterIndex,
@@ -44,18 +44,20 @@ const useMFDTask = (
       MFDTask.sortBy !== sortBy ||
       MFDTask.result === undefined
     ) {
-      loadMFDData().then();
+      void loadMFDData();
     }
   }, []);
 
   useEffect(() => {
     if (
-      data?.taskInfo !== undefined &&
-      'data' in data?.taskInfo &&
-      data?.taskInfo.data?.result !== null &&
-      'result' in data?.taskInfo.data?.result
+      data &&
+      data.taskInfo &&
+      data.taskInfo.data.__typename === 'TaskWithDepsData' &&
+      data.taskInfo.data.result &&
+      data.taskInfo.data.result.__typename === 'MFDTaskResult'
     ) {
-      const taskData = data?.taskInfo.data?.result;
+      const taskResult = data.taskInfo.data.result;
+
       setMFDTask({
         ...MFDAtomDefaultValuesWithParams(
           taskID,
@@ -64,12 +66,12 @@ const useMFDTask = (
           sortBy,
           orderBy
         ),
-        result: taskData?.result || false,
-        clustersTotalCount: taskData?.clustersTotalCount || 0,
+        result: taskResult.result || false,
+        clustersTotalCount: taskResult.depsAmount || 0,
         cluster: {
-          value: taskData?.cluster?.value || '',
-          highlightsTotalCount: taskData?.cluster?.highlightsTotalCount || 0,
-          highlights: (taskData?.cluster?.highlights || []).map(
+          value: taskResult.filteredDeps.deps[0].clusterValue || '',
+          highlightsTotalCount: taskResult.filteredDeps.filteredDepsAmount || 0,
+          highlights: (taskResult.filteredDeps.deps || []).map(
             (highlight, index) => ({ ...highlight, rowIndex: index })
           ),
         },

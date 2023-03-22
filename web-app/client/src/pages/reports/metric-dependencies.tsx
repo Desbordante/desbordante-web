@@ -49,7 +49,7 @@ const ReportsMFD: NextPageWithLayout = () => {
   // TODO: move parameters in one object
   const [clusterIndex, setClusterIndex] = useState(0);
   const [limit, setLimit] = useState(defaultLimit);
-  const [sortBy, setSortBy] = useState(MFDSortBy.POINT_INDEX);
+  const [sortBy, setSortBy] = useState(MFDSortBy.MAXIMUM_DISTANCE);
   const [orderBy, setOrderBy] = useState(OrderBy.ASC);
 
   const { data, loading, error } = useMFDTask(
@@ -80,22 +80,24 @@ const ReportsMFD: NextPageWithLayout = () => {
     if (isInserted) {
       if (
         highlightData &&
-        highlightData?.taskInfo?.data.__typename === 'SpecificTaskData' &&
-        highlightData?.taskInfo.data.result?.__typename === 'MFDTaskResult' &&
-        highlightData.taskInfo.data.result.__typename === 'MFDTaskResult' &&
-        highlightData.taskInfo.data.result.clusterRow
+        highlightData.taskInfo &&
+        highlightData.taskInfo.data.__typename === 'TaskWithDepsData' &&
+        highlightData.taskInfo.data.result &&
+        highlightData.taskInfo.data.result.__typename === 'MFDTaskResult'
       ) {
-        const highlight = highlightData.taskInfo.data.result.clusterRow;
+        const highlight =
+          highlightData.taskInfo.data.result.filteredDeps.deps[0];
 
         setFurthestData({
           position: RowIndex,
           data: {
             index: highlight.index,
-            rowIndex: data.cluster.highlightsTotalCount + 1,
+            rowIndex: highlightData.taskInfo.data.result.depsAmount + 1,
             withinLimit: highlight.withinLimit,
             maximumDistance: highlight.maximumDistance,
             furthestPointIndex: highlight.furthestPointIndex,
             value: highlight.value,
+            clusterValue: highlight.clusterValue,
           },
         });
       } else {
@@ -118,7 +120,11 @@ const ReportsMFD: NextPageWithLayout = () => {
       setRowIndex(rowIndex);
       setIsInserted(true);
       loadMFDHighlight({
-        variables: { taskID, clusterIndex, rowIndex: furthestIndex },
+        variables: {
+          taskID,
+          clusterIndex,
+          rowFilter: `index=${furthestIndex}`,
+        },
       }).then();
     },
     [loadMFDHighlight, taskID, clusterIndex]
@@ -269,7 +275,7 @@ const OrderingWindow: FC<OrderingProps> = ({
 
   const { control, watch, reset } = useForm<SortingProps>({
     defaultValues: {
-      sorting: MFDSortBy.POINT_INDEX,
+      sorting: MFDSortBy.MAXIMUM_DISTANCE,
       ordering: OrderBy.ASC,
     },
   });
