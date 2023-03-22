@@ -161,7 +161,8 @@ static DesbordanteDbManager::SpecificTables SpecificTables() {
          SearchByAttr::taskID,
          {
              std::make_shared<ExtendedAttribute<std::string>>("result", "result"),
-             std::make_shared<ExtendedAttribute<std::string>>("highlights", "highlights"),
+             std::make_shared<ExtendedAttribute<std::string>>("deps", "deps"),
+             std::make_shared<ExtendedAttribute<std::string>>("depsAmount", "deps_amount"),
          }}},
         {{SpecificTablesType::result, TaskMiningType::FD},
          {get_specific_result_table_name(TaskMiningType::FD),

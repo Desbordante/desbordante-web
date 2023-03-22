@@ -24,7 +24,6 @@ generates:
         Role: ./models#RoleModel
         DatasetStats: ./models#DatasetStatsModel
         DatasetInfo: ./models#DatasetInfoModel
-        MFDTaskResult: ./models#MFDTaskResultModel
         FDPieChartData: ./models#FDPieChartDataModel
         CFDPieChartData: ./models#CFDPieChartDataModel
         PieChartDataBase: ./models#CFDPieChartDataModel
@@ -41,6 +40,7 @@ generates:
         ARTaskResult: ./models#ARTaskResultModel
         FDTaskResult: ./models#FDTaskResultModel
         CFDTaskResult: ./models#CFDTaskResultModel
+        MFDTaskResult: ./models#MFDTaskResultModel
         TypoFDTaskResult: ./models#TypoFDTaskResultModel
         Snippet: ./models#SnippetModel
         TypoClusterTaskConfig: ./models#TypoClusterTaskConfigModel

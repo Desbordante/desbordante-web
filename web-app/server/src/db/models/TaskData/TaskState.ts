@@ -12,6 +12,7 @@ import {
     ARTaskResult,
     CFDTaskResult,
     FDTaskResult,
+    MFDTaskResult,
     TypoFDTaskResult,
 } from "./results/TasksWithDeps";
 import { BOOLEAN, FLOAT, INTEGER, STRING, TEXT, UUID, UUIDV4 } from "sequelize";
@@ -35,7 +36,6 @@ import {
     TypoClusterResult,
 } from "./results/SubTasks";
 import { ApolloError } from "apollo-server-core";
-import { MFDTaskResult } from "./results/BaseTaskResult";
 import { User } from "../UserData/User";
 import _ from "lodash";
 

@@ -2,6 +2,34 @@
 
 namespace consumer {
 
+std::string TaskProcessor::GetCompactHighlight(const algos::metric::MetricVerifier* algo,
+                                               const algos::metric::Highlight highlight) const {
+    std::vector<std::string> compact_highlight;
+    auto parameter = algo->GetParameter();
+
+    compact_highlight.emplace_back(std::to_string(highlight.max_distance <= parameter));
+    compact_highlight.emplace_back(std::to_string(highlight.data_index));
+    compact_highlight.emplace_back(std::to_string(highlight.furthest_data_index));
+    compact_highlight.emplace_back(std::to_string(highlight.max_distance));
+
+    return boost::join(compact_highlight, ";");
+}
+
+std::string TaskProcessor::GetCompactHighlights(const algos::metric::MetricVerifier* algo) const {
+    std::vector<std::vector<algos::metric::Highlight>> const& highlights = algo->GetHighlights();
+    std::vector<std::string> compact_data;
+
+    for (const auto& cluster_highlights : highlights) {
+        std::vector<std::string> compact_cluster_data;
+        for (const auto& highlight : cluster_highlights) {
+            compact_cluster_data.emplace_back(GetCompactHighlight(algo, highlight));
+        }
+        compact_data.emplace_back(boost::join(compact_cluster_data, "\n"));
+    }
+
+    return boost::join(compact_data, "\n\n");
+}
+
 std::string TaskProcessor::GetPieChartData(const std::list<FD>& deps, int degree) {
     std::map<unsigned int, double> lhs_values;
     std::map<unsigned int, double> rhs_values;
@@ -93,11 +121,12 @@ void TaskProcessor::SaveCfdTaskResult() const {
 void TaskProcessor::SaveMfdTaskResult() const {
     auto algo = GetAlgoAs<algos::metric::MetricVerifier>();
     const bool result = algo->GetResult();
-    const auto highlights = algo->GetHighlights();
+    std::vector<std::vector<algos::metric::Highlight>> const& highlights = algo->GetHighlights();
 
     task_->UpdateParams(task_->GetSpecificMapKey(SpecificTablesType::result),
                         {{"result", std::to_string(result)},
-                         {"highlights", GetCompactHighlights(algo)}});
+                         {"deps", GetCompactHighlights(algo)},
+                         {"deps_amount", std::to_string(highlights.size())}});
 }
 
 void TaskProcessor::SaveArTaskResult() const {

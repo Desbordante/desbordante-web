@@ -80,6 +80,8 @@ private:
     ClusterFunction GetClusterFunctionForOneDimension();
     ClusterFunction GetClusterFunction();
     void VerifyMetricFD();
+    std::string GetStringValue(std::vector<unsigned> const& index_vec,
+                               ClusterIndex row_index) const;
     void VisualizeHighlights() const;
     static_assert(std::is_same<decltype(MetricVerifier::lhs_indices_),
                                decltype(MetricVerifier::rhs_indices_)>{},
@@ -96,6 +98,18 @@ protected:
 public:
     bool GetResult() const {
         return metric_fd_holds_;
+    }
+
+    std::vector<unsigned int> GetLhsIndices() const {
+        return lhs_indices_;
+    }
+
+    std::vector<unsigned int> GetRhsIndices() const {
+        return rhs_indices_;
+    }
+
+    long double GetParameter() const {
+        return parameter_;
     }
 
     std::vector<std::vector<Highlight>> const& GetHighlights() const {
@@ -124,23 +138,6 @@ public:
     void SortHighlightsByIndexDescending() {
         highlight_calculator_->SortHighlightsByIndexDescending();
     }
-
-    std::vector<unsigned int> getLhsIndices() const {
-        return lhs_indices_;
-    }
-
-    std::vector<unsigned int> getRhsIndices() const {
-        return rhs_indices_;
-    }
-
-    long double GetParameter() const {
-        return parameter_;
-    }
-
-    std::string GetStringValue(std::vector<unsigned> const& index_vec,
-                               ClusterIndex row_index) const;
-
-    // std::string GetTotalStringValue(ClusterIndex row_index) const;
 
     MetricVerifier();
 };

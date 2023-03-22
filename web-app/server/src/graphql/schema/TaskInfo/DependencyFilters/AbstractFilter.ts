@@ -38,19 +38,31 @@ export abstract class AbstractFilter<CompactDep, Dep> {
 
     abstract initArgs(): Promise<void>;
 
+    protected getSeparator = (): string => {
+        return ";";
+    };
+
+    protected prepareRawData = _.identity<string>;
+
+    protected applyTransformation = async (deps: CompactDep[]): Promise<CompactDep[]> => {
+        return deps;
+    };
+
     private getFilteredCompactDeps = async (deps: CompactDep[]) => {
         deps = (await this.filterDeps(deps)) || [];
         const filteredDepsAmount = deps.length;
         deps = deps.sort(await this.getComparator());
         this.filter.orderBy === "DESC" && deps.reverse();
         deps = applyPagination(deps, this.filter.pagination, 500);
+        deps = await this.applyTransformation(deps);
         return { filteredDepsAmount, deps };
     };
 
     public getFilteredTransformedDeps = async (data: string) => {
         const compactDeps: CompactDep[] = CompactData.toCompactDeps(
-            data,
-            this.toCompactDep
+            this.prepareRawData(data),
+            this.toCompactDep,
+            this.getSeparator()
         );
         const { filteredDepsAmount, deps } = await this.getFilteredCompactDeps(
             compactDeps
@@ -69,6 +81,7 @@ export abstract class AbstractFilter<CompactDep, Dep> {
         const conditions = await this.getConditions();
         return deps.filter((dep) => conditions.every((cond) => cond(dep)));
     };
+
     private getComparator = async () => {
         const comparators = this.getComparators();
         const temp = comparators[0];
@@ -92,6 +105,7 @@ export abstract class AbstractFilter<CompactDep, Dep> {
             );
         };
     };
+
     public getMainComparatorParam = () => {
         const getStringOrThrowError = <T>(sortBy: T): string => {
             if (_.isString(sortBy)) {
@@ -108,6 +122,8 @@ export abstract class AbstractFilter<CompactDep, Dep> {
             case "FD":
             case "TypoFD":
                 return getStringOrThrowError(this.filter.FDSortBy);
+            case "MFD":
+                return getStringOrThrowError(this.filter.MFDSortBy);
         }
         throw new ApolloError(`Type ${this.type} not implemented yet`);
     };
@@ -128,7 +144,7 @@ export abstract class AbstractFilter<CompactDep, Dep> {
     };
 
     public static getRealPrimitiveType = (type: MainPrimitiveType): RealPrimitiveType => {
-        if (type === "Stats" || type === "MFD") {
+        if (type === "Stats") {
             throw new ApolloError("Use DatasetInfo to get info about stats");
         }
         return type === "TypoFD" ? "FD" : type;

@@ -245,8 +245,6 @@ class TypoClusterCreator extends SpecificPrimitiveCreator {
     };
 }
 
-class MFDTaskCreator extends SpecificPrimitiveCreator {}
-
 class SpecificClusterCreator extends AbstractCreator<
     TransformedSpecificClusterTaskProps,
     "SpecificTypoCluster"
@@ -284,7 +282,6 @@ export class TaskCreatorFactory {
                 }
             }
         }
-        return MFDTaskCreator;
         throw new ApolloError("Unreachable code");
     };
 
