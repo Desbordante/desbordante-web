@@ -1,3 +1,4 @@
+import { BOOLEAN, INTEGER, TEXT, UUID } from "sequelize";
 import {
     BelongsTo,
     Column,
@@ -6,7 +7,6 @@ import {
     Model,
     Table,
 } from "sequelize-typescript";
-import { INTEGER, TEXT, UUID } from "sequelize";
 import { TaskState } from "../TaskState";
 import { getResultTableOptions } from "../tableOptions";
 
@@ -60,4 +60,10 @@ export class ARTaskResult extends SpecificTaskWithDepsResult {
 export class TypoFDTaskResult extends SpecificTaskWithDepsResult {
     @Column({ type: TEXT, allowNull: true })
     PKColumnIndices!: string | null;
+}
+
+@Table(getResultTableOptions("MFD"))
+export class MFDTaskResult extends SpecificTaskWithDepsResult {
+    @Column({ type: BOOLEAN, allowNull: true })
+    result!: boolean | null;
 }

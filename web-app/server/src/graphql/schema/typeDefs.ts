@@ -286,18 +286,13 @@ const typeDefs = gql`
         support: Int!
     }
 
-    type MFDCluster {
-        value: String!
-        highlightsTotalCount: Int!
-        highlights: [MFDHighlight!]!
-    }
-
-    type MFDHighlight {
+    type MFD {
         index: Int!
         withinLimit: Boolean!
         maximumDistance: Float!
         furthestPointIndex: Int!
-        value: String!
+        furthestPointValue: String!
+        clusterValue: String!
     }
 
     type AR {
@@ -352,6 +347,11 @@ const typeDefs = gql`
     type FilteredCFDs implements FilteredDepsBase {
         filteredDepsAmount: Int!
         deps: [CFD!]!
+    }
+
+    type FilteredMFDs implements FilteredDepsBase {
+        filteredDepsAmount: Int!
+        deps: [MFD!]!
     }
 
     type FilteredFDs implements FilteredDepsBase {
@@ -425,6 +425,10 @@ const typeDefs = gql`
         """
         MFDSortBy: MFDSortBy
         """
+        MFD
+        """
+        MFDClusterIndex: Int
+        """
         FDs, CFDs
         """
         mustContainRhsColIndices: [Int!]
@@ -458,16 +462,19 @@ const typeDefs = gql`
         LHS
         RHS
     }
+
     enum SortBy {
         COL_ID
         COL_NAME
     }
+
     enum FDSortBy {
         LHS_COL_ID
         RHS_COL_ID
         LHS_NAME
         RHS_NAME
     }
+
     enum MFDSortBy {
         POINT_INDEX
         FURTHEST_POINT_INDEX
@@ -502,12 +509,11 @@ const typeDefs = gql`
         pieChartData: CFDPieChartData!
     }
 
-    type MFDTaskResult implements SpecificTaskResult {
+    type MFDTaskResult implements TaskWithDepsResult {
         taskID: String!
         result: Boolean!
-        clustersTotalCount: Int
-        clusterRow(clusterIndex: Int!, rowIndex: Int!): MFDHighlight
-        cluster(clusterIndex: Int!, pagination: Pagination!, sortBy: MFDSortBy!, orderBy: OrderBy!): MFDCluster
+        filteredDeps(filter: IntersectionFilter!): FilteredMFDs!
+        depsAmount: Int!
     }
 
     type FDTaskResult implements TaskWithDepsResult & ResultsWithPKs {
@@ -793,7 +799,7 @@ const typeDefs = gql`
 
     input IntersectionMainTaskProps {
         algorithmName: String!
-        "AR, FD, CFD, TypoFD, Stats"
+        "AR, FD, CFD, MFD, TypoFD, Stats"
         type: MainPrimitiveType!
         "FD, TypoFD"
         errorThreshold: Float
@@ -819,10 +825,15 @@ const typeDefs = gql`
         defaultRatio: Float
         "MFD"
         parameter: Float
+        "MFD"
         lhsIndices: [Int!]
+        "MFD"
         rhsIndices: [Int!]
+        "MFD"
         distanceToNullIsInfinity: Boolean
+        "MFD"
         q: Int
+        "MFD"
         metricAlgorithm: MetricAlgorithmType
     }
 
@@ -847,12 +858,12 @@ const typeDefs = gql`
     type DownloadResult {
         url: String
     }
-    
+
     enum FileExtension {
-        CSV,
+        CSV
         PDF
     }
-    
+
     input DownloadingTaskProps {
         extension: FileExtension!
     }
@@ -938,8 +949,8 @@ const typeDefs = gql`
         Works only for FD, CFD and AR
         """
         downloadResults(
-            taskID: ID!, 
-            props: DownloadingTaskProps! = { extension: CSV }, 
+            taskID: ID!
+            props: DownloadingTaskProps! = { extension: CSV }
             filter: IntersectionFilter!
         ): DownloadResult!
 

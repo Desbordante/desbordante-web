@@ -3,6 +3,7 @@ import { AbstractFilter } from "./AbstractFilter";
 import { ApolloError } from "apollo-server-core";
 import { CFDFilter } from "./CFDFilter";
 import { FDFilter } from "./FDFilter";
+import { MFDFilter } from "./MFDFilter";
 import { MainPrimitiveType } from "../../../../db/models/TaskData/configs/GeneralTaskConfig";
 
 const getSpecificFilterConstructor = (type: MainPrimitiveType) => {
@@ -14,6 +15,8 @@ const getSpecificFilterConstructor = (type: MainPrimitiveType) => {
             return FDFilter;
         case "CFD":
             return CFDFilter;
+        case "MFD":
+            return MFDFilter;
     }
     throw new ApolloError("Received incorrect type");
 };

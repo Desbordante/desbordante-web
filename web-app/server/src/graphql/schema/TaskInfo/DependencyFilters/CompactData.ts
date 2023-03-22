@@ -2,11 +2,13 @@ import {
     Ar,
     Cfd,
     Fd,
+    Mfd,
     PieChartRow,
     PieChartRowWithPattern,
     PieChartWithPatterns,
     PieChartWithoutPatterns,
 } from "../../../types/types";
+import { ApolloError } from "apollo-server-errors";
 
 export type Item = { columnIndex: number; patternIndex: number };
 
@@ -18,17 +20,13 @@ export type CFDCompactType = {
     support: number;
     confidence: number;
 };
-export type MFDCluster = {
-  value: string
-  highlightsTotalCount: number
-  highlights: MFDHighlight[]
-}
-export type MFDHighlight = {
+export type MFDCompactType = {
     index: number;
     withinLimit: boolean;
     maximumDistance: number;
     furthestPointIndex: number;
-    value: string;
+    furthestPointValue: string | null;
+    clusterValue: string | null;
 };
 
 export type ItemsInfo = { itemValues: string[] };
@@ -66,39 +64,22 @@ export class CompactData {
         };
     };
 
+    public static toCompactMFD = (data: string): MFDCompactType => {
+        const [withinLimit, index, furthestPointIndex, maximumDistance] = data.split(";");
+
+        return {
+            withinLimit: withinLimit == "1",
+            index: Number(index),
+            furthestPointIndex: Number(furthestPointIndex),
+            maximumDistance: Number(maximumDistance),
+            clusterValue: null,
+            furthestPointValue: null,
+        };
+    };
+
     public static toCompactFD = (data: string): FDCompactType => {
         const dep = data.split(",").map(Number);
         return { lhs: dep.slice(0, dep.length - 1), rhs: dep[dep.length - 1] };
-    };
-    
-    public static findMFDClusterRow = (data: string, clusterIndex: number, rowIndex: number): MFDHighlight | undefined => {
-        const cluster = CompactData.toCompactMFDClusters(data)[clusterIndex];
-        
-        return cluster.highlights.find((highlight: MFDHighlight) => {
-            return highlight.index === rowIndex;
-        });
-    };
-
-    public static toCompactMFDClusters = (data: string): MFDCluster[] => {
-        const clusters = data.split("\n\n");
-
-        return clusters.map((cluster) => {
-          const highlights = cluster.split("\n");
-          return {
-            value: highlights[0],
-            highlightsTotalCount: highlights.length - 1,
-            highlights: highlights.slice(1).map((highlight) => {
-              const parts = highlight.split(";");
-              return {
-                  withinLimit: parts[0] == "1",
-                  value: parts[1],
-                  index: Number(parts[2]),
-                  furthestPointIndex: Number(parts[3]),
-                  maximumDistance: Number(parts[4]),
-                };
-            }),
-          };
-        });
     };
 
     ///
@@ -140,6 +121,28 @@ export class CompactData {
             pattern: itemValues[patternIndex],
         });
         return { lhs: lhs.map(getItem), rhs: getItem(rhs), support, confidence };
+    };
+
+    public static toMFD = ({
+        withinLimit,
+        clusterValue,
+        index,
+        furthestPointIndex,
+        furthestPointValue,
+        maximumDistance,
+    }: MFDCompactType): Mfd => {
+        if (clusterValue == null || furthestPointValue == null) {
+            throw new ApolloError("Missing clusterValue or furthestPointValue values");
+        }
+
+        return {
+            index,
+            withinLimit,
+            maximumDistance,
+            furthestPointIndex,
+            furthestPointValue,
+            clusterValue,
+        };
     };
 
     ///

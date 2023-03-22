@@ -2,10 +2,10 @@ import {
     ARTaskResult,
     CFDTaskResult,
     FDTaskResult,
+    MFDTaskResult,
     TypoFDTaskResult,
 } from "./TasksWithDeps";
 import { SpecificTypoClusterResult, StatsResult, TypoClusterResult } from "./SubTasks";
-import { MFDTaskResult } from "./BaseTaskResult";
 
 export const taskResults = {
     FDTaskResult,
