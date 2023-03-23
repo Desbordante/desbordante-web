@@ -32,9 +32,9 @@ const primitiveInfo: Record<MainPrimitiveType, PrimitiveInfoType> = {
     link: 'https://mstrutov.github.io/Desbordante/guides/error-detection-pipeline.html',
   },
   [MainPrimitiveType.MFD]: {
-    label: 'Metric Verification ',
-    description: 'To fill', // Pechenux to reviewers: temporary solution
-    link: 'https://mstrutov.github.io/Desbordante/guides/error-detection-pipeline.html', // Pechenux to reviewers: temporary solution
+    label: 'Metric Dependency Verification',
+    description: 'To fill',
+    link: 'https://mstrutov.github.io/Desbordante/guides/error-detection-pipeline.html',
   },
 } as const;
 
