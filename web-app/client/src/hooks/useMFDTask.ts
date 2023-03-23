@@ -69,7 +69,9 @@ const useMFDTask = (
         result: taskResult.result || false,
         clustersTotalCount: taskResult.depsAmount || 0,
         cluster: {
-          value: taskResult.filteredDeps.deps[0].clusterValue || '',
+          value: taskResult.result
+            ? ''
+            : taskResult.filteredDeps.deps[0].clusterValue || '',
           highlightsTotalCount: taskResult.filteredDeps.filteredDepsAmount || 0,
           highlights: (taskResult.filteredDeps.deps || []).map(
             (highlight, index) => ({ ...highlight, rowIndex: index })
