@@ -8,6 +8,9 @@ export const GET_DATASET = gql`
         snippet {
           header
           rows(pagination: $pagination)
+          datasetInfo {
+            rowsCount
+          }
         }
       }
     }

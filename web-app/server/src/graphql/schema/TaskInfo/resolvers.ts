@@ -423,7 +423,7 @@ export const TaskInfoResolvers: Resolvers = {
             { pagination }
         ) => {
             const { offset, limit } = pagination;
-            if (limit < 0 || limit > 200) {
+            if (limit < 0) {
                 throw new UserInputError("Received incorrect limit", { limit });
             }
             if (limit === 0) {

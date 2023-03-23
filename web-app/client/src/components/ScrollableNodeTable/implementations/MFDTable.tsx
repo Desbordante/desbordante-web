@@ -1,6 +1,3 @@
-import Image from 'next/image';
-import { FC, useState, useMemo } from 'react';
-
 import AngleArrow from '@assets/icons/angle-arrow.svg?component';
 import Check from '@assets/icons/check.svg?component';
 import Cross from '@assets/icons/cross.svg?component';
@@ -12,6 +9,7 @@ import Table, {
   ScrollDirection,
   TableProps,
 } from '@components/ScrollableNodeTable';
+import { FC, useMemo } from 'react';
 
 import styles from './MFDTable.module.scss';
 

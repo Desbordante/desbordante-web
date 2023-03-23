@@ -32,6 +32,10 @@ const ReportsSnippet: NextPageWithLayout<Props> = ({ snippet }) => {
   const [rows, setRows] = useState<string[][]>(snippet.rows);
 
   const handleScrollToBottom = async () => {
+    if (paginationLimit.current >= snippet.datasetInfo.rowsCount) {
+      return;
+    }
+
     paginationLimit.current += LIMIT_INCREMENT;
     const { data } = await getDataset({
       variables: {
