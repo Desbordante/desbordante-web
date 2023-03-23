@@ -31,7 +31,7 @@ export const GET_MFD_HIGHLIGHT_INFO = gql`
                     withinLimit
                     maximumDistance
                     furthestPointIndex
-                    furthestPointValue
+                    value
                     clusterValue
                   }
                 }
