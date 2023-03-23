@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import { FC, UIEventHandler, useMemo } from 'react';
+import _ from 'lodash';
+import { FC, UIEventHandler, useCallback, useMemo, useRef } from 'react';
 import styles from './Table.module.scss';
 
 const mapFromArray = <T,>(array?: T[]) =>
@@ -11,7 +12,7 @@ type Props = {
   highlightRowIndices?: number[];
   highlightColumnIndices?: number[];
   shownColumnIndices?: number[];
-  onScroll?: () => void;
+  onScroll?: () => Promise<void>;
   className?: string;
 };
 
@@ -24,6 +25,8 @@ const Table: FC<Props> = ({
   onScroll,
   className,
 }) => {
+  const shouldIgnoreScroll = useRef(false);
+
   const displayHeader = useMemo(
     () => header || data[0].map((_, index) => `Column ${index}`),
     [header, data]
@@ -39,12 +42,26 @@ const Table: FC<Props> = ({
     [highlightColumnIndices]
   );
 
-  const handleScroll: UIEventHandler<HTMLDivElement> = (event) => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedOnScroll = useCallback(
+    _.debounce(onScroll || (async () => undefined), 500),
+    [onScroll]
+  );
+
+  const handleScroll: UIEventHandler<HTMLDivElement> = async (event) => {
+    if (shouldIgnoreScroll.current || !debouncedOnScroll) {
+      return;
+    }
+
+    shouldIgnoreScroll.current = true;
+
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
 
-    if (Math.abs(scrollTop - (scrollHeight - clientHeight)) < 100) {
-      onScroll?.();
+    if (scrollHeight - clientHeight - scrollTop < 100) {
+      await debouncedOnScroll();
     }
+
+    shouldIgnoreScroll.current = false;
   };
 
   return (

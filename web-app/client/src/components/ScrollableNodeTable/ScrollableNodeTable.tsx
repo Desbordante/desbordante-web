@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import _ from 'lodash';
 import {
   FC,
   UIEventHandler,
@@ -56,30 +57,33 @@ const Table: FC<TableProps> = ({
     [highlightColumnIndices]
   );
 
-  const handleScroll: UIEventHandler<HTMLDivElement> = useCallback(
-    (event) => {
-      if (!isScrolledToTop.current) return;
-
-      const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
-
-      if (scrollTop !== positionRef.current) {
-        const scrollDifference = positionRef.current - scrollTop;
-
-        positionRef.current = scrollTop;
-        if (scrollTop < threshold && scrollDifference > 0) {
-          onScroll?.('up');
-        }
-
-        if (
-          scrollHeight - clientHeight - scrollTop < threshold &&
-          scrollDifference < 0
-        ) {
-          onScroll?.('down');
-        }
-      }
-    },
-    [isScrolledToTop, onScroll]
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedOnScroll = useCallback(
+    _.debounce(onScroll || (async () => undefined), 500),
+    [onScroll]
   );
+
+  const handleScroll: UIEventHandler<HTMLDivElement> = (event) => {
+    if (!isScrolledToTop.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+
+    if (scrollTop !== positionRef.current) {
+      const scrollDifference = positionRef.current - scrollTop;
+
+      positionRef.current = scrollTop;
+      if (scrollTop < threshold && scrollDifference > 0) {
+        debouncedOnScroll('up');
+      }
+
+      if (
+        scrollHeight - clientHeight - scrollTop < threshold &&
+        scrollDifference < 0
+      ) {
+        debouncedOnScroll('down');
+      }
+    }
+  };
 
   return (
     <div

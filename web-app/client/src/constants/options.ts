@@ -51,23 +51,13 @@ export const CFDoptions: AlgoOption[] = [toAlgoOption('CTane')];
 export const ARoptions: AlgoOption[] = [toAlgoOption('Apriori')];
 export const ApproxOptions: AlgoOption[] = [toAlgoOption('Pyro')];
 
-// const toCapitalizedAlgoOption = (algo: Algorithms): AlgoOption => ({
-//   value: algo,
-//   label: capitalize(algo) as Algorithms,
-// });
+const toScreamingSnakeAlgoOption = (algo: Algorithms): AlgoOption => {
+  return {
+    value: upperCase(algo.replaceAll(' ', '_')) as Algorithms,
+    label: algo,
+  };
+};
 
-// const toUpperCaseAlgoOption = (algo: Algorithms): AlgoOption => ({
-//   value: upperCase(algo) as Algorithms,
-//   label: algo,
-// });
-const toScreamingSnakeAlgoOption = (algo: Algorithms): AlgoOption => ({
-  value: upperCase(algo.replaceAll(' ', '_')) as Algorithms,
-  label: algo,
-});
-
-// export const MFDAlgoOptions: AlgoOption[] = MFDAlgorithms.map(
-//   toCapitalizedAlgoOption
-// );
 export const MFDAlgoOptions: AlgoOption[] = MFDAlgorithms.map(
   toScreamingSnakeAlgoOption
 );
