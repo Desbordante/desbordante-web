@@ -12,9 +12,11 @@ interface Props {
 const PrimitiveDescription: FC<Props> = ({ className, info }) => (
   <small className={cn(className, styles.description)}>
     <InfoIcon width={16} height={16} /> {info.description}{' '}
-    <a href={info.link} target="_blank" rel="noreferrer">
-      Learn more...
-    </a>
+    {info.link && (
+      <a href={info.link} target="_blank" rel="noreferrer">
+        Learn more...
+      </a>
+    )}
   </small>
 );
 

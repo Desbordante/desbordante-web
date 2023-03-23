@@ -3,7 +3,7 @@ import { MainPrimitiveType } from 'types/globalTypes';
 export type PrimitiveInfoType = {
   label: string;
   description: string;
-  link: string;
+  link?: string;
 };
 
 const primitiveInfo: Record<MainPrimitiveType, PrimitiveInfoType> = {
@@ -34,7 +34,6 @@ const primitiveInfo: Record<MainPrimitiveType, PrimitiveInfoType> = {
   [MainPrimitiveType.MFD]: {
     label: 'Metric Dependency Verification',
     description: 'To fill',
-    link: 'https://mstrutov.github.io/Desbordante/guides/error-detection-pipeline.html',
   },
 } as const;
 
