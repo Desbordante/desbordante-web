@@ -402,8 +402,12 @@ export const TaskInfoResolvers: Resolvers = {
         pieChartData: returnParent,
     },
     MFDTaskResult: {
-        result: async ({ prefix, state }) =>
-            await state.getResultFieldAsBoolean(prefix, "result"),
+        result: async ({ prefix, state }) => {
+            const result = await state.getResultFieldAsBoolean(prefix, "result");
+            const data = await state.getResultFieldAsString(prefix, "deps");
+
+            return result || data.length == 0;
+        },
     },
     FileFormat: {
         dataset: async ({ fileID }, obj, { models }) => {

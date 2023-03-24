@@ -289,7 +289,7 @@ const typeDefs = gql`
     type MFD {
         index: Int!
         withinLimit: Boolean!
-        maximumDistance: Float!
+        maximumDistance: String!
         furthestPointIndex: Int!
         value: String!
         clusterValue: String!
