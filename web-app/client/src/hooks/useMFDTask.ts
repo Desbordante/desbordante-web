@@ -58,7 +58,7 @@ const useMFDTask = (
     ) {
       const taskResult = data.taskInfo.data.result;
       const clusterValue =
-        taskResult.result && taskResult.filteredDeps.deps.length
+        !taskResult.result && taskResult.filteredDeps.deps.length
           ? taskResult.filteredDeps.deps[0].clusterValue
           : '';
 
