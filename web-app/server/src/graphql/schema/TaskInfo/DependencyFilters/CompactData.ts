@@ -23,7 +23,7 @@ export type CFDCompactType = {
 export type MFDCompactType = {
     index: number;
     withinLimit: boolean;
-    maximumDistance: number;
+    maximumDistance: string;
     furthestPointIndex: number;
     value: string | null;
     clusterValue: string | null;
@@ -71,7 +71,7 @@ export class CompactData {
             withinLimit: withinLimit == "1",
             index: Number(index),
             furthestPointIndex: Number(furthestPointIndex),
-            maximumDistance: Number(maximumDistance),
+            maximumDistance: maximumDistance,
             value: null,
             clusterValue: null,
         };
