@@ -1,4 +1,15 @@
 import { useMutation, useQuery } from '@apollo/client';
+import _ from 'lodash';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Controller,
+  ControllerFieldState,
+  ControllerRenderProps,
+  useForm,
+  UseFormStateReturn,
+} from 'react-hook-form';
 import IdeaIcon from '@assets/icons/idea.svg?component';
 import Button from '@components/Button';
 import { Select } from '@components/Inputs';
@@ -35,17 +46,6 @@ import { GET_COUNT_OF_COLUMNS } from '@graphql/operations/queries/getDatasetColu
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
 import { showError } from '@utils/toasts';
-import _ from 'lodash';
-import type { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Controller,
-  ControllerFieldState,
-  ControllerRenderProps,
-  useForm,
-  UseFormStateReturn,
-} from 'react-hook-form';
 import { MainPrimitiveType } from 'types/globalTypes';
 
 type FDForm = {
@@ -140,7 +140,7 @@ const defaultValuesByPrimitive = {
     metricAlgorithm: 'BRUTE',
     parameter: 1.0, //toleranceParameter
     q: 1, // qgramLength
-    distanceToNullIsInfinity: true,
+    distanceToNullIsInfinity: false,
   } as MFDForm,
   [MainPrimitiveType.Stats]: {}, // Pechenux to reviewers: temporary solution
 };
@@ -227,7 +227,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
       >;
       createTask({
         variables: {
-          fileID: fileID,
+          fileID,
           props: {
             type: primitive,
             ...cleanData,
@@ -259,7 +259,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
     getCountOfColumns,
     getCountOfColumnsVariables
   >(GET_COUNT_OF_COLUMNS, {
-    variables: { fileID: fileID },
+    variables: { fileID },
     skip: primitive !== MainPrimitiveType.MFD,
     onError: (error) => {
       showError(
@@ -678,7 +678,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
             {...field}
             value={MFDDistancesOptions.find((option) => option.value === value)}
             onChange={(e) => onChange(getSelectValue(e))}
-            label="Distance to null"
+            label="Distance from null"
             options={MFDDistancesOptions}
           />
         ),
