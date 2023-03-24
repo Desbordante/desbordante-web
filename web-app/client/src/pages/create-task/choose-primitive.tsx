@@ -71,7 +71,12 @@ const ChoosePrimitive = () => {
         {primitive.value && (
           <PrimitiveDescription
             className={styles.descriptionAside}
-            info={primitiveInfo[primitive.value]}
+            info={
+              primitiveInfo[primitive.value] || {
+                label: 'Loading',
+                description: '',
+              }
+            }
           />
         )}
       </article>

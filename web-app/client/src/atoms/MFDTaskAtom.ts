@@ -5,7 +5,7 @@ export type MFDHighlight = {
   index: number;
   rowIndex: number;
   withinLimit: boolean;
-  maximumDistance: number;
+  maximumDistance: number | string;
   furthestPointIndex: number;
   value: string;
   clusterValue: string;
