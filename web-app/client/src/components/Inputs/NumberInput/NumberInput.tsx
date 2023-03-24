@@ -91,6 +91,7 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
           value={displayValue}
           onBlur={(e) => {
             onChange(prepareValue(e.target.value));
+            setDisplayValue(prepareValue(e.target.value).toString());
           }}
           onChange={(e) => setDisplayValue(e.currentTarget.value)}
           className={styles.text}

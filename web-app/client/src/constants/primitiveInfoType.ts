@@ -3,10 +3,10 @@ import { MainPrimitiveType } from 'types/globalTypes';
 export type PrimitiveInfoType = {
   label: string;
   description: string;
-  link: string;
+  link?: string;
 };
 
-const primitiveInfo: Record<MainPrimitiveType, PrimitiveInfoType> = {
+const primitiveInfo: Partial<Record<MainPrimitiveType, PrimitiveInfoType>> = {
   [MainPrimitiveType.FD]: {
     label: 'Functional Dependencies',
     description:
@@ -32,9 +32,9 @@ const primitiveInfo: Record<MainPrimitiveType, PrimitiveInfoType> = {
     link: 'https://mstrutov.github.io/Desbordante/guides/error-detection-pipeline.html',
   },
   [MainPrimitiveType.MFD]: {
-    label: 'Metric Verification ',
-    description: 'To fill', // Pechenux to reviewers: temporary solution
-    link: 'https://mstrutov.github.io/Desbordante/guides/error-detection-pipeline.html', // Pechenux to reviewers: temporary solution
+    label: 'Metric Dependency Verification',
+    description:
+      'Metric verification is a process of checking whether a specific metric functional dependency (MFD) holds on data or not. MFD is a relaxed form of classic functional dependencies which allows small variations in the values of the right hand side of a dependency. It other words, for MFD X⟶Y we still expect two different tuples to agree on values of attributes in X, but their values on Y can differ no more than some threshold. MFD can be verified for numeric and string types using different metrics. Currently available are: Euclidean, Levenshtein and Cosine. Results of metric verification process are presented as clusters of records which share the same left hand side, but differ in the right one. If distance of records\' values too far from any points of the same cluster, they are tagged with an "X" mark. A check mark is used otherwise.',
   },
 } as const;
 

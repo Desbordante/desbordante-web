@@ -57,6 +57,10 @@ const useMFDTask = (
       data.taskInfo.data.result.__typename === 'MFDTaskResult'
     ) {
       const taskResult = data.taskInfo.data.result;
+      const clusterValue =
+        taskResult.result && taskResult.filteredDeps.deps.length
+          ? taskResult.filteredDeps.deps[0].clusterValue
+          : '';
 
       setMFDTask({
         ...MFDAtomDefaultValuesWithParams(
@@ -69,7 +73,7 @@ const useMFDTask = (
         result: taskResult.result || false,
         clustersTotalCount: taskResult.depsAmount || 0,
         cluster: {
-          value: taskResult.filteredDeps.deps[0].clusterValue || '',
+          value: clusterValue,
           highlightsTotalCount: taskResult.filteredDeps.filteredDepsAmount || 0,
           highlights: (taskResult.filteredDeps.deps || []).map(
             (highlight, index) => ({ ...highlight, rowIndex: index })
