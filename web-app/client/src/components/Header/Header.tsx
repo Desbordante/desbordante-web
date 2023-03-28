@@ -1,12 +1,12 @@
+import classNames from 'classnames';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import ListIcon from '@assets/icons/list.svg?component';
 import Button from '@components/Button';
 import { useAuthContext } from '@hooks/useAuthContext';
 import useModal from '@hooks/useModal';
 import logo from '@public/logo.svg';
-import classNames from 'classnames';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import styles from './Header.module.scss';
 
 const Header = () => {

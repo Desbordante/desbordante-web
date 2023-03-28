@@ -51,18 +51,36 @@
 }
 
 .filler {
+  height: 80px;
   width: fit-content;
   margin: auto;
   display: grid;
-  grid-auto-flow: row;
-  gap: 8px;
+  grid-auto-flow: column;
 
-  h6 {
-    @include heading-6;
+  .icon {
+    height: 80px;
+    width: 80px;
+    border-radius: 24px;
+    padding: 16px;
+    margin-right: 16px;
+
+    background-color: $primary-10;
   }
 
-  p {
-    @include paragraph-small;
-    color: $black-75;
+  .text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    h6 {
+      @include heading-6;
+
+      margin-bottom: 8px;
+    }
+
+    p {
+      @include paragraph-small;
+      color: $black-75;
+    }
   }
 }
