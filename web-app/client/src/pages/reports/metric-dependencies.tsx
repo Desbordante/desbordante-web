@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import React, {
   FC,
   ReactElement,
+  ReactNode,
   useCallback,
   useEffect,
   useRef,
@@ -11,6 +12,8 @@ import React, {
 import { useForm } from 'react-hook-form';
 
 import EyeIcon from '@assets/icons/eye.svg?component';
+import ArrowCrossed from '@assets/icons/line-arrow-right-crossed-primary.svg?component';
+import Arrow from '@assets/icons/line-arrow-right-primary.svg?component';
 import OrderingIcon from '@assets/icons/ordering.svg?component';
 import { MFDHighlight } from '@atoms/MFDTaskAtom';
 import Button from '@components/Button';
@@ -158,19 +161,28 @@ const ReportsMFD: NextPageWithLayout = () => {
           setOrderBy={setOrderBy}
         />
       )}
-
       {data.result === undefined && <ReportFiller title={'Loading'} />}
       {data.result !== undefined && (
         <>
-          {data.result && (
+          {!data.clustersTotalCount && data.result && (
             <ReportFiller
-              title={'No clusters have been discovered'}
-              description={
-                'This indicates that the metric dependency holds. Try restarting the task with different parameters'
+              title={
+                'No clusters have been discovered (metric dependency holds)'
               }
+              description={'Try restarting the task with different parameters'}
+              icon={<Arrow />}
             />
           )}
-          {!data.result && (
+          {!data.clustersTotalCount && !data.result && (
+            <ReportFiller
+              title={
+                'No clusters have been discovered (metric dependency may not hold)'
+              }
+              description={'Try restarting the task with different parameters'}
+              icon={<ArrowCrossed />}
+            />
+          )}
+          {data.clustersTotalCount !== 0 && !data.result && (
             <div className={styles.clustersContainer}>
               <h5>Clusters</h5>
 
@@ -233,14 +245,18 @@ ReportsMFD.getLayout = function getLayout(page: ReactElement) {
 type ReportFillerProps = {
   title: string;
   description?: string;
+  icon?: ReactNode;
 };
 
-const ReportFiller: FC<ReportFillerProps> = ({ title, description }) => {
+const ReportFiller: FC<ReportFillerProps> = ({ title, description, icon }) => {
   return (
     <div className={styles.container}>
       <div className={styles.filler}>
-        <h6>{title}</h6>
-        {description && <p>{description}</p>}
+        {icon && <div className={styles.icon}>{icon}</div>}
+        <div className={styles.text}>
+          <h6>{title}</h6>
+          {description && <p>{description}</p>}
+        </div>
       </div>
     </div>
   );
