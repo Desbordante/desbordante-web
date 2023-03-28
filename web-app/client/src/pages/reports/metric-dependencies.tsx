@@ -12,8 +12,8 @@ import React, {
 import { useForm } from 'react-hook-form';
 
 import EyeIcon from '@assets/icons/eye.svg?component';
-import ArrowCrossed from '@assets/icons/line-arrow-right-crossed-primary.svg?component';
-import Arrow from '@assets/icons/line-arrow-right-primary.svg?component';
+import ArrowCrossed from '@assets/icons/line-arrow-right-crossed.svg?component';
+import Arrow from '@assets/icons/line-arrow-right.svg?component';
 import OrderingIcon from '@assets/icons/ordering.svg?component';
 import { MFDHighlight } from '@atoms/MFDTaskAtom';
 import Button from '@components/Button';

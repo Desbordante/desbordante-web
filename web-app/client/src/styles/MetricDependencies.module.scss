@@ -54,8 +54,8 @@
   height: 80px;
   width: fit-content;
   margin: auto;
-  display: grid;
-  grid-auto-flow: column;
+  display: flex;
+  align-items: center;
 
   .icon {
     height: 80px;
@@ -63,18 +63,18 @@
     border-radius: 24px;
     padding: 16px;
     margin-right: 16px;
-
     background-color: $primary-10;
+
+    svg {
+      height: 48px;
+      width: 48px;
+      color: $primary-0;
+    }
   }
 
   .text {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
     h6 {
       @include heading-6;
-
       margin-bottom: 8px;
     }
 
