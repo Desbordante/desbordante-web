@@ -218,7 +218,9 @@ export class FileInfo extends Model implements FileInfoModelMethods {
         const path = FileInfo.getPathToUploadedDataset(fileName);
         await file.update({ fileName, path });
 
-        const out = fs.createWriteStream(`../../volumes/uploads/${fileName}`);
+        const out = fs.createWriteStream(
+            `${(!config.inContainer && "../../volumes/") || ""}uploads/${fileName}`
+        );
         stream.pipe(out);
         await finished(out);
         await file.update({
