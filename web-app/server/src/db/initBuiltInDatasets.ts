@@ -13,6 +13,21 @@ export type BuiltInDatasetInfoType = {
 
 export const builtInDatasets: BuiltInDatasetInfoType[] = [
     {
+        fileName: "MetricMovies.csv",
+        datasetProps: { delimiter: ",", hasHeader: true },
+        supportedPrimitives: ["Stats", "MFD"],
+    },
+    {
+        fileName: "MetricCoords.csv",
+        datasetProps: { delimiter: ";", hasHeader: true },
+        supportedPrimitives: ["Stats", "MFD"],
+    },
+    {
+        fileName: "MetricAddresses.csv",
+        datasetProps: { delimiter: ";", hasHeader: true },
+        supportedPrimitives: ["Stats", "MFD"],
+    },
+    {
         fileName: "TestMetric.csv",
         datasetProps: { delimiter: ",", hasHeader: true },
         supportedPrimitives: ["Stats", "MFD"],
