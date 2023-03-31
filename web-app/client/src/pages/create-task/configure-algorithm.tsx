@@ -133,8 +133,8 @@ const defaultValuesByPrimitive = {
   } as TypoFDForm,
   [MainPrimitiveType.MFD]: {
     algorithmName: 'MetricVerification', // constant
-    lhsIndices: [],
-    rhsIndices: [],
+    lhsIndices: [1],
+    rhsIndices: [2],
     rhsColumnType: 'Numeric', // client-side
     metric: 'EUCLIDEAN',
     metricAlgorithm: 'BRUTE',
@@ -306,7 +306,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
   const watchAlgorithm = watch('algorithmName', 'Pyro') || 'Pyro';
   const watchColumnType = watch('rhsColumnType', 'Numeric') || 'Numeric';
   const watchMetric = watch('metric', 'EUCLIDEAN') || 'EUCLIDEAN';
-  const watchRHS = watch('rhsIndices', []) || [];
+  const watchRHS = watch('rhsIndices', []) || [2];
 
   const TypesCategories: Record<string, string> = {
     Int: 'Numeric',
@@ -319,8 +319,8 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
 
   // logic for mfd rhs type
   useEffect(() => {
-    // noTypesFlag
-    if (columnData.some((elem) => elem.badges.length == 0)) {
+    // noTypesFlag or emptyColumnsFlag
+    if (columnData.length === 0 || columnData.some((elem) => elem.badges.length == 0)) {
       setColumnType('manual');
       return;
     }
@@ -350,7 +350,7 @@ const BaseConfigureAlgorithm: FC<QueryProps> = ({
       // show error
       setColumnType('error');
     }
-  }, [watchRHS]);
+  }, [watchRHS, columnData]);
 
   const header = (
     <>
