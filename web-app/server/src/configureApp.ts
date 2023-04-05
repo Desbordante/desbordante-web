@@ -11,12 +11,18 @@ import { initBuiltInDatasets } from "./db/initBuiltInDatasets";
 import { initTestData } from "./db/initTestData";
 import morgan from "morgan";
 import { sequelize } from "./db/sequelize";
+import { unlinkSync } from "fs";
 
 function setMiddlewares(app: Application) {
     app.use(cors());
     app.use(graphqlUploadExpress());
     app.use(morgan("dev"));
-    app.use(`/${config.directories.results}`, express.static(config.directories.results));
+
+    app.use(`/${config.directories.results}/:filename`, (req, res) => {
+        const { filename } = req.params;
+        const filePath = `${config.directories.results}/${filename}`;
+        res.download(filePath, () => unlinkSync(filePath));
+    });
 }
 
 async function configureDB() {
