@@ -1,5 +1,5 @@
 import "jspdf-autotable";
-import {Ar, Cfd, DownloadingTaskProps, Fd, Mfd} from "../../../types/types";
+import { Ar, Cfd, DownloadingTaskProps, Fd, Mfd } from "../../../types/types";
 import { ApolloError } from "apollo-server-core";
 import config from "../../../../config";
 import { createArrayCsvWriter } from "csv-writer";

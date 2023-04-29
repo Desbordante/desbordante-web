@@ -3,8 +3,8 @@ import { ARWriter } from "./ARWriter";
 import { ApolloError } from "apollo-server-core";
 import { CFDWriter } from "./CFDWriter";
 import { FDWriter } from "./FDWriter";
+import { MFDWriter } from "./MFDWriter";
 import { MainPrimitiveType } from "../../../../db/models/TaskData/configs/GeneralTaskConfig";
-import {MFDWriter} from "./MFDWriter";
 
 export const getSpecificWriter = (
     type: MainPrimitiveType,
