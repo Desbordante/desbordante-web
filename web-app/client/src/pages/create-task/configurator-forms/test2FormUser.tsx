@@ -7,7 +7,7 @@ import { GET_COUNT_OF_COLUMNS } from '@graphql/operations/queries/getDatasetColu
 import { showError } from '@utils/toasts';
 import {
   Defaults,
-  FormFields,
+  FormFieldsProps,
   CreateFormProcessor,
   CreateForm,
   FormHook,
@@ -36,7 +36,7 @@ const test_fields = {
   maxLHS: {
     order: 1,
     label: 'Maximum LHS',
-    type: 'checkbox',
+    type: 'number_input',
   },
   LHSColumn: {
     order: 2,
@@ -51,7 +51,7 @@ const test_fields = {
     test: 'test',
     component: (props) => <div>{props.test}</div>,
   },
-} satisfies FormFields<typeof test_defaults>;
+} satisfies FormFieldsProps<typeof test_defaults>;
 
 const useTestHook: FormHook<typeof test_defaults, typeof test_fields> = (
   fileID,

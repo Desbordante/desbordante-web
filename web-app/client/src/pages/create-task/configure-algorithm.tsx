@@ -3,7 +3,14 @@ import { useMutation, useQuery } from '@apollo/client';
 import _ from 'lodash';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  FC,
+  ForwardRefRenderFunction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   Controller,
   ControllerFieldState,
@@ -12,31 +19,21 @@ import {
   FormProvider,
   UseFormStateReturn,
 } from 'react-hook-form';
+import { Path } from 'react-hook-form/dist/types/path/eager';
 import IdeaIcon from '@assets/icons/idea.svg?component';
 import Button from '@components/Button';
-import { Select } from '@components/Inputs';
-import { MultiSelect } from '@components/Inputs';
-import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
-import NumberInput from '@components/Inputs/NumberInput';
-import NumberSlider from '@components/Inputs/NumberSlider';
-import WizardLayout from '@components/WizardLayout';
+import { FormSelect } from '@components/FormInputs';
 import {
-  Algorithms,
-  ApproxOptions,
-  ARoptions,
-  CFDoptions,
-  FDoptions,
-  optionsByAlgorithms,
-  TypoOptions,
-  MFDColumnType,
-  MFDMetric,
-  MFDAlgoOptions,
-  MFDMetricOptions,
-  MFDColumnTypeOptions,
-  MFDDistancesOptions,
-  optionsByMetrics,
-  optionsByColumnTypes,
-} from '@constants/options';
+  Radio,
+  Select,
+  MultiSelect,
+  NumberSlider,
+  NumberInput,
+  Checkbox,
+  Text,
+} from '@components/Inputs';
+import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
+import WizardLayout from '@components/WizardLayout';
 import {
   createTaskWithDatasetChoosing,
   createTaskWithDatasetChoosingVariables,
@@ -52,10 +49,20 @@ import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import { test_form } from '@pages/create-task/configurator-forms/test2FormUser';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
 import { showError } from '@utils/toasts';
+import { Form, FormFieldPropsType, FormInputProps } from 'types/form';
 import { MainPrimitiveType } from 'types/globalTypes';
 
+const inputs: Record<string, any> = {
+  select: FormSelect,
+  multi_select: MultiSelect,
+  number_slider: NumberSlider,
+  number_input: NumberInput,
+  checkbox: Checkbox,
+  radio: Radio,
+  text: Text,
+};
+
 const primitives = {
-  [MainPrimitiveType.FD]: test_form,
   [MainPrimitiveType.FD]: test_form,
   [MainPrimitiveType.AR]: test_form,
   [MainPrimitiveType.CFD]: test_form,
@@ -165,13 +172,30 @@ const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
         <form onSubmit={onSubmit}>
           {Object.entries(formState) // TODO: move to useMemo
             .sort((A, B) => A[1].order - B[1].order)
-            .map(([name, field]) => (
-              <div key={field.order}>
-                <div>{name}</div>
-                <div>{JSON.stringify(field)}</div>
-                <br />
-              </div>
-            ))}
+            .map(([name, field]) => {
+              console.log(field);
+
+              if (field.type in inputs) {
+                const Component = inputs[field.type];
+                return (
+                  <Component
+                    key={field.order}
+                    {...field}
+                    {...methods.register(name)}
+                  />
+                );
+              }
+
+              // TODO: add custom
+
+              return (
+                <div key={field.order}>
+                  <div>{name}</div>
+                  <div>{JSON.stringify(field)}</div>
+                  <br />
+                </div>
+              );
+            })}
         </form>
       </FormProvider>
     </WizardLayout>

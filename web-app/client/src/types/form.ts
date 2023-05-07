@@ -6,7 +6,7 @@ export type FormValueType = string | string[] | number | number[] | boolean;
 
 export type Defaults = Record<string, FormValueType>;
 
-export type FormField<
+export type FormFieldProps<
   TDefaultValues extends Defaults,
   TName extends Path<TDefaultValues>
 > = {
@@ -19,23 +19,23 @@ export type FormField<
 };
 
 // Field with custom inner component
-export type FormCustom<
+export type FormCustomProps<
   TDefaultValues extends Defaults,
   TName extends Path<TDefaultValues>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TAdditionalProps = Record<string, any>
-> = FormField<TDefaultValues, TName> &
+> = FormFieldProps<TDefaultValues, TName> &
   TAdditionalProps & {
     type: 'custom';
 
-    component: FC<FormField<TDefaultValues, TName> & TAdditionalProps>;
+    component: FC<FormFieldProps<TDefaultValues, TName> & TAdditionalProps>;
   };
 
 // Field with select
-export type FormSelect<
-  TDefaultValues extends Defaults,
-  TName extends Path<TDefaultValues>
-> = FormField<TDefaultValues, TName> & {
+export type FormSelectProps<
+  TDefaultValues extends Defaults = Defaults,
+  TName extends Path<TDefaultValues> = Path<TDefaultValues>
+> = FormFieldProps<TDefaultValues, TName> & {
   type: 'select';
 
   options: string[];
@@ -43,10 +43,10 @@ export type FormSelect<
 };
 
 // Field with multiple select
-export type FormMultiSelect<
+export type FormMultiSelectProps<
   TDefaultValues extends Defaults,
   TName extends Path<TDefaultValues>
-> = FormField<TDefaultValues, TName> & {
+> = FormFieldProps<TDefaultValues, TName> & {
   type: 'multi_select';
 
   options: string[];
@@ -54,10 +54,10 @@ export type FormMultiSelect<
 };
 
 // Field with number slider
-export type FormNumberSlider<
+export type FormNumberSliderProps<
   TDefaultValues extends Defaults,
   TName extends Path<TDefaultValues>
-> = FormField<TDefaultValues, TName> & {
+> = FormFieldProps<TDefaultValues, TName> & {
   type: 'number_slider';
 
   min: number;
@@ -66,10 +66,10 @@ export type FormNumberSlider<
 };
 
 // Field with number input
-export type FormNumberInput<
+export type FormNumberInputProps<
   TDefaultValues extends Defaults,
   TName extends Path<TDefaultValues>
-> = FormField<TDefaultValues, TName> & {
+> = FormFieldProps<TDefaultValues, TName> & {
   type: 'number_input';
 
   min?: number;
@@ -80,53 +80,69 @@ export type FormNumberInput<
 };
 
 // Field with checkbox
-export type FormCheckbox<
+export type FormCheckboxProps<
   TDefaultValues extends Defaults,
   TName extends Path<TDefaultValues>
-> = FormField<TDefaultValues, TName> & {
+> = FormFieldProps<TDefaultValues, TName> & {
   type: 'checkbox';
 
   variant?: 'outline' | 'simple'; // change for union type ???
 };
 
 // Field with radio
-export type FormRadio<
+export type FormRadioProps<
   TDefaultValues extends Defaults,
   TName extends Path<TDefaultValues>
-> = FormField<TDefaultValues, TName> & {
+> = FormFieldProps<TDefaultValues, TName> & {
   type: 'radio';
 };
 
 // Field with text
-export type FormText<
+export type FormTextProps<
   TDefaultValues extends Defaults,
   TName extends Path<TDefaultValues>
-> = FormField<TDefaultValues, TName> & {
+> = FormFieldProps<TDefaultValues, TName> & {
   type: 'text';
 };
 
-export type FormInput<
-  TDefaultValues extends Defaults,
-  TName extends Path<TDefaultValues>
+export type FormInputProps<
+  TDefaultValues extends Defaults = Defaults,
+  TName extends Path<TDefaultValues> = Path<TDefaultValues>
 > =
   //Add new fields here \/ \/ \/
-  | FormSelect<TDefaultValues, TName>
-  | FormMultiSelect<TDefaultValues, TName>
-  | FormNumberSlider<TDefaultValues, TName>
-  | FormNumberInput<TDefaultValues, TName>
-  | FormCheckbox<TDefaultValues, TName>
-  | FormRadio<TDefaultValues, TName>
-  | FormText<TDefaultValues, TName>
-  | FormCustom<TDefaultValues, TName>;
+  | FormSelectProps<TDefaultValues, TName>
+  | FormMultiSelectProps<TDefaultValues, TName>
+  | FormNumberSliderProps<TDefaultValues, TName>
+  | FormNumberInputProps<TDefaultValues, TName>
+  | FormCheckboxProps<TDefaultValues, TName>
+  | FormRadioProps<TDefaultValues, TName>
+  | FormTextProps<TDefaultValues, TName>
+  | FormCustomProps<TDefaultValues, TName>;
 
-export type FormFields<TFields extends Defaults> = {
-  // @ts-expect-error Key is string and string can be used as Path
-  [Key in keyof TFields]: FormInput<TFields, Key>; // TODO: add extraction for correct form input
+export type FormFieldPropsType = FormInputProps['type'];
+
+type TypeToFormFieldType<T> = T extends string
+  ? 'text' | 'select' | 'custom'
+  : T extends number
+  ? 'number_input' | 'number_slider' | 'custom'
+  : T extends boolean
+  ? 'checkbox' | 'radio' | 'custom'
+  : T extends string[]
+  ? 'multi_select' | 'custom'
+  : T extends number[]
+  ? 'custom'
+  : never;
+
+export type FormFieldsProps<TFields extends Defaults> = {
+  [Key in keyof TFields]: Extract<
+    FormInputProps,
+    { type: TypeToFormFieldType<TFields[Key]> }
+  >;
 };
 
 export type FormHook<
   TFields extends Defaults,
-  TFormFields extends FormFields<TFields>
+  TFormFields extends FormFieldsProps<TFields>
 > = (
   fileID: string,
   form: TFormFields,
@@ -135,12 +151,12 @@ export type FormHook<
 
 export type FormLogic<
   TFields extends Defaults,
-  TFormFields extends FormFields<TFields>
+  TFormFields extends FormFieldsProps<TFields>
 > = (form: TFormFields, methods: UseFormReturn<TFields>) => TFormFields;
 
 export type FormProcessor<
   TFields extends Defaults,
-  TFormFields extends FormFields<TFields>
+  TFormFields extends FormFieldsProps<TFields>
 > = {
   formLogic: FormLogic<TFields, TFormFields>;
   deps: (keyof TFields)[];
@@ -148,7 +164,7 @@ export type FormProcessor<
 
 export const CreateFormProcessor: <
   TFields extends Defaults,
-  TFormFields extends FormFields<TFields>
+  TFormFields extends FormFieldsProps<TFields>
 >(
   formLogic: FormLogic<TFields, TFormFields>,
   deps: (keyof TFields)[]
@@ -160,8 +176,8 @@ export const CreateFormProcessor: <
 };
 
 export type Form<
-  TFields extends Defaults,
-  TFormFields extends FormFields<TFields>
+  TFields extends Defaults = Defaults,
+  TFormFields extends FormFieldsProps<TFields> = FormFieldsProps<TFields>
 > = {
   formDefaults: TFields;
   formFields: TFormFields;
@@ -171,14 +187,14 @@ export type Form<
 
 export const CreateForm: <
   TFields extends Defaults,
-  TFormFields extends FormFields<TFields>
+  TFormFields extends FormFieldsProps<TFields>
 >(
   formDefaults: TFields,
   formFields: TFormFields,
   useFormHook?: FormHook<TFields, TFormFields>,
   formProcessor?: FormProcessor<TFields, TFormFields>
 ) => Form<TFields, TFormFields> = (
-  formDefaults,
+  formDefaults, // TODO: change to dictionary of defaults where is key is a uuid of a file and value is defaults
   formFields,
   useFormHook = undefined,
   formProcessor = undefined
