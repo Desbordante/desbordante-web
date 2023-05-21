@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { useEffect } from 'react';
 import {
   getCountOfColumns,
   getCountOfColumnsVariables,
@@ -11,6 +12,8 @@ import {
   CreateFormProcessor,
   CreateForm,
   FormHook,
+  FormSelectOptions,
+  ArrayToOptions,
 } from 'types/form';
 import { MainPrimitiveType } from 'types/globalTypes';
 
@@ -26,7 +29,8 @@ const test_fields = {
     order: 0,
     type: 'select',
     label: 'Algorithm Name',
-    options: ['Pyro', 'Pyro2'],
+    options: ArrayToOptions(['Pyro', 'Pyro2']),
+    tooltip: 'asdasdasd',
     rules: {
       validate: (value, formValues) => {
         return formValues.algoName == 'Pyro';
@@ -42,27 +46,34 @@ const test_fields = {
     order: 2,
     label: 'LHS Columns',
     type: 'multi_select',
-    options: [] as string[],
+    options: [] as FormSelectOptions,
   },
   testIUFDSHUI: {
     order: 3,
     type: 'custom',
     label: 'Test custom',
     test: 'test',
-    component: (props) => <div>{props.test}</div>,
+    component: (props) => (
+      <div>
+        <button>{props.test}</button>
+      </div>
+    ),
   },
 } satisfies FormFieldsProps<typeof test_defaults>;
+
+let callCount = 0;
 
 const useTestHook: FormHook<typeof test_defaults, typeof test_fields> = (
   fileID,
   form, // TODO: add function to edit form
+  setForm,
   methods
 ) => {
   const { loading, error, data } = useQuery<
     getCountOfColumns,
     getCountOfColumnsVariables
   >(GET_COUNT_OF_COLUMNS, {
-    variables: { fileID: fileID },
+    variables: { fileID },
     onError: (error) => {
       showError(
         error.message,
@@ -71,11 +82,19 @@ const useTestHook: FormHook<typeof test_defaults, typeof test_fields> = (
     },
   });
 
-  form.LHSColumn.options =
-    data?.datasetInfo.header ||
-    [...Array(data?.datasetInfo.countOfColumns || 0)].map((_, i) => String(i));
+  useEffect(() => {
+    setForm((formSnapshot) => {
+      formSnapshot.LHSColumn.options = ArrayToOptions(
+        data?.datasetInfo.header ||
+          [...Array(data?.datasetInfo.countOfColumns || 0)].map((_, i) =>
+            String(i)
+          )
+      );
+      return formSnapshot;
+    });
 
-  console.log('Hello from field hook!', data);
+    console.log('Hello from field hook!', ++callCount, data);
+  }, [data, form.LHSColumn]);
 };
 
 const test_processor = CreateFormProcessor<
@@ -83,13 +102,14 @@ const test_processor = CreateFormProcessor<
   typeof test_fields
 >(
   (form, methods) => {
+    console.dir(methods.getValues());
     form.testIUFDSHUI.test = 'asd';
 
     console.log('Hello from field logic!');
 
     return form;
   },
-  ['maxLHS']
+  ['algoName']
 );
 
 export const test_form = CreateForm(

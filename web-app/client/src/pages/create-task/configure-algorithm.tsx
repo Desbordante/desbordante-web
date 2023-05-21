@@ -1,66 +1,24 @@
-import { cursorTo } from 'readline';
-import { useMutation, useQuery } from '@apollo/client';
-import _ from 'lodash';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, {
-  FC,
-  ForwardRefRenderFunction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import {
-  Controller,
-  ControllerFieldState,
-  ControllerRenderProps,
-  useForm,
-  FormProvider,
-  UseFormStateReturn,
-} from 'react-hook-form';
-import { Path } from 'react-hook-form/dist/types/path/eager';
+import React, { FC, useEffect, useMemo, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import IdeaIcon from '@assets/icons/idea.svg?component';
 import Button from '@components/Button';
-import { FormSelect } from '@components/FormInputs';
 import {
-  Radio,
-  Select,
-  MultiSelect,
-  NumberSlider,
-  NumberInput,
-  Checkbox,
-  Text,
-} from '@components/Inputs';
-import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
+  FormCheckbox,
+  FormMultiSelect,
+  FormNumberInput,
+  FormNumberSlider,
+  FormRadio,
+  FormSelect,
+  FormText,
+} from '@components/FormInputs';
 import WizardLayout from '@components/WizardLayout';
-import {
-  createTaskWithDatasetChoosing,
-  createTaskWithDatasetChoosingVariables,
-} from '@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing';
-import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations/chooseTask';
-import {
-  getCountOfColumns,
-  getCountOfColumnsVariables,
-} from '@graphql/operations/queries/__generated__/getCountOfColumns';
-import { GET_COUNT_OF_COLUMNS } from '@graphql/operations/queries/getDatasetColumnCount';
-import { useErrorContext } from '@hooks/useErrorContext'; // to delete?
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import { test_form } from '@pages/create-task/configurator-forms/test2FormUser';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
-import { showError } from '@utils/toasts';
-import { Form, FormFieldPropsType, FormInputProps } from 'types/form';
+import { FormInputElement } from 'types/form';
 import { MainPrimitiveType } from 'types/globalTypes';
-
-const inputs: Record<string, any> = {
-  select: FormSelect,
-  multi_select: MultiSelect,
-  number_slider: NumberSlider,
-  number_input: NumberInput,
-  checkbox: Checkbox,
-  radio: Radio,
-  text: Text,
-};
 
 const primitives = {
   [MainPrimitiveType.FD]: test_form,
@@ -117,7 +75,7 @@ const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
 
   const formObject = primitives[primitive];
 
-  const formDefaultValues = formObject.formDefaults;
+  const formDefaultValues = { ...formObject.formDefaults, ...formParams };
   const formFields = formObject.formFields;
 
   const formProcessor = formObject.formProcessor;
@@ -131,12 +89,33 @@ const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
 
   const [formState, setFormState] = useState(formFields);
 
-  formObject.useFormHook(fileID, formState, methods);
+  formObject.useFormHook(fileID, formState, setFormState, methods);
+
+  const watchDeps = methods.watch(formLogicDeps);
 
   useEffect(() => {
     setFormState((formSnapshot) => formLogic(formSnapshot, methods));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formLogic, methods, ...methods.watch(formLogicDeps)]);
+  }, [formLogic, methods, watchDeps]);
+
+  const inputs: Record<
+    string,
+    FormInputElement<typeof formDefaultValues>
+  > = useMemo(
+    () =>
+      ({
+        select: FormSelect,
+        multi_select: FormMultiSelect,
+        number_slider: FormNumberSlider,
+        number_input: FormNumberInput,
+        checkbox: FormCheckbox,
+        radio: FormRadio,
+        text: FormText,
+      } as unknown as Record<
+        string,
+        FormInputElement<typeof formDefaultValues>
+      >),
+    []
+  );
 
   const header = (
     <>
@@ -166,38 +145,61 @@ const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
     </>
   );
 
+  type Entries<T> = {
+    [K in keyof T]: [K, T[K]];
+  }[keyof T][];
+
+  const entries = (
+    Object.entries(formState).sort(
+      (A, B) => A[1].order - B[1].order
+    ) as Entries<typeof formState>
+  ).map(([name, fieldProps]) => {
+    if (fieldProps.type in inputs) {
+      const Component = inputs[fieldProps.type];
+
+      const { rules } = { rules: undefined, ...fieldProps };
+
+      return (
+        <Controller<typeof formDefaultValues>
+          key={name}
+          name={name}
+          control={methods.control}
+          rules={rules}
+          render={({ field }) => {
+            return <Component field={field} props={fieldProps} />;
+          }}
+        />
+      );
+    }
+
+    if (fieldProps.type === 'custom')
+      return (
+        <div className={'Custom'} key={fieldProps.label}>
+          {fieldProps.component({
+            key: fieldProps.label,
+            ...fieldProps,
+            ...methods.register(name),
+          })}
+        </div>
+      );
+
+    return (
+      <div key={fieldProps.label}>
+        <div>{name}</div>
+        <div>{JSON.stringify(fieldProps)}</div>
+        <br />
+      </div>
+    );
+  });
+
   return (
     <WizardLayout header={header} footer={footer}>
-      <FormProvider {...methods}>
-        <form onSubmit={onSubmit}>
-          {Object.entries(formState) // TODO: move to useMemo
-            .sort((A, B) => A[1].order - B[1].order)
-            .map(([name, field]) => {
-              console.log(field);
-
-              if (field.type in inputs) {
-                const Component = inputs[field.type];
-                return (
-                  <Component
-                    key={field.order}
-                    {...field}
-                    {...methods.register(name)}
-                  />
-                );
-              }
-
-              // TODO: add custom
-
-              return (
-                <div key={field.order}>
-                  <div>{name}</div>
-                  <div>{JSON.stringify(field)}</div>
-                  <br />
-                </div>
-              );
-            })}
-        </form>
-      </FormProvider>
+      <div className={styles.container}>{...entries}</div>
+      {/*<FormProvider {...methods}>*/}
+      {/*  <form onSubmit={onSubmit} className={styles.container}>*/}
+      {/*    {...entries}*/}
+      {/*  </form>*/}
+      {/*</FormProvider>*/}
     </WizardLayout>
   );
 };

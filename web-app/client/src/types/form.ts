@@ -1,7 +1,11 @@
-import { FC } from 'react';
+import React, { FC, ReactElement } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { UseControllerProps } from 'react-hook-form/dist/types/controller';
+import {
+  ControllerRenderProps,
+  UseControllerProps,
+} from 'react-hook-form/dist/types/controller';
 import { Path } from 'react-hook-form/dist/types/path/eager';
+import { OptionWithBadges } from 'types/multiSelect';
 export type FormValueType = string | string[] | number | number[] | boolean;
 
 export type Defaults = Record<string, FormValueType>;
@@ -15,6 +19,7 @@ export type FormFieldProps<
   label: string;
   tooltip?: string;
   error?: string;
+  disabled?: boolean;
   rules?: UseControllerProps<TDefaultValues, TName>['rules'];
 };
 
@@ -31,6 +36,14 @@ export type FormCustomProps<
     component: FC<FormFieldProps<TDefaultValues, TName> & TAdditionalProps>;
   };
 
+export type FormSelectOptions = OptionWithBadges[];
+
+export const ArrayToOptions: (options: string[]) => OptionWithBadges[] = (
+  options
+) => {
+  return options.map((option) => ({ label: option, value: option }));
+};
+
 // Field with select
 export type FormSelectProps<
   TDefaultValues extends Defaults = Defaults,
@@ -38,25 +51,25 @@ export type FormSelectProps<
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'select';
 
-  options: string[];
+  options: FormSelectOptions;
   isLoading?: boolean;
 };
 
 // Field with multiple select
 export type FormMultiSelectProps<
-  TDefaultValues extends Defaults,
-  TName extends Path<TDefaultValues>
+  TDefaultValues extends Defaults = Defaults,
+  TName extends Path<TDefaultValues> = Path<TDefaultValues>
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'multi_select';
 
-  options: string[];
+  options: FormSelectOptions;
   isLoading?: boolean;
 };
 
 // Field with number slider
 export type FormNumberSliderProps<
-  TDefaultValues extends Defaults,
-  TName extends Path<TDefaultValues>
+  TDefaultValues extends Defaults = Defaults,
+  TName extends Path<TDefaultValues> = Path<TDefaultValues>
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'number_slider';
 
@@ -67,8 +80,8 @@ export type FormNumberSliderProps<
 
 // Field with number input
 export type FormNumberInputProps<
-  TDefaultValues extends Defaults,
-  TName extends Path<TDefaultValues>
+  TDefaultValues extends Defaults = Defaults,
+  TName extends Path<TDefaultValues> = Path<TDefaultValues>
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'number_input';
 
@@ -81,8 +94,8 @@ export type FormNumberInputProps<
 
 // Field with checkbox
 export type FormCheckboxProps<
-  TDefaultValues extends Defaults,
-  TName extends Path<TDefaultValues>
+  TDefaultValues extends Defaults = Defaults,
+  TName extends Path<TDefaultValues> = Path<TDefaultValues>
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'checkbox';
 
@@ -91,16 +104,16 @@ export type FormCheckboxProps<
 
 // Field with radio
 export type FormRadioProps<
-  TDefaultValues extends Defaults,
-  TName extends Path<TDefaultValues>
+  TDefaultValues extends Defaults = Defaults,
+  TName extends Path<TDefaultValues> = Path<TDefaultValues>
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'radio';
 };
 
 // Field with text
 export type FormTextProps<
-  TDefaultValues extends Defaults,
-  TName extends Path<TDefaultValues>
+  TDefaultValues extends Defaults = Defaults,
+  TName extends Path<TDefaultValues> = Path<TDefaultValues>
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'text';
 };
@@ -146,6 +159,7 @@ export type FormHook<
 > = (
   fileID: string,
   form: TFormFields,
+  setForm: React.Dispatch<React.SetStateAction<TFormFields>>,
   methods: UseFormReturn<TFields>
 ) => void;
 
@@ -213,3 +227,13 @@ export const CreateForm: <
     },
   };
 };
+
+export type FieldControllerRenderProps<TFieldValues extends Defaults> =
+  ControllerRenderProps<TFieldValues>;
+export type FormInputElementProps<TFieldValues extends Defaults> = {
+  field: FieldControllerRenderProps<TFieldValues>;
+  props: FormInputProps;
+};
+export type FormInputElement<TFieldValues extends Defaults> = (
+  props: FormInputElementProps<TFieldValues>
+) => ReactElement;
