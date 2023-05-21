@@ -1,11 +1,9 @@
 import _ from 'lodash';
-import { ReactElement, ForwardRefRenderFunction, forwardRef } from 'react';
 import { ControllerRenderProps } from 'react-hook-form/dist/types/controller';
-import { InputPropsBase, Select } from '@components/Inputs';
-import { FormInputElement, FormSelectProps } from 'types/form';
+import { Select } from '@components/Inputs';
+import { FormSelectProps } from 'types/form';
 import { OptionWithBadges } from 'types/multiSelect';
 
-// export type Props = ControllerRenderProps & FormSelectProps;
 type SelectProps = {
   field: ControllerRenderProps;
   props: FormSelectProps;

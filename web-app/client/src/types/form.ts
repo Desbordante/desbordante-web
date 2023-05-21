@@ -73,6 +73,8 @@ export type FormNumberSliderProps<
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'number_slider';
 
+  size?: number;
+
   min: number;
   max: number;
   step: number;
@@ -85,6 +87,7 @@ export type FormNumberInputProps<
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'number_input';
 
+  defaultNum: number;
   min?: number;
   includingMin?: boolean;
   max?: number;

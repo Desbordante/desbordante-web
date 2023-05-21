@@ -120,9 +120,7 @@ const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
   const header = (
     <>
       <h2 className={styles.name_main}>Configure Algorithm</h2>
-      <h6 className={styles.description}>
-        Vitae ipsum leo ut tincidunt viverra nec cum.
-      </h6>
+      <h6 className={styles.description}>Select algorithm parameters</h6>
     </>
   );
 
@@ -154,52 +152,46 @@ const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
       (A, B) => A[1].order - B[1].order
     ) as Entries<typeof formState>
   ).map(([name, fieldProps]) => {
-    if (fieldProps.type in inputs) {
-      const Component = inputs[fieldProps.type];
-
-      const { rules } = { rules: undefined, ...fieldProps };
-
-      return (
-        <Controller<typeof formDefaultValues>
-          key={name}
-          name={name}
-          control={methods.control}
-          rules={rules}
-          render={({ field }) => {
-            return <Component field={field} props={fieldProps} />;
-          }}
-        />
-      );
-    }
-
-    if (fieldProps.type === 'custom')
-      return (
-        <div className={'Custom'} key={fieldProps.label}>
-          {fieldProps.component({
-            key: fieldProps.label,
-            ...fieldProps,
-            ...methods.register(name),
-          })}
-        </div>
-      );
+    const { rules } = { rules: undefined, ...fieldProps };
 
     return (
-      <div key={fieldProps.label}>
-        <div>{name}</div>
-        <div>{JSON.stringify(fieldProps)}</div>
-        <br />
-      </div>
+      <Controller<typeof formDefaultValues>
+        key={name}
+        name={name}
+        control={methods.control}
+        rules={rules}
+        render={({ field }) => {
+          if (fieldProps.type === 'custom')
+            return (
+              <div className={'Custom'} key={fieldProps.label}>
+                {fieldProps.component({
+                  key: fieldProps.label,
+                  ...fieldProps,
+                  ...methods.register(name),
+                })}
+              </div>
+            );
+
+          if (fieldProps.type in inputs) {
+            const Component = inputs[fieldProps.type];
+            return <Component field={field} props={fieldProps} />;
+          }
+
+          return (
+            <div key={fieldProps.label}>
+              <div>{name}</div>
+              <div>{JSON.stringify(fieldProps)}</div>
+              <br />
+            </div>
+          );
+        }}
+      />
     );
   });
 
   return (
     <WizardLayout header={header} footer={footer}>
       <div className={styles.container}>{...entries}</div>
-      {/*<FormProvider {...methods}>*/}
-      {/*  <form onSubmit={onSubmit} className={styles.container}>*/}
-      {/*    {...entries}*/}
-      {/*  </form>*/}
-      {/*</FormProvider>*/}
     </WizardLayout>
   );
 };

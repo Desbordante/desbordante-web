@@ -41,6 +41,7 @@ const test_fields = {
     order: 1,
     label: 'Maximum LHS',
     type: 'number_input',
+    defaultNum: 1.0,
   },
   LHSColumn: {
     order: 2,
