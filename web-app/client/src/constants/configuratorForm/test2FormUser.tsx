@@ -15,13 +15,12 @@ import {
   FormSelectOptions,
   ArrayToOptions,
 } from 'types/form';
-import { MainPrimitiveType } from 'types/globalTypes';
 
 const test_defaults = {
-  algoName: '',
+  algoName: 'Pyro',
   maxLHS: 123,
-  LHSColumn: [] as string[],
-  testIUFDSHUI: 'asd',
+  LHSColumn: [0] as number[],
+  test1: 'asd',
 } satisfies Defaults;
 
 const test_fields = {
@@ -30,10 +29,11 @@ const test_fields = {
     type: 'select',
     label: 'Algorithm Name',
     options: ArrayToOptions(['Pyro', 'Pyro2']),
+    isLoading: false,
     tooltip: 'asdasdasd',
     rules: {
-      validate: (value, formValues) => {
-        return formValues.algoName == 'Pyro';
+      validate: {
+        algoName: (value) => value === 'Pyro' || 'Should be Pyro',
       },
     },
   },
@@ -48,8 +48,14 @@ const test_fields = {
     label: 'LHS Columns',
     type: 'multi_select',
     options: [] as FormSelectOptions,
+    isLoading: true as boolean,
+    rules: {
+      validate: {
+        LHSColumn: (value) => (value as number[]).length > 0,
+      },
+    },
   },
-  testIUFDSHUI: {
+  test1: {
     order: 3,
     type: 'custom',
     label: 'Test custom',
@@ -62,14 +68,16 @@ const test_fields = {
   },
 } satisfies FormFieldsProps<typeof test_defaults>;
 
-let callCount = 0;
-
 const useTestHook: FormHook<typeof test_defaults, typeof test_fields> = (
   fileID,
-  form, // TODO: add function to edit form
+  form,
   setForm,
   methods
 ) => {
+  useEffect(() => {
+    // console.log('First hook call. Fetching data');
+  }, []);
+
   const { loading, error, data } = useQuery<
     getCountOfColumns,
     getCountOfColumnsVariables
@@ -84,18 +92,26 @@ const useTestHook: FormHook<typeof test_defaults, typeof test_fields> = (
   });
 
   useEffect(() => {
+    // console.log(`Hook Effect. Loading flag changed to ${loading}`);
     setForm((formSnapshot) => {
-      formSnapshot.LHSColumn.options = ArrayToOptions(
-        data?.datasetInfo.header ||
-          [...Array(data?.datasetInfo.countOfColumns || 0)].map((_, i) =>
-            String(i)
-          )
-      );
+      formSnapshot.LHSColumn.isLoading = loading;
       return formSnapshot;
     });
+  }, [loading, setForm]);
 
-    console.log('Hello from field hook!', ++callCount, data);
-  }, [data, form.LHSColumn]);
+  useEffect(() => {
+    if (!loading) {
+      // console.log(`Hook Effect. Updating options in form`);
+      // console.log(`Hook Effect. Data`, data);
+      setForm((formSnapshot) => {
+        formSnapshot.LHSColumn.options = ArrayToOptions(
+          [...Array(data?.datasetInfo.countOfColumns || 0)].map((_, i) => i),
+          'Column'
+        );
+        return { ...formSnapshot };
+      });
+    }
+  }, [data, form.LHSColumn, setForm]);
 };
 
 const test_processor = CreateFormProcessor<
@@ -103,10 +119,10 @@ const test_processor = CreateFormProcessor<
   typeof test_fields
 >(
   (form, methods) => {
-    console.dir(methods.getValues());
-    form.testIUFDSHUI.test = 'asd';
+    // // console.dir(methods.getValues());
+    form.test1.test = 'asd';
 
-    console.log('Hello from field logic!');
+    // console.log('Logic called');
 
     return form;
   },

@@ -16,7 +16,6 @@ const FormMultiSelect = ({
   field: { onChange, value, ...field },
   props,
 }: MultiSelectProps) => {
-  // TODO: Check, if newValue is correct
   return (
     <MultiSelect
       {...field}

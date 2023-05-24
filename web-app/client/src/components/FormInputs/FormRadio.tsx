@@ -7,8 +7,11 @@ type RadioProps = {
   props: FormRadioProps;
 };
 
-const FormRadio = ({ field: { ref }, props }: RadioProps) => {
-  return <Radio ref={ref} {...props} />;
+const FormRadio = ({
+  field: { ref },
+  props: { innerName, ...props },
+}: RadioProps) => {
+  return <Radio ref={ref} name={innerName} {...props} />;
 };
 
 export default FormRadio;

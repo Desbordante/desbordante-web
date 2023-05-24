@@ -1,7 +1,15 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { FC, useEffect, useMemo, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  Controller,
+  ControllerFieldState,
+  ControllerRenderProps,
+  useForm,
+  UseFormStateReturn,
+  useWatch,
+} from 'react-hook-form';
+import { UseControllerProps } from 'react-hook-form/dist/types/controller';
 import IdeaIcon from '@assets/icons/idea.svg?component';
 import Button from '@components/Button';
 import {
@@ -14,14 +22,20 @@ import {
   FormText,
 } from '@components/FormInputs';
 import WizardLayout from '@components/WizardLayout';
+import { fd_form } from '@constants/configuratorForm/FDForm';
+import { test_form } from '@constants/configuratorForm/test2FormUser';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
-import { test_form } from '@pages/create-task/configurator-forms/test2FormUser';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
-import { FormInputElement } from 'types/form';
+import {
+  FormFieldsProps,
+  FormHook,
+  FormInputElement,
+  FormProcessor,
+} from 'types/form';
 import { MainPrimitiveType } from 'types/globalTypes';
 
 const primitives = {
-  [MainPrimitiveType.FD]: test_form,
+  [MainPrimitiveType.FD]: fd_form,
   [MainPrimitiveType.AR]: test_form,
   [MainPrimitiveType.CFD]: test_form,
   [MainPrimitiveType.TypoFD]: test_form,
@@ -64,34 +78,71 @@ const ConfigureAlgorithm: NextPage = () => {
   );
 };
 
-type QueryProps = {
-  primitive: MainPrimitiveType;
+type QueryProps<T extends MainPrimitiveType> = {
+  primitive: T;
   fileID: string;
   formParams: { [key: string]: string | string[] | undefined };
 };
 
-const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
+const FormComponent = <T extends MainPrimitiveType>({
+  primitive,
+  fileID,
+  formParams,
+}: QueryProps<T>) => {
   const router = useRouter();
 
   const formObject = primitives[primitive];
 
-  const formDefaultValues = { ...formObject.formDefaults, ...formParams };
-  const formFields = formObject.formFields;
+  const formDefaultValues = useMemo(
+    () => ({ ...formObject.formDefaults, ...formParams }),
+    [formObject.formDefaults, formParams]
+  );
+  const formFields = formObject.formFields as FormFieldsProps<
+    typeof formDefaultValues
+  >;
 
-  const formProcessor = formObject.formProcessor;
+  const useFormHook = formObject.useFormHook as FormHook<
+    typeof formDefaultValues,
+    typeof formFields
+  >;
+  const formProcessor = formObject.formProcessor as FormProcessor<
+    typeof formDefaultValues,
+    typeof formFields
+  >;
   const formLogic = formProcessor.formLogic;
   const formLogicDeps = formProcessor.deps;
 
-  const methods = useForm({ defaultValues: formDefaultValues });
-  const onSubmit = methods.handleSubmit((data) => {
-    console.log(data);
-  });
+  const methods = useForm<
+    typeof formDefaultValues,
+    keyof typeof formDefaultValues
+  >({ mode: 'onBlur', defaultValues: formDefaultValues });
+
+  const onSubmit = methods.handleSubmit(
+    (data) => {
+      console.log('SENT', data);
+    },
+    (errors, event) => {
+      console.log('ERROR', errors, event);
+    }
+  );
+
+  console.log(
+    '%cFORM COMPONENT RERENDER ===================================%s',
+    'background: lightblue; color: black;'
+  );
+
+  // TODO: THIS IS HOW I CHECK IF USER MODIFIED FORM
+  console.log('FORM IS CHANGED:', methods.formState.isDirty);
+
+  console.log('FORM TOUCHED FIELDS:', methods.formState.touchedFields);
+
+  console.log('FORM ERRORS:', methods.formState.errors);
 
   const [formState, setFormState] = useState(formFields);
 
-  formObject.useFormHook(fileID, formState, setFormState, methods);
+  useFormHook(fileID, formState, setFormState, methods);
 
-  const watchDeps = methods.watch(formLogicDeps);
+  const watchDeps = useWatch({ control: methods.control, name: formLogicDeps });
 
   useEffect(() => {
     setFormState((formSnapshot) => formLogic(formSnapshot, methods));
@@ -107,9 +158,9 @@ const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
         multi_select: FormMultiSelect,
         number_slider: FormNumberSlider,
         number_input: FormNumberInput,
-        checkbox: FormCheckbox,
-        radio: FormRadio,
-        text: FormText,
+        checkbox: FormCheckbox, // not working, don't use
+        radio: FormRadio, // not working, don't use
+        text: FormText, // not working, don't use
       } as unknown as Record<
         string,
         FormInputElement<typeof formDefaultValues>
@@ -147,50 +198,71 @@ const FormComponent: FC<QueryProps> = ({ primitive, fileID, formParams }) => {
     [K in keyof T]: [K, T[K]];
   }[keyof T][];
 
-  const entries = (
-    Object.entries(formState).sort(
-      (A, B) => A[1].order - B[1].order
-    ) as Entries<typeof formState>
-  ).map(([name, fieldProps]) => {
-    const { rules } = { rules: undefined, ...fieldProps };
+  type FormInput = {
+    name: keyof typeof formDefaultValues;
+    rules?: UseControllerProps<typeof formDefaultValues>['rules'];
+    render: (props: {
+      field: ControllerRenderProps<typeof formDefaultValues>;
+      fieldState: ControllerFieldState;
+      formState: UseFormStateReturn<typeof formDefaultValues>;
+    }) => React.ReactElement;
+  };
 
-    return (
-      <Controller<typeof formDefaultValues>
-        key={name}
-        name={name}
-        control={methods.control}
-        rules={rules}
-        render={({ field }) => {
-          if (fieldProps.type === 'custom')
+  const formInputs: FormInput[] = useMemo(
+    () =>
+      (
+        Object.entries(formState).sort(
+          (A, B) => A[1].order - B[1].order
+        ) as Entries<typeof formState>
+      ).map(([name, fieldProps]) => {
+        return {
+          name,
+          rules: 'rules' in fieldProps ? fieldProps.rules : undefined,
+          render: ({ field }) => {
+            if (fieldProps.type in inputs) {
+              const Component = inputs[fieldProps.type];
+              return <Component field={field} props={fieldProps} />;
+            }
+
+            if (fieldProps.type === 'custom')
+              return (
+                <div className={'Custom'} key={fieldProps.label}>
+                  {fieldProps.component({
+                    key: fieldProps.label,
+                    ...fieldProps,
+                    ...field,
+                  })}
+                </div>
+              );
+
             return (
-              <div className={'Custom'} key={fieldProps.label}>
-                {fieldProps.component({
-                  key: fieldProps.label,
-                  ...fieldProps,
-                  ...methods.register(name),
-                })}
+              <div key={fieldProps.label}>
+                <div>{name}</div>
+                <div>{JSON.stringify(fieldProps)}</div>
+                <br />
               </div>
             );
+          },
+        } as FormInput;
+      }),
+    [formState, inputs]
+  );
 
-          if (fieldProps.type in inputs) {
-            const Component = inputs[fieldProps.type];
-            return <Component field={field} props={fieldProps} />;
-          }
-
-          return (
-            <div key={fieldProps.label}>
-              <div>{name}</div>
-              <div>{JSON.stringify(fieldProps)}</div>
-              <br />
-            </div>
-          );
-        }}
-      />
-    );
-  });
+  const entries = formInputs.map(({ name, rules, render }) => (
+    <Controller<typeof formDefaultValues>
+      key={name}
+      name={name}
+      control={methods.control}
+      rules={rules}
+      render={render}
+    />
+  ));
 
   return (
     <WizardLayout header={header} footer={footer}>
+      <div
+        className={'FormDirt'}
+      >{`Form dirtiness: ${methods.formState.isDirty}`}</div>
       <div className={styles.container}>{...entries}</div>
     </WizardLayout>
   );

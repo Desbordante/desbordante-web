@@ -38,10 +38,14 @@ export type FormCustomProps<
 
 export type FormSelectOptions = OptionWithBadges[];
 
-export const ArrayToOptions: (options: string[]) => OptionWithBadges[] = (
-  options
-) => {
-  return options.map((option) => ({ label: option, value: option }));
+export const ArrayToOptions: (
+  options: (string | number)[],
+  prefix?: string
+) => OptionWithBadges[] = (options, prefix) => {
+  return options.map((option) => ({
+    label: (prefix ? `${prefix} ` : '') + String(option),
+    value: option,
+  }));
 };
 
 // Field with select
@@ -52,7 +56,7 @@ export type FormSelectProps<
   type: 'select';
 
   options: FormSelectOptions;
-  isLoading?: boolean;
+  isLoading: boolean;
 };
 
 // Field with multiple select
@@ -63,7 +67,7 @@ export type FormMultiSelectProps<
   type: 'multi_select';
 
   options: FormSelectOptions;
-  isLoading?: boolean;
+  isLoading: boolean;
 };
 
 // Field with number slider
@@ -111,6 +115,8 @@ export type FormRadioProps<
   TName extends Path<TDefaultValues> = Path<TDefaultValues>
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'radio';
+
+  innerName: string;
 };
 
 // Field with text
@@ -135,8 +141,6 @@ export type FormInputProps<
   | FormTextProps<TDefaultValues, TName>
   | FormCustomProps<TDefaultValues, TName>;
 
-export type FormFieldPropsType = FormInputProps['type'];
-
 type TypeToFormFieldType<T> = T extends string
   ? 'text' | 'select' | 'custom'
   : T extends number
@@ -146,7 +150,7 @@ type TypeToFormFieldType<T> = T extends string
   : T extends string[]
   ? 'multi_select' | 'custom'
   : T extends number[]
-  ? 'custom'
+  ? 'multi_select' | 'custom'
   : never;
 
 export type FormFieldsProps<TFields extends Defaults> = {
@@ -211,7 +215,7 @@ export const CreateForm: <
   useFormHook?: FormHook<TFields, TFormFields>,
   formProcessor?: FormProcessor<TFields, TFormFields>
 ) => Form<TFields, TFormFields> = (
-  formDefaults, // TODO: change to dictionary of defaults where is key is a uuid of a file and value is defaults
+  formDefaults, // TODO: change to dictionary of defaults where is key is an uuid of a file and value is defaults
   formFields,
   useFormHook = undefined,
   formProcessor = undefined
