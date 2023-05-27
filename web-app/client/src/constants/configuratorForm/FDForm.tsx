@@ -56,7 +56,7 @@ const fd_processor = CreateFormProcessor<typeof fd_defaults, typeof fd_fields>(
     // return form;
     return { ...form };
   },
-  ['algorithmName']
+  [['algorithmName']]
 );
 
 export const fd_form = CreateForm(
