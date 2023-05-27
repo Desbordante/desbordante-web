@@ -41,7 +41,7 @@ const test_fields = {
     order: 1,
     label: 'Maximum LHS',
     type: 'number_input',
-    defaultNum: 1.0,
+    numberInputProps: { defaultNum: 1.0 },
   },
   LHSColumn: {
     order: 2,
@@ -60,6 +60,7 @@ const test_fields = {
     type: 'custom',
     label: 'Test custom',
     test: 'test',
+    isConstant: true,
     component: (props) => (
       <div>
         <button>{props.test}</button>
@@ -114,15 +115,16 @@ const useTestHook: FormHook<typeof test_defaults, typeof test_fields> = (
   }, [data, form.LHSColumn, setForm]);
 };
 
+let test_storage = 'asdasd';
+
 const test_processor = CreateFormProcessor<
   typeof test_defaults,
   typeof test_fields
 >(
   (form, methods) => {
-    // // console.dir(methods.getValues());
-    form.test1.test = 'asd';
+    console.log('Processor called', test_storage);
 
-    // console.log('Logic called');
+    test_storage = 'hahaha';
 
     return form;
   },

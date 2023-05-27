@@ -5,6 +5,6 @@ export type Badge = {
 
 export type OptionWithBadges = {
   label: string;
-  value: string | number;
+  value: string | number | boolean;
   badges?: Badge[];
 };

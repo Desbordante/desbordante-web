@@ -29,7 +29,7 @@ type ARAlgorithm = 'Apriori';
 // const MFDAlgorithms = ['BRUTE', 'APPROX', 'CALIPERS'] as const;
 const MFDAlgorithms = ['Brute', 'Approx', 'Calipers'] as const;
 
-type MFDAlgorithm = (typeof MFDAlgorithms)[number];
+export type MFDAlgorithm = (typeof MFDAlgorithms)[number];
 
 export type Algorithms =
   | FDAlgorithm

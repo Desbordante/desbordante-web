@@ -9,7 +9,10 @@ type NumberSliderProps = {
 
 const FormNumberSlider = ({
   field,
-  props: { size, min, max, step, ...props },
+  props: {
+    numberSliderProps: { size, min, max, step },
+    ...props
+  },
 }: NumberSliderProps) => {
   return (
     <NumberSlider

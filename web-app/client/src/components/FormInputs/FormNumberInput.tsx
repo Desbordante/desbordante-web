@@ -10,12 +10,14 @@ type NumberInputProps = {
 const FormNumberInput = ({
   field,
   props: {
-    defaultNum,
-    min,
-    includingMin,
-    max,
-    includingMax,
-    numbersAfterDot,
+    numberInputProps: {
+      defaultNum,
+      min,
+      includingMin,
+      max,
+      includingMax,
+      numbersAfterDot,
+    },
     ...props
   },
 }: NumberInputProps) => {

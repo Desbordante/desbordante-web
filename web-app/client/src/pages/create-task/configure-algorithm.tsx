@@ -10,6 +10,7 @@ import {
   useWatch,
 } from 'react-hook-form';
 import { UseControllerProps } from 'react-hook-form/dist/types/controller';
+import { Entries } from 'type-fest';
 import IdeaIcon from '@assets/icons/idea.svg?component';
 import Button from '@components/Button';
 import {
@@ -22,8 +23,13 @@ import {
   FormText,
 } from '@components/FormInputs';
 import WizardLayout from '@components/WizardLayout';
+import { ar_form } from '@constants/configuratorForm/ARForm';
+import { blank_form } from '@constants/configuratorForm/blankForm';
+import { cfd_form } from '@constants/configuratorForm/CFDForm';
 import { fd_form } from '@constants/configuratorForm/FDForm';
-import { test_form } from '@constants/configuratorForm/test2FormUser';
+import { mfd_form } from '@constants/configuratorForm/MFDForm';
+// import { test_form } from '@constants/configuratorForm/testFrom';
+import { typofd_form } from '@constants/configuratorForm/TypoFDForm';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
 import {
@@ -36,11 +42,11 @@ import { MainPrimitiveType } from 'types/globalTypes';
 
 const primitives = {
   [MainPrimitiveType.FD]: fd_form,
-  [MainPrimitiveType.AR]: test_form,
-  [MainPrimitiveType.CFD]: test_form,
-  [MainPrimitiveType.TypoFD]: test_form,
-  [MainPrimitiveType.MFD]: test_form,
-  [MainPrimitiveType.Stats]: test_form,
+  [MainPrimitiveType.AR]: ar_form,
+  [MainPrimitiveType.CFD]: cfd_form,
+  [MainPrimitiveType.TypoFD]: typofd_form,
+  [MainPrimitiveType.MFD]: mfd_form,
+  [MainPrimitiveType.Stats]: blank_form,
 };
 
 const ConfigureAlgorithm: NextPage = () => {
@@ -94,8 +100,12 @@ const FormComponent = <T extends MainPrimitiveType>({
   const formObject = primitives[primitive];
 
   const formDefaultValues = useMemo(
-    () => ({ ...formObject.formDefaults, ...formParams }),
-    [formObject.formDefaults, formParams]
+    () =>
+      ({
+        ...formObject.formDefaults,
+        ...formParams,
+      } as typeof formObject.formDefaults),
+    [formObject, formParams]
   );
   const formFields = formObject.formFields as FormFieldsProps<
     typeof formDefaultValues
@@ -112,13 +122,15 @@ const FormComponent = <T extends MainPrimitiveType>({
   const formLogic = formProcessor.formLogic;
   const formLogicDeps = formProcessor.deps;
 
-  const methods = useForm<
-    typeof formDefaultValues,
-    keyof typeof formDefaultValues
-  >({ mode: 'onBlur', defaultValues: formDefaultValues });
+  // SOMETHING GONE WRONG keyof typeof formDefaultValues
+  const methods = useForm<typeof formDefaultValues>({
+    mode: 'onBlur',
+    defaultValues: formDefaultValues,
+  });
 
   const onSubmit = methods.handleSubmit(
     (data) => {
+      // TODO: exclude client only fields
       console.log('SENT', data);
     },
     (errors, event) => {
@@ -138,7 +150,7 @@ const FormComponent = <T extends MainPrimitiveType>({
 
   console.log('FORM ERRORS:', methods.formState.errors);
 
-  const [formState, setFormState] = useState(formFields);
+  const [formState, setFormState] = useState<typeof formFields>(formFields);
 
   useFormHook(fileID, formState, setFormState, methods);
 
@@ -194,10 +206,6 @@ const FormComponent = <T extends MainPrimitiveType>({
     </>
   );
 
-  type Entries<T> = {
-    [K in keyof T]: [K, T[K]];
-  }[keyof T][];
-
   type FormInput = {
     name: keyof typeof formDefaultValues;
     rules?: UseControllerProps<typeof formDefaultValues>['rules'];
@@ -208,6 +216,7 @@ const FormComponent = <T extends MainPrimitiveType>({
     }) => React.ReactElement;
   };
 
+  // Exclude inputs with isConstant parameter
   const formInputs: FormInput[] = useMemo(
     () =>
       (
@@ -218,10 +227,20 @@ const FormComponent = <T extends MainPrimitiveType>({
         return {
           name,
           rules: 'rules' in fieldProps ? fieldProps.rules : undefined,
-          render: ({ field }) => {
+          render: ({ field, fieldState }) => {
+            if (fieldProps.isConstant) return;
+
             if (fieldProps.type in inputs) {
               const Component = inputs[fieldProps.type];
-              return <Component field={field} props={fieldProps} />;
+              return (
+                <Component
+                  field={field}
+                  props={{
+                    ...fieldProps,
+                    error: fieldState.error?.message || fieldProps.error,
+                  }}
+                />
+              );
             }
 
             if (fieldProps.type === 'custom')
@@ -263,6 +282,30 @@ const FormComponent = <T extends MainPrimitiveType>({
       <div
         className={'FormDirt'}
       >{`Form dirtiness: ${methods.formState.isDirty}`}</div>
+      <button
+        onClick={() =>
+          methods.reset({
+            algorithmName: 'Pyro',
+            errorThreshold: 1,
+            maxLHS: 1,
+            threadsCount: 1,
+          })
+        }
+      >
+        Change to defaults 1
+      </button>
+      <button
+        onClick={() =>
+          methods.reset({
+            algorithmName: 'TaneX',
+            errorThreshold: 1,
+            maxLHS: 2,
+            threadsCount: 3,
+          })
+        }
+      >
+        Change to defaults 2
+      </button>
       <div className={styles.container}>{...entries}</div>
     </WizardLayout>
   );

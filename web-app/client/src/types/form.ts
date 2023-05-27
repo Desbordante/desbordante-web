@@ -18,8 +18,10 @@ export type FormFieldProps<
   type: string;
   label: string;
   tooltip?: string;
-  error?: string;
+  error?: string | undefined;
   disabled?: boolean;
+  clientOnly?: boolean;
+  isConstant?: boolean; // Do not render input if that is constant
   rules?: UseControllerProps<TDefaultValues, TName>['rules'];
 };
 
@@ -77,11 +79,13 @@ export type FormNumberSliderProps<
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'number_slider';
 
-  size?: number;
+  numberSliderProps: {
+    min: number;
+    max: number;
+    step: number;
 
-  min: number;
-  max: number;
-  step: number;
+    size?: number;
+  };
 };
 
 // Field with number input
@@ -91,12 +95,14 @@ export type FormNumberInputProps<
 > = FormFieldProps<TDefaultValues, TName> & {
   type: 'number_input';
 
-  defaultNum: number;
-  min?: number;
-  includingMin?: boolean;
-  max?: number;
-  includingMax?: boolean;
-  numbersAfterDot?: number;
+  numberInputProps: {
+    defaultNum: number;
+    min?: number;
+    includingMin?: boolean;
+    max?: number;
+    includingMax?: boolean;
+    numbersAfterDot?: number;
+  };
 };
 
 // Field with checkbox
@@ -146,7 +152,7 @@ type TypeToFormFieldType<T> = T extends string
   : T extends number
   ? 'number_input' | 'number_slider' | 'custom'
   : T extends boolean
-  ? 'checkbox' | 'radio' | 'custom'
+  ? 'select' | 'checkbox' | 'radio' | 'custom'
   : T extends string[]
   ? 'multi_select' | 'custom'
   : T extends number[]
@@ -215,7 +221,7 @@ export const CreateForm: <
   useFormHook?: FormHook<TFields, TFormFields>,
   formProcessor?: FormProcessor<TFields, TFormFields>
 ) => Form<TFields, TFormFields> = (
-  formDefaults, // TODO: change to dictionary of defaults where is key is an uuid of a file and value is defaults
+  formDefaults, // TODO: add a dictionary of defaults where is key is an uuid of a file and value is defaults
   formFields,
   useFormHook = undefined,
   formProcessor = undefined
