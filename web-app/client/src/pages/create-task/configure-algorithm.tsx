@@ -1,3 +1,5 @@
+import { useMutation } from '@apollo/client';
+import _ from 'lodash';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -30,8 +32,14 @@ import { fd_form } from '@constants/configuratorForm/FDForm';
 import { mfd_form } from '@constants/configuratorForm/MFDForm';
 // import { test_form } from '@constants/configuratorForm/testFrom';
 import { typofd_form } from '@constants/configuratorForm/TypoFDForm';
+import {
+  createTaskWithDatasetChoosing,
+  createTaskWithDatasetChoosingVariables,
+} from '@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing';
+import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations/chooseTask';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
+import { showError } from '@utils/toasts';
 import {
   FormFieldsProps,
   FormHook,
@@ -48,6 +56,7 @@ const primitives = {
   [MainPrimitiveType.MFD]: mfd_form,
   [MainPrimitiveType.Stats]: blank_form,
 };
+const excludedPrimitives = [MainPrimitiveType.Stats];
 
 const ConfigureAlgorithm: NextPage = () => {
   const router = useRouter();
@@ -73,13 +82,22 @@ const ConfigureAlgorithm: NextPage = () => {
 
   return (
     <>
-      {primitive.value && fileID.value && (
-        <FormComponent
-          primitive={primitive.value}
-          fileID={fileID.value}
-          formParams={config.value}
-        />
+      {excludedPrimitives.includes(primitive.value as MainPrimitiveType) && (
+        <div className={styles.filler}>
+          <h6>
+            &quot;{primitive.value}&quot; primitive does not have configurator
+          </h6>
+        </div>
       )}
+      {primitive.value &&
+        fileID.value &&
+        !excludedPrimitives.includes(primitive.value) && (
+          <FormComponent
+            primitive={primitive.value}
+            fileID={fileID.value}
+            formParams={config.value}
+          />
+        )}
     </>
   );
 };
@@ -128,16 +146,6 @@ const FormComponent = <T extends MainPrimitiveType>({
     defaultValues: formDefaultValues,
   });
 
-  const onSubmit = methods.handleSubmit(
-    (data) => {
-      // TODO: exclude client only fields
-      console.log('SENT', data);
-    },
-    (errors, event) => {
-      console.log('ERROR', errors, event);
-    }
-  );
-
   console.log(
     '%cFORM COMPONENT RERENDER ===================================%s',
     'background: lightblue; color: black;'
@@ -151,6 +159,50 @@ const FormComponent = <T extends MainPrimitiveType>({
   console.log('FORM ERRORS:', methods.formState.errors);
 
   const [formState, setFormState] = useState<typeof formFields>(formFields);
+
+  const [createTask] = useMutation<
+    createTaskWithDatasetChoosing,
+    createTaskWithDatasetChoosingVariables
+  >(CREATE_TASK_WITH_CHOOSING_DATASET);
+
+  const onSubmit = methods.handleSubmit(
+    (data) => {
+      const clientOnlyFields = Object.entries(formState)
+        .filter(([, field]) => field.clientOnly)
+        .map(([name]) => name);
+      data = _.omit(data, clientOnlyFields);
+      createTask({
+        variables: {
+          fileID,
+          props: {
+            type: primitive,
+            algorithmName: '',
+            ...data,
+          },
+          forceCreate: true,
+        },
+      })
+        .then((resp) =>
+          router.push({
+            pathname: '/reports',
+            query: {
+              taskID: resp.data?.createMainTaskWithDatasetChoosing.taskID,
+            },
+          })
+        )
+        .catch((error) => {
+          if (error instanceof Error) {
+            showError(
+              error.message,
+              'Internal error occurred. Please try later.'
+            );
+          }
+        });
+    },
+    () => {
+      showError('Input error', 'You need to correct the errors in the form.');
+    }
+  );
 
   useFormHook(fileID, formState, setFormState, methods);
 
