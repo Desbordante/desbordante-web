@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { ControllerRenderProps } from 'react-hook-form/dist/types/controller';
 import { NumberInput } from '@components/Inputs';
 import { FormNumberInputProps } from 'types/form';
@@ -32,7 +33,8 @@ const FormNumberInput = ({
         includingMax,
         numbersAfterDot,
       }}
-      {...props}
+      disabled={props.disabled}
+      {..._.omit(props, ['rules', 'disabled'])}
     />
   );
 };

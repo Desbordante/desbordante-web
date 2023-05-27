@@ -16,9 +16,10 @@ const FormSelect = ({
   return (
     <Select
       {...field}
-      {..._.omit(props, 'rules')}
+      isDisabled={props.disabled}
       value={props.options.find((option) => option.value === value)}
       onChange={(e) => onChange((e as OptionWithBadges).value)}
+      {..._.omit(props, ['rules', 'disabled'])}
     />
   );
 };

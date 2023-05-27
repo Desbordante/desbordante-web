@@ -19,7 +19,7 @@ const FormMultiSelect = ({
   return (
     <MultiSelect
       {...field}
-      {..._.omit(props, 'rules')}
+      isDisabled={props.disabled}
       isLoading={props.isLoading}
       value={
         value !== undefined
@@ -33,6 +33,7 @@ const FormMultiSelect = ({
           (newValue as OptionWithBadges[]).map((element) => element.value)
         )
       }
+      {..._.omit(props, ['rules', 'disabled', 'isLoading'])}
     />
   );
 };

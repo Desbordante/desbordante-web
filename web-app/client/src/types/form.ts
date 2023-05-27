@@ -179,14 +179,18 @@ export type FormHook<
 export type FormLogic<
   TFields extends Defaults,
   TFormFields extends FormFieldsProps<TFields>
-> = (form: TFormFields, methods: UseFormReturn<TFields>) => TFormFields;
+> = (
+  form: TFormFields,
+  methods: UseFormReturn<TFields>,
+  depsIndexRef: React.MutableRefObject<number>
+) => TFormFields;
 
 export type FormProcessor<
   TFields extends Defaults,
   TFormFields extends FormFieldsProps<TFields>
 > = {
   formLogic: FormLogic<TFields, TFormFields>;
-  deps: (keyof TFields)[];
+  deps: (keyof TFields)[][];
 };
 
 export const CreateFormProcessor: <
@@ -194,7 +198,7 @@ export const CreateFormProcessor: <
   TFormFields extends FormFieldsProps<TFields>
 >(
   formLogic: FormLogic<TFields, TFormFields>,
-  deps: (keyof TFields)[]
+  deps: (keyof TFields)[][]
 ) => FormProcessor<TFields, TFormFields> = (formLogic, deps) => {
   return {
     formLogic,

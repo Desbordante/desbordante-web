@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Controller,
   ControllerFieldState,
@@ -154,10 +154,15 @@ const FormComponent = <T extends MainPrimitiveType>({
 
   useFormHook(fileID, formState, setFormState, methods);
 
-  const watchDeps = useWatch({ control: methods.control, name: formLogicDeps });
+  const depsIndex = useRef(0);
+
+  const watchDeps = useWatch({
+    control: methods.control,
+    name: formLogicDeps[depsIndex.current],
+  });
 
   useEffect(() => {
-    setFormState((formSnapshot) => formLogic(formSnapshot, methods));
+    setFormState((formSnapshot) => formLogic(formSnapshot, methods, depsIndex));
   }, [formLogic, methods, watchDeps]);
 
   const inputs: Record<

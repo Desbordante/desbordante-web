@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { ControllerRenderProps } from 'react-hook-form/dist/types/controller';
 import { Text } from '@components/Inputs';
 import { FormCheckboxProps } from 'types/form';
@@ -8,7 +9,13 @@ type TextProps = {
 };
 
 const FormText = ({ field: { ref }, props }: TextProps) => {
-  return <Text ref={ref} {...props} />;
+  return (
+    <Text
+      ref={ref}
+      disabled={props.disabled}
+      {..._.omit(props, ['rules', 'disabled'])}
+    />
+  );
 };
 
 export default FormText;

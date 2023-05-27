@@ -128,7 +128,7 @@ const test_processor = CreateFormProcessor<
 
     return form;
   },
-  ['algoName']
+  [['algoName']]
 );
 
 export const test_form = CreateForm(

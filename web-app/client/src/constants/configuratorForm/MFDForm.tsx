@@ -193,7 +193,7 @@ const mfd_processor = CreateFormProcessor<
   typeof mfd_defaults,
   typeof mfd_fields
 >(
-  (form, methods) => {
+  (form, methods, depsIndexRef) => {
     const RHSValues = methods.getValues('rhsIndices');
     const ColumnData = form.lhsIndices.options || [];
     const ColumnType = methods.getValues('rhsColumnType') as MFDColumnType;
@@ -202,10 +202,14 @@ const mfd_processor = CreateFormProcessor<
       'metricAlgorithm'
     ) as Uppercase<MFDAlgorithm>;
 
+    depsIndexRef.current = 0;
+
     function setFormParameters() {
       form.rhsIndices.error =
         columnMode === 'error'
           ? 'Choose different columns'
+          : columnMode === 'errorMixTypes'
+          ? 'Сolumns must have one type'
           : ColumnType === 'String' && RHSValues.length > 1
           ? 'Must contain only one column of type "String"'
           : methods.getFieldState('rhsIndices')?.error?.message;
@@ -255,18 +259,22 @@ const mfd_processor = CreateFormProcessor<
       // set type for user
       if (['Numeric', 'String'].includes(types[0])) {
         columnMode = 'auto';
+        depsIndexRef.current = 1;
         methods.setValue('rhsColumnType', types[0]);
       } else {
         columnMode = 'error';
       }
     } else {
-      columnMode = 'error';
+      columnMode = 'errorMixTypes';
     }
 
     setFormParameters();
     return { ...form };
   },
-  ['rhsIndices', 'rhsColumnType', 'metric', 'metricAlgorithm']
+  [
+    ['rhsIndices', 'rhsColumnType', 'metric', 'metricAlgorithm'],
+    ['rhsIndices', 'metric', 'metricAlgorithm'],
+  ]
 );
 
 export const mfd_form = CreateForm(

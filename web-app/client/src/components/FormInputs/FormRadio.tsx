@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { ControllerRenderProps } from 'react-hook-form/dist/types/controller';
 import { Radio } from '@components/Inputs';
 import { FormRadioProps } from 'types/form';
@@ -11,7 +12,14 @@ const FormRadio = ({
   field: { ref },
   props: { innerName, ...props },
 }: RadioProps) => {
-  return <Radio ref={ref} name={innerName} {...props} />;
+  return (
+    <Radio
+      ref={ref}
+      name={innerName}
+      disabled={props.disabled}
+      {..._.omit(props, ['rules', 'disabled'])}
+    />
+  );
 };
 
 export default FormRadio;

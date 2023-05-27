@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { ControllerRenderProps } from 'react-hook-form/dist/types/controller';
 import { NumberSlider } from '@components/Inputs';
 import { FormNumberSliderProps } from 'types/form';
@@ -19,7 +20,8 @@ const FormNumberSlider = ({
       {...field}
       size={size}
       sliderProps={{ min, max, step }}
-      {...props}
+      disabled={props.disabled}
+      {..._.omit(props, ['rules', 'disabled'])}
     />
   );
 };
