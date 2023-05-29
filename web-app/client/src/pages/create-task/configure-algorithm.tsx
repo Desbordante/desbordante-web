@@ -32,12 +32,11 @@ import {
 } from '@components/FormInputs';
 import PresetSelector from '@components/PresetSelector';
 import WizardLayout from '@components/WizardLayout';
-import { ar_form } from '@constants/configuratorForm/ARForm';
-import { blank_form } from '@constants/configuratorForm/blankForm';
-import { cfd_form } from '@constants/configuratorForm/CFDForm';
-import { fd_form } from '@constants/configuratorForm/FDForm';
-import { mfd_form } from '@constants/configuratorForm/MFDForm';
-import { typofd_form } from '@constants/configuratorForm/TypoFDForm';
+import { ARForm } from '@constants/configuratorForm/ARForm';
+import { CFDForm } from '@constants/configuratorForm/CFDForm';
+import { FDForm } from '@constants/configuratorForm/FDForm';
+import { MFDForm } from '@constants/configuratorForm/MFDForm';
+import { TYPOFDForm } from '@constants/configuratorForm/TypoFDForm';
 import {
   createTaskWithDatasetChoosing,
   createTaskWithDatasetChoosingVariables,
@@ -56,58 +55,60 @@ import {
   FormHook,
   FormInputElement,
   FormInputProps,
-  FormLocalStorage,
   FormProcessor,
   Presets,
 } from 'types/form';
-import { MainPrimitiveType } from 'types/globalTypes';
+import {
+  IntersectionMainTaskProps,
+  MainPrimitiveType,
+} from 'types/globalTypes';
 
 const primitives = {
-  [MainPrimitiveType.FD]: fd_form,
-  [MainPrimitiveType.AR]: ar_form,
-  [MainPrimitiveType.CFD]: cfd_form,
-  [MainPrimitiveType.TypoFD]: typofd_form,
-  [MainPrimitiveType.MFD]: mfd_form,
-  [MainPrimitiveType.Stats]: blank_form,
+  [MainPrimitiveType.FD]: FDForm,
+  [MainPrimitiveType.AR]: ARForm,
+  [MainPrimitiveType.CFD]: CFDForm,
+  [MainPrimitiveType.TypoFD]: TYPOFDForm,
+  [MainPrimitiveType.MFD]: MFDForm,
 };
+type UsedPrimitivesType = keyof typeof primitives;
 const excludedPrimitives = [MainPrimitiveType.Stats];
 
 const ConfigureAlgorithm: NextPage = () => {
   const router = useRouter();
-  const { primitive, fileID, config } = useTaskUrlParams();
+  const {
+    primitive: { value: primitiveValue },
+    fileID,
+    config,
+  } = useTaskUrlParams();
 
-  if (router.isReady && !primitive.value) {
-    router
-      .push({
-        pathname: '/create-task/choose-primitive',
-        query: router.query,
-      })
-      .then();
+  if (router.isReady && !primitiveValue) {
+    router.push({
+      pathname: '/create-task/choose-primitive',
+      query: router.query,
+    });
   }
 
   if (router.isReady && !fileID.value) {
-    router
-      .push({
-        pathname: '/create-task/choose-file',
-        query: router.query,
-      })
-      .then();
+    router.push({
+      pathname: '/create-task/choose-file',
+      query: router.query,
+    });
   }
 
   return (
     <>
-      {excludedPrimitives.includes(primitive.value as MainPrimitiveType) && (
+      {excludedPrimitives.includes(primitiveValue as UsedPrimitivesType) && (
         <div className={styles.filler}>
           <h6>
-            &quot;{primitive.value}&quot; primitive does not have configurator
+            &quot;{primitiveValue}&quot; primitive does not have configurator
           </h6>
         </div>
       )}
-      {primitive.value &&
+      {primitiveValue &&
         fileID.value &&
-        !excludedPrimitives.includes(primitive.value) && (
+        !excludedPrimitives.includes(primitiveValue) && (
           <FormComponent
-            primitive={primitive.value}
+            primitive={primitiveValue as UsedPrimitivesType}
             fileID={fileID.value}
             formParams={config.value}
           />
@@ -116,13 +117,13 @@ const ConfigureAlgorithm: NextPage = () => {
   );
 };
 
-type QueryProps<T extends MainPrimitiveType> = {
+type QueryProps<T extends UsedPrimitivesType> = {
   primitive: T;
   fileID: string;
   formParams: { [key: string]: string | string[] | undefined };
 };
 
-const FormComponent = <T extends MainPrimitiveType>({
+const FormComponent = <T extends UsedPrimitivesType>({
   primitive,
   fileID,
   formParams,
@@ -142,10 +143,6 @@ const FormComponent = <T extends MainPrimitiveType>({
   const formFields = formObject.formFields as FormFieldsProps<
     typeof formDefaultValues
   >;
-
-  const [formLocalStorage, setFormLocalStorage] = useState(
-    formObject.formLocalStorage as unknown as FormLocalStorage
-  );
 
   const { loading: fileNameLoading, data: fileNameData } = useQuery<
     getFileName,
@@ -184,13 +181,11 @@ const FormComponent = <T extends MainPrimitiveType>({
 
   const useFormHook = formObject.useFormHook as FormHook<
     typeof formDefaultValues,
-    typeof formFields,
-    typeof formLocalStorage
+    typeof formFields
   >;
   const formProcessor = formObject.formProcessor as FormProcessor<
     typeof formDefaultValues,
-    typeof formFields,
-    typeof formLocalStorage
+    typeof formFields
   >;
   const formLogic = formProcessor.formLogic;
   const formLogicDeps = formProcessor.deps;
@@ -200,16 +195,7 @@ const FormComponent = <T extends MainPrimitiveType>({
     defaultValues: formPresets[0].preset,
   });
 
-  // console.log(
-  //   '%cFORM COMPONENT RERENDER ===================================',
-  //   'background: lightblue; color: black;'
-  // );
-  //
-  // console.log('FORM TOUCHED FIELDS:', methods.formState.touchedFields);
-  //
-  // console.log('FORM ERRORS:', methods.formState.errors);
-
-  const [formState, setFormState] = useState<typeof formFields>(formFields);
+  const [formState, setFormState] = useState(formFields);
 
   const depsIndex = useRef(0);
 
@@ -220,19 +206,23 @@ const FormComponent = <T extends MainPrimitiveType>({
 
   const onSubmit = methods.handleSubmit(
     (data) => {
-      const clientOnlyFields = Object.entries(formState)
+      const clientOnlyFields = (
+        Object.entries(formState) as Entries<typeof formState>
+      )
         .filter(([, fieldState]) => {
           return (fieldState as FormInputProps).clientOnly;
         })
         .map(([name]) => name);
-      data = _.omit(data, clientOnlyFields);
+      const cleanedData = _.omit(
+        data,
+        clientOnlyFields
+      ) as IntersectionMainTaskProps;
       createTask({
         variables: {
           fileID,
           props: {
+            ...cleanedData,
             type: primitive,
-            algorithmName: '',
-            ...data,
           },
           forceCreate: true,
         },
@@ -259,14 +249,7 @@ const FormComponent = <T extends MainPrimitiveType>({
     }
   );
 
-  useFormHook(
-    fileID,
-    formState,
-    setFormState,
-    methods,
-    formLocalStorage,
-    setFormLocalStorage
-  );
+  useFormHook(fileID, formState, setFormState, methods);
 
   const watchDeps = useWatch({
     control: methods.control,
@@ -274,15 +257,8 @@ const FormComponent = <T extends MainPrimitiveType>({
   });
 
   useEffect(() => {
-    formLogic(
-      formState,
-      setFormState,
-      methods,
-      depsIndex,
-      formLocalStorage,
-      setFormLocalStorage
-    );
-    methods.trigger().then();
+    formLogic(formState, setFormState, methods, depsIndex);
+    methods.trigger();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formLogic, methods, watchDeps]);
 
@@ -352,14 +328,13 @@ const FormComponent = <T extends MainPrimitiveType>({
       ).map(([name, fieldProps]) => {
         return {
           name,
-          rules:
-            'validate' in fieldProps && fieldProps.validate
-              ? { validate: fieldProps.validate(formLocalStorage) }
-              : 'rules' in fieldProps
-              ? fieldProps.rules
-              : undefined,
+          rules: 'rules' in fieldProps ? fieldProps.rules : undefined,
           render: ({ field, fieldState }) => {
-            if (fieldProps.isConstant) return;
+            if (
+              typeof fieldProps.isDisplayable === 'boolean' &&
+              !fieldProps.isDisplayable
+            )
+              return;
 
             if (fieldProps.type in inputs) {
               const Component = inputs[fieldProps.type];
@@ -395,7 +370,7 @@ const FormComponent = <T extends MainPrimitiveType>({
           },
         } as FormInput;
       }),
-    [formLocalStorage, formState, inputs]
+    [formState, inputs]
   );
 
   const entries = formInputs.map(({ name, rules, render }) => (
@@ -411,8 +386,11 @@ const FormComponent = <T extends MainPrimitiveType>({
   const changePreset = useCallback(
     (presetIndex: number) => {
       if (presetIndex !== -1) {
-        methods.reset(formPresets[presetIndex].preset || formDefaultValues);
-        methods.trigger().then();
+        methods.reset({
+          ...formDefaultValues,
+          ...formPresets[presetIndex].preset,
+        });
+        methods.trigger();
       }
     },
     [formDefaultValues, formPresets, methods]
@@ -432,7 +410,7 @@ const FormComponent = <T extends MainPrimitiveType>({
         />
       </div>
       <div className={styles.line} />
-      <div className={styles.container}>{...entries}</div>
+      <div className={styles.container}>{entries}</div>
     </WizardLayout>
   );
 };

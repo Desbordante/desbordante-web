@@ -11,7 +11,7 @@ type NumberSliderProps = {
 const FormNumberSlider = ({
   field,
   props: {
-    numberSliderProps: { size, min, max, step },
+    numberSliderProps: { size, ...numberSliderProps },
     ...props
   },
 }: NumberSliderProps) => {
@@ -19,7 +19,7 @@ const FormNumberSlider = ({
     <NumberSlider
       {...field}
       size={size}
-      sliderProps={{ min, max, step }}
+      sliderProps={numberSliderProps}
       disabled={props.disabled}
       {..._.omit(props, ['rules', 'disabled'])}
     />

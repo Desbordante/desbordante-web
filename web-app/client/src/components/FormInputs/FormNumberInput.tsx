@@ -10,29 +10,12 @@ type NumberInputProps = {
 
 const FormNumberInput = ({
   field,
-  props: {
-    numberInputProps: {
-      defaultNum,
-      min,
-      includingMin,
-      max,
-      includingMax,
-      numbersAfterDot,
-    },
-    ...props
-  },
+  props: { numberInputProps, ...props },
 }: NumberInputProps) => {
   return (
     <NumberInput
       {...field}
-      numberProps={{
-        defaultNum,
-        min,
-        includingMin,
-        max,
-        includingMax,
-        numbersAfterDot,
-      }}
+      numberProps={numberInputProps}
       disabled={props.disabled}
       {..._.omit(props, ['rules', 'disabled'])}
     />

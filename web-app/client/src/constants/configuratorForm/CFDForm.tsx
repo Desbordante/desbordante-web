@@ -1,14 +1,14 @@
 import { CFDoptions } from '@constants/options';
 import { Defaults, FormFieldsProps, CreateForm } from 'types/form';
 
-const cfd_defaults = {
+const CFDDefaults = {
   algorithmName: 'CTane',
   minConfidence: 0,
   maxLHS: 1,
   minSupportCFD: 1,
 } satisfies Defaults;
 
-const cfd_fields = {
+const CFDFields = {
   algorithmName: {
     order: 0,
     type: 'select',
@@ -34,6 +34,9 @@ const cfd_fields = {
     label: 'Minimum support',
     numberSliderProps: { min: 1, max: 16, step: 1, size: 4 },
   },
-} satisfies FormFieldsProps<typeof cfd_defaults>;
+} satisfies FormFieldsProps<typeof CFDDefaults>;
 
-export const cfd_form = CreateForm(cfd_defaults, cfd_fields);
+export const CFDForm = CreateForm({
+  formDefaults: CFDDefaults,
+  formFields: CFDFields,
+});

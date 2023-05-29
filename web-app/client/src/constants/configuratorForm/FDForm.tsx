@@ -6,14 +6,14 @@ import {
   CreateForm,
 } from 'types/form';
 
-const fd_defaults = {
+const FDDefaults = {
   algorithmName: 'Pyro',
   errorThreshold: 1,
   maxLHS: 1,
   threadsCount: 1,
 } satisfies Defaults;
 
-const fd_fields = {
+const FDFields = {
   algorithmName: {
     order: 0,
     type: 'select',
@@ -42,9 +42,9 @@ const fd_fields = {
     numberSliderProps: { min: 1, max: 8, step: 1, size: 4 },
     disabled: false as boolean,
   },
-} satisfies FormFieldsProps<typeof fd_defaults>;
+} satisfies FormFieldsProps<typeof FDDefaults>;
 
-const fd_processor = CreateFormProcessor<typeof fd_defaults, typeof fd_fields>(
+const FDProcessor = CreateFormProcessor<typeof FDDefaults, typeof FDFields>(
   (form, setForm, methods) => {
     const algo = methods.getValues('algorithmName') as Algorithms;
 
@@ -61,11 +61,8 @@ const fd_processor = CreateFormProcessor<typeof fd_defaults, typeof fd_fields>(
   [['algorithmName']]
 );
 
-export const fd_form = CreateForm(
-  fd_defaults,
-  fd_fields,
-  undefined,
-  undefined,
-  undefined,
-  fd_processor
-);
+export const FDForm = CreateForm({
+  formDefaults: FDDefaults,
+  formFields: FDFields,
+  formProcessor: FDProcessor,
+});

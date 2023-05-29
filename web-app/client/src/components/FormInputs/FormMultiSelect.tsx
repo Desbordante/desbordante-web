@@ -28,9 +28,9 @@ const FormMultiSelect = ({
             )
           : []
       }
-      onChange={(newValue) =>
+      onChange={(newValues) =>
         onChange(
-          (newValue as OptionWithBadges[]).map((element) => element.value)
+          (newValues as OptionWithBadges[]).map((element) => element.value)
         )
       }
       {..._.omit(props, ['rules', 'disabled', 'isLoading'])}

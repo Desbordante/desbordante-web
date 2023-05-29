@@ -22,11 +22,9 @@ import {
   FormFieldsProps,
   CreateFormProcessor,
   CreateForm,
-  ArrayToOptions,
   FormSelectOptions,
   FormHook,
   Presets,
-  FormLocalStorage,
 } from 'types/form';
 import { OptionWithBadges } from 'types/multiSelect';
 
@@ -37,51 +35,38 @@ const TypesCategories: Record<string, string> = {
   String: 'String',
 };
 
-let columnMode = 'manual';
-
-const mfd_localStorage = {
-  columnMode: 'manual',
-} satisfies FormLocalStorage;
-
-const mfd_defaults = {
-  algorithmName: 'MetricVerification', // constant
+const MFDDefaults = {
+  algorithmName: 'MetricVerification',
   lhsIndices: [] as number[],
   rhsIndices: [] as number[],
-  rhsColumnType: 'Numeric', // client-side
+  rhsColumnType: 'Numeric',
   metric: 'EUCLIDEAN',
   metricAlgorithm: 'BRUTE',
   parameter: 1.0,
   q: 1,
   distanceToNullIsInfinity: true as boolean,
+  columnMode: 'manual',
 } satisfies Defaults;
 
-const mfdPresets: Presets<typeof mfd_defaults> = [
+const MFDPresets: Presets<typeof MFDDefaults> = [
   {
     filename: 'TestMetric.csv',
     presetName: 'Test preset',
     preset: {
-      algorithmName: 'MetricVerification', // constant
       lhsIndices: [1] as number[],
       rhsIndices: [2] as number[],
-      rhsColumnType: 'Numeric', // client-side
-      metric: 'EUCLIDEAN',
-      metricAlgorithm: 'BRUTE',
-      parameter: 1.0,
-      q: 1,
       distanceToNullIsInfinity: false,
     },
   },
 ];
 
 // For future developers: methods.setError DOES NOT PREVENT FORM SUBMIT
-const mfd_fields = {
+const MFDFields = {
   algorithmName: {
     order: 0,
-    type: 'select',
-    label: 'algorithmName',
-    isLoading: false,
-    options: ArrayToOptions(['MetricVerification']),
-    isConstant: true,
+    type: 'hidden_value',
+    label: '',
+    isDisplayable: false,
   },
   lhsIndices: {
     order: 1,
@@ -89,7 +74,6 @@ const mfd_fields = {
     label: 'LHS Columns',
     options: [] as FormSelectOptions,
     isLoading: true as boolean,
-    error: undefined as undefined | string,
     rules: {
       validate: (value) => {
         if (Array.isArray(value))
@@ -104,15 +88,15 @@ const mfd_fields = {
     label: 'RHS Columns',
     options: [] as FormSelectOptions,
     isLoading: true as boolean,
-    error: undefined as undefined | string,
     rules: {
       validate: (value, formState) => {
         if (Array.isArray(value) && value.length === 0)
           return 'Cannot be empty';
 
-        if (columnMode === 'error') return 'Choose different columns';
+        if (formState.columnMode === 'error') return 'Choose different columns';
 
-        if (columnMode === 'errorMixTypes') return 'Columns must have one type';
+        if (formState.columnMode === 'errorMixTypes')
+          return 'Columns must have one type';
 
         if (
           Array.isArray(formState.rhsIndices) &&
@@ -138,7 +122,6 @@ const mfd_fields = {
     type: 'select',
     label: 'Metric',
     isLoading: false,
-    error: undefined as undefined | string,
     options: MFDMetricOptions,
     rules: {
       validate: (value, formState) => {
@@ -156,7 +139,6 @@ const mfd_fields = {
     label: 'Algorithm',
     isLoading: false,
     disabled: false as boolean,
-    error: undefined as undefined | string,
     options: MFDAlgoOptions,
     rules: {
       validate: (value, formState) => {
@@ -197,13 +179,20 @@ const mfd_fields = {
     isLoading: false,
     options: MFDDistancesOptions,
   },
-} satisfies FormFieldsProps<typeof mfd_defaults>;
+  columnMode: {
+    order: 9,
+    type: 'hidden_value',
+    label: '',
+    isDisplayable: false,
+    clientOnly: true,
+  },
+} satisfies FormFieldsProps<typeof MFDDefaults>;
 
-const useMFDHook: FormHook<
-  typeof mfd_defaults,
-  typeof mfd_fields,
-  typeof mfd_localStorage
-> = (fileID, form, setForm) => {
+const useMFDFormHook: FormHook<typeof MFDDefaults, typeof MFDFields> = (
+  fileID,
+  form,
+  setForm
+) => {
   const { loading, data } = useQuery<
     getCountOfColumns,
     getCountOfColumnsVariables
@@ -249,22 +238,18 @@ const useMFDHook: FormHook<
   }, [columnData, loading, setForm]);
 };
 
-const mfd_processor = CreateFormProcessor<
-  typeof mfd_defaults,
-  typeof mfd_fields,
-  typeof mfd_localStorage
->(
-  (form, setForm, methods, depsIndexRef, formLocalStorage, setLocalStorage) => {
+const MFDProcessor = CreateFormProcessor<typeof MFDDefaults, typeof MFDFields>(
+  (form, setForm, methods, depsIndexRef) => {
     const RHSValues = methods.getValues('rhsIndices') || [];
     const ColumnData = form.lhsIndices.options || [];
     const Metric = methods.getValues('metric') as MFDMetricOption['value'];
+    const ColumnMode = methods.getValues('columnMode');
 
     depsIndexRef.current = 0;
 
     function fillFormParameters() {
       setForm((formSnapshot) => {
-        formSnapshot.rhsColumnType.disabled =
-          formLocalStorage.columnMode === 'auto';
+        formSnapshot.rhsColumnType.disabled = ColumnMode === 'auto';
 
         formSnapshot.q.disabled =
           !optionsByMetrics[
@@ -279,8 +264,7 @@ const mfd_processor = CreateFormProcessor<
       ColumnData.length === 0 ||
       ColumnData.some((elem) => (elem.badges ?? []).length == 0)
     ) {
-      columnMode = 'manual';
-      setLocalStorage({ columnMode: 'manual' });
+      methods.setValue('columnMode', 'manual');
       fillFormParameters();
       return;
     }
@@ -297,23 +281,17 @@ const mfd_processor = CreateFormProcessor<
     );
 
     if (types.length === 0) {
-      // allow user to change type
-      columnMode = 'manual';
-      setLocalStorage({ columnMode: 'manual' });
+      methods.setValue('columnMode', 'manual');
     } else if (types.length === 1) {
-      // set type for user
       if (['Numeric', 'String'].includes(types[0])) {
-        columnMode = 'auto';
-        setLocalStorage({ columnMode: 'auto' });
         depsIndexRef.current = 1;
+        methods.setValue('columnMode', 'auto');
         methods.setValue('rhsColumnType', types[0]);
       } else {
-        columnMode = 'error';
-        setLocalStorage({ columnMode: 'error' });
+        methods.setValue('columnMode', 'error');
       }
     } else {
-      columnMode = 'errorMixTypes';
-      setLocalStorage({ columnMode: 'errorMixTypes' });
+      methods.setValue('columnMode', 'errorMixTypes');
     }
 
     fillFormParameters();
@@ -324,11 +302,10 @@ const mfd_processor = CreateFormProcessor<
   ]
 );
 
-export const mfd_form = CreateForm(
-  mfd_defaults,
-  mfd_fields,
-  mfd_localStorage,
-  mfdPresets,
-  useMFDHook,
-  mfd_processor
-);
+export const MFDForm = CreateForm({
+  formDefaults: MFDDefaults,
+  formFields: MFDFields,
+  formPresets: MFDPresets,
+  useFormHook: useMFDFormHook,
+  formProcessor: MFDProcessor,
+});

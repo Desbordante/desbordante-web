@@ -6,7 +6,7 @@ import {
   ArrayToOptions,
 } from 'types/form';
 
-const typofd_defaults = {
+const TYPOFDDefaults = {
   preciseAlgorithm: 'FastFDs',
   approximateAlgorithm: 'Pyro',
   maxLHS: 5,
@@ -14,11 +14,11 @@ const typofd_defaults = {
   threadsCount: 2,
   defaultRadius: 3,
   defaultRatio: 1,
-  algorithmName: 'Typo Miner', // constant
-  metric: 'MODULUS_OF_DIFFERENCE', // constant
+  algorithmName: 'Typo Miner',
+  metric: 'MODULUS_OF_DIFFERENCE',
 } satisfies Defaults;
 
-const typofd_fields = {
+const TYPOFDFields = {
   preciseAlgorithm: {
     order: 0,
     type: 'select',
@@ -69,16 +69,17 @@ const typofd_fields = {
     label: 'algorithmName',
     isLoading: false,
     options: ArrayToOptions(['Typo Miner']),
-    isConstant: true,
+    isDisplayable: true,
   },
   metric: {
     order: 8,
-    type: 'select',
-    label: 'metric',
-    isLoading: false,
-    options: ArrayToOptions(['MODULUS_OF_DIFFERENCE']),
-    isConstant: true,
+    type: 'hidden_value',
+    label: '',
+    isDisplayable: false,
   },
-} satisfies FormFieldsProps<typeof typofd_defaults>;
+} satisfies FormFieldsProps<typeof TYPOFDDefaults>;
 
-export const typofd_form = CreateForm(typofd_defaults, typofd_fields);
+export const TYPOFDForm = CreateForm({
+  formDefaults: TYPOFDDefaults,
+  formFields: TYPOFDFields,
+});

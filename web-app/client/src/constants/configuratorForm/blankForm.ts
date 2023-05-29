@@ -1,7 +1,10 @@
 import { CreateForm, Defaults, FormFieldsProps } from 'types/form';
 
-const blank_defaults = {} satisfies Defaults;
+const BLANKDefaults = {} satisfies Defaults;
 
-const blank_fields = {} satisfies FormFieldsProps<typeof blank_defaults>;
+const BLANKFields = {} satisfies FormFieldsProps<typeof BLANKDefaults>;
 
-export const blank_form = CreateForm(blank_defaults, blank_fields);
+export const BLANKForm = CreateForm({
+  formDefaults: BLANKDefaults,
+  formFields: BLANKFields,
+});
