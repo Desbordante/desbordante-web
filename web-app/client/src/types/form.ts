@@ -4,11 +4,21 @@ import {
   ControllerRenderProps,
   UseControllerProps,
 } from 'react-hook-form/dist/types/controller';
+import { FieldPathValue } from 'react-hook-form/dist/types/path';
 import { Path } from 'react-hook-form/dist/types/path/eager';
+import { Validate } from 'react-hook-form/dist/types/validator';
 import { OptionWithBadges } from 'types/multiSelect';
 export type FormValueType = string | string[] | number | number[] | boolean;
 
 export type Defaults = Record<string, FormValueType>;
+
+export type Presets<TDefaultValues extends Defaults> = {
+  filename: string;
+  presetName: string;
+  preset: TDefaultValues;
+}[];
+
+export type FormLocalStorage = Record<string, unknown>;
 
 export type FormFieldProps<
   TDefaultValues extends Defaults,
@@ -22,6 +32,9 @@ export type FormFieldProps<
   disabled?: boolean;
   clientOnly?: boolean;
   isConstant?: boolean; // Do not render input if that is constant
+  validate?: (
+    localStorage: FormLocalStorage
+  ) => Validate<FieldPathValue<TDefaultValues, TName>, TDefaultValues>;
   rules?: UseControllerProps<TDefaultValues, TName>['rules'];
 };
 
@@ -168,38 +181,47 @@ export type FormFieldsProps<TFields extends Defaults> = {
 
 export type FormHook<
   TFields extends Defaults,
-  TFormFields extends FormFieldsProps<TFields>
+  TFormFields extends FormFieldsProps<TFields>,
+  TLocalStorage extends FormLocalStorage
 > = (
   fileID: string,
   form: TFormFields,
   setForm: React.Dispatch<React.SetStateAction<TFormFields>>,
-  methods: UseFormReturn<TFields>
+  methods: UseFormReturn<TFields>,
+  localStorage: TLocalStorage,
+  setLocalStorage: React.Dispatch<React.SetStateAction<TLocalStorage>>
 ) => void;
 
 export type FormLogic<
   TFields extends Defaults,
-  TFormFields extends FormFieldsProps<TFields>
+  TFormFields extends FormFieldsProps<TFields>,
+  TLocalStorage extends FormLocalStorage
 > = (
   form: TFormFields,
+  setForm: React.Dispatch<React.SetStateAction<TFormFields>>,
   methods: UseFormReturn<TFields>,
-  depsIndexRef: React.MutableRefObject<number>
-) => TFormFields;
+  depsIndexRef: React.MutableRefObject<number>,
+  localStorage: TLocalStorage,
+  setLocalStorage: React.Dispatch<React.SetStateAction<TLocalStorage>>
+) => void;
 
 export type FormProcessor<
   TFields extends Defaults,
-  TFormFields extends FormFieldsProps<TFields>
+  TFormFields extends FormFieldsProps<TFields>,
+  TLocalStorage extends FormLocalStorage
 > = {
-  formLogic: FormLogic<TFields, TFormFields>;
+  formLogic: FormLogic<TFields, TFormFields, TLocalStorage>;
   deps: (keyof TFields)[][];
 };
 
 export const CreateFormProcessor: <
   TFields extends Defaults,
-  TFormFields extends FormFieldsProps<TFields>
+  TFormFields extends FormFieldsProps<TFields>,
+  TLocalStorage extends FormLocalStorage = Record<string, never>
 >(
-  formLogic: FormLogic<TFields, TFormFields>,
+  formLogic: FormLogic<TFields, TFormFields, TLocalStorage>,
   deps: (keyof TFields)[][]
-) => FormProcessor<TFields, TFormFields> = (formLogic, deps) => {
+) => FormProcessor<TFields, TFormFields, TLocalStorage> = (formLogic, deps) => {
   return {
     formLogic,
     deps,
@@ -207,32 +229,42 @@ export const CreateFormProcessor: <
 };
 
 export type Form<
+  TLocalStorage extends FormLocalStorage,
   TFields extends Defaults = Defaults,
   TFormFields extends FormFieldsProps<TFields> = FormFieldsProps<TFields>
 > = {
   formDefaults: TFields;
   formFields: TFormFields;
-  useFormHook: FormHook<TFields, TFormFields>;
-  formProcessor: FormProcessor<TFields, TFormFields>;
+  formLocalStorage?: TLocalStorage;
+  formPresets: Presets<TFields>;
+  useFormHook: FormHook<TFields, TFormFields, TLocalStorage>;
+  formProcessor: FormProcessor<TFields, TFormFields, TLocalStorage>;
 };
 
 export const CreateForm: <
   TFields extends Defaults,
-  TFormFields extends FormFieldsProps<TFields>
+  TFormFields extends FormFieldsProps<TFields>,
+  TLocalStorage extends FormLocalStorage
 >(
   formDefaults: TFields,
   formFields: TFormFields,
-  useFormHook?: FormHook<TFields, TFormFields>,
-  formProcessor?: FormProcessor<TFields, TFormFields>
-) => Form<TFields, TFormFields> = (
-  formDefaults, // TODO: add a dictionary of defaults where is key is an uuid of a file and value is defaults
+  formLocalStorage?: TLocalStorage,
+  formPresets?: Presets<TFields>,
+  useFormHook?: FormHook<TFields, TFormFields, TLocalStorage>,
+  formProcessor?: FormProcessor<TFields, TFormFields, TLocalStorage>
+) => Form<TLocalStorage, TFields, TFormFields> = (
+  formDefaults,
   formFields,
+  formLocalStorage = undefined,
+  formPresets = undefined,
   useFormHook = undefined,
   formProcessor = undefined
 ) => {
   return {
     formDefaults,
     formFields,
+    formLocalStorage,
+    formPresets: formPresets || [],
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     useFormHook: useFormHook || (() => {}),
     // eslint-disable-next-line @typescript-eslint/no-empty-function

@@ -1,8 +1,14 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import _ from 'lodash';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Controller,
   ControllerFieldState,
@@ -24,19 +30,24 @@ import {
   FormSelect,
   FormText,
 } from '@components/FormInputs';
+import PresetSelector from '@components/PresetSelector';
 import WizardLayout from '@components/WizardLayout';
 import { ar_form } from '@constants/configuratorForm/ARForm';
 import { blank_form } from '@constants/configuratorForm/blankForm';
 import { cfd_form } from '@constants/configuratorForm/CFDForm';
 import { fd_form } from '@constants/configuratorForm/FDForm';
 import { mfd_form } from '@constants/configuratorForm/MFDForm';
-// import { test_form } from '@constants/configuratorForm/testFrom';
 import { typofd_form } from '@constants/configuratorForm/TypoFDForm';
 import {
   createTaskWithDatasetChoosing,
   createTaskWithDatasetChoosingVariables,
 } from '@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing';
 import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations/chooseTask';
+import {
+  getFileName,
+  getFileNameVariables,
+} from '@graphql/operations/queries/__generated__/getFileName';
+import { GET_FILE_NAME } from '@graphql/operations/queries/getFileName';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
 import { showError } from '@utils/toasts';
@@ -44,7 +55,10 @@ import {
   FormFieldsProps,
   FormHook,
   FormInputElement,
+  FormInputProps,
+  FormLocalStorage,
   FormProcessor,
+  Presets,
 } from 'types/form';
 import { MainPrimitiveType } from 'types/globalTypes';
 
@@ -129,36 +143,75 @@ const FormComponent = <T extends MainPrimitiveType>({
     typeof formDefaultValues
   >;
 
+  const [formLocalStorage, setFormLocalStorage] = useState(
+    formObject.formLocalStorage as unknown as FormLocalStorage
+  );
+
+  const { loading: fileNameLoading, data: fileNameData } = useQuery<
+    getFileName,
+    getFileNameVariables
+  >(GET_FILE_NAME, {
+    variables: { fileID },
+    onError: (error) => {
+      showError(
+        error.message,
+        "Can't fetch file information. Please try later."
+      );
+    },
+  });
+
+  const formPresets = useMemo(
+    () =>
+      [
+        ...(fileNameLoading
+          ? []
+          : formObject.formPresets.filter(
+              (value) => value.filename === fileNameData?.datasetInfo?.fileName
+            )),
+        {
+          filename: '',
+          presetName: 'Default',
+          preset: formObject.formDefaults,
+        },
+        {
+          filename: '',
+          presetName: 'Custom',
+          preset: {},
+        },
+      ] as Presets<typeof formObject.formDefaults>,
+    [fileNameData?.datasetInfo?.fileName, fileNameLoading, formObject]
+  );
+
   const useFormHook = formObject.useFormHook as FormHook<
     typeof formDefaultValues,
-    typeof formFields
+    typeof formFields,
+    typeof formLocalStorage
   >;
   const formProcessor = formObject.formProcessor as FormProcessor<
     typeof formDefaultValues,
-    typeof formFields
+    typeof formFields,
+    typeof formLocalStorage
   >;
   const formLogic = formProcessor.formLogic;
   const formLogicDeps = formProcessor.deps;
 
-  // SOMETHING GONE WRONG keyof typeof formDefaultValues
   const methods = useForm<typeof formDefaultValues>({
-    mode: 'onBlur',
-    defaultValues: formDefaultValues,
+    mode: 'onChange',
+    defaultValues: formPresets[0].preset,
   });
 
-  console.log(
-    '%cFORM COMPONENT RERENDER ===================================%s',
-    'background: lightblue; color: black;'
-  );
-
-  // TODO: THIS IS HOW I CHECK IF USER MODIFIED FORM
-  console.log('FORM IS CHANGED:', methods.formState.isDirty);
-
-  console.log('FORM TOUCHED FIELDS:', methods.formState.touchedFields);
-
-  console.log('FORM ERRORS:', methods.formState.errors);
+  // console.log(
+  //   '%cFORM COMPONENT RERENDER ===================================',
+  //   'background: lightblue; color: black;'
+  // );
+  //
+  // console.log('FORM TOUCHED FIELDS:', methods.formState.touchedFields);
+  //
+  // console.log('FORM ERRORS:', methods.formState.errors);
 
   const [formState, setFormState] = useState<typeof formFields>(formFields);
+
+  const depsIndex = useRef(0);
 
   const [createTask] = useMutation<
     createTaskWithDatasetChoosing,
@@ -168,7 +221,9 @@ const FormComponent = <T extends MainPrimitiveType>({
   const onSubmit = methods.handleSubmit(
     (data) => {
       const clientOnlyFields = Object.entries(formState)
-        .filter(([, field]) => field.clientOnly)
+        .filter(([, fieldState]) => {
+          return (fieldState as FormInputProps).clientOnly;
+        })
         .map(([name]) => name);
       data = _.omit(data, clientOnlyFields);
       createTask({
@@ -204,9 +259,14 @@ const FormComponent = <T extends MainPrimitiveType>({
     }
   );
 
-  useFormHook(fileID, formState, setFormState, methods);
-
-  const depsIndex = useRef(0);
+  useFormHook(
+    fileID,
+    formState,
+    setFormState,
+    methods,
+    formLocalStorage,
+    setFormLocalStorage
+  );
 
   const watchDeps = useWatch({
     control: methods.control,
@@ -214,7 +274,16 @@ const FormComponent = <T extends MainPrimitiveType>({
   });
 
   useEffect(() => {
-    setFormState((formSnapshot) => formLogic(formSnapshot, methods, depsIndex));
+    formLogic(
+      formState,
+      setFormState,
+      methods,
+      depsIndex,
+      formLocalStorage,
+      setFormLocalStorage
+    );
+    methods.trigger().then();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formLogic, methods, watchDeps]);
 
   const inputs: Record<
@@ -283,7 +352,12 @@ const FormComponent = <T extends MainPrimitiveType>({
       ).map(([name, fieldProps]) => {
         return {
           name,
-          rules: 'rules' in fieldProps ? fieldProps.rules : undefined,
+          rules:
+            'validate' in fieldProps && fieldProps.validate
+              ? { validate: fieldProps.validate(formLocalStorage) }
+              : 'rules' in fieldProps
+              ? fieldProps.rules
+              : undefined,
           render: ({ field, fieldState }) => {
             if (fieldProps.isConstant) return;
 
@@ -294,7 +368,7 @@ const FormComponent = <T extends MainPrimitiveType>({
                   field={field}
                   props={{
                     ...fieldProps,
-                    error: fieldState.error?.message || fieldProps.error,
+                    error: fieldState.error?.message,
                   }}
                 />
               );
@@ -321,7 +395,7 @@ const FormComponent = <T extends MainPrimitiveType>({
           },
         } as FormInput;
       }),
-    [formState, inputs]
+    [formLocalStorage, formState, inputs]
   );
 
   const entries = formInputs.map(({ name, rules, render }) => (
@@ -334,35 +408,30 @@ const FormComponent = <T extends MainPrimitiveType>({
     />
   ));
 
+  const changePreset = useCallback(
+    (presetIndex: number) => {
+      if (presetIndex !== -1) {
+        methods.reset(formPresets[presetIndex].preset || formDefaultValues);
+        methods.trigger().then();
+      }
+    },
+    [formDefaultValues, formPresets, methods]
+  );
+
   return (
     <WizardLayout header={header} footer={footer}>
-      <div
-        className={'FormDirt'}
-      >{`Form dirtiness: ${methods.formState.isDirty}`}</div>
-      <button
-        onClick={() =>
-          methods.reset({
-            algorithmName: 'Pyro',
-            errorThreshold: 1,
-            maxLHS: 1,
-            threadsCount: 1,
-          })
-        }
-      >
-        Change to defaults 1
-      </button>
-      <button
-        onClick={() =>
-          methods.reset({
-            algorithmName: 'TaneX',
-            errorThreshold: 1,
-            maxLHS: 2,
-            threadsCount: 3,
-          })
-        }
-      >
-        Change to defaults 2
-      </button>
+      <div className={styles.container}>
+        <PresetSelector
+          presetOptions={formPresets.map((elem, index) => ({
+            label: elem.presetName,
+            value: elem.presetName !== 'Custom' ? index : -1,
+          }))}
+          isCustom={methods.formState.isDirty}
+          changePreset={changePreset}
+          isLoading={fileNameLoading}
+        />
+      </div>
+      <div className={styles.line} />
       <div className={styles.container}>{...entries}</div>
     </WizardLayout>
   );

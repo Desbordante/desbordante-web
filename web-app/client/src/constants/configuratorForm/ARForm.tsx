@@ -22,11 +22,11 @@ const ar_fields = {
     numberSliderProps: { min: 0, max: 1, step: 1e-4, size: 5 },
   },
   minSupportAR: {
-    order: 1,
+    order: 2,
     type: 'number_slider',
     label: 'Minimum support',
     numberSliderProps: { min: 0, max: 1, step: 1e-4, size: 5 },
   },
 } satisfies FormFieldsProps<typeof ar_defaults>;
 
-export const ar_form = CreateForm(ar_defaults, ar_fields, undefined, undefined);
+export const ar_form = CreateForm(ar_defaults, ar_fields);

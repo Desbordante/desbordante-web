@@ -81,9 +81,4 @@ const typofd_fields = {
   },
 } satisfies FormFieldsProps<typeof typofd_defaults>;
 
-export const typofd_form = CreateForm(
-  typofd_defaults,
-  typofd_fields,
-  undefined,
-  undefined
-);
+export const typofd_form = CreateForm(typofd_defaults, typofd_fields);

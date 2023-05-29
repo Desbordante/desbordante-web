@@ -36,9 +36,4 @@ const cfd_fields = {
   },
 } satisfies FormFieldsProps<typeof cfd_defaults>;
 
-export const cfd_form = CreateForm(
-  cfd_defaults,
-  cfd_fields,
-  undefined,
-  undefined
-);
+export const cfd_form = CreateForm(cfd_defaults, cfd_fields);

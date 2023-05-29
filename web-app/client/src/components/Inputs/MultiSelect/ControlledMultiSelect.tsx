@@ -23,7 +23,7 @@ const getSelectOptions: (
   return options.filter(({ value }) => values.includes(value));
 };
 
-const ControlledSelect = <T extends FieldValues>({
+const ControlledMultiSelect = <T extends FieldValues>({
   controlName,
   control,
   rules,
@@ -51,4 +51,4 @@ const ControlledSelect = <T extends FieldValues>({
   />
 );
 
-export default ControlledSelect;
+export default ControlledMultiSelect;

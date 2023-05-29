@@ -3,7 +3,6 @@ import { useEffect, useMemo } from 'react';
 import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
 import {
   MFDAlgoOptions,
-  MFDAlgorithm,
   MFDColumnType,
   MFDColumnTypeOptions,
   MFDDistancesOptions,
@@ -26,8 +25,23 @@ import {
   ArrayToOptions,
   FormSelectOptions,
   FormHook,
+  Presets,
+  FormLocalStorage,
 } from 'types/form';
 import { OptionWithBadges } from 'types/multiSelect';
+
+const TypesCategories: Record<string, string> = {
+  Int: 'Numeric',
+  Double: 'Numeric',
+  BigInt: 'Numeric',
+  String: 'String',
+};
+
+let columnMode = 'manual';
+
+const mfd_localStorage = {
+  columnMode: 'manual',
+} satisfies FormLocalStorage;
 
 const mfd_defaults = {
   algorithmName: 'MetricVerification', // constant
@@ -38,9 +52,28 @@ const mfd_defaults = {
   metricAlgorithm: 'BRUTE',
   parameter: 1.0,
   q: 1,
-  distanceToNullIsInfinity: true,
+  distanceToNullIsInfinity: true as boolean,
 } satisfies Defaults;
 
+const mfdPresets: Presets<typeof mfd_defaults> = [
+  {
+    filename: 'TestMetric.csv',
+    presetName: 'Test preset',
+    preset: {
+      algorithmName: 'MetricVerification', // constant
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      rhsColumnType: 'Numeric', // client-side
+      metric: 'EUCLIDEAN',
+      metricAlgorithm: 'BRUTE',
+      parameter: 1.0,
+      q: 1,
+      distanceToNullIsInfinity: false,
+    },
+  },
+];
+
+// For future developers: methods.setError DOES NOT PREVENT FORM SUBMIT
 const mfd_fields = {
   algorithmName: {
     order: 0,
@@ -56,10 +89,12 @@ const mfd_fields = {
     label: 'LHS Columns',
     options: [] as FormSelectOptions,
     isLoading: true as boolean,
+    error: undefined as undefined | string,
     rules: {
-      validate: {
-        lhsIndices: (value) =>
-          (Array.isArray(value) && value.length > 0) || 'Cannot be empty',
+      validate: (value) => {
+        if (Array.isArray(value))
+          return value.length > 0 ? undefined : 'Cannot be empty';
+        return undefined;
       },
     },
   },
@@ -69,13 +104,25 @@ const mfd_fields = {
     label: 'RHS Columns',
     options: [] as FormSelectOptions,
     isLoading: true as boolean,
+    error: undefined as undefined | string,
     rules: {
-      validate: {
-        rhsIndices: (value) =>
-          (Array.isArray(value) && value.length > 0) || 'Cannot be empty',
+      validate: (value, formState) => {
+        if (Array.isArray(value) && value.length === 0)
+          return 'Cannot be empty';
+
+        if (columnMode === 'error') return 'Choose different columns';
+
+        if (columnMode === 'errorMixTypes') return 'Columns must have one type';
+
+        if (
+          Array.isArray(formState.rhsIndices) &&
+          formState.rhsColumnType === 'String' &&
+          formState.rhsIndices.length > 1
+        )
+          return 'Must contain only one column of type "String"';
+        return undefined;
       },
     },
-    error: undefined as undefined | string,
   },
   rhsColumnType: {
     order: 3,
@@ -93,6 +140,15 @@ const mfd_fields = {
     isLoading: false,
     error: undefined as undefined | string,
     options: MFDMetricOptions,
+    rules: {
+      validate: (value, formState) => {
+        return formState.rhsColumnType == 'Numeric' && value != 'EUCLIDEAN'
+          ? 'Must be Euclidean if column type is numeric'
+          : formState.rhsColumnType != 'Numeric' && value == 'EUCLIDEAN'
+          ? "Can't be Euclidean if column type is not numeric"
+          : undefined;
+      },
+    },
   },
   metricAlgorithm: {
     order: 5,
@@ -102,6 +158,19 @@ const mfd_fields = {
     disabled: false as boolean,
     error: undefined as undefined | string,
     options: MFDAlgoOptions,
+    rules: {
+      validate: (value, formState) => {
+        if (Array.isArray(formState.rhsIndices))
+          return formState.metricAlgorithm == 'CALIPERS' &&
+            !(
+              (formState.rhsColumnType as MFDColumnType) == 'Numeric' &&
+              formState.rhsIndices.length == 1
+            )
+            ? 'Count of RHS Columns must be 2'
+            : undefined;
+        return undefined;
+      },
+    },
   },
   parameter: {
     order: 6,
@@ -130,11 +199,11 @@ const mfd_fields = {
   },
 } satisfies FormFieldsProps<typeof mfd_defaults>;
 
-const useMFDHook: FormHook<typeof mfd_defaults, typeof mfd_fields> = (
-  fileID,
-  form,
-  setForm
-) => {
+const useMFDHook: FormHook<
+  typeof mfd_defaults,
+  typeof mfd_fields,
+  typeof mfd_localStorage
+> = (fileID, form, setForm) => {
   const { loading, data } = useQuery<
     getCountOfColumns,
     getCountOfColumnsVariables
@@ -180,65 +249,40 @@ const useMFDHook: FormHook<typeof mfd_defaults, typeof mfd_fields> = (
   }, [columnData, loading, setForm]);
 };
 
-const TypesCategories: Record<string, string> = {
-  Int: 'Numeric',
-  Double: 'Numeric',
-  BigInt: 'Numeric',
-  String: 'String',
-};
-
-let columnMode = 'manual';
-
 const mfd_processor = CreateFormProcessor<
   typeof mfd_defaults,
-  typeof mfd_fields
+  typeof mfd_fields,
+  typeof mfd_localStorage
 >(
-  (form, methods, depsIndexRef) => {
-    const RHSValues = methods.getValues('rhsIndices');
+  (form, setForm, methods, depsIndexRef, formLocalStorage, setLocalStorage) => {
+    const RHSValues = methods.getValues('rhsIndices') || [];
     const ColumnData = form.lhsIndices.options || [];
-    const ColumnType = methods.getValues('rhsColumnType') as MFDColumnType;
     const Metric = methods.getValues('metric') as MFDMetricOption['value'];
-    const MetricAlgorithm = methods.getValues(
-      'metricAlgorithm'
-    ) as Uppercase<MFDAlgorithm>;
 
     depsIndexRef.current = 0;
 
-    function setFormParameters() {
-      form.rhsIndices.error =
-        columnMode === 'error'
-          ? 'Choose different columns'
-          : columnMode === 'errorMixTypes'
-          ? 'Сolumns must have one type'
-          : ColumnType === 'String' && RHSValues.length > 1
-          ? 'Must contain only one column of type "String"'
-          : methods.getFieldState('rhsIndices')?.error?.message;
-      form.rhsColumnType.disabled = columnMode === 'auto';
-      form.metric.error =
-        ColumnType == 'Numeric' && Metric != 'EUCLIDEAN'
-          ? 'Must be Euclidean if column type is numeric'
-          : ColumnType != 'Numeric' && Metric == 'EUCLIDEAN'
-          ? "Can't be Euclidean if column type is not numeric"
-          : methods.getFieldState('metric')?.error?.message;
-      form.metricAlgorithm.disabled =
-        (ColumnType as MFDColumnType) == 'Numeric' && RHSValues.length == 1;
-      form.metricAlgorithm.error =
-        RHSValues.length != 2 &&
-        MetricAlgorithm == 'CALIPERS' &&
-        !((ColumnType as MFDColumnType) == 'Numeric' && RHSValues.length == 1)
-          ? 'Count of RHS Columns must be 2'
-          : methods.getFieldState('metricAlgorithm')?.error?.message;
-      form.q.disabled =
-        !optionsByMetrics[
-          MFDMetricOptions.find((option) => option.value === Metric)?.label ||
-            'Euclidean'
-        ].includes('qgram');
+    function fillFormParameters() {
+      setForm((formSnapshot) => {
+        formSnapshot.rhsColumnType.disabled =
+          formLocalStorage.columnMode === 'auto';
+
+        formSnapshot.q.disabled =
+          !optionsByMetrics[
+            MFDMetricOptions.find((option) => option.value === Metric)?.label ||
+              'Euclidean'
+          ].includes('qgram');
+        return { ...formSnapshot };
+      });
     }
 
-    if (ColumnData.some((elem) => (elem.badges ?? []).length == 0)) {
+    if (
+      ColumnData.length === 0 ||
+      ColumnData.some((elem) => (elem.badges ?? []).length == 0)
+    ) {
       columnMode = 'manual';
-      setFormParameters();
-      return { ...form };
+      setLocalStorage({ columnMode: 'manual' });
+      fillFormParameters();
+      return;
     }
 
     const types = Array.from(
@@ -255,21 +299,24 @@ const mfd_processor = CreateFormProcessor<
     if (types.length === 0) {
       // allow user to change type
       columnMode = 'manual';
+      setLocalStorage({ columnMode: 'manual' });
     } else if (types.length === 1) {
       // set type for user
       if (['Numeric', 'String'].includes(types[0])) {
         columnMode = 'auto';
+        setLocalStorage({ columnMode: 'auto' });
         depsIndexRef.current = 1;
         methods.setValue('rhsColumnType', types[0]);
       } else {
         columnMode = 'error';
+        setLocalStorage({ columnMode: 'error' });
       }
     } else {
       columnMode = 'errorMixTypes';
+      setLocalStorage({ columnMode: 'errorMixTypes' });
     }
 
-    setFormParameters();
-    return { ...form };
+    fillFormParameters();
   },
   [
     ['rhsIndices', 'rhsColumnType', 'metric', 'metricAlgorithm'],
@@ -280,6 +327,8 @@ const mfd_processor = CreateFormProcessor<
 export const mfd_form = CreateForm(
   mfd_defaults,
   mfd_fields,
+  mfd_localStorage,
+  mfdPresets,
   useMFDHook,
   mfd_processor
 );

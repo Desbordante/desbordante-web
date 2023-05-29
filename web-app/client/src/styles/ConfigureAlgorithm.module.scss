@@ -4,13 +4,14 @@
   margin-top: 16px;
 }
 
+$container-width: 466px;
 
 .container {
   margin: auto;
   flex-direction: column;
   gap: 24px;
   display: flex;
-  width: 466px;
+  width: $container-width;
 }
 
 .filler {
@@ -26,4 +27,12 @@
       margin-bottom: 8px;
     }
   }
+}
+
+.line {
+  width: $container-width;
+  border: 0;
+  border-top: 1px solid $black-25;
+  margin: 1em 0;
+  padding: 0;
 }

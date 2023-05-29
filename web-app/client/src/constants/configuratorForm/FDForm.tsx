@@ -45,16 +45,18 @@ const fd_fields = {
 } satisfies FormFieldsProps<typeof fd_defaults>;
 
 const fd_processor = CreateFormProcessor<typeof fd_defaults, typeof fd_fields>(
-  (form, methods) => {
+  (form, setForm, methods) => {
     const algo = methods.getValues('algorithmName') as Algorithms;
 
-    form.errorThreshold.disabled =
-      !optionsByAlgorithms[algo].includes('threshold');
-    form.maxLHS.disabled = !optionsByAlgorithms[algo].includes('arity');
-    form.threadsCount.disabled = !optionsByAlgorithms[algo].includes('threads');
-
-    // return form;
-    return { ...form };
+    setForm((formSnapshot) => {
+      formSnapshot.errorThreshold.disabled =
+        !optionsByAlgorithms[algo].includes('threshold');
+      formSnapshot.maxLHS.disabled =
+        !optionsByAlgorithms[algo].includes('arity');
+      formSnapshot.threadsCount.disabled =
+        !optionsByAlgorithms[algo].includes('threads');
+      return { ...formSnapshot };
+    });
   },
   [['algorithmName']]
 );
@@ -62,6 +64,8 @@ const fd_processor = CreateFormProcessor<typeof fd_defaults, typeof fd_fields>(
 export const fd_form = CreateForm(
   fd_defaults,
   fd_fields,
+  undefined,
+  undefined,
   undefined,
   fd_processor
 );
