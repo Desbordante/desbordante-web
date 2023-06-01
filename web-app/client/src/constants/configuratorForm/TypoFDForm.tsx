@@ -4,9 +4,10 @@ import {
   FormFieldsProps,
   CreateForm,
   ArrayToOptions,
+  Presets,
 } from 'types/form';
 
-const TYPOFDDefaults = {
+const TypoFDDefaults = {
   preciseAlgorithm: 'FastFDs',
   approximateAlgorithm: 'Pyro',
   maxLHS: 5,
@@ -18,7 +19,17 @@ const TYPOFDDefaults = {
   metric: 'MODULUS_OF_DIFFERENCE',
 } satisfies Defaults;
 
-const TYPOFDFields = {
+const TypoFDPresets: Presets<typeof TypoFDDefaults> = [
+  {
+    filenames: ['SimpleTypos.csv'],
+    presetName: 'Simple Typos Example preset',
+    preset: {
+      defaultRadius: -1,
+    },
+  },
+];
+
+const TypoFDFields = {
   preciseAlgorithm: {
     order: 0,
     type: 'select',
@@ -77,9 +88,10 @@ const TYPOFDFields = {
     label: '',
     isDisplayable: false,
   },
-} satisfies FormFieldsProps<typeof TYPOFDDefaults>;
+} satisfies FormFieldsProps<typeof TypoFDDefaults>;
 
-export const TYPOFDForm = CreateForm({
-  formDefaults: TYPOFDDefaults,
-  formFields: TYPOFDFields,
+export const TypoFDForm = CreateForm({
+  formDefaults: TypoFDDefaults,
+  formFields: TypoFDFields,
+  formPresets: TypoFDPresets,
 });

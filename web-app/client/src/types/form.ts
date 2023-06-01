@@ -11,10 +11,12 @@ export type FormValueType = string | string[] | number | number[] | boolean;
 export type Defaults = Record<string, FormValueType>;
 
 export type Presets<TDefaultValues extends Defaults> = {
-  filename: string;
+  filenames: 'EveryFile' | string[];
   presetName: string;
   preset: Partial<TDefaultValues>;
 }[];
+
+// TODO: add array of fields that excluded from reset
 
 export type FormFieldProps<
   TDefaultValues extends Defaults,
@@ -27,7 +29,7 @@ export type FormFieldProps<
   error?: string | undefined;
   disabled?: boolean;
   clientOnly?: boolean;
-  isDisplayable?: boolean; // Do not render input if that is constant
+  isDisplayable?: boolean;
   rules?: UseControllerProps<TDefaultValues, TName>['rules'];
 };
 

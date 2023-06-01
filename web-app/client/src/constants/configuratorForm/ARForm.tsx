@@ -1,11 +1,21 @@
 import { ARoptions } from '@constants/options';
-import { Defaults, FormFieldsProps, CreateForm } from 'types/form';
+import { Defaults, FormFieldsProps, CreateForm, Presets } from 'types/form';
 
 const ARDefaults = {
   algorithmName: 'Apriori',
   minConfidence: 0,
   minSupportAR: 0,
 } satisfies Defaults;
+
+const ARPresets: Presets<typeof ARDefaults> = [
+  {
+    filenames: 'EveryFile',
+    presetName: 'Example preset',
+    preset: {
+      minConfidence: 1,
+    },
+  },
+];
 
 const ARFields = {
   algorithmName: {
@@ -32,4 +42,5 @@ const ARFields = {
 export const ARForm = CreateForm({
   formDefaults: ARDefaults,
   formFields: ARFields,
+  formPresets: ARPresets,
 });

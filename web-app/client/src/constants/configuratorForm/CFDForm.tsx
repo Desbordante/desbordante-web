@@ -1,5 +1,5 @@
 import { CFDoptions } from '@constants/options';
-import { Defaults, FormFieldsProps, CreateForm } from 'types/form';
+import { Defaults, FormFieldsProps, CreateForm, Presets } from 'types/form';
 
 const CFDDefaults = {
   algorithmName: 'CTane',
@@ -7,6 +7,23 @@ const CFDDefaults = {
   maxLHS: 1,
   minSupportCFD: 1,
 } satisfies Defaults;
+
+const CFDPresets: Presets<typeof CFDDefaults> = [
+  {
+    filenames: 'EveryFile',
+    presetName: 'Example preset',
+    preset: {
+      minConfidence: 1,
+    },
+  },
+  {
+    filenames: ['Workshop.csv'],
+    presetName: 'Workshop Example preset',
+    preset: {
+      minSupportCFD: 100,
+    },
+  },
+];
 
 const CFDFields = {
   algorithmName: {

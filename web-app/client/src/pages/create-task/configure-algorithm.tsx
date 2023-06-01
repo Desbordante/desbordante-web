@@ -36,7 +36,7 @@ import { ARForm } from '@constants/configuratorForm/ARForm';
 import { CFDForm } from '@constants/configuratorForm/CFDForm';
 import { FDForm } from '@constants/configuratorForm/FDForm';
 import { MFDForm } from '@constants/configuratorForm/MFDForm';
-import { TYPOFDForm } from '@constants/configuratorForm/TypoFDForm';
+import { TypoFDForm } from '@constants/configuratorForm/TypoFDForm';
 import {
   createTaskWithDatasetChoosing,
   createTaskWithDatasetChoosingVariables,
@@ -67,7 +67,7 @@ const primitives = {
   [MainPrimitiveType.FD]: FDForm,
   [MainPrimitiveType.AR]: ARForm,
   [MainPrimitiveType.CFD]: CFDForm,
-  [MainPrimitiveType.TypoFD]: TYPOFDForm,
+  [MainPrimitiveType.TypoFD]: TypoFDForm,
   [MainPrimitiveType.MFD]: MFDForm,
 };
 type UsedPrimitivesType = keyof typeof primitives;
@@ -163,15 +163,18 @@ const FormComponent = <T extends UsedPrimitivesType>({
         ...(fileNameLoading
           ? []
           : formObject.formPresets.filter(
-              (value) => value.filename === fileNameData?.datasetInfo?.fileName
+              (value) =>
+                value.filenames === 'EveryFile' ||
+                (fileNameData?.datasetInfo?.fileName &&
+                  value.filenames.includes(fileNameData?.datasetInfo?.fileName))
             )),
         {
-          filename: '',
+          filenames: '',
           presetName: 'Default',
           preset: formObject.formDefaults,
         },
         {
-          filename: '',
+          filenames: '',
           presetName: 'Custom',
           preset: {},
         },
@@ -391,6 +394,7 @@ const FormComponent = <T extends UsedPrimitivesType>({
           ...formPresets[presetIndex].preset,
         });
         methods.trigger();
+        // FIXME: run logic after reset
       }
     },
     [formDefaultValues, formPresets, methods]

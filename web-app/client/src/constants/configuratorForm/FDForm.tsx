@@ -4,6 +4,7 @@ import {
   FormFieldsProps,
   CreateFormProcessor,
   CreateForm,
+  Presets,
 } from 'types/form';
 
 const FDDefaults = {
@@ -12,6 +13,23 @@ const FDDefaults = {
   maxLHS: 1,
   threadsCount: 1,
 } satisfies Defaults;
+
+const FDPresets: Presets<typeof FDDefaults> = [
+  {
+    filenames: 'EveryFile',
+    presetName: 'Example preset',
+    preset: {
+      errorThreshold: 0,
+    },
+  },
+  {
+    filenames: ['breast_cancer.csv'],
+    presetName: 'Breast Cancer Example preset',
+    preset: {
+      errorThreshold: 0.03,
+    },
+  },
+];
 
 const FDFields = {
   algorithmName: {
@@ -65,4 +83,5 @@ export const FDForm = CreateForm({
   formDefaults: FDDefaults,
   formFields: FDFields,
   formProcessor: FDProcessor,
+  formPresets: FDPresets,
 });

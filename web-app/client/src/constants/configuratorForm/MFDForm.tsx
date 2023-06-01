@@ -50,11 +50,42 @@ const MFDDefaults = {
 
 const MFDPresets: Presets<typeof MFDDefaults> = [
   {
-    filename: 'TestMetric.csv',
-    presetName: 'Test preset',
+    filenames: ['MetricMovies.csv'],
+    presetName: 'Metric Movies Example preset',
     preset: {
       lhsIndices: [1] as number[],
       rhsIndices: [2] as number[],
+      distanceToNullIsInfinity: false,
+    },
+  },
+  {
+    filenames: ['MetricAddresses.csv'],
+    presetName: 'Metric Addresses Cosine Example preset',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      metric: 'COSINE',
+      distanceToNullIsInfinity: false,
+    },
+  },
+  {
+    filenames: ['MetricAddresses.csv'],
+    presetName: 'Metric Addresses Levenshtein Example preset',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      metric: 'LEVENSHTEIN',
+      distanceToNullIsInfinity: false,
+    },
+  },
+  {
+    filenames: ['MetricCoords.csv'],
+    presetName: 'Metric Coords Example preset',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2, 3] as number[],
+      metricAlgorithm: 'CALIPERS',
+      parameter: 0.004,
       distanceToNullIsInfinity: false,
     },
   },
