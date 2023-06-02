@@ -63,6 +63,7 @@ const MFDPresets: Presets<typeof MFDDefaults> = [
     preset: {
       lhsIndices: [1] as number[],
       rhsIndices: [2] as number[],
+      rhsColumnType: 'String',
       metric: 'COSINE',
     },
   },
@@ -72,6 +73,7 @@ const MFDPresets: Presets<typeof MFDDefaults> = [
     preset: {
       lhsIndices: [1] as number[],
       rhsIndices: [2] as number[],
+      rhsColumnType: 'String',
       metric: 'LEVENSHTEIN',
     },
   },
@@ -171,10 +173,8 @@ const MFDFields = {
       validate: (value, formState) => {
         if (Array.isArray(formState.rhsIndices))
           return formState.metricAlgorithm == 'CALIPERS' &&
-            !(
-              (formState.rhsColumnType as MFDColumnType) == 'Numeric' &&
-              formState.rhsIndices.length == 1
-            )
+            ((formState.rhsColumnType as MFDColumnType) != 'Numeric' ||
+              formState.rhsIndices.length !== 2)
             ? 'Count of RHS Columns must be 2'
             : undefined;
         return undefined;
