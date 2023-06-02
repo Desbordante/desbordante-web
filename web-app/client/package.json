@@ -95,6 +95,6 @@
     "stylelint-webpack-plugin": "^3.3.0",
     "ts-jest": "^29.0.3",
     "type-fest": "^3.11.0",
-    "typescript": "next"
+    "typescript": "^5.2.0-dev.20230601"
   }
 }
