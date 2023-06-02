@@ -394,10 +394,11 @@ const FormComponent = <T extends UsedPrimitivesType>({
           ...formPresets[presetIndex].preset,
         });
         methods.trigger();
-        // FIXME: run logic after reset
+        formLogic(formState, setFormState, methods, depsIndex);
       }
     },
-    [formDefaultValues, formPresets, methods]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [formDefaultValues, formLogic, formPresets, methods]
   );
 
   return (

@@ -16,8 +16,6 @@ export type Presets<TDefaultValues extends Defaults> = {
   preset: Partial<TDefaultValues>;
 }[];
 
-// TODO: add array of fields that excluded from reset
-
 export type FormFieldProps<
   TDefaultValues extends Defaults,
   TName extends Path<TDefaultValues>

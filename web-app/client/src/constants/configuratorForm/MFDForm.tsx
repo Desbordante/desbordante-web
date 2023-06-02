@@ -44,7 +44,7 @@ const MFDDefaults = {
   metricAlgorithm: 'BRUTE',
   parameter: 1.0,
   q: 1,
-  distanceToNullIsInfinity: true as boolean,
+  distanceToNullIsInfinity: false as boolean,
   columnMode: 'manual',
 } satisfies Defaults;
 
@@ -55,7 +55,6 @@ const MFDPresets: Presets<typeof MFDDefaults> = [
     preset: {
       lhsIndices: [1] as number[],
       rhsIndices: [2] as number[],
-      distanceToNullIsInfinity: false,
     },
   },
   {
@@ -65,7 +64,6 @@ const MFDPresets: Presets<typeof MFDDefaults> = [
       lhsIndices: [1] as number[],
       rhsIndices: [2] as number[],
       metric: 'COSINE',
-      distanceToNullIsInfinity: false,
     },
   },
   {
@@ -75,7 +73,6 @@ const MFDPresets: Presets<typeof MFDDefaults> = [
       lhsIndices: [1] as number[],
       rhsIndices: [2] as number[],
       metric: 'LEVENSHTEIN',
-      distanceToNullIsInfinity: false,
     },
   },
   {
@@ -86,7 +83,6 @@ const MFDPresets: Presets<typeof MFDDefaults> = [
       rhsIndices: [2, 3] as number[],
       metricAlgorithm: 'CALIPERS',
       parameter: 0.004,
-      distanceToNullIsInfinity: false,
     },
   },
 ];
