@@ -17,7 +17,7 @@ const FDDefaults = {
 const FDPresets: Presets<typeof FDDefaults> = [
   {
     filenames: 'EveryFile',
-    presetName: 'Example preset',
+    presetName: 'Strict preset',
     preset: {
       errorThreshold: 0,
     },

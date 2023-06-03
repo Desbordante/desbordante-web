@@ -17,7 +17,7 @@ type Props = InputPropsBase &
 
 const Text: ForwardRefRenderFunction<HTMLInputElement, Props> = (
   { id, type = 'text', label, error, className, tooltip, ...props },
-  ref
+  ref,
 ) => {
   const uniqueId = useId();
   const inputId = id || uniqueId;
@@ -27,7 +27,7 @@ const Text: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       className={cn(
         styles.inputText,
         props.disabled && styles.disabled,
-        className
+        className,
       )}
     >
       <div className={styles.top}>

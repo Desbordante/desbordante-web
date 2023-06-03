@@ -30,7 +30,7 @@ const Tooltip: FCWithChildren<Props> = ({
         className={cn(
           styles.content,
           styles[position],
-          !isHovered && styles.hidden
+          !isHovered && styles.hidden,
         )}
       >
         {children}

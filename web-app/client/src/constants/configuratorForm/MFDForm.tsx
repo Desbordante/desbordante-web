@@ -51,40 +51,169 @@ const MFDDefaults = {
 const MFDPresets: Presets<typeof MFDDefaults> = [
   {
     filenames: ['MetricMovies.csv'],
-    presetName: 'Metric Movies Example preset',
+    presetName: 'Metric Dependency Violated (tiny radius)',
     preset: {
       lhsIndices: [1] as number[],
       rhsIndices: [2] as number[],
     },
   },
   {
+    filenames: ['MetricMovies.csv'],
+    presetName: 'Metric Dependency Violated (medium radius)',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      parameter: 3,
+    },
+  },
+  {
+    filenames: ['MetricMovies.csv'],
+    presetName: 'Metric Dependency Violated (large radius)',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      parameter: 6,
+    },
+  },
+  {
+    filenames: ['MetricMovies.csv'],
+    presetName: 'Metric Dependency Satisfied',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      parameter: 7,
+    },
+  },
+  {
     filenames: ['MetricAddresses.csv'],
-    presetName: 'Metric Addresses Cosine Example preset',
+    presetName: 'Metric Cosine Violated (Strictest)',
     preset: {
       lhsIndices: [1] as number[],
       rhsIndices: [2] as number[],
       rhsColumnType: 'String',
       metric: 'COSINE',
+      parameter: 0.04,
+      q: 2,
     },
   },
   {
     filenames: ['MetricAddresses.csv'],
-    presetName: 'Metric Addresses Levenshtein Example preset',
+    presetName: 'Metric Cosine Violated (Strict)',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      rhsColumnType: 'String',
+      metric: 'COSINE',
+      parameter: 0.1,
+      q: 2,
+    },
+  },
+  {
+    filenames: ['MetricAddresses.csv'],
+    presetName: 'Metric Cosine Violated (Relaxed)',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      rhsColumnType: 'String',
+      metric: 'COSINE',
+      parameter: 0.14,
+      q: 2,
+    },
+  },
+  {
+    filenames: ['MetricAddresses.csv'],
+    presetName: 'Metric Cosine Satisfied',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      rhsColumnType: 'String',
+      metric: 'COSINE',
+      parameter: 0.19,
+      q: 2,
+    },
+  },
+  {
+    filenames: ['MetricAddresses.csv'],
+    presetName: 'Metric Levenshtein Violated (Strictest)',
     preset: {
       lhsIndices: [1] as number[],
       rhsIndices: [2] as number[],
       rhsColumnType: 'String',
       metric: 'LEVENSHTEIN',
+      parameter: 0,
+    },
+  },
+  {
+    filenames: ['MetricAddresses.csv'],
+    presetName: 'Metric Levenshtein Violated (Strict)',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      rhsColumnType: 'String',
+      metric: 'LEVENSHTEIN',
+      parameter: 3,
+    },
+  },
+  {
+    filenames: ['MetricAddresses.csv'],
+    presetName: 'Metric Levenshtein Violated (Relaxed)',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      rhsColumnType: 'String',
+      metric: 'LEVENSHTEIN',
+      parameter: 6,
+    },
+  },
+  {
+    filenames: ['MetricAddresses.csv'],
+    presetName: 'Metric Levenshtein Satisfied',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2] as number[],
+      rhsColumnType: 'String',
+      metric: 'LEVENSHTEIN',
+      parameter: 10,
     },
   },
   {
     filenames: ['MetricCoords.csv'],
-    presetName: 'Metric Coords Example preset',
+    presetName: 'Metric Calipers Violated (Strictest)',
     preset: {
       lhsIndices: [1] as number[],
       rhsIndices: [2, 3] as number[],
       metricAlgorithm: 'CALIPERS',
-      parameter: 0.004,
+      parameter: 0.002,
+    },
+  },
+  {
+    filenames: ['MetricCoords.csv'],
+    presetName: 'Metric Calipers Violated (Strict)',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2, 3] as number[],
+      metricAlgorithm: 'CALIPERS',
+      parameter: 0.007,
+    },
+  },
+  {
+    filenames: ['MetricCoords.csv'],
+    presetName: 'Metric Calipers Violated (Relaxed)',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2, 3] as number[],
+      metricAlgorithm: 'CALIPERS',
+      parameter: 0.04,
+    },
+  },
+  {
+    filenames: ['MetricCoords.csv'],
+    presetName: 'Metric Calipers Satisfied',
+    preset: {
+      lhsIndices: [1] as number[],
+      rhsIndices: [2, 3] as number[],
+      metricAlgorithm: 'CALIPERS',
+      parameter: 0.065,
     },
   },
 ];
