@@ -35,7 +35,7 @@ export const builtInDatasets: BuiltInDatasetInfoType[] = [
     {
         fileName: "EpicMeds.csv",
         datasetProps: { delimiter: "|", hasHeader: true },
-        supportedPrimitives: ["Stats", "FD", "CFD"],
+        supportedPrimitives: ["Stats", "FD"],
     },
     {
         fileName: "WDC_age.csv",
@@ -55,12 +55,12 @@ export const builtInDatasets: BuiltInDatasetInfoType[] = [
     {
         fileName: "breast_cancer.csv",
         datasetProps: { delimiter: ",", hasHeader: true },
-        supportedPrimitives: ["Stats", "FD", "CFD"],
+        supportedPrimitives: ["Stats", "FD"],
     },
     {
         fileName: "CIPublicHighway700.csv",
         datasetProps: { delimiter: ",", hasHeader: true },
-        supportedPrimitives: ["Stats", "FD", "CFD"],
+        supportedPrimitives: ["Stats", "FD"],
     },
     {
         fileName: "rules-kaggle-rows-2.csv",

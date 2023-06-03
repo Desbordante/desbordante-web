@@ -1,5 +1,6 @@
 import Checkbox from './Checkbox';
 import MultiSelect from './MultiSelect';
+import NumberInput from './NumberInput';
 import NumberSlider from './NumberSlider';
 import Radio from './Radio';
 import Select from './Select';
@@ -10,4 +11,12 @@ export interface InputPropsBase {
   label?: string;
 }
 
-export { Text, Checkbox, Select, Radio, NumberSlider, MultiSelect };
+export {
+  Text,
+  Checkbox,
+  Select,
+  Radio,
+  NumberSlider,
+  NumberInput,
+  MultiSelect,
+};

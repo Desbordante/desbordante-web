@@ -4,11 +4,35 @@
   margin-top: 16px;
 }
 
+$container-width: 466px;
 
 .container {
   margin: auto;
   flex-direction: column;
   gap: 24px;
   display: flex;
-  width: 466px;
+  width: $container-width;
+}
+
+.filler {
+  height: 80px;
+  width: fit-content;
+  margin: auto;
+  display: flex;
+  align-items: center;
+
+  .text {
+    h6 {
+      @include heading-6;
+      margin-bottom: 8px;
+    }
+  }
+}
+
+.line {
+  width: $container-width;
+  border: 0;
+  border-top: 1px solid $black-25;
+  margin: 1em 0;
+  padding: 0;
 }
