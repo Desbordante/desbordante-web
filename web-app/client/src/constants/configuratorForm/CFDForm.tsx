@@ -56,4 +56,5 @@ const CFDFields = {
 export const CFDForm = CreateForm({
   formDefaults: CFDDefaults,
   formFields: CFDFields,
+  formPresets: CFDPresets,
 });

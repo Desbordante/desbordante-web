@@ -38,7 +38,7 @@ const Button: FC<Props> = ({
         !children && styles.withoutText,
         defaultSizeClassName,
         defaultClassName,
-        className
+        className,
       )}
     >
       <>

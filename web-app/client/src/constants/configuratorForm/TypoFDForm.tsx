@@ -80,7 +80,7 @@ const TypoFDFields = {
     label: 'algorithmName',
     isLoading: false,
     options: ArrayToOptions(['Typo Miner']),
-    isDisplayable: true,
+    isDisplayable: false,
   },
   metric: {
     order: 8,

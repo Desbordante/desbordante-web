@@ -10,9 +10,17 @@ const ARDefaults = {
 const ARPresets: Presets<typeof ARDefaults> = [
   {
     filenames: 'EveryFile',
-    presetName: 'Example preset',
+    presetName: 'Strict',
     preset: {
       minConfidence: 1,
+    },
+  },
+  {
+    filenames: ['rules-kaggle-rows-2.csv'],
+    presetName: 'Kaggle Example preset',
+    preset: {
+      minConfidence: 0.5,
+      minSupportAR: 0.1,
     },
   },
 ];

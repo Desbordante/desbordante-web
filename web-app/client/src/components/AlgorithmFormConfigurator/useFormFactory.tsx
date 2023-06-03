@@ -294,6 +294,7 @@ const useFormFactory = <T extends UsedPrimitivesType>({
           ...formPresets[presetIndex].preset,
         });
       }
+      methods.trigger();
       formLogic(formState, setFormState, methods, depsIndex);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
