@@ -297,14 +297,16 @@ const MFDProcessor = CreateFormProcessor<typeof MFDDefaults, typeof MFDFields>(
     }
 
     const types = Array.from(
-      new Set<string>(
-        RHSValues.map(
-          (elem) =>
-            TypesCategories[
-              ColumnData?.[elem].badges?.[0].label || 'NotValid'
-            ] || 'Undefined'
-        )
-      )
+      ColumnData && ColumnData.length
+        ? new Set<string>(
+            RHSValues.map(
+              (elem) =>
+                TypesCategories[
+                  ColumnData?.[elem].badges?.[0].label || 'NotValid'
+                ] || 'Undefined'
+            )
+          )
+        : []
     );
 
     if (types.length === 0) {
