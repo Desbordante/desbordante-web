@@ -78,32 +78,14 @@
 
         .unidataLogo {
           position: relative;
-          bottom: -4px;
-          display: inline-flex;
-          margin-left: 8px;
+          vertical-align: middle;
+          margin: 0 0 0 8px;
 
-          &:hover {
-            cursor: pointer;
-
-            &::before {
-              content: "";
-              position: absolute;
-              right: 0;
-              bottom: 0;
-              transform: translateY(1px);
-              width: 117px;
-              height: 2px;
-              background: #000000;
-            }
-          }
-
-          @include sm {
-            bottom: -2px;
-
-            svg {
-              width: 110px;
-              height: 19px;
-            }
+          svg {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
           }
         }
       }

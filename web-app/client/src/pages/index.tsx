@@ -38,12 +38,12 @@ const Home: NextPage = () => {
               supported by
               <a
                 className={styles.unidataLogo}
-                href="https://unidata-platform.ru"
+                href="https://universe-data.ru"
                 target="_blank"
                 rel="noreferrer"
-                title="Unidata"
+                title="Universe Data"
               >
-                <UnidataLogo width={150} height={26} />
+                <UnidataLogo width={144} height={48} />
               </a>
             </span>
           </h6>
