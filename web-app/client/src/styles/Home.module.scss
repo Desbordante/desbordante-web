@@ -78,13 +78,16 @@
 
         .unidataLogo {
           position: relative;
+          display: inline-block;
           vertical-align: middle;
+          width: 144px;
+          height: 48px;
           margin: 0 0 0 8px;
 
           svg {
             position: absolute;
             left: 0;
-            top: 50%;
+            top: calc(50% + 1px);
             transform: translateY(-50%);
           }
         }
