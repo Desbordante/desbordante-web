@@ -1,0 +1,3 @@
+[submodule "cpp-consumer/lib/Desbordante"]
+	path = cpp-consumer/lib/Desbordante
+	url = https://github.com/Mstrutov/Desbordante.git

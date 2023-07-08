@@ -1,4 +1,0 @@
-Checks: '-readability-identifier-length,-misc-no-recursion'
-CheckOptions:
-  - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
-    value: '1'
