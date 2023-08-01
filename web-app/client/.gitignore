@@ -39,5 +39,6 @@ yarn-error.log*
 __generated__
 schema.json
 globalTypes.ts
+cmsTypes.ts
 .graphqlconfig
 schema.graphql

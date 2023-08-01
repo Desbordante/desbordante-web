@@ -1,12 +1,10 @@
 import classNames from 'classnames';
-import Image from 'next/image';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import ListIcon from '@assets/icons/list.svg?component';
 import Button from '@components/Button';
+import NavBar from '@components/NavBar';
 import { useAuthContext } from '@hooks/useAuthContext';
 import useModal from '@hooks/useModal';
-import logo from '@public/logo.svg';
 import styles from './Header.module.scss';
 
 const Header = () => {
@@ -34,18 +32,7 @@ const Header = () => {
         headerBackground && styles.background
       )}
     >
-      <Link href="/">
-        <div className={styles.brand}>
-          <Image
-            src={logo}
-            alt="Logo"
-            className={styles.logo}
-            width={32.84}
-            height={36.74}
-          />
-          <h6 className={styles.brandName}>Desbordante</h6>
-        </div>
-      </Link>
+      <NavBar />
       <Button
         variant="secondary"
         size="sm"

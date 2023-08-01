@@ -1,0 +1,51 @@
+@import "styles/common";
+
+.sciencePublicationCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 24px;
+  border-radius: 8px;
+  border: 1px solid $black-25;
+  background: $white-25;
+
+  .data {
+    display: flex;
+    align-items: first baseline;
+    gap: 16px;
+    min-width: 0;
+
+    @media(max-width: 1280px) {
+      flex-direction: column;
+    }
+
+    .title {
+      font-weight: 700;
+
+      @media(min-width: 1280px) {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      a {
+        @include clear-link;
+      }
+    }
+    
+    .info {
+      color: $black-50;
+      white-space: nowrap;
+
+      .venue {
+        display: inline-block;
+        margin: 0 8px 0 0;
+      }
+      
+      .date {
+        display: inline-block;
+      }
+    }
+  }
+}

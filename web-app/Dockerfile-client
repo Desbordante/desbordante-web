@@ -3,12 +3,31 @@ RUN apt-get update && apt-get -y install python3 make g++ npm curl
 RUN npm install --global yarn
 RUN npm install -g n
 RUN n 16.14.2
+
+ARG SERVER_PROTOCOL
+ARG SERVER_IP
+ARG SERVER_PORT
+ARG CMS_PROTOCOL
+ARG CMS_IP
+ARG CMS_PORT
+ARG CMS_API_TOKEN
+
+ENV SERVER_PROTOCOL=$SERVER_PROTOCOL \
+    SERVER_IP=$SERVER_IP \
+    SERVER_PORT=$SERVER_PORT \
+    CMS_PROTOCOL=$CMS_PROTOCOL \
+    CMS_IP=$CMS_IP \
+    CMS_PORT=$CMS_PORT \
+    CMS_API_TOKEN=$CMS_API_TOKEN
+
 COPY client/package.json client/package.json
 COPY client/yarn.lock client/yarn.lock
 WORKDIR /client/
 RUN yarn
 COPY --from=desbordante_server:latest /server/schema.json /server/schema.json
+COPY --from=desbordante_cms:latest /cms/schema.graphql /cms/schema.graphql
 COPY client/ /client/
-RUN yarn local:generate
+RUN yarn codegen:server
+RUN yarn codegen:cms
 RUN yarn build
 ENTRYPOINT ["yarn", "start"]

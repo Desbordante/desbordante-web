@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "science_publications",
+  "info": {
+    "singularName": "science-publication",
+    "pluralName": "science-publications",
+    "displayName": "Publications",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "venue": {
+      "type": "string",
+      "required": true
+    },
+    "href": {
+      "type": "string",
+      "required": true
+    },
+    "cite": {
+      "type": "text",
+      "required": true
+    },
+    "date": {
+      "type": "date",
+      "required": true
+    }
+  }
+}

@@ -2,7 +2,7 @@ import { setContext } from '@apollo/client/link/context';
 import { fromPromise } from 'apollo-link';
 import { onError } from 'apollo-link-error';
 import { v4 as uuidv4 } from 'uuid';
-import { graphQLEndpoint } from '@constants/endpoints';
+import { serverProxyURL } from '@constants/endpoints';
 import { showError } from '@utils/toasts';
 import {
   getAccessToken,
@@ -61,7 +61,7 @@ const resolvePendingRequests = () => {
 };
 
 const getNewTokens = () => {
-  return fetch(graphQLEndpoint, {
+  return fetch(serverProxyURL, {
     method: 'POST',
     headers: {
       ...generateRequestHeaders(),
@@ -69,12 +69,14 @@ const getNewTokens = () => {
       'content-type': 'application/json',
     },
     body: JSON.stringify({
-      query: `mutation refresh($refreshToken: String!) {
-                    refresh(refreshToken: $refreshToken) {
-                      accessToken
-                      refreshToken
-                    }
-                  }`,
+      query: `
+        mutation refresh($refreshToken: String!) {
+          refresh(refreshToken: $refreshToken) {
+            accessToken
+            refreshToken
+          }
+        }
+      `,
       variables: {
         refreshToken: getRefreshToken(),
       },

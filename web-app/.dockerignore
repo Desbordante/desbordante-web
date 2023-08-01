@@ -5,7 +5,10 @@
 !Dockerfile-server
 !Dockerfile-client
 !Dockerfile-postfix
+!Dockerfile-cms
 !client
 !server
 !postfix
+!cms
 */node_modules*
+*/.env

@@ -61,7 +61,7 @@ export const convertDependencies: (
   if (primitive === PrimitiveType.CFD) {
     return deps.CFDs.map(({ rhs, lhs }) => ({
       rhs: [rhs],
-      lhs: lhs,
+      lhs,
     }));
   }
 
