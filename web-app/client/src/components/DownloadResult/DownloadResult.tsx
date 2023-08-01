@@ -1,4 +1,5 @@
 import { useMutation } from '@apollo/client';
+import { FC } from 'react';
 import DownloadIcon from '@assets/icons/download.svg?component';
 import Button from '@components/Button';
 import { useTaskContext } from '@components/TaskContext';
@@ -7,7 +8,6 @@ import {
   downloadResultsVariables,
 } from '@graphql/operations/mutations/__generated__/downloadResults';
 import { DOWNLOAD_RESULTS } from '@graphql/operations/mutations/downloadResults';
-import { FC } from 'react';
 import { FileExtension, IntersectionFilter } from 'types/globalTypes';
 
 interface Props {

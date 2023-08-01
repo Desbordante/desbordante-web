@@ -9,7 +9,7 @@ fi
 docker build -t cpp-consumer -f=Dockerfile-cpp-consumer .
 mkdir -m777 volumes
 cd volumes/
-mkdir -m777 -p data/kafka data/zk data/grafana logs/kafka logs/zk uploads postgres-data datasets results
+mkdir -m777 -p data/kafka data/zk data/grafana logs/kafka logs/zk uploads postgres-data datasets results cms-data cms-uploads
 cd ..
 unzip datasets/datasets.zip -d volumes/datasets/
 cp tests/input_data/* volumes/datasets/

@@ -1,4 +1,15 @@
 import { useMutation, useQuery } from '@apollo/client';
+import { useRouter } from 'next/router';
+import {
+  createContext,
+  Dispatch,
+  FC,
+  PropsWithChildren,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { Column } from '@graphql/operations/fragments/__generated__/Column';
 import {
   createSpecificTask,
@@ -18,17 +29,6 @@ import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 import useClustersPreview from '@hooks/useClustersPreview';
 import { useErrorContext } from '@hooks/useErrorContext';
 import { GeneralColumn } from '@utils/convertDependencies';
-import { useRouter } from 'next/router';
-import {
-  createContext,
-  Dispatch,
-  FC,
-  PropsWithChildren,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
 import { PrimitiveType, SpecificTaskType } from 'types/globalTypes';
 
 export type DepAttribute = {

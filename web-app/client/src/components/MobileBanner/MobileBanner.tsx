@@ -1,5 +1,5 @@
-import Cross from '@assets/icons/white-cross.svg?component';
 import { FC, useLayoutEffect, useReducer, useRef } from 'react';
+import Cross from '@assets/icons/white-cross.svg?component';
 import styles from './MobileBanner.module.scss';
 
 const isMobile = () =>

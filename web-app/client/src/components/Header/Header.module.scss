@@ -13,28 +13,13 @@
     padding: 24px 28px;
   }
 
-  .brand,
   .auth {
     display: flex;
     align-items: center;
     gap: 16px;
-  }
 
-  .auth {
     @include sm {
       display: none;
-    }
-  }
-
-  .brand {
-    cursor: pointer;
-
-    .brandName {
-      color: $black;
-
-      @include sm {
-        display: none;
-      }
     }
   }
 

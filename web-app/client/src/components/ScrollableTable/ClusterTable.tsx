@@ -1,4 +1,6 @@
 import { useLazyQuery } from '@apollo/client';
+import classNames from 'classnames';
+import { FC, useCallback, useEffect, useState } from 'react';
 import ClusterOptions from '@components/ClusterOptions';
 import { useTaskContext } from '@components/TaskContext';
 import {
@@ -7,8 +9,6 @@ import {
 } from '@graphql/operations/queries/EDP/__generated__/getSpecificCluster';
 import { GET_SPECIFIC_CLUSTER } from '@graphql/operations/queries/EDP/getSpecificCluster';
 import { useErrorContext } from '@hooks/useErrorContext';
-import classNames from 'classnames';
-import { FC, useCallback, useEffect, useState } from 'react';
 import ScrollableTable from './ScrollableTable';
 import styles from './Table.module.scss';
 

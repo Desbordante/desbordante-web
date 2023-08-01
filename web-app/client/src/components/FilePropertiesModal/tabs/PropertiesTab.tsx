@@ -85,7 +85,7 @@ export const FilePropsForm: FC<PropertyFormProps> = ({ onSubmit, onClose }) => {
   const { primitive } = useTaskUrlParams();
   const { register, handleSubmit, control, watch, setValue, reset } =
     useForm<FileProps>({
-      defaultValues: defaultValues,
+      defaultValues,
     });
   const { data } = useQuery<getAlgorithmsConfig>(GET_ALGORITHMS_CONFIG);
 

@@ -23,23 +23,36 @@ services:
     build:
       context: ./web-app/
       dockerfile: Dockerfile-client
+      args:
+        SERVER_PROTOCOL: http
+        SERVER_IP: server
+        SERVER_PORT: ${HOST_SERVER_PORT}
+        CMS_PROTOCOL: http
+        CMS_IP: cms
+        CMS_PORT: 1337
+        CMS_API_TOKEN: ${CMS_API_TOKEN}
     ports:
       - "3000:3000"
     expose:
       - "4000"
     environment:
-      NEXT_PUBLIC_HOST_SERVER_IP: ${HOST_SERVER_IP}
-      NEXT_SSR_SERVER_IP: server
-      NEXT_PUBLIC_SERVER_PORT: ${HOST_SERVER_PORT}
-      NEXT_PUBLIC_SERVER_PROTOCOL: ${HOST_SERVER_PROTOCOL}
+      PORT: 3000
+      NEXT_PUBLIC_GOOGLE_ANALYTICS: ${GOOGLE_ANALYTICS}
       NEXT_PUBLIC_PASSWORD_SALT_PREFIX: ${PASSWORD_SALT_PREFIX}
       NEXT_PUBLIC_PASSWORD_SALT_POSTFIX: ${PASSWORD_SALT_POSTFIX}
-      PORT: 3000
+      SERVER_PROTOCOL: http
+      SERVER_IP: server
+      SERVER_PORT: ${HOST_SERVER_PORT}
+      CMS_PROTOCOL: http
+      CMS_IP: cms
+      CMS_PORT: 1337
+      CMS_API_TOKEN: ${CMS_API_TOKEN}
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./grafana-users:/etc/nginx/grafana_passw
     depends_on:
       - server
+      - cms
     networks:
       - network
     restart: always
@@ -88,6 +101,55 @@ services:
     networks:
       - network
     restart: always
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: 20m
+
+  cms:
+    image: desbordante_cms
+    restart: always
+    build:
+      context: ./web-app/
+      dockerfile: Dockerfile-cms
+    environment:
+      NODE_ENV: production
+      DATABASE_CLIENT: ${CMS_DATABASE_CLIENT}
+      DATABASE_HOST: postgres_cms
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${CMS_DATABASE_NAME}
+      DATABASE_USERNAME: ${CMS_DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${CMS_DATABASE_PASSWORD}
+      JWT_SECRET: ${CMS_JWT_SECRET}
+      ADMIN_JWT_SECRET: ${CMS_ADMIN_JWT_SECRET}
+      API_TOKEN_SALT: ${CMS_API_TOKEN_SALT}
+      APP_KEYS: ${CMS_APP_KEYS}
+    ports:
+      - "1337:1337"
+    volumes:
+      - cms-uploads:/cms/public/uploads/
+    networks:
+      - network
+    depends_on:
+      - postgres_cms
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: 20m
+
+  postgres_cms:
+    image: postgres:14.1
+    restart: always
+    environment:
+      POSTGRES_USER: ${CMS_DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${CMS_DATABASE_PASSWORD}
+      POSTGRES_DB: ${CMS_DATABASE_NAME}
+    volumes:
+      - cms-data:/var/lib/postgresql/data/
+    ports:
+      - '5433:5432'
+    networks:
+      - network
     logging:
       driver: 'json-file'
       options:
@@ -221,7 +283,7 @@ services:
     pid: host
 
   cadvisor:
-    image: google/cadvisor
+    image: gcr.io/cadvisor/cadvisor
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -249,6 +311,7 @@ services:
 
 networks:
   network:
+
 volumes:
   uploads:
     driver: local
@@ -274,3 +337,15 @@ volumes:
       type: 'volume'
       o: 'bind'
       device: '${PWD}/volumes/datasets/'
+  cms-uploads:
+    driver: local
+    driver_opts:
+      type: 'volume'
+      o: 'bind'
+      device: '${PWD}/volumes/cms-uploads/'
+  cms-data:
+    driver: local
+    driver_opts:
+      type: 'volume'
+      o: 'bind'
+      device: '${PWD}/volumes/cms-data/'

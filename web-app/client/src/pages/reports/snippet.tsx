@@ -1,4 +1,6 @@
 import { useLazyQuery } from '@apollo/client';
+import { GetServerSideProps } from 'next';
+import { ReactElement, useMemo, useRef, useState } from 'react';
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
 import ScrollableTable from '@components/ScrollableTable';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
@@ -10,8 +12,6 @@ import {
 } from '@graphql/operations/queries/__generated__/getDataset';
 import { GET_DATASET } from '@graphql/operations/queries/getDataset';
 import styles from '@styles/Snippet.module.scss';
-import { GetServerSideProps } from 'next';
-import { ReactElement, useMemo, useRef, useState } from 'react';
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
 type Snippet = getDataset_taskInfo_dataset_snippet;

@@ -48,7 +48,7 @@ const MyDocument = () => {
           crossOrigin="true"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Palanquin:wght@400;700&family=Roboto&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Palanquin:wght@400;500;700&family=Roboto&display=swap"
           rel="stylesheet"
         />
         <link rel="icon" href="/logo.svg" />

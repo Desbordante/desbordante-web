@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
+// const { serverGraphQLEndpoint, cmsGraphQLEndpoint, serverProxyURL, cmsProxyURL } = require('./src/constants/endpoints');
 const StylelintPlugin = require('stylelint-webpack-plugin');
+const rewrites = require('./proxy.config.js');
 
 /** @type {import('next').NextConfig} */
 module.exports = {
@@ -52,4 +54,5 @@ module.exports = {
 
     return config;
   },
+  rewrites,
 };

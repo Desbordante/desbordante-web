@@ -1,0 +1,47 @@
+@import "styles/common";
+
+.prPublicationCard {
+  display: flex;
+  padding: 16px 24px;
+  align-items: center;
+  border-radius: 8px;
+  border: 1px solid $black-25;
+  background: $white-25;
+
+  .thumbnail {
+    width: 64px;
+    height: 64px;
+    margin: 0 24px 0 0;
+    object-fit: contain;
+  }
+
+  .data {
+    .top {
+      margin: 0 0 16px;
+      font-weight: 700;
+
+      .language {
+        display: inline-block;
+        margin: 0 8px 4px 0;
+        vertical-align: middle;
+      }
+
+      a {
+        @include clear-link;
+      }
+    }
+    
+    .bottom {
+      color: $black-50;
+
+      .platform {
+        display: inline-block;
+        margin: 0 8px 0 0;
+      }
+      
+      .date {
+        display: inline-block;
+      }
+    }
+  }
+}
