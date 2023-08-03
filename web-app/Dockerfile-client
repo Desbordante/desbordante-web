@@ -12,14 +12,6 @@ ARG CMS_IP
 ARG CMS_PORT
 ARG CMS_API_TOKEN
 
-ENV SERVER_PROTOCOL=$SERVER_PROTOCOL \
-    SERVER_IP=$SERVER_IP \
-    SERVER_PORT=$SERVER_PORT \
-    CMS_PROTOCOL=$CMS_PROTOCOL \
-    CMS_IP=$CMS_IP \
-    CMS_PORT=$CMS_PORT \
-    CMS_API_TOKEN=$CMS_API_TOKEN
-
 COPY client/package.json client/package.json
 COPY client/yarn.lock client/yarn.lock
 WORKDIR /client/

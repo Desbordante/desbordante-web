@@ -1,8 +1,5 @@
-FROM debian:bullseye-slim as stage2
-RUN apt-get update && apt-get -y install python3 make g++ npm curl
-RUN npm install --global yarn
-RUN npm install -g n
-RUN n 16.14.2
+FROM node:18-alpine
+RUN apk update && apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev > /dev/null 2>&1
 COPY cms/package.json cms/package.json
 COPY cms/yarn.lock cms/yarn.lock
 WORKDIR /cms/
