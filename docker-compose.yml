@@ -146,8 +146,8 @@ services:
       POSTGRES_DB: ${CMS_DATABASE_NAME}
     volumes:
       - cms-data:/var/lib/postgresql/data/
-    ports:
-      - '5433:5432'
+    expose:
+      - '5432'
     networks:
       - network
     logging:
