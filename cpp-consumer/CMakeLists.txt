@@ -1,16 +1,68 @@
-set(BINARY ${CMAKE_PROJECT_NAME}_cpp_consumer)
+cmake_minimum_required(VERSION 3.10)
+project(Desbordante)
 
-file(GLOB_RECURSE cpp_consumer_sources "*.h*" "*.cpp*")
+#set(CMAKE_PROJECT_NAME DesbordanteConsumer)
+#set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
-add_library(${BINARY}_lib STATIC ${cpp_consumer_sources})
+#option(CMAKE_BUILD_TYPE "Build type" Debug)
+option(COMPILE_TESTS "Build tests" OFF)
+option(UNPACK_DATASETS "Unpack datasets" OFF)
+option(ASAN "Enable sanitizer" OFF)
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-find_library(PQXX_LIB pqxx)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif(NOT CMAKE_BUILD_TYPE)
 
-set(run_sources "main.cpp")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  "${CMAKE_BINARY_DIR}/target")
 
-add_executable(${BINARY} ${run_sources})
+# -DELPP_THREAD_SAFE -- for easylogging++ thread safety
+add_compile_options("$<$<CONFIG:Debug>:-O0;-DELPP_THREAD_SAFE;-g;-Wall;-Wextra;-Werror;-fno-omit-frame-pointer>")
+if (ASAN)
+    add_compile_options("$<$<CONFIG:Debug>:-fsanitize=address>")
+    add_link_options("$<$<CONFIG:Debug>:-fsanitize=address>")
+endif()
+add_compile_options("$<$<CONFIG:Release>:-O3;-DELPP_THREAD_SAFE>")
 
-target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib ${BINARY}_lib ${PQXX_LIB})
-target_link_libraries(${BINARY} LINK_PUBLIC ${Boost_LIBRARIES} Threads::Threads easyloggingpp)
+MACRO(HEADER_DIRECTORIES return_list)
+    FILE(GLOB_RECURSE new_list *.h)
+    SET(dir_list "")
+    FOREACH(file_path ${new_list})
+        GET_FILENAME_COMPONENT(dir_path ${file_path} PATH)
+        SET(dir_list ${dir_list} ${dir_path})
+    ENDFOREACH()
+    LIST(REMOVE_DUPLICATES dir_list)
+    SET(${return_list} ${dir_list})
+ENDMACRO()
+
+HEADER_DIRECTORIES(header_dir_list)
+
+list(LENGTH header_dir_list header_dir_list_count)
+
+add_subdirectory(lib/Desbordante)
+
+include_directories(
+        lib/Desbordante/src
+        src
+        ${header_dir_list}
+)
+
+set(PQXX_LIB /usr/local/lib/libpqxx.a)
+message(${PQXX_LIB})
+
+add_executable(consumer src/main_clean.cpp )
+target_link_libraries(consumer PRIVATE ${CMAKE_PROJECT_NAME}_lib ) #${PQXX_LIB} pq
+#target_link_libraries(consumer PUBLIC ${CMAKE_PROJECT_NAME}_lib ${PQXX_LIB} pq)
+
+
+#set(THREADS_PREFER_PTHREAD_FLAG ON)
+#find_package(Threads REQUIRED)
+
+#set(Boost_USE_STATIC_LIBS ON)
+#find_package(Boost 1.72.0 REQUIRED COMPONENTS container program_options thread)
+
+#find_library(PQXX_LIB pqxx)
+#file(GLOB_RECURSE consumer_sources "src/*.h" "src/*.cpp")
+# ${consumer_sources}
+#target_link_libraries(consumer PRIVATE Desbordante_lib ${PQXX_LIB} pq)
+#target_link_libraries(consumer LINK_PUBLIC ${Boost_LIBRARIES} Threads::Threads)

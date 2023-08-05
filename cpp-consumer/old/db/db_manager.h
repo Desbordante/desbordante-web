@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
-#include <pqxx/pqxx>
 #include <pqxx/nontransaction>
+#include <pqxx/pqxx>
 
 namespace consumer {
 
@@ -32,10 +32,11 @@ protected:
             throw;
         }
     }
+
 public:
     explicit DbManager(std::string pg_connection) {
         connection_ = std::make_unique<pqxx::connection>(pg_connection);
     }
 };
 
-}
+}  // namespace consumer

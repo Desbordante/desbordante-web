@@ -1,0 +1,41 @@
+cmake_minimum_required(VERSION 3.10)
+project(DesbordanteCppConsumer)
+
+set(CMAKE_PROJECT_NAME Desbordante)
+set(CMAKE_CXX_STANDARD 17)
+
+set(COMPILE_PYBIND OFF)
+set(COMPILE_TESTS OFF)
+set(UNPACK_DATASETS OFF)
+set(ASAN OFF)
+set(CMAKE_BUILD_TYPE Release)
+
+add_subdirectory(lib/Desbordante)
+include_directories(lib/Desbordante/src)
+include_directories(src)
+
+file(GLOB_RECURSE CONSUMER_SOURCES "src/*.cpp")
+
+add_executable(consumer main.cpp)
+
+target_link_libraries(consumer Desbordante )
+target_sources(consumer PRIVATE ${CONSUMER_SOURCES})
+
+include_directories(SYSTEM "lib/Desbordante/lib/easyloggingpp/src" "lib/Desbordante/lib/better-enums/")
+
+#set(BINARY ${CMAKE_PROJECT_NAME}_cpp_consumer)
+#
+#file(GLOB_RECURSE cpp_consumer_sources "*.h*" "*.cpp*")
+#
+#add_library(${BINARY}_lib STATIC ${cpp_consumer_sources})
+#
+#set(THREADS_PREFER_PTHREAD_FLAG ON)
+#find_package(Threads REQUIRED)
+#find_library(PQXX_LIB pqxx)
+#
+#set(run_sources "main.cpp")
+#
+#add_executable(${BINARY} ${run_sources})
+#
+#target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib ${BINARY}_lib ${PQXX_LIB})
+#target_link_libraries(${BINARY} LINK_PUBLIC ${Boost_LIBRARIES} Threads::Threads easyloggingpp)

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ar_algorithm_enums.h"
-#include "algorithms/create_primitive.h"
+#include "algorithms/ar_algorithm_enums.h"
+#include "algorithms/create_algorithm.h"
 
 #include <string>
 #include <pqxx/row>
