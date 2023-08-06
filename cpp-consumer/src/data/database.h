@@ -13,7 +13,13 @@ struct Select {
     std::vector<std::pair<std::string, std::string>> conditions;
 };
 
-using Query = std::variant<Select, std::string>;
+struct Update {
+    std::vector<std::pair<std::string, std::string>> set;
+    std::string table;
+    std::vector<std::pair<std::string, std::string>> conditions;
+};
+
+using Query = std::variant<Select, Update, std::string>;
 
 class DataBase {
     std::unique_ptr<pqxx::connection> connection_;
@@ -35,8 +41,8 @@ public:
         : DataBase("postgresql://" + config.user + ":" + config.password + "@" + config.host + ":" +
                    std::to_string(config.port) + "/" + config.dbname) {}
 
-    pqxx::result Query(Query const& query) const;
-    pqxx::result TransactionQuery(std::string const& query) const;
+    pqxx::result Query(db::Query const& query) const;
+    pqxx::result TransactionQuery(db::Query const& query) const;
 };
 
 }  // namespace db

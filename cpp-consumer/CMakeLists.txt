@@ -6,15 +6,22 @@ project(Desbordante)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 #option(CMAKE_BUILD_TYPE "Build type" Debug)
-option(COMPILE_TESTS "Build tests" OFF)
+option(COMPILE_TESTS "Build tests" ON)
 option(UNPACK_DATASETS "Unpack datasets" OFF)
 option(ASAN "Enable sanitizer" OFF)
+#option(DESBORDANTE_SOURCE_DIR "Source directory for Desbordante")
+
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif(NOT CMAKE_BUILD_TYPE)
 
+set(DESBORDANTE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/lib/Desbordante")
+message("msg '${DESBORDANTE_SOURCE_DIR}'")
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  "${CMAKE_BINARY_DIR}/target")
+
+
 
 # -DELPP_THREAD_SAFE -- for easylogging++ thread safety
 add_compile_options("$<$<CONFIG:Debug>:-O0;-DELPP_THREAD_SAFE;-g;-Wall;-Wextra;-Werror;-fno-omit-frame-pointer>")

@@ -30,15 +30,43 @@ static std::string ToQuery(Select const& s) {
     return ss.str();
 }
 
+static std::string ToQuery(Update const& u) {
+    std::stringstream ss;
+    ss << "UPDATE " << u.table << '\n';
+    ss << "SET ";
+    for (auto it = u.set.begin(); it != u.set.end(); std::advance(it, 1)) {
+        if (it != u.set.begin()) {
+            ss << " , ";
+        }
+        auto const& [rel, value] = *it;
+        ss << rel << " = '" << value << "'";
+    }
+
+    ss << '\n';
+    ss << "WHERE ";
+    for (auto it = u.conditions.begin(); it != u.conditions.end(); std::advance(it, 1)) {
+        if (it != u.conditions.begin()) {
+            ss << " AND ";
+        }
+        auto const& [rel, value] = *it;
+        ss << rel << " = '" << value << "'";
+    }
+    ss << '\n';
+    return ss.str();
+}
+
 static std::string ToQuery(std::string const& query) {
     return query;
+}
+
+static std::string ToQuery(Query const& query) {
+    return std::visit(util::overloaded{[](auto const& select) { return ToQuery(select); }}, query);
 }
 
 pqxx::result DataBase::Query(db::Query const& query) const {
     try {
         auto w = std::make_unique<pqxx::nontransaction>(*connection_);
-        std::string query_text = std::visit(
-                util::overloaded{[](auto const& select) { return ToQuery(select); }}, query);
+        std::string query_text = ToQuery(query);
         LOG(INFO) << query_text << "\n";
         pqxx::result r = w->exec(query_text);
         w->commit();
@@ -49,10 +77,12 @@ pqxx::result DataBase::Query(db::Query const& query) const {
     }
 }
 
-pqxx::result DataBase::TransactionQuery(std::string const& query) const {
+pqxx::result DataBase::TransactionQuery(db::Query const& query) const {
     try {
         auto w = std::make_unique<pqxx::work>(*connection_);
-        pqxx::result r = w->exec(query);
+        std::string query_text = ToQuery(query);
+        LOG(INFO) << query_text << "\n";
+        pqxx::result r = w->exec(query_text);
         w->commit();
         return r;
     } catch (const std::exception& e) {
