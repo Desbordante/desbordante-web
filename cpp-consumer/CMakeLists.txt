@@ -3,7 +3,7 @@ project(Desbordante)
 
 #set(CMAKE_PROJECT_NAME DesbordanteConsumer)
 #set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 
 #option(CMAKE_BUILD_TYPE "Build type" Debug)
 option(COMPILE_TESTS "Build tests" OFF)
@@ -50,8 +50,10 @@ include_directories(
 set(PQXX_LIB /usr/local/lib/libpqxx.a)
 message(${PQXX_LIB})
 
-add_executable(consumer src/main_clean.cpp )
-target_link_libraries(consumer PRIVATE ${CMAKE_PROJECT_NAME}_lib ) #${PQXX_LIB} pq
+file(GLOB_RECURSE consumer_sources "src/*.h" "src/*.cpp")
+
+add_executable(consumer src/main.cpp ${consumer_sources})
+target_link_libraries(consumer PRIVATE ${CMAKE_PROJECT_NAME}_lib ${PQXX_LIB} pq) #${PQXX_LIB} pq
 #target_link_libraries(consumer PUBLIC ${CMAKE_PROJECT_NAME}_lib ${PQXX_LIB} pq)
 
 
@@ -62,7 +64,6 @@ target_link_libraries(consumer PRIVATE ${CMAKE_PROJECT_NAME}_lib ) #${PQXX_LIB} 
 #find_package(Boost 1.72.0 REQUIRED COMPONENTS container program_options thread)
 
 #find_library(PQXX_LIB pqxx)
-#file(GLOB_RECURSE consumer_sources "src/*.h" "src/*.cpp")
 # ${consumer_sources}
 #target_link_libraries(consumer PRIVATE Desbordante_lib ${PQXX_LIB} pq)
 #target_link_libraries(consumer LINK_PUBLIC ${Boost_LIBRARIES} Threads::Threads)

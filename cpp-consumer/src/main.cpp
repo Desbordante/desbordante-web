@@ -1,12 +1,19 @@
-//#include <iostream>
-//#include <stdexcept>
-//
-//#include <boost/program_options.hpp>
+#include <filesystem>
+#include <iostream>
+#include <stdexcept>
+
+#include <boost/program_options.hpp>
 #include <easylogging++.h>
 
-//#include "algorithms/algo_factory.h"
-//#include "util/config/all_options.h"
-//#include "util/config/enum_to_available_values.h"
+#include "util/config/names.h"
+
+#if 0
+#include "algorithms/algo_factory.h"
+#include "util/config/all_options.h"
+#include "util/config/enum_to_available_values.h"
+#endif
+
+#include "data/database.h"
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -16,6 +23,7 @@ constexpr auto kHelp = "help";
 constexpr auto kAlgorithm = "algorithm";
 constexpr auto kDHelp = "print the help message and exit";
 
+#if 0
 boost::program_options::options_description InfoOptions() {
     namespace po = boost::program_options;
     po::options_description info_options("Desbordante information options");
@@ -27,8 +35,174 @@ boost::program_options::options_description InfoOptions() {
 }  // namespace
 #endif
 
+#endif
+
+struct BaseConfig {
+    std::string fileID;
+    std::string taskID;
+    std::string algorithmName;
+    std::string type;
+
+public:
+    static std::optional<BaseConfig> loadConfig(db::DataBase const& db, std::string const& taskID) {
+        db::Select s{.select = {"*"},
+                     .from = R"("TasksConfig")",
+                     .conditions = {{R"("taskID")", taskID}}};
+        pqxx::result res = db.Query(s);
+
+        if (res.empty()) {
+            LOG(ERROR) << "TaskConfig with taskID '" << taskID << "' not found";
+            return std::nullopt;
+        }
+
+        pqxx::row const& configRow = res.front();
+
+        return BaseConfig{
+                .fileID = configRow[R"("fileID")"].c_str(),
+                .taskID = taskID,
+                .algorithmName = configRow[R"("algorithmName")"].c_str(),
+                .type = configRow[R"("type")"].c_str(),
+        };
+    }
+};
+
+struct FileInfo {
+public:
+    std::string fileID;
+    bool hasHeader;
+    std::string separator;
+    std::filesystem::path path;
+
+    static std::optional<FileInfo> loadFileInfo(db::DataBase const& db, std::string const& fileID) {
+        db::Select s{
+                .select = {"*"}, .from = R"("FilesInfo")", .conditions = {{R"("fileID")", fileID}}};
+        pqxx::result res = db.Query(s);
+        if (res.empty()) {
+            LOG(ERROR) << "File with fileID '" << fileID << "' not found";
+            return std::nullopt;
+        }
+
+        pqxx::row const& fileRow = res.front();
+        return FileInfo{.fileID = fileID,
+                        .hasHeader = fileRow[R"("hasHeader")"].get<bool>().value(),
+                        .separator = fileRow[R"("delimiter")"].c_str(),
+                        .path = fileRow[R"("path")"].c_str()};
+    }
+};
+
+class SpecificConfig {
+    std::map<std::string, std::string> options;
+
+    virtual bool internalLoadData(db::DataBase const& db, BaseConfig const& c,
+                                  pqxx::row const& row) = 0;
+
+protected:
+    void insert(pqxx::row const& row, std::string const& name, std::string alias = "") {
+        if (alias.empty()) {
+            alias = name;
+        }
+        options.emplace(alias, row[name].c_str());
+        LOG(INFO) << "set " << alias << " " << row[name].c_str();
+    }
+
+public:
+    bool loadData(db::DataBase const& db, BaseConfig const& c) {
+        db::Select s{.select = {"*"},
+                     .from = '"' + c.type + "TasksConfig\"",
+                     .conditions = {{R"("taskID")", c.taskID}}};
+        pqxx::result res = db.Query(s);
+
+        if (res.empty()) {
+            LOG(ERROR) << "FDTaskConfig with taskID '" << c.taskID << "' not found";
+            return false;
+        }
+        pqxx::row const& configRow = res.front();
+
+        for (const auto& col : configRow) {
+            LOG(DEBUG) << "--" << col.name() << " " << col.c_str();
+        }
+
+        return internalLoadData(db, c, configRow);
+    }
+    virtual ~SpecificConfig() = default;
+};
+
+class FDSpecificConfig final : public SpecificConfig {
+    bool internalLoadData(db::DataBase const& /*db*/, BaseConfig const& /*c*/,
+                          pqxx::row const& row) final {
+        using namespace util::config::names;
+        insert(row, R"("errorThreshold")", kError);
+        insert(row, R"("maxLHS")", kMaximumLhs);
+        insert(row, R"("threadsCount")", kThreads);
+        return true;
+    }
+};
+
+struct TaskConfig {
+public:
+    FileInfo file;
+    BaseConfig baseConfig;
+    std::unique_ptr<SpecificConfig> specificConfig;
+
+    static std::unique_ptr<SpecificConfig> createSpecificConfig(std::string const& type) {
+        if (type == "FD") {
+            return std::make_unique<FDSpecificConfig>();
+        }
+        return nullptr;
+    }
+
+    static std::optional<TaskConfig> loadConfig(db::DataBase const& db, std::string const& taskID) {
+        std::optional<BaseConfig> baseConfigOpt = BaseConfig::loadConfig(db, taskID);
+        if (!baseConfigOpt.has_value()) {
+            return std::nullopt;
+        }
+
+        BaseConfig baseConfig = baseConfigOpt.value();
+
+        std::optional<FileInfo> fileInfoOpt = FileInfo::loadFileInfo(db, baseConfig.fileID);
+        if (!fileInfoOpt.has_value()) {
+            return std::nullopt;
+        }
+        std::unique_ptr<SpecificConfig> specificConfig =
+                TaskConfig::createSpecificConfig(baseConfig.type);
+
+        if (!specificConfig->loadData(db, baseConfig)) {
+            return std::nullopt;
+        }
+
+        return TaskConfig{.file = fileInfoOpt.value(),
+                          .baseConfig = std::move(baseConfig),
+                          .specificConfig = std::move(specificConfig)};
+    }
+};
+
+int execute(std::string const& taskID) {
+    LOG(INFO) << "Received taskID '" << taskID;
+
+    db::DataBase db{{.host = "localhost",
+                     .port = 5432,
+                     .user = "postgres",
+                     .password = "root",
+                     .dbname = "desbordante"}};
+
+    std::optional<TaskConfig> configOpt = TaskConfig::loadConfig(db, taskID);
+
+    if (!configOpt.has_value()) {
+        LOG(ERROR) << "Config wasn't loaded";
+        return 1;
+    }
+
+    //    TaskConfig const& config = configOpt.value();
+
+    return 0;
+}
+
 int main(int argc, char const* argv[]) {
+    if (argc != 2) {
+        return 1;
+    }
     el::Loggers::configureFromGlobal("target/logging.conf");
+    return execute(argv[1]);
 #if 0
     namespace po = boost::program_options;
     using namespace util::config;
@@ -62,7 +236,7 @@ int main(int argc, char const* argv[]) {
         return 1;
     }
 
-    //    el::Loggers::configureFromGlobal("logging.conf");
+    el::Loggers::configureFromGlobal("target/logging.conf");
 
     std::unique_ptr<algos::Algorithm> algorithm_instance;
     try {
