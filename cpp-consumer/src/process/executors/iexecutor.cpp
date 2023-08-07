@@ -19,6 +19,7 @@ bool IExecutor::LoadData(db::DataBase const& db, db::ParamsLoader& loader, BaseC
 
     return InternalLoadData(db, loader, c, configRow);
 }
+
 bool IExecutor::Execute(db::DataBase const& db, std::string const& taskID) {
     try {
         auto exec_thread = std::async(std::launch::async, [this]() { return InternalExecute(); });
@@ -27,21 +28,16 @@ bool IExecutor::Execute(db::DataBase const& db, std::string const& taskID) {
         do {
             status = exec_thread.wait_for(std::chrono::seconds(0));
             if (status == std::future_status::ready) {
-                unsigned long time = exec_thread.get();
-                LOG(INFO) << "Algorithm was executed for " << time << "\n";
-                db::Update update{.set = {{R"("elapsedTime")", std::to_string(time)}},
+                UpdateProgress(db, taskID);
+                db::Update update{.set = {{R"("elapsedTime")", std::to_string(exec_thread.get())},
+                                          {R"("progress")", "100"}},
                                   .table = R"("TasksState")",
                                   .conditions = {{R"("taskID")", taskID}}};
                 db.Query(update);
-#if 0
-                    UpdateProgress();
-                    task_->UpdateParams(BaseTablesType::state, {{"progress", "100"}});
-#endif
+
             } else if (status == std::future_status::timeout) {
                 if (HasProgress()) {
-#if 0
-                        UpdateProgress();
-#endif
+                    UpdateProgress(db, taskID);
                 }
             } else {
                 throw std::runtime_error("Main thread: unknown future_status");

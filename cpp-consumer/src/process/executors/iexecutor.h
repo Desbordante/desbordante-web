@@ -20,10 +20,30 @@ struct BaseConfig {
 };
 
 class IExecutor {
-    std::unique_ptr<algos::Algorithm> algo_;
-
     virtual bool InternalLoadData(db::DataBase const& db, db::ParamsLoader& loader,
                                   BaseConfig const& c, pqxx::row const& row) = 0;
+
+    void UpdateProgress(db::DataBase const& db, std::string const& taskID) {
+        auto const& [curPhase, progress] = algo_->GetProgress();
+        auto const& phaseNames = algo_->GetPhaseNames();
+
+        std::string phase_name = HasProgress() ? phaseNames[curPhase].data() : "Data mining";
+
+        db::Update update{.set = {{R"("progress")", std::to_string(progress)},
+                                  {R"("currentPhase")", std::to_string(curPhase + 1)},
+                                  {R"("phaseName")", phase_name}},
+                          .table = R"("TasksState")",
+                          .conditions = {{R"("taskID")", taskID}}};
+        db.Query(update);
+    }
+
+protected:
+    std::unique_ptr<algos::Algorithm> algo_;
+
+    template <typename T>
+    T& GetAlgoAs() {
+        return *(static_cast<T*>(algo_.get()));
+    }
 
 public:
     virtual bool HasProgress() const {
@@ -37,6 +57,7 @@ public:
     void SetAlgo(std::unique_ptr<algos::Algorithm> algo) {
         algo_ = std::move(algo);
     }
+    virtual bool SaveResults(db::DataBase const& db, BaseConfig const& c) = 0;
 #if 0
     bool SaveResults(BaseConfig& config, db::DataBase const& db) {
         try {

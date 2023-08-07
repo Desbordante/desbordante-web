@@ -2,9 +2,9 @@ FROM debian:bullseye-slim as stage1
 RUN apt-get update && apt-get install -y libboost-all-dev libstdc++6 \
 libpqxx-dev git g++ make cmake
 WORKDIR /Desbordante
-COPY lib/Desbordante /Desbordante
+COPY /cpp-consumer /Desbordante
 WORKDIR /Desbordante
-RUN ./build.sh -j8 -n -u
+RUN ./build.sh
 
 
 FROM debian:bullseye-slim

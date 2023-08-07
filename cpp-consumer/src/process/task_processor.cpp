@@ -133,11 +133,13 @@ bool TaskProcessor::Process(std::string const& taskID) {
     impl->SetAlgo(CreateAlgorithm(loader_.GetParams()));
     impl->Execute(db_, baseConfig_.taskID);
 
-#if 0
-    if (!impl->SaveResults(baseConfig_, db_)) {
+    if (!impl->SaveResults(db_, baseConfig_)) {
         return false;
     }
-#endif
+    db::Update update{.set = {{R"("status")", "COMPLETED"}},
+                      .table = R"("TasksState")",
+                      .conditions = {{R"("taskID")", taskID}}};
+    db_.Query(update);
 
     return true;
 }

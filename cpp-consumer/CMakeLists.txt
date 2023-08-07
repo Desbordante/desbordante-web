@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 project(Desbordante)
 
 #set(CMAKE_PROJECT_NAME DesbordanteConsumer)
-#set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 #option(CMAKE_BUILD_TYPE "Build type" Debug)
-option(COMPILE_TESTS "Build tests" ON)
+option(COMPILE_TESTS "Build tests" OFF)
 option(UNPACK_DATASETS "Unpack datasets" OFF)
 option(ASAN "Enable sanitizer" OFF)
 #option(DESBORDANTE_SOURCE_DIR "Source directory for Desbordante")
@@ -54,15 +54,17 @@ include_directories(
         ${header_dir_list}
 )
 
-set(PQXX_LIB /usr/local/lib/libpqxx.a)
+#set(PQXX_LIB /usr/local/lib/libpqxx.a)
+#set(PQXX_LIB /usr/local/lib/libpqxx.a)
+find_library(PQXX_LIB pqxx)
 message(${PQXX_LIB})
 
 file(GLOB_RECURSE consumer_sources "src/*.h" "src/*.cpp")
 
-add_executable(consumer src/main.cpp ${consumer_sources})
-target_link_libraries(consumer PRIVATE ${CMAKE_PROJECT_NAME}_lib ${PQXX_LIB} pq) #${PQXX_LIB} pq
-#target_link_libraries(consumer PUBLIC ${CMAKE_PROJECT_NAME}_lib ${PQXX_LIB} pq)
+set(CONSUMER_NAME "${CMAKE_PROJECT_NAME}_cpp_consumer")
 
+add_executable("${CONSUMER_NAME}" src/main.cpp ${consumer_sources})
+target_link_libraries("${CONSUMER_NAME}" PRIVATE ${CMAKE_PROJECT_NAME}_lib ${PQXX_LIB} pq)
 
 #set(THREADS_PREFER_PTHREAD_FLAG ON)
 #find_package(Threads REQUIRED)
