@@ -14,7 +14,7 @@ type Route = {
 
 const routes: Route[] = [
   {
-    label: 'Task Creation',
+    label: 'Discover',
     path: '/create-task/',
     redirectTo: '/create-task/choose-primitive',
   },
