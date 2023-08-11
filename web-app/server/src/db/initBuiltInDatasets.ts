@@ -63,7 +63,7 @@ export const builtInDatasets: BuiltInDatasetInfoType[] = [
         supportedPrimitives: ["Stats", "FD"],
     },
     {
-        fileName: "rules-kaggle-rows-2.csv",
+        fileName: "TestAR.csv",
         datasetProps: {
             delimiter: ",",
             hasHeader: false,

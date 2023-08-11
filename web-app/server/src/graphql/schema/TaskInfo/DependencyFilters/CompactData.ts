@@ -38,10 +38,13 @@ export class CompactData {
         transform: (dep: string) => T,
         sep = ";"
     ) => {
-        return data
-            .split(sep)
-            .filter((str) => str.length > 0)
-            .map(transform);
+        console.log(data);
+        return JSON.parse(data).fds as T[];
+
+        // return data
+        //     .split(sep)
+        //     .filter((str) => str.length > 0)
+        //     .map(transform);
     };
 
     ///
