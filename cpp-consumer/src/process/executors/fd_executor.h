@@ -10,7 +10,7 @@ namespace process {
 class FDExecutor final : public IExecutor {
     bool InternalLoadData(db::DataBase const& /* db */, db::ParamsLoader& loader,
                           BaseConfig const& /* c */, pqxx::row const& row) final {
-        using namespace util::config::names;
+        using namespace config::names;
         return loader.SetOptions(row, {{R"("errorThreshold")", kError},
                                        {R"("maxLHS")", kMaximumLhs},
                                        {R"("threadsCount")", kThreads}});
@@ -51,7 +51,7 @@ class FDExecutor final : public IExecutor {
         return get_compact_data(lhs_values) + "|" + get_compact_data(rhs_values);
     }
     bool SaveResults(db::DataBase const& db, BaseConfig const& c) {
-        algos::FDAlgorithm& fdAlgo = GetAlgoAs<algos::FDAlgorithm>();
+        const auto& fdAlgo = GetAlgoAs<algos::FDAlgorithm>();
 
         const auto& keys = fdAlgo.GetKeys();
         const auto& deps = fdAlgo.FdList();

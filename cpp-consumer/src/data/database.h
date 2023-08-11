@@ -27,7 +27,7 @@ class DataBase {
 public:
     struct Config {
         std::string host;
-        unsigned int port;
+        int port;
         std::string user;
         std::string password;
         std::string dbname;

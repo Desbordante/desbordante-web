@@ -2,10 +2,10 @@
 
 #include "algorithms/algo_factory.h"
 #include "all_executors.h"
+#include "config/all_options.h"
 #include "data/params_loader.h"
 #include "easylogging++.h"
-#include "util/config/all_options.h"
-#include "util/config/enum_to_available_values.h"
+#include "util/enum_to_available_values.h"
 
 namespace process {
 
@@ -15,7 +15,7 @@ constexpr auto kAlgorithm = "algorithm";
 
 static std::unique_ptr<algos::Algorithm> CreateAlgorithm(db::ParamsLoader::ParamsMap& params) {
     namespace po = boost::program_options;
-    using namespace util::config;
+    using namespace config;
 
     std::string algorithm;
     std::string const algo_desc = "algorithm to use for data profiling\n" +
@@ -71,7 +71,7 @@ static algos::AlgorithmType ResolveAlgoType(std::string const& algo) {
 }
 
 bool TaskProcessor::LoadFileInfo() {
-    using namespace util::config::names;
+    using namespace config::names;
 
     std::string const& fileID = baseConfig_.fileID;
 
@@ -89,7 +89,7 @@ bool TaskProcessor::LoadFileInfo() {
                                             {R"("delimiter")", kSeparator}});
 }
 bool TaskProcessor::LoadBaseConfig(const std::string& taskID) {
-    using namespace util::config::names;
+    using namespace config::names;
 
     db::Select s{
             .select = {"*"}, .from = R"("TasksConfig")", .conditions = {{R"("taskID")", taskID}}};
@@ -136,7 +136,7 @@ bool TaskProcessor::Process(std::string const& taskID) {
     if (!impl->SaveResults(db_, baseConfig_)) {
         return false;
     }
-    db::Update update{.set = {{R"("status")", "COMPLETED"}},
+    db::Update update{.set = {{R"("status")", "COMPLETED"}, {R"("isExecuted")", "true"}},
                       .table = R"("TasksState")",
                       .conditions = {{R"("taskID")", taskID}}};
     db_.Query(update);

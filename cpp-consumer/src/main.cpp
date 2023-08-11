@@ -20,16 +20,30 @@ int main(int argc, char const* argv[]) {
         LOG(ERROR) << "Expected 'taskID' as parameter";
         return 1;
     }
-    el::Loggers::configureFromGlobal("build/target/logging.conf");
+    el::Loggers::configureFromGlobal("logging.conf");
 
     std::string const& taskID = argv[1];
     LOG(INFO) << "Received taskID '" << taskID << "'";
-
-    db::DataBase db{{.host = "localhost",
+#define DEV 0
+#if DEV
+    db::DataBase db{{.host = "0.0.0.0",
                      .port = 5432,
                      .user = "postgres",
                      .password = "root",
                      .dbname = "desbordante"}};
+#else
+    std::string host = std::getenv("POSTGRES_HOST");
+    std::string port = std::getenv("POSTGRES_PORT");
+    std::string user = std::getenv("POSTGRES_USER");
+    std::string password = std::getenv("POSTGRES_PASSWORD");
+    std::string dbname = std::getenv("POSTGRES_DBNAME");
+
+    db::DataBase db{{.host = host,
+                     .port = std::stoi(port),
+                     .user = user,
+                     .password = password,
+                     .dbname = dbname}};
+#endif
 
     TaskProcessor p(db);
     p.Process(taskID);

@@ -11,6 +11,8 @@ option(UNPACK_DATASETS "Unpack datasets" OFF)
 option(ASAN "Enable sanitizer" OFF)
 #option(DESBORDANTE_SOURCE_DIR "Source directory for Desbordante")
 
+set(COMPILE_TESTS ON)
+set(UNPACK_DATASETS ON)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
@@ -49,7 +51,7 @@ list(LENGTH header_dir_list header_dir_list_count)
 add_subdirectory(lib/Desbordante)
 
 include_directories(
-        lib/Desbordante/src
+        lib/Desbordante/src/core
         src
         ${header_dir_list}
 )
