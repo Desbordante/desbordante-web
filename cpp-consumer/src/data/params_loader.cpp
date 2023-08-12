@@ -6,10 +6,20 @@ bool ParamsLoader::SetOption(pqxx::row const& row, NameAlias const& mapping) {
     return SetOption(row, name, alias);
 }
 
-bool ParamsLoader::SetOption(std::string const& name, std::string const& value) {
-    auto const& [it, isInserted] = params_.emplace(name, value);
-    LOG(DEBUG) << "set " << name << " " << value << std::boolalpha << " " << isInserted;
+bool ParamsLoader::SetOption(std::string const& name, std::vector<std::string> const& values) {
+    auto const& [it, isInserted] = params_.emplace(name, values);
+
+    std::stringstream ss;
+    for (auto const& value : values) {
+        ss << value << " ";
+    }
+
+    LOG(DEBUG) << "set " << name << " " << ss.str() << std::boolalpha << isInserted;
     return isInserted;
+}
+
+bool ParamsLoader::SetOption(std::string const& name, std::string const& value) {
+    return SetOption(name, std::vector{value});
 }
 
 bool ParamsLoader::SetOption(pqxx::row const& row, std::string const& name,
