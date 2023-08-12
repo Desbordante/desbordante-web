@@ -11,7 +11,7 @@ export const allowedFDAlgorithms = [
         },
     },
     {
-        name: "TaneX",
+        name: "Tane",
         properties: {
             hasErrorThreshold: true,
             hasArityConstraint: true,
@@ -35,7 +35,7 @@ export const allowedFDAlgorithms = [
         },
     },
     {
-        name: "FD mine",
+        name: "FDmine",
         properties: {
             hasErrorThreshold: false,
             hasArityConstraint: false,
@@ -51,7 +51,7 @@ export const allowedFDAlgorithms = [
         },
     },
     {
-        name: "Dep Miner",
+        name: "DepMiner",
         properties: {
             hasErrorThreshold: false,
             hasArityConstraint: false,
