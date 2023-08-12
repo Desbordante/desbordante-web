@@ -12,12 +12,12 @@ function toScreamingSnakeOption<T extends string>(
 
 const FDAlgorithms = [
   'Pyro',
-  'TaneX',
+  'Tane',
   'FastFDs',
   'HyFD',
-  'FD mine',
+  'FDmine',
   'DFD',
-  'Dep Miner',
+  'DepMiner',
   'FDep',
   'FUN',
 ] as const;
@@ -26,7 +26,6 @@ type FDAlgorithm = (typeof FDAlgorithms)[number];
 type CFDAlgorithm = 'CTane';
 type ARAlgorithm = 'Apriori';
 
-// const MFDAlgorithms = ['BRUTE', 'APPROX', 'CALIPERS'] as const;
 const MFDAlgorithms = ['Brute', 'Approx', 'Calipers'] as const;
 
 export type MFDAlgorithm = (typeof MFDAlgorithms)[number];
@@ -73,12 +72,12 @@ export const optionsByPrimitive: Record<MainPrimitiveType, AlgoOption[]> = {
 
 export const optionsByAlgorithms: Record<Algorithms, AlgoProps[]> = {
   Pyro: ['threshold', 'arity', 'threads'],
-  TaneX: ['threshold', 'arity'],
+  Tane: ['threshold', 'arity'],
   FastFDs: ['threads'],
   HyFD: ['threads'],
-  'FD mine': [],
+  FDmine: [],
   DFD: ['threads'],
-  'Dep Miner': [],
+  DepMiner: [],
   FDep: [],
   FUN: [],
   CTane: [],
