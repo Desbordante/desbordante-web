@@ -37,12 +37,11 @@ export class CompactData {
         data: string,
         transform: (dep: string) => T,
         sep = ";"
-    ) => {
-        return data
+    ) =>
+        data
             .split(sep)
             .filter((str) => str.length > 0)
             .map(transform);
-    };
 
     ///
 

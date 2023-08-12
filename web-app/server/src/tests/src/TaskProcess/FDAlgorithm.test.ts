@@ -50,7 +50,7 @@ it("test FD task processing (Pyro, breast_cancer)", async () => {
     await testFDTaskWithDefaultParamsParallel(
         "breast_cancer",
         { depsAmount: 11430, filteredDepsAmount: 11430 },
-        ["FD mine"]
+        ["FDmine"]
     );
 });
 
@@ -61,7 +61,7 @@ it("test FD algorithms task processing (Workshop)", async () =>
             depsAmount: 11,
             filteredDepsAmount: 11,
         },
-        ["FD mine"]
+        ["FDmine"]
     ));
 
 it("test FD algorithms task processing (TestLong)", async () =>
@@ -84,6 +84,6 @@ it("test FD algorithms task processing (CIPublicHighway700)", async () => {
             depsAmount: 27,
             filteredDepsAmount: 27,
         },
-        ["FD mine"]
+        ["FDmine"]
     );
 });

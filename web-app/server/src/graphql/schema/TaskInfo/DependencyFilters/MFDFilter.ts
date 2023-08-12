@@ -8,19 +8,25 @@ import _ from "lodash";
 
 export class MFDFilter extends AbstractFilter<MFDCompactType, Mfd> {
     protected toDependency: (dep: MFDCompactType) => Mfd;
-    protected toCompactDep = CompactData.toCompactMFD;
 
     protected getSeparator = (): string => {
         return "\n";
     };
 
-    protected prepareRawData = (data: string): string => {
+    private prepareRawData = (data: string): string => {
         if (this.filter.MFDClusterIndex == null) {
-            throw new Error("Unreachable code");
+            throw new ApolloError("Unreachable code");
         }
 
         return data.split("\n\n")[this.filter.MFDClusterIndex];
     };
+
+    getCompactDeps = async (data: string): Promise<MFDCompactType[]> =>
+        CompactData.toCompactDeps(
+            this.prepareRawData(data),
+            CompactData.toCompactMFD,
+            this.getSeparator()
+        );
 
     protected applyTransformation = async (
         deps: MFDCompactType[]
@@ -54,14 +60,14 @@ export class MFDFilter extends AbstractFilter<MFDCompactType, Mfd> {
             taskConfig.lhsIndices
         );
 
-        for (let i = 0; i < deps.length; i++) {
-            const rowData = rows.get(deps[i].index);
+        for (const dep of deps) {
+            const rowData = rows.get(dep.index);
             if (rowData == null) {
-                throw new ApolloError("Could not obtain row with index ${deps[i].index}");
+                throw new ApolloError(`Could not obtain row with index ${dep.index}`);
             }
 
-            deps[i].clusterValue = clusterValue;
-            deps[i].value = this.rowProjectionToString(rowData, taskConfig.rhsIndices);
+            dep.clusterValue = clusterValue;
+            dep.value = this.rowProjectionToString(rowData, taskConfig.rhsIndices);
         }
 
         return deps;

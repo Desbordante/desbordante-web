@@ -26,7 +26,6 @@ export type ColumnsInfo = {
 
 export abstract class AbstractFilter<CompactDep, Dep> {
     protected abstract toDependency: (dep: CompactDep) => Dep;
-    protected abstract toCompactDep: (data: string) => CompactDep;
 
     public constructor(
         protected filter: IntersectionFilter,
@@ -42,11 +41,8 @@ export abstract class AbstractFilter<CompactDep, Dep> {
         return ";";
     };
 
-    protected prepareRawData = _.identity<string>;
-
-    protected applyTransformation = async (deps: CompactDep[]): Promise<CompactDep[]> => {
-        return deps;
-    };
+    protected applyTransformation = async (deps: CompactDep[]): Promise<CompactDep[]> =>
+        deps;
 
     private getFilteredCompactDeps = async (deps: CompactDep[]) => {
         deps = (await this.filterDeps(deps)) || [];
@@ -58,23 +54,16 @@ export abstract class AbstractFilter<CompactDep, Dep> {
         return { filteredDepsAmount, deps };
     };
 
-    public getFilteredTransformedDeps = async (data: string) => {
-        const compactDeps: CompactDep[] = CompactData.toCompactDeps(
-            this.prepareRawData(data),
-            this.toCompactDep,
-            this.getSeparator()
-        );
-        const { filteredDepsAmount, deps } = await this.getFilteredCompactDeps(
-            compactDeps
-        );
-        return {
-            filteredDepsAmount,
-            deps: deps.map(this.toDependency),
-        };
-    };
+    public getFilteredTransformedDeps = async (data: string) =>
+        this.getCompactDeps(data)
+            .then(this.getFilteredCompactDeps)
+            .then(({ deps, filteredDepsAmount }) => ({
+                deps: deps.map(this.toDependency),
+                filteredDepsAmount,
+            }));
 
+    abstract getCompactDeps(data: string): Promise<CompactDep[]>;
     abstract getConditions(): Promise<ConditionFunction<CompactDep>[]>;
-
     abstract getComparators(): ComparatorWithParam<CompactDep>[];
 
     public filterDeps = async (deps: CompactDep[]) => {
@@ -107,25 +96,15 @@ export abstract class AbstractFilter<CompactDep, Dep> {
     };
 
     public getMainComparatorParam = () => {
-        const getStringOrThrowError = <T>(sortBy: T): string => {
-            if (_.isString(sortBy)) {
-                return sortBy;
-            } else {
-                throw new UserInputError("SortBy param is undefined");
-            }
-        };
-        switch (this.type) {
-            case "AR":
-                return getStringOrThrowError(this.filter.ARSortBy);
-            case "CFD":
-                return getStringOrThrowError(this.filter.CFDSortBy);
-            case "FD":
-            case "TypoFD":
-                return getStringOrThrowError(this.filter.FDSortBy);
-            case "MFD":
-                return getStringOrThrowError(this.filter.MFDSortBy);
+        const sortFieldName = `${AbstractFilter.getRealPrimitiveType(
+            this.type
+        )}SortBy` as const;
+        const sortBy = this.filter[sortFieldName];
+        if (_.isString(sortBy)) {
+            return sortBy;
+        } else {
+            throw new UserInputError(`${sortFieldName} param is undefined`);
         }
-        throw new ApolloError(`Type ${this.type} not implemented yet`);
     };
 
     public static getColumnsInfo = async (fileID: string): Promise<ColumnsInfo> => {
