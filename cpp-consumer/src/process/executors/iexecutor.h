@@ -59,6 +59,10 @@ public:
         return algo_->Execute();
     }
 
+    virtual algos::AlgorithmType ResolveAlgoType(std::string const& algo) const {
+        return algos::AlgorithmType::_from_string_nocase(algo.c_str());
+    }
+
     void SetAlgo(std::unique_ptr<algos::Algorithm> algo) {
         algo_ = std::move(algo);
     }

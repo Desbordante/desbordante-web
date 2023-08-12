@@ -32,8 +32,13 @@ static std::unique_ptr<algos::Algorithm> CreateAlgorithm(db::ParamsLoader::Param
 
     try {
         po::parsed_options parsed(&all_options);
-        for (auto const& [name, value] : params) {
-            parsed.options.push_back(po::option(name, {value}));
+        for (auto const& [name, values] : params) {
+            std::stringstream ss;
+            for (auto const& value : values) {
+                ss << value << " ";
+            }
+            LOG(DEBUG) << "--" << name << " " << ss.str();
+            parsed.options.emplace_back(name, values);
         }
         po::store(parsed, vm);
     } catch (po::error& e) {
@@ -57,16 +62,14 @@ static std::unique_ptr<algos::Algorithm> CreateAlgorithm(db::ParamsLoader::Param
 }
 
 static std::unique_ptr<IExecutor> CreateExecutor(std::string const& type) {
-    if (type == "FD") {
-        return std::make_unique<FDExecutor>();
-    } else if (type == "AR") {
+    if (type == "AR") {
         return std::make_unique<ARExecutor>();
+    } else if (type == "FD") {
+        return std::make_unique<FDExecutor>();
+    } else if (type == "MFD") {
+        return std::make_unique<MFDExecutor>();
     }
     return nullptr;
-}
-
-static algos::AlgorithmType ResolveAlgoType(std::string const& algo) {
-    return algos::AlgorithmType::_from_string_nocase(algo.c_str());
 }
 
 bool TaskProcessor::LoadFileInfo() {
@@ -100,39 +103,36 @@ bool TaskProcessor::LoadBaseConfig(const std::string& taskID) {
     }
 
     pqxx::row const& configRow = res.front();
-    std::string const& algorithmName = configRow[R"("algorithmName")"].c_str();
-
-    if (!loader_.SetOption(kAlgorithm, ResolveAlgoType(algorithmName)._to_string())) {
-        return false;
-    }
-
     baseConfig_ = BaseConfig{
             .fileID = configRow[R"("fileID")"].c_str(),
             .taskID = taskID,
-            .algorithmName = algorithmName,
+            .algorithmName = configRow[R"("algorithmName")"].c_str(),
             .type = configRow[R"("type")"].c_str(),
     };
     return true;
 }
 
 bool TaskProcessor::Process(std::string const& taskID) {
-    baseConfig_ = {};
     loader_.Reset();
     if (!LoadBaseConfig(taskID) || !LoadFileInfo()) {
         return false;
     }
 
-    std::unique_ptr<IExecutor> impl = CreateExecutor(baseConfig_.type);
+    std::unique_ptr<IExecutor> executor = CreateExecutor(baseConfig_.type);
 
-    if (!impl->LoadData(db_, loader_, baseConfig_)) {
+    if (!executor->LoadData(db_, loader_, baseConfig_)) {
         LOG(INFO) << "Cannot load data";
         return false;
     }
 
-    impl->SetAlgo(CreateAlgorithm(loader_.GetParams()));
-    impl->Execute(db_, baseConfig_.taskID);
+    std::string coreAlgoName = executor->ResolveAlgoType(baseConfig_.algorithmName)._to_string();
+    if (!loader_.SetOption(kAlgorithm, coreAlgoName)) {
+        return false;
+    }
+    executor->SetAlgo(CreateAlgorithm(loader_.GetParams()));
+    executor->Execute(db_, baseConfig_.taskID);
 
-    if (!impl->SaveResults(db_, baseConfig_)) {
+    if (!executor->SaveResults(db_, baseConfig_)) {
         return false;
     }
     db::Update update{.set = {{R"("status")", "COMPLETED"}, {R"("isExecuted")", "true"}},
