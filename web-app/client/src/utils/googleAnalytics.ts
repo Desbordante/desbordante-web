@@ -1,8 +1,8 @@
-import { googleAnalyticsKey } from '@utils/env';
+import { googleAnalyticsTagId } from '@utils/env';
 
 // https://developers.google.com/analytics/devguides/collection/gtagjs/pages
 export const pageView = (url: string): void => {
-  window.gtag('config', googleAnalyticsKey, {
+  window.gtag('config', googleAnalyticsTagId, {
     page_path: url,
   });
 };

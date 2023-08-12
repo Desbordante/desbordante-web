@@ -1,9 +1,8 @@
-FROM debian:bullseye-slim as stage1
-RUN apt-get update && apt-get -y install python3 make g++ npm curl
-RUN npm install --global yarn
-RUN npm install -g n
-RUN n 16.14.2
+FROM node:16-alpine
+RUN apk update
 
+ARG NEXT_PUBLIC_GOOGLE_ANALYTICS_ENABLED
+ARG NEXT_PUBLIC_GOOGLE_ANALYTICS_TAG_ID
 ARG SERVER_PROTOCOL
 ARG SERVER_IP
 ARG SERVER_PORT
