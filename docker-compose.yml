@@ -311,39 +311,45 @@ services:
 
 networks:
   network:
-
+    name: desbordante_network
 volumes:
   uploads:
+    name: 'desbordante_uploads'
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
       device: '${PWD}/volumes/uploads/'
   results:
+    name: 'desbordante_results'
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
       device: '${PWD}/volumes/results/'
   postgres-data:
+    name: 'desbordante_postgres-data'
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
       device: '${PWD}/volumes/postgres-data/'
   datasets:
+    name: 'desbordante_datasets'
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
       device: '${PWD}/volumes/datasets/'
   cms-uploads:
+    name: 'desbordante_cms-uploads'
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
       device: '${PWD}/volumes/cms-uploads/'
   cms-data:
+    name: 'desbordante_cms-data'
     driver: local
     driver_opts:
       type: 'volume'
