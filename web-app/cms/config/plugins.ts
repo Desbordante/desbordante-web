@@ -9,7 +9,6 @@ export default ({ env }) => ({
       defaultLimit: 100,
       artifacts: {
         schema: path.join(__dirname, '..', '..', 'schema.graphql'),
-        typegen: path.join(__dirname, '..', '..', 'types.d.ts'),
       },
       apolloServer: {
         introspection: true,
