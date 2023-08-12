@@ -1,5 +1,6 @@
 import { Html, Head, Main, NextScript } from 'next/document';
 import GoogleAnalytics from '@components/GoogleAnalytics';
+import { isGoogleAnalyticsEnabled } from '@utils/env';
 
 const MyDocument = () => {
   return (
@@ -9,7 +10,7 @@ const MyDocument = () => {
         <meta name="theme-color" content="#000000" />
         <meta name="description" content="Open-source data profiling tool" />
 
-        <GoogleAnalytics />
+        {isGoogleAnalyticsEnabled && <GoogleAnalytics />}
 
         {/*OpenGraph*/}
         <meta

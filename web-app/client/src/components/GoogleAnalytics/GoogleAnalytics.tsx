@@ -1,6 +1,6 @@
 import { useRouter } from 'next/compat/router';
 import { useEffect } from 'react';
-import { googleAnalyticsKey } from '@utils/env';
+import { googleAnalyticsTagId } from '@utils/env';
 import { pageView } from '@utils/googleAnalytics';
 
 const GoogleAnalytics = () => {
@@ -26,7 +26,7 @@ const GoogleAnalytics = () => {
     <>
       <script
         async
-        src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsKey}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsTagId}`}
       />
       <script
         async
@@ -36,7 +36,7 @@ const GoogleAnalytics = () => {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${googleAnalyticsKey}', {
+            gtag('config', '${googleAnalyticsTagId}', {
               page_path: window.location.pathname,
             });`,
         }}
