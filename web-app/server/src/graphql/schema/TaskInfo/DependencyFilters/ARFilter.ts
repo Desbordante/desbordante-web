@@ -5,13 +5,15 @@ import { Ar } from "../../../types/types";
 
 export class ARFilter extends AbstractFilter<ARCompactType, Ar> {
     protected toDependency: (dep: ARCompactType) => Ar;
-    protected toCompactDep = CompactData.toCompactAR;
     private args: [ItemsInfo];
 
     public initArgs = async () => {
         this.args = [await AbstractFilter.getItemsInfo(this.state, "AR")];
         this.toDependency = (dep) => CompactData.toAR(dep, ...this.args);
     };
+
+    getCompactDeps = async (data: string): Promise<ARCompactType[]> =>
+        CompactData.toCompactDeps(data, CompactData.toCompactAR, this.getSeparator());
 
     getConditions = async (): Promise<ConditionFunction<ARCompactType>[]> => {
         const [itemsInfo] = this.args;

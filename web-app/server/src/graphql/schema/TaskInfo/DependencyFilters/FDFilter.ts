@@ -8,7 +8,6 @@ import _ from "lodash";
 
 export class FDFilter extends AbstractFilter<FDCompactType, Fd> {
     protected toDependency: (dep: FDCompactType) => Fd;
-    protected toCompactDep = CompactData.toCompactFD;
 
     private args: [ColumnsInfo];
 
@@ -17,10 +16,15 @@ export class FDFilter extends AbstractFilter<FDCompactType, Fd> {
         this.toDependency = (dep) => CompactData.toFD(dep, ...this.args);
     };
 
-    public static getPKsIndices = async (state: TaskState, type: MainPrimitiveType) => {
-        const keysString = await state.getResultFieldAsString(type, "PKColumnIndices");
-        return keysString.split(",").map(_.parseInt).filter(_.isInteger).sort();
+    getCompactDeps = async (data: string): Promise<FDCompactType[]> => {
+        const fdsData = JSON.parse(data) as { fds: FDCompactType[] };
+        return fdsData.fds;
     };
+
+    public static getPKsIndices = async (state: TaskState, type: MainPrimitiveType) =>
+        state
+            .getResultFieldAsString(type, "PKColumnIndices")
+            .then((str) => str.split(",").map(_.parseInt).filter(_.isInteger).sort());
 
     getConditions = async (): Promise<ConditionFunction<FDCompactType>[]> => {
         const [{ columnNames }] = this.args;

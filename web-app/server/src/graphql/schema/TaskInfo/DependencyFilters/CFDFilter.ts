@@ -1,5 +1,12 @@
 import { AbstractFilter, ComparatorWithParam, ConditionFunction } from "./AbstractFilter";
-import { CFDCompactType, ColumnsInfo, CompactData, Item, ItemsInfo } from "./CompactData";
+import {
+    ARCompactType,
+    CFDCompactType,
+    ColumnsInfo,
+    CompactData,
+    Item,
+    ItemsInfo,
+} from "./CompactData";
 import { compareArrays, isIntersects } from "./util";
 import { Cfd } from "../../../types/types";
 import { FDFilter } from "./FDFilter";
@@ -7,7 +14,6 @@ import _ from "lodash";
 
 export class CFDFilter extends AbstractFilter<CFDCompactType, Cfd> {
     protected toDependency: (dep: CFDCompactType) => Cfd;
-    protected toCompactDep = CompactData.toCompactCFD;
     private args: [ColumnsInfo, ItemsInfo];
 
     public initArgs = async () => {
@@ -17,6 +23,9 @@ export class CFDFilter extends AbstractFilter<CFDCompactType, Cfd> {
         ];
         this.toDependency = (dep) => CompactData.toCFD(dep, ...this.args);
     };
+
+    getCompactDeps = async (data: string): Promise<CFDCompactType[]> =>
+        CompactData.toCompactDeps(data, CompactData.toCompactCFD, this.getSeparator());
 
     getConditions = async (): Promise<ConditionFunction<CFDCompactType>[]> => {
         const [{ columnNames }, { itemValues }] = this.args;
