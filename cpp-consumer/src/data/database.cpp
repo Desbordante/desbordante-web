@@ -67,7 +67,7 @@ pqxx::result DataBase::Query(db::Query const& query) const {
     try {
         auto w = std::make_unique<pqxx::nontransaction>(*connection_);
         std::string query_text = ToQuery(query);
-        LOG(INFO) << query_text << "\n";
+        LOG(DEBUG) << query_text << "\n";
         pqxx::result r = w->exec(query_text);
         w->commit();
         return r;
@@ -81,7 +81,7 @@ pqxx::result DataBase::TransactionQuery(db::Query const& query) const {
     try {
         auto w = std::make_unique<pqxx::work>(*connection_);
         std::string query_text = ToQuery(query);
-        LOG(INFO) << query_text << "\n";
+        LOG(DEBUG) << query_text << "\n";
         pqxx::result r = w->exec(query_text);
         w->commit();
         return r;

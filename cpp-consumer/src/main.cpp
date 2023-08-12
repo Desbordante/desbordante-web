@@ -7,6 +7,8 @@
 
 INITIALIZE_EASYLOGGINGPP
 
+#define DEV 0
+
 #if 0
  enum class AnswerEnumType {
      TASK_SUCCESSFULLY_PROCESSED = 0, TASK_CRASHED_STATUS_UPDATED = 1,
@@ -20,17 +22,15 @@ int main(int argc, char const* argv[]) {
         LOG(ERROR) << "Expected 'taskID' as parameter";
         return 1;
     }
-    el::Loggers::configureFromGlobal("logging.conf");
 
-    std::string const& taskID = argv[1];
-    LOG(INFO) << "Received taskID '" << taskID << "'";
-#define DEV 0
 #if DEV
-    db::DataBase db{{.host = "0.0.0.0",
-                     .port = 5432,
-                     .user = "postgres",
-                     .password = "root",
-                     .dbname = "desbordante"}};
+    std::string host = "0.0.0.0";
+    std::string port = "5432";
+    std::string user = "postgres";
+    std::string password = "root";
+    std::string dbname = "desbordante";
+
+    el::Loggers::configureFromGlobal("build/target/logging.conf");
 #else
     std::string host = std::getenv("POSTGRES_HOST");
     std::string port = std::getenv("POSTGRES_PORT");
@@ -38,14 +38,19 @@ int main(int argc, char const* argv[]) {
     std::string password = std::getenv("POSTGRES_PASSWORD");
     std::string dbname = std::getenv("POSTGRES_DBNAME");
 
+    el::Loggers::configureFromGlobal("logging.conf");
+#endif
+
     db::DataBase db{{.host = host,
                      .port = std::stoi(port),
                      .user = user,
                      .password = password,
                      .dbname = dbname}};
-#endif
 
     TaskProcessor p(db);
+
+    std::string const& taskID = argv[1];
+    LOG(DEBUG) << "Received taskID '" << taskID << "'";
     p.Process(taskID);
 
     return 0;

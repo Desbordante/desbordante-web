@@ -35,9 +35,6 @@ static std::unique_ptr<algos::Algorithm> CreateAlgorithm(db::ParamsLoader::Param
         for (auto const& [name, value] : params) {
             parsed.options.push_back(po::option(name, {value}));
         }
-        for (auto opt : parsed.options) {
-            LOG(INFO) << "my: " << opt.string_key << " " << opt.value[0];
-        }
         po::store(parsed, vm);
     } catch (po::error& e) {
         LOG(INFO) << e.what() << std::endl;
@@ -62,6 +59,8 @@ static std::unique_ptr<algos::Algorithm> CreateAlgorithm(db::ParamsLoader::Param
 static std::unique_ptr<IExecutor> CreateExecutor(std::string const& type) {
     if (type == "FD") {
         return std::make_unique<FDExecutor>();
+    } else if (type == "AR") {
+        return std::make_unique<ARExecutor>();
     }
     return nullptr;
 }
@@ -75,7 +74,7 @@ bool TaskProcessor::LoadFileInfo() {
 
     std::string const& fileID = baseConfig_.fileID;
 
-    db::Select s{.select = {R"("hasHeader"::int as "hasHeaderI")", "*"},
+    db::Select s{.select = {R"("hasHeader"::int as "hasHeaderInt")", "*"},
                  .from = R"("FilesInfo")",
                  .conditions = {{R"("fileID")", fileID}}};
     pqxx::result res = db_.Query(s);
@@ -84,7 +83,7 @@ bool TaskProcessor::LoadFileInfo() {
         return false;
     }
 
-    return loader_.SetOptions(res.front(), {{R"("hasHeaderI")", kHasHeader},
+    return loader_.SetOptions(res.front(), {{R"("hasHeaderInt")", kHasHeader},
                                             {R"("path")", kCsvPath},
                                             {R"("delimiter")", kSeparator}});
 }
@@ -126,7 +125,7 @@ bool TaskProcessor::Process(std::string const& taskID) {
     std::unique_ptr<IExecutor> impl = CreateExecutor(baseConfig_.type);
 
     if (!impl->LoadData(db_, loader_, baseConfig_)) {
-        LOG(DEBUG) << "Cannot load data";
+        LOG(INFO) << "Cannot load data";
         return false;
     }
 

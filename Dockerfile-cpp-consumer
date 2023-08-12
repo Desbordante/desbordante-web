@@ -1,16 +1,17 @@
 FROM debian:bullseye-slim as stage1
 RUN apt-get update && apt-get install -y libboost-all-dev libstdc++6 \
 libpqxx-dev git g++ make cmake
-WORKDIR /Desbordante
-COPY /cpp-consumer /Desbordante
-WORKDIR /Desbordante
+COPY . .
+WORKDIR cpp-consumer
+RUN rm -rf build
 RUN ./build.sh
 
 
 FROM debian:bullseye-slim
-RUN apt-get update && apt-get install -y libpqxx-dev libstdc++6 && apt-get clean \
+RUN apt-get update && apt-get install -y libboost-all-dev libpqxx-dev \
+libstdc++6 && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
-COPY --from=stage1 /Desbordante/build/target/Desbordante_cpp_consumer /
-COPY --from=stage1 /Desbordante/build/target/logging.conf /
+COPY --from=stage1 cpp-consumer/build/target/Desbordante_cpp_consumer /
+COPY --from=stage1 cpp-consumer/build/target/logging.conf /
 ENTRYPOINT ["./Desbordante_cpp_consumer"]
 CMD ["taskId_placeholder"]

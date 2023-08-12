@@ -1,7 +1,8 @@
 #include "iexecutor.h"
 
 namespace process {
-bool IExecutor::LoadData(db::DataBase const& db, db::ParamsLoader& loader, BaseConfig const& c) {
+bool IExecutor::LoadData(db::DataBase const& db, db::ParamsLoader& loader,
+                         BaseConfig const& c) const {
     db::Select s{.select = {"*"},
                  .from = '"' + c.type + "TasksConfig\"",
                  .conditions = {{R"("taskID")", c.taskID}}};

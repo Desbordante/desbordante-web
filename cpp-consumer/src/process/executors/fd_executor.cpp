@@ -10,7 +10,7 @@ static std::string GetCompactString(const std::vector<const Column*>& columns) {
     return boost::algorithm::join(key_cols_indices, ",");
 }
 
-std::string GetPieChartData(const std::list<FD>& deps) {
+static std::string GetPieChartData(const std::list<FD>& deps) {
     using SideMap = std::map<unsigned int, double>;
     SideMap lhs_values;
     SideMap rhs_values;
@@ -39,7 +39,15 @@ std::string GetPieChartData(const std::list<FD>& deps) {
     return get_compact_data(lhs_values) + "|" + get_compact_data(rhs_values);
 }
 
-bool FDExecutor::SaveResults(db::DataBase const& db, BaseConfig const& c) {
+bool FDExecutor::InternalLoadData(db::DataBase const& /* db */, db::ParamsLoader& loader,
+                                  BaseConfig const& /* c */, pqxx::row const& row) const {
+    using namespace config::names;
+    return loader.SetOptions(row, {{R"("errorThreshold")", kError},
+                                   {R"("maxLHS")", kMaximumLhs},
+                                   {R"("threadsCount")", kThreads}});
+}
+
+bool FDExecutor::SaveResults(db::DataBase const& db, BaseConfig const& c) const {
     const auto& fdAlgo = GetAlgoAs<algos::FDAlgorithm>();
 
     const auto& keys = fdAlgo.GetKeys();
@@ -59,4 +67,5 @@ bool FDExecutor::SaveResults(db::DataBase const& db, BaseConfig const& c) {
     db.TransactionQuery(u);
     return true;
 }
+
 }  // namespace process
