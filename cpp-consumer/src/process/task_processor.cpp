@@ -64,6 +64,8 @@ static std::unique_ptr<algos::Algorithm> CreateAlgorithm(db::ParamsLoader::Param
 static std::unique_ptr<IExecutor> CreateExecutor(std::string const& type) {
     if (type == "AR") {
         return std::make_unique<ARExecutor>();
+    } else if (type == "CFD") {
+        return std::make_unique<CFDExecutor>();
     } else if (type == "FD") {
         return std::make_unique<FDExecutor>();
     } else if (type == "MFD") {

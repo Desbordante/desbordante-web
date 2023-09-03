@@ -16,7 +16,7 @@ private:
     std::string GetCompactHighlights(HighlightsData const&) const;
 
 public:
-    virtual algos::AlgorithmType ResolveAlgoType(std::string const& /* algo */) const {
+    algos::AlgorithmType ResolveAlgoType(std::string const& /* algo */) const final {
         return algos::AlgorithmType::metric;
     }
 
