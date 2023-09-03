@@ -9,18 +9,13 @@ INITIALIZE_EASYLOGGINGPP
 
 #define DEV 0
 
-#if 0
- enum class AnswerEnumType {
-     TASK_SUCCESSFULLY_PROCESSED = 0, TASK_CRASHED_STATUS_UPDATED = 1,
-     TASK_CRASHED_WITHOUT_STATUS_UPDATING = 2, TASK_NOT_FOUND = 3
- };
-#endif
+enum class AnswerType : int { OK = 0, CRASH = 1 };
 
 int main(int argc, char const* argv[]) {
     using namespace process;
     if (argc != 2) {
         LOG(ERROR) << "Expected 'taskID' as parameter";
-        return 1;
+        return static_cast<int>(AnswerType::CRASH);
     }
 
 #if DEV
@@ -51,7 +46,11 @@ int main(int argc, char const* argv[]) {
 
     std::string const& taskID = argv[1];
     LOG(DEBUG) << "Received taskID '" << taskID << "'";
-    p.Process(taskID);
-
-    return 0;
+    try {
+        AnswerType answer = p.Process(taskID) ? AnswerType::OK : AnswerType::CRASH;
+        return static_cast<int>(answer);
+    } catch (std::exception const& e) {
+        LOG(INFO) << "Error: " << e.what();
+        return static_cast<int>(AnswerType::CRASH);
+    }
 }

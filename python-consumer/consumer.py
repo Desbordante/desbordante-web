@@ -26,39 +26,30 @@ def create_consumer():
     return consumer
 
 
-def container_exit_handler(container, container_state, active_tasks, taskID):
+def container_exit_handler(container, container_state, active_tasks, task_id):
     class exit_codes(Enum):
-        TASK_SUCCESSFULLY_PROCESSED = 0
-        TASK_CRASHED_STATUS_UPDATED = 1
-        TASK_CRASHED_WITHOUT_STATUS_UPDATING = 2
-        TASK_NOT_FOUND = 3
+        OK = 0
+        CRASH = 1
 
-    exitCode = container_state["ExitCode"]
-    match exitCode:
-        case exit_codes.TASK_SUCCESSFULLY_PROCESSED.value:
-            logging.info(f"[{taskID}] task done successfully")
+    exit_code = container_state["ExitCode"]
+    match exit_code:
+        case exit_codes.OK.value:
+            logging.info(f"[{task_id}] task done successfully")
             logging.info(container.logs())
 
-        case exit_codes.TASK_CRASHED_STATUS_UPDATED.value:
-            logging.warning(f"[{taskID}] cpp-consumer has crashed, \
-                status was updated by cpp-consumer")
-            logging.warning(container.logs())
-
-        case exit_codes.TASK_CRASHED_WITHOUT_STATUS_UPDATING.value:
-            logging.warning(f"[{taskID}] cpp-consumer has crashed \
+        case exit_codes.CRASH.value:
+            logging.warning(f"[{task_id}] cpp-consumer has crashed \
                 without status updating")
-            update_internal_server_error(taskID,
+            update_internal_server_error(task_id,
                                          f"Crash {container.logs()}")
             logging.warning(container.logs())
 
-        case exit_codes.TASK_NOT_FOUND.value:
-            logging.warning(f"[{taskID}] task not found")
-
         case _:
+            logging.warning(f"[${task_id}] received unexpected exitCode {exit_code}")
             logging.warning(container.logs())
 
     container.remove()
-    active_tasks.pop(taskID)
+    active_tasks.pop(task_id)
 
 
 def container_OOMKilled_handler(container, active_tasks, taskID):
