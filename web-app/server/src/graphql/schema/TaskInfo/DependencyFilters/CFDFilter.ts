@@ -1,43 +1,26 @@
 import { AbstractFilter, ComparatorWithParam, ConditionFunction } from "./AbstractFilter";
-import {
-    ARCompactType,
-    CFDCompactType,
-    ColumnsInfo,
-    CompactData,
-    Item,
-    ItemsInfo,
-} from "./CompactData";
+import { CFDCompactType, CFDItem, ColumnsInfo, CompactData, Item } from "./CompactData";
 import { compareArrays, isIntersects } from "./util";
 import { Cfd } from "../../../types/types";
-import { FDFilter } from "./FDFilter";
 import _ from "lodash";
 
 export class CFDFilter extends AbstractFilter<CFDCompactType, Cfd> {
     protected toDependency: (dep: CFDCompactType) => Cfd;
-    private args: [ColumnsInfo, ItemsInfo];
+    private args: [ColumnsInfo];
 
     public initArgs = async () => {
-        this.args = [
-            await AbstractFilter.getColumnsInfo(this.fileID),
-            await AbstractFilter.getItemsInfo(this.state, "CFD"),
-        ];
+        this.args = [await AbstractFilter.getColumnsInfo(this.fileID)];
         this.toDependency = (dep) => CompactData.toCFD(dep, ...this.args);
     };
 
-    getCompactDeps = async (data: string): Promise<CFDCompactType[]> =>
-        CompactData.toCompactDeps(data, CompactData.toCompactCFD, this.getSeparator());
+    getCompactDeps = async (data: string): Promise<CFDCompactType[]> => {
+        return JSON.parse(data) as CFDCompactType[];
+    };
 
     getConditions = async (): Promise<ConditionFunction<CFDCompactType>[]> => {
-        const [{ columnNames }, { itemValues }] = this.args;
-        const {
-            filterString,
-            mustContainLhsColIndices,
-            mustContainRhsColIndices,
-            withoutKeys,
-        } = this.filter;
-        const withoutKeyIndices = withoutKeys
-            ? await FDFilter.getPKsIndices(this.state, this.type)
-            : [];
+        const [{ columnNames }] = this.args;
+        const { filterString, mustContainLhsColIndices, mustContainRhsColIndices } =
+            this.filter;
         const mustContainIndices: number[] = [];
         const mustContainItems: Item[] = [];
 
@@ -47,21 +30,19 @@ export class CFDFilter extends AbstractFilter<CFDCompactType, Cfd> {
                 const columnWithPattern = filterString.split("=");
                 if (columnWithPattern.length != 2) {
                     isFilterCorrect = false;
-                }
-                const [colName, pattern] = columnWithPattern;
-                try {
-                    columnNames.forEach((name, id) => {
-                        name.match(new RegExp(colName, "i")) &&
-                            mustContainItems.push({
-                                columnIndex: id,
-                                patternIndex: itemValues.indexOf(pattern),
-                            });
-                    });
-                } catch (e) {
-                    isFilterCorrect = false;
-                }
-                if (!itemValues.includes(pattern)) {
-                    isFilterCorrect = false;
+                } else {
+                    const [colName, pattern] = columnWithPattern;
+                    try {
+                        columnNames.forEach((name, attribute) => {
+                            name.match(new RegExp(colName, "i")) &&
+                                mustContainItems.push({
+                                    attribute,
+                                    value: pattern,
+                                });
+                        });
+                    } catch (e) {
+                        isFilterCorrect = false;
+                    }
                 }
             } else {
                 try {
@@ -78,14 +59,14 @@ export class CFDFilter extends AbstractFilter<CFDCompactType, Cfd> {
                 isFilterCorrect = false;
             }
         }
-        const indices = (lhs: Item[]) => lhs.map(({ columnIndex }) => columnIndex);
+        const indices = (lhs: CFDItem[]) => lhs.map(({ attribute }) => attribute);
 
         return [
             () => isFilterCorrect,
             ({ rhs }) =>
                 mustContainRhsColIndices == null ||
                 mustContainRhsColIndices.length === 0 ||
-                !!~_.sortedIndexOf(mustContainRhsColIndices, rhs.columnIndex),
+                !!~_.sortedIndexOf(mustContainRhsColIndices, rhs.attribute),
             ({ lhs }) =>
                 mustContainLhsColIndices == null ||
                 mustContainLhsColIndices.length === 0 ||
@@ -93,35 +74,27 @@ export class CFDFilter extends AbstractFilter<CFDCompactType, Cfd> {
             ({ lhs, rhs }) =>
                 mustContainIndices.length === 0 ||
                 isIntersects(mustContainIndices, indices(lhs)) ||
-                !!~_.sortedIndexOf(mustContainIndices, rhs.columnIndex),
+                !!~_.sortedIndexOf(mustContainIndices, rhs.attribute),
             ({ lhs, rhs }) =>
                 mustContainItems.length === 0 ||
                 lhs.some((lhsItem) =>
                     mustContainItems.some((item) => _.isEqual(item, lhsItem))
                 ) ||
                 mustContainItems.some((item) => _.isEqual(item, rhs)),
-            ({ lhs }) =>
-                withoutKeyIndices.length === 0 ||
-                !isIntersects(
-                    withoutKeyIndices,
-                    lhs.map(({ columnIndex }) => columnIndex)
-                ),
         ];
     };
 
     getComparators = (): ComparatorWithParam<CFDCompactType>[] => {
         const [{ columnIndicesOrder }] = this.args;
 
-        const cfdItemNameComparator = (lhs: Item, rhs: Item) =>
-            columnIndicesOrder[lhs.columnIndex] < columnIndicesOrder[rhs.columnIndex] ||
+        const cfdItemNameComparator = (lhs: CFDItem, rhs: CFDItem) =>
+            columnIndicesOrder[lhs.attribute] < columnIndicesOrder[rhs.attribute] ||
             _.isEqual(lhs, rhs);
-        const cfdColIdComparator = (lhs: Item, rhs: Item) =>
-            lhs.columnIndex < rhs.columnIndex || _.isEqual(lhs, rhs);
-        const cfdPatternValueComparator = (lhs: Item, rhs: Item) =>
-            lhs.patternIndex < rhs.patternIndex || _.isEqual(lhs, rhs);
+        const cfdColIdComparator = (lhs: CFDItem, rhs: CFDItem) =>
+            lhs.attribute < rhs.attribute || _.isEqual(lhs, rhs);
+        const cfdPatternValueComparator = (lhs: CFDItem, rhs: CFDItem) =>
+            (lhs.value || "") < (rhs.value || "") || _.isEqual(lhs, rhs);
         return [
-            { sortBy: "CONF", comparator: (lhs, rhs) => lhs.confidence < rhs.confidence },
-            { sortBy: "SUP", comparator: (lhs, rhs) => lhs.support < rhs.support },
             {
                 sortBy: "LHS_COL_NAME",
                 comparator: (lhs, rhs) =>

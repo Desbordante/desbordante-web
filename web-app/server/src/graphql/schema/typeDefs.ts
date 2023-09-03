@@ -218,11 +218,17 @@ const typeDefs = gql`
         threadsCount: Int!
     }
 
+    enum CFDSubstrategyType {
+        DFS
+        BFS
+    }
+
     type CFDTaskConfig implements PrimitiveTaskConfig {
         taskID: String!
         maxLHS: Int!
         minSupportCFD: Int!
         minConfidence: Float!
+        substrategy: CFDSubstrategyType!
     }
 
     type MFDTaskConfig implements PrimitiveTaskConfig {
@@ -282,8 +288,6 @@ const typeDefs = gql`
     type CFD {
         lhs: [Item!]!
         rhs: Item!
-        confidence: Float!
-        support: Int!
     }
 
     type MFD {
@@ -331,7 +335,6 @@ const typeDefs = gql`
     }
 
     type CFDPieChartData implements PieChartDataBase {
-        withPatterns: PieChartWithPatterns!
         withoutPatterns: PieChartWithoutPatterns!
     }
 
@@ -437,7 +440,7 @@ const typeDefs = gql`
         """
         mustContainLhsColIndices: [Int!]
         """
-        FDs, CFDs
+        FDs
         """
         withoutKeys: Boolean
     }
@@ -447,8 +450,6 @@ const typeDefs = gql`
         RHS_COL_NAME
         LHS_COL_ID
         RHS_COL_ID
-        CONF
-        SUP
         DEFAULT
         LHS_PATTERN
         RHS_PATTERN
@@ -501,11 +502,10 @@ const typeDefs = gql`
         depsAmount: Int!
     }
 
-    type CFDTaskResult implements TaskWithDepsResult & ResultsWithPKs {
+    type CFDTaskResult implements TaskWithDepsResult {
         taskID: String!
         filteredDeps(filter: IntersectionFilter!): FilteredCFDs!
         depsAmount: Int!
-        PKs: [Column!]!
         pieChartData: CFDPieChartData!
     }
 
@@ -813,6 +813,8 @@ const typeDefs = gql`
         minSupportAR: Float
         "CFD, AR"
         minConfidence: Float
+        "CFD"
+        substrategy: CFDSubstrategyType
         "TypoFD"
         preciseAlgorithm: String
         "TypoFD"

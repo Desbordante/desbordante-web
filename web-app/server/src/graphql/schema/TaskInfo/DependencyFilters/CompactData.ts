@@ -4,21 +4,18 @@ import {
     Fd,
     Mfd,
     PieChartRow,
-    PieChartRowWithPattern,
-    PieChartWithPatterns,
     PieChartWithoutPatterns,
 } from "../../../types/types";
 import { ApolloError } from "apollo-server-errors";
 
-export type Item = { columnIndex: number; patternIndex: number };
+export type Item = { attribute: number; value: string };
+export type CFDItem = { attribute: number; value: string | null };
 
 export type ARCompactType = { lhs: number[]; rhs: number[]; confidence: number };
 export type FDCompactType = { lhs: number[]; rhs: number };
 export type CFDCompactType = {
-    lhs: Item[];
-    rhs: Item;
-    support: number;
-    confidence: number;
+    lhs: CFDItem[];
+    rhs: CFDItem;
 };
 export type MFDCompactType = {
     index: number;
@@ -50,19 +47,6 @@ export class CompactData {
         return { lhs: rule[1], rhs: rule[2], confidence: rule[0][0] };
     };
 
-    public static toCompactCFD = (data: string): CFDCompactType => {
-        const [confidence, lhs, rhs, support] = data.split(":");
-        return {
-            lhs: lhs
-                .split(",")
-                .filter((line) => line.length)
-                .map(CompactData.toItem),
-            rhs: CompactData.toItem(rhs),
-            support: Number(support),
-            confidence: Number(confidence),
-        };
-    };
-
     public static toCompactMFD = (data: string): MFDCompactType => {
         const [withinLimit, index, furthestPointIndex, maximumDistance] = data.split(";");
 
@@ -82,11 +66,6 @@ export class CompactData {
     };
 
     ///
-
-    public static toItem = (data: string): Item => {
-        const [columnIndex, patternIndex] = data.split("=").map(Number);
-        return { columnIndex, patternIndex };
-    };
 
     public static toAR = (
         { lhs, rhs, confidence }: ARCompactType,
@@ -110,16 +89,15 @@ export class CompactData {
     };
 
     public static toCFD = (
-        { lhs, rhs, support, confidence }: CFDCompactType,
-        { columnNames }: Omit<ColumnsInfo, "columnIndicesOrder">,
-        { itemValues }: ItemsInfo
+        { lhs, rhs }: CFDCompactType,
+        { columnNames }: Omit<ColumnsInfo, "columnIndicesOrder">
     ): Cfd => {
         const getColumn = (index: number) => ({ name: columnNames[index], index });
-        const getItem = ({ columnIndex, patternIndex }: Item) => ({
-            column: getColumn(columnIndex),
-            pattern: itemValues[patternIndex],
+        const getItem = ({ attribute, value }: CFDItem) => ({
+            column: getColumn(attribute),
+            pattern: value || "_",
         });
-        return { lhs: lhs.map(getItem), rhs: getItem(rhs), support, confidence };
+        return { lhs: lhs.map(getItem), rhs: getItem(rhs) };
     };
 
     public static toMFD = ({
@@ -146,16 +124,6 @@ export class CompactData {
 
     ///
 
-    public static toPieChartWithPatternsRow = (
-        [index, value, patternValueId]: number[],
-        { columnNames }: ColumnsInfo,
-        { itemValues }: ItemsInfo
-    ): PieChartRowWithPattern => ({
-        column: { index, name: columnNames[index] },
-        value,
-        pattern: itemValues[patternValueId],
-    });
-
     public static toFDPieChartRow = (
         [index, value]: number[],
         { columnNames }: ColumnsInfo
@@ -175,16 +143,6 @@ export class CompactData {
                 .map(toChartRow);
         };
         return { lhs: transformFromCompactData(lhs), rhs: transformFromCompactData(rhs) };
-    };
-
-    public static toPieChartWithPattern = (
-        data: string,
-        columnsInfo: ColumnsInfo,
-        itemsInfo: ItemsInfo
-    ): PieChartWithPatterns => {
-        return CompactData.toPieChartBase(data, (row) =>
-            CompactData.toPieChartWithPatternsRow(row, columnsInfo, itemsInfo)
-        );
     };
 
     public static toPieChartWithoutPattern = (

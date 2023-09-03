@@ -78,7 +78,7 @@ export const allowedFDAlgorithms = [
 
 export const allowedCFDAlgorithms = [
     {
-        name: "CTane",
+        name: "FDFirstDFS",
         properties: {
             hasArityConstraint: true,
             hasSupport: true,

@@ -1,5 +1,5 @@
 import { upperCase, UpperCaseOption } from '@utils/uppercaseOptions';
-import { MainPrimitiveType } from 'types/globalTypes';
+import { CFDSubstrategyType, MainPrimitiveType } from 'types/globalTypes';
 
 function toScreamingSnakeOption<T extends string>(
   value: T
@@ -23,7 +23,7 @@ const FDAlgorithms = [
 ] as const;
 
 type FDAlgorithm = (typeof FDAlgorithms)[number];
-type CFDAlgorithm = 'CTane';
+type CFDAlgorithm = 'FDFirstDFS';
 type ARAlgorithm = 'Apriori';
 
 const MFDAlgorithms = ['Brute', 'Approx', 'Calipers'] as const;
@@ -46,9 +46,14 @@ const toAlgoOption = (algo: Algorithms) => ({
 export type AlgoOption = ReturnType<typeof toAlgoOption>;
 export const FDoptions: AlgoOption[] = FDAlgorithms.map(toAlgoOption);
 export const TypoOptions = FDoptions;
-export const CFDoptions: AlgoOption[] = [toAlgoOption('CTane')];
+export const CFDOptions: AlgoOption[] = [toAlgoOption('FDFirstDFS')];
 export const ARoptions: AlgoOption[] = [toAlgoOption('Apriori')];
 export const ApproxOptions: AlgoOption[] = [toAlgoOption('Pyro')];
+
+const CFDSubstrategies = Object.values(
+  CFDSubstrategyType
+) as `${CFDSubstrategyType}`;
+export const CFDSubstrategiesOptions = CFDSubstrategies.map(toAlgoOption);
 
 const toScreamingSnakeAlgoOption = (algo: Algorithms): AlgoOption => {
   return {
@@ -64,7 +69,7 @@ export const MFDAlgoOptions: AlgoOption[] = MFDAlgorithms.map(
 export const optionsByPrimitive: Record<MainPrimitiveType, AlgoOption[]> = {
   [MainPrimitiveType.FD]: FDoptions,
   [MainPrimitiveType.AR]: ARoptions,
-  [MainPrimitiveType.CFD]: CFDoptions,
+  [MainPrimitiveType.CFD]: CFDOptions,
   [MainPrimitiveType.TypoFD]: TypoOptions,
   [MainPrimitiveType.MFD]: MFDAlgoOptions,
   [MainPrimitiveType.Stats]: [], // Pechenux to reviewers: temporary solution
@@ -80,7 +85,7 @@ export const optionsByAlgorithms: Record<Algorithms, AlgoProps[]> = {
   DepMiner: [],
   FDep: [],
   FUN: [],
-  CTane: [],
+  FDFirstDFS: [],
   Apriori: [],
   Brute: [], // Metric Algorithms
   Approx: [], // Metric Algorithms

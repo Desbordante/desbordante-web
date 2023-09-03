@@ -1,8 +1,5 @@
 import { gql } from '@apollo/client';
-import {
-  PIE_CHART_DATA_WITHOUT_PATTERNS,
-  PIE_CHART_DATA_WITH_PATTERNS,
-} from '../fragments';
+import { PIE_CHART_DATA_WITHOUT_PATTERNS } from '../fragments';
 
 export const GET_PIE_CHART_DATA = gql`
   ${PIE_CHART_DATA_WITHOUT_PATTERNS}

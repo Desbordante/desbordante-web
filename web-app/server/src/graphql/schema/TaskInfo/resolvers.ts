@@ -171,14 +171,6 @@ export const TaskInfoResolvers: Resolvers = {
                 await AbstractFilter.getColumnsInfo(fileID)
             ),
     },
-    CFDPieChartData: {
-        withPatterns: async ({ prefix: type, state, fileID }) =>
-            CompactData.toPieChartWithPattern(
-                await state.getResultFieldAsString(type, "withPatterns"),
-                await AbstractFilter.getColumnsInfo(fileID),
-                await AbstractFilter.getItemsInfo(state, type)
-            ),
-    },
     FDTaskResult: {
         pieChartData: returnParent,
     },

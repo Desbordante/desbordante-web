@@ -38,16 +38,7 @@ export class FDTaskResult extends SpecificTaskWithDepsResult {
 @Table(getResultTableOptions("CFD"))
 export class CFDTaskResult extends SpecificTaskWithDepsResult {
     @Column({ type: TEXT, allowNull: true })
-    PKColumnIndices!: string | null;
-
-    @Column({ type: TEXT, allowNull: true })
-    withPatterns!: string | null;
-
-    @Column({ type: TEXT, allowNull: true })
     withoutPatterns!: string | null;
-
-    @Column({ type: TEXT, allowNull: true })
-    valueDictionary!: string | null;
 }
 
 @Table(getResultTableOptions("AR"))

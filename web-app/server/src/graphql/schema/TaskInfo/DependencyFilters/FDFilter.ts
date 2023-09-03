@@ -17,8 +17,8 @@ export class FDFilter extends AbstractFilter<FDCompactType, Fd> {
     };
 
     getCompactDeps = async (data: string): Promise<FDCompactType[]> => {
-        const fdsData = JSON.parse(data) as { fds: FDCompactType[] };
-        return fdsData.fds;
+        const { fds } = JSON.parse(data) as { fds: FDCompactType[] };
+        return fds;
     };
 
     public static getPKsIndices = async (state: TaskState, type: MainPrimitiveType) =>

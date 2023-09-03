@@ -18,6 +18,9 @@ export class FDTaskConfig extends BaseSpecificTaskConfig {
     threadsCount!: number;
 }
 
+const CFD_SUBSTRATEGIES = ["DFS", "BFS"] as const;
+type CFDSubstrategyType = typeof CFD_SUBSTRATEGIES[number];
+
 @Table(getConfigTableOptions("CFD"))
 export class CFDTaskConfig extends BaseSpecificTaskConfig {
     @Column({ type: INTEGER, allowNull: false })
@@ -28,6 +31,9 @@ export class CFDTaskConfig extends BaseSpecificTaskConfig {
 
     @Column({ type: REAL, allowNull: false })
     minConfidence!: number;
+
+    @Column({ type: STRING, allowNull: false, defaultValue: "DFS" })
+    substrategy!: CFDSubstrategyType;
 }
 
 @Table(getConfigTableOptions("AR"))
@@ -185,7 +191,7 @@ export class MFDTaskConfig extends BaseSpecificTaskConfig {
         type: STRING,
         allowNull: false,
         set(this: MFDTaskConfig, value: string) {
-          this.setDataValue("metric", value.toLowerCase());
+            this.setDataValue("metric", value.toLowerCase());
         },
     })
     metric!: MFDMetricType;
@@ -196,7 +202,7 @@ export class MFDTaskConfig extends BaseSpecificTaskConfig {
     @Column({
         type: STRING,
         set(this: MFDTaskConfig, value: string) {
-          this.setDataValue("metricAlgorithm", value.toLowerCase());
+            this.setDataValue("metricAlgorithm", value.toLowerCase());
         },
     })
     metricAlgorithm!: MFDMetricAlgorithmsType;
