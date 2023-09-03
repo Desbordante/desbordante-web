@@ -28,11 +28,7 @@ export const TaskCreatingResolvers: Resolvers = {
                 );
             }
         },
-        createMainTaskWithDatasetChoosing: async (
-            parent,
-            { props, fileID, forceCreate },
-            context
-        ) => {
+        createMainTask: async (parent, { props, fileID, forceCreate }, context) => {
             const { models, sessionInfo } = context;
             const file = await models.FileInfo.findOne({
                 where: {

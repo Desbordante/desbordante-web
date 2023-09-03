@@ -40,8 +40,7 @@ type CreateTaskProps = CreateMainTaskProps | CreateSpecificTaskProps;
 
 export const createTask: TaskProcessingFunction<
     CreateTaskProps,
-    | CreateMainTask["createMainTaskWithDatasetChoosing"]
-    | CreateSpecificTask["createSpecificTask"]
+    CreateMainTask["createMainTask"] | CreateSpecificTask["createSpecificTask"]
 > = async (serverInfo, params) => {
     const isMainTask = (params: CreateTaskProps): params is CreateMainTaskProps => {
         return isMainPrimitiveType(params.props.type);
@@ -55,7 +54,7 @@ export const createTask: TaskProcessingFunction<
 
 export const createMainTask: TaskProcessingFunction<
     CreateMainTaskProps,
-    CreateMainTask["createMainTaskWithDatasetChoosing"]
+    CreateMainTask["createMainTask"]
 > = async (serverInfo, { fileName, props }) => {
     const { context } = serverInfo;
     const { models } = context;
@@ -75,10 +74,10 @@ export const createMainTask: TaskProcessingFunction<
     });
     expect(createMainTask.errors).toBeUndefined();
     expect(createMainTask.data).toBeDefined();
-    const { createMainTaskWithDatasetChoosing } = createMainTask.data;
-    expect(createMainTaskWithDatasetChoosing.taskID).toBeDefined();
+    const { createMainTask: create } = createMainTask.data;
+    expect(create.taskID).toBeDefined();
 
-    return createMainTaskWithDatasetChoosing;
+    return create;
 };
 
 export const createSpecificTask: TaskProcessingFunction<

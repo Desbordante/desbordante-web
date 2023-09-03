@@ -136,7 +136,7 @@ describe('StatsTab Component', () => {
       },
       newData: jest.fn(() => ({
         data: {
-          createMainTaskWithDatasetChoosing: {
+          createMainTask: {
             __typename: 'TaskState',
             taskID: 'test',
           },

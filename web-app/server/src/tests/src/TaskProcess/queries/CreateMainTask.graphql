@@ -1,5 +1,5 @@
 mutation CreateMainTask($fileID: ID! $props: IntersectionMainTaskProps!) {
-    createMainTaskWithDatasetChoosing(fileID: $fileID, props: $props, forceCreate: true) {
+    createMainTask(fileID: $fileID, props: $props, forceCreate: true) {
         taskID
     }
 }

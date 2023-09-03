@@ -256,7 +256,7 @@ const useFormFactory = <T extends UsedPrimitivesType>({
           router.push({
             pathname: '/reports',
             query: {
-              taskID: resp.data?.createMainTaskWithDatasetChoosing.taskID,
+              taskID: resp.data?.createMainTask.taskID,
             },
           })
         )

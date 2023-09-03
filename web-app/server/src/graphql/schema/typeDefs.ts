@@ -939,7 +939,7 @@ const typeDefs = gql`
 
         """
         This query allows authorized users upload datasets.
-        User can choose his own datasets (pass fileID) in query createMainTaskWithDatasetChoosing.
+        User can choose his own datasets (pass fileID) in query createMainTask.
         """
         uploadDataset(datasetProps: FileProps!, table: Upload!): DatasetInfo!
 
@@ -963,7 +963,7 @@ const typeDefs = gql`
         By default, the result of the algorithm is visible for all users.
         forceCreate is irrelevant for stats algorithm
         """
-        createMainTaskWithDatasetChoosing(
+        createMainTask(
             props: IntersectionMainTaskProps!
             fileID: ID!
             forceCreate: Boolean! = false
