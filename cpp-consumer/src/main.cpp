@@ -7,8 +7,6 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-#define DEV 0
-
 enum class AnswerType : int { OK = 0, CRASH = 1 };
 
 int main(int argc, char const* argv[]) {
@@ -18,7 +16,7 @@ int main(int argc, char const* argv[]) {
         return static_cast<int>(AnswerType::CRASH);
     }
 
-#if DEV
+#ifdef DEV
     std::string host = "0.0.0.0";
     std::string port = "5432";
     std::string user = "postgres";

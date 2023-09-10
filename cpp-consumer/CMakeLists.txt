@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 option(COMPILE_TESTS "Build tests" OFF)
 option(UNPACK_DATASETS "Unpack datasets" OFF)
 option(ASAN "Enable sanitizer" OFF)
+option(DEV "Enable development mode" OFF)
 
 set(COMPILE_TESTS OFF)
 set(UNPACK_DATASETS OFF)
@@ -14,6 +15,10 @@ set(CMAKE_BUILD_TYPE Release)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif(NOT CMAKE_BUILD_TYPE)
+
+if(DEV)
+    ADD_DEFINITIONS(-DDEV)
+endif(DEV)
 
 set(DESBORDANTE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/lib/Desbordante")
 message("msg '${DESBORDANTE_SOURCE_DIR}'")
