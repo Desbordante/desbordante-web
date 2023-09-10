@@ -1,5 +1,7 @@
 #include "cfd_executor.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace process {
 
 bool CFDExecutor::InternalLoadData(db::DataBase const& /* db */, db::ParamsLoader& loader,
