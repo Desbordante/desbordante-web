@@ -3,10 +3,25 @@
 #include <memory>
 #include <pqxx/pqxx>
 #include <string>
+#include <unordered_map>
 #include <variant>
 
 namespace db {
 
+/**
+ * @brief Simple select query
+ *
+ * @code
+ * {
+ *  // equal to
+ *  // SELECT "fileID", "fileName" FROM "FilesInfo" WHERE "fileID"='value';
+ *  Select s{
+ *    .select={"fileID", "fileName"},
+ *    .from="FilesInfo",
+ *    .conditions={"fileID", "value"}
+ *  };
+ * }
+ */
 struct Select {
     std::vector<std::string> select;
     std::string from;
@@ -19,7 +34,17 @@ struct Update {
     std::vector<std::pair<std::string, std::string>> conditions;
 };
 
-using Query = std::variant<Select, Update, std::string>;
+using KeysVec = std::vector<std::string>;
+using Value = std::vector<std::string>;
+using Values = std::vector<Value>;
+
+struct Insert {
+    KeysVec keys;
+    Values values;
+    std::string table;
+};
+
+using Query = std::variant<Select, Update, Insert, std::string>;
 
 class DataBase {
     std::unique_ptr<pqxx::connection> connection_;

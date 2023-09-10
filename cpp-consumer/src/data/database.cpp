@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include <boost/algorithm/string.hpp>
 #include <easylogging++.h>
 
 #include "util/overloaded.h"
@@ -55,6 +56,20 @@ static std::string ToQuery(Update const& u) {
     return ss.str();
 }
 
+static std::string ToQuery(Insert const& i) {
+    std::stringstream ss;
+    ss << "INSERT INTO " << i.table << " (" << boost::join(i.keys, ",") << ") ";
+    ss << "VALUES";
+
+    for (size_t j = 0; j != i.values.size(); ++j) {
+        if (j != 0) {
+            ss << " , ";
+        }
+        ss << "(" << boost::join(i.values[j], ",") << ")";
+    }
+    return ss.str();
+}
+
 static std::string ToQuery(std::string const& query) {
     return query;
 }
@@ -81,7 +96,7 @@ pqxx::result DataBase::TransactionQuery(db::Query const& query) const {
     try {
         auto w = std::make_unique<pqxx::work>(*connection_);
         std::string query_text = ToQuery(query);
-        LOG(DEBUG) << query_text << "\n";
+        LOG(INFO) << query_text << "\n";
         pqxx::result r = w->exec(query_text);
         w->commit();
         return r;
