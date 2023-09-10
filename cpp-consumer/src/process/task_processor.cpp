@@ -70,6 +70,8 @@ static std::unique_ptr<IExecutor> CreateExecutor(std::string const& type) {
         return std::make_unique<FDExecutor>();
     } else if (type == "MFD") {
         return std::make_unique<MFDExecutor>();
+    } else if (type == "Stats") {
+        return std::make_unique<StatsExecutor>();
     }
     return nullptr;
 }
