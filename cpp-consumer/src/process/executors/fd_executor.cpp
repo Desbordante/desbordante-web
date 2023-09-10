@@ -1,5 +1,7 @@
 #include "fd_executor.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace process {
 
 static std::string GetCompactString(const std::vector<const Column*>& columns) {
