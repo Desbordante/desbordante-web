@@ -200,16 +200,15 @@ const useFormFactory = <T extends UsedPrimitivesType>({
               );
             }
 
-            if (fieldProps.type === 'custom')
+            if (fieldProps.type === 'custom') {
+              const Component = fieldProps.component;
               return (
+            
                 <div className={'Custom'} key={fieldProps.label}>
-                  {fieldProps.component({
-                    key: fieldProps.label,
-                    ...fieldProps,
-                    ...field,
-                  })}
+                  <Component {..._.omit(fieldProps, ['component', 'rules']) as any} {...field}/>
                 </div>
               );
+            }
 
             return (
               <div key={fieldProps.label}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '@styles/ConfigureAlgorithm.module.scss';
+import styles from './ConfigureAlgorithm.module.scss';
 
 const FormHeader = (
   <>

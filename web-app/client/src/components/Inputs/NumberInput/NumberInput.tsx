@@ -21,7 +21,7 @@ interface NumberInputProps {
 }
 
 type Props = InputPropsBase &
-  Omit<HTMLProps<HTMLInputElement>, 'onChange'> & {
+  Omit<HTMLProps<HTMLInputElement>, 'onChange' | 'value'> & {
     tooltip?: ReactNode;
     numberProps?: NumberInputProps;
     onChange: (value: number) => void;

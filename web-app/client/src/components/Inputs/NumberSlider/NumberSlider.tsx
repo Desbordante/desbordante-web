@@ -34,7 +34,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
     onChange,
     ...props
   },
-  ref
+  ref,
 ) => {
   const min = sliderProps?.min || 0;
   const max = sliderProps?.max || 100;
@@ -67,9 +67,17 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
     setTempValue(value === undefined ? '' : value?.toString());
   }, [value]);
 
-  const prepareValue = (s: string) => {
+  const placeInsideBorders = (s: string): number => {
     const parsed = Number.parseFloat(s);
-    return Number.isNaN(parsed) ? min : parsed;
+    if (!Number.isNaN(parsed)) {
+      if (parsed <= min) return min;
+      if (parsed >= max) return max;
+      return parsed;
+    } else return min;
+  };
+  const prepareValue = (s: string): number => {
+    const parsed = placeInsideBorders(s);
+    return parsed;
   };
 
   return (
@@ -77,7 +85,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       className={classNames(
         styles.inputText,
         props.disabled && styles.disabled,
-        className
+        className,
       )}
     >
       <div className={styles.top}>
@@ -88,7 +96,10 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
         <Text
           {...props}
           value={tempValue}
-          onBlur={(e) => onChange(prepareValue(e.target.value))}
+          onBlur={(e) => {
+            onChange(prepareValue(e.target.value));
+            setTempValue(prepareValue(e.target.value).toString());
+          }}
           onChange={(e) => setTempValue(e.currentTarget.value)}
           className={styles.text}
           ref={ref}

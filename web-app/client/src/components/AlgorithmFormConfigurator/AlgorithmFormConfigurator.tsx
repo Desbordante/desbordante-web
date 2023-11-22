@@ -6,7 +6,7 @@ import useFormFactory from '@components/AlgorithmFormConfigurator/useFormFactory
 import PresetSelector from '@components/PresetSelector';
 import WizardLayout from '@components/WizardLayout';
 import { UsedPrimitivesType } from '@constants/formPrimitives';
-import styles from '@styles/ConfigureAlgorithm.module.scss';
+import styles from './ConfigureAlgorithm.module.scss';
 
 type QueryProps<T extends UsedPrimitivesType> = {
   primitive: T;
@@ -34,18 +34,27 @@ const AlgorithmFormConfigurator = <T extends UsedPrimitivesType>({
     formParams,
   });
 
+  const numColumnContainer = `container${
+    entries.length > 4 ? 'Over4' : 'Less4'
+  }Inputs`;
+
+  const containerOuter = entries.length > 4 ? 'bigContainer' : 'containerLess4Inputs'
+
   return (
     <WizardLayout header={FormHeader} footer={FormFooter(router, onSubmit)}>
-      <div className={styles.container}>
-        <PresetSelector
-          presets={formPresets}
-          isCustom={methods.formState.isDirty}
-          changePreset={changePreset}
-          isLoading={fileNameLoading}
-        />
+      <div className={styles[containerOuter]}>
+        <div className={styles[numColumnContainer]}>
+          <PresetSelector
+            presets={formPresets}
+            isCustom={methods.formState.isDirty}
+            changePreset={changePreset}
+            isLoading={fileNameLoading}
+          />
+        </div>
+
+        <div className={styles.line} />
+        <div className={styles[numColumnContainer]}>{entries}</div>
       </div>
-      <div className={styles.line} />
-      <div className={styles.container}>{entries}</div>
     </WizardLayout>
   );
 };

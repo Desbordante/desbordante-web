@@ -8,4 +8,5 @@ export const primitivePathnames: Record<PrimitiveType, string> = {
   Stats: 'reports/dependencies',
   TypoCluster: 'reports/dependencies',
   TypoFD: 'reports/dependencies',
+  AC: 'reports/dependencies',
 };

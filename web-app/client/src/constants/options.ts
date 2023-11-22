@@ -1,7 +1,7 @@
 import { upperCase, UpperCaseOption } from '@utils/uppercaseOptions';
 import { MainPrimitiveType } from 'types/globalTypes';
 
-function toScreamingSnakeOption<T extends string>(
+export function toScreamingSnakeOption<T extends string>(
   value: T
 ): UpperCaseOption<T> {
   return {
@@ -25,6 +25,7 @@ const FDAlgorithms = [
 type FDAlgorithm = (typeof FDAlgorithms)[number];
 type CFDAlgorithm = 'CTane';
 type ARAlgorithm = 'Apriori';
+type ACAlgorithm = 'BHUNT';
 
 // const MFDAlgorithms = ['BRUTE', 'APPROX', 'CALIPERS'] as const;
 const MFDAlgorithms = ['Brute', 'Approx', 'Calipers'] as const;
@@ -35,7 +36,8 @@ export type Algorithms =
   | FDAlgorithm
   | CFDAlgorithm
   | ARAlgorithm
-  | MFDAlgorithm;
+  | MFDAlgorithm
+  | ACAlgorithm;
 
 type AlgoProps = 'arity' | 'threshold' | 'threads';
 
@@ -50,6 +52,7 @@ export const TypoOptions = FDoptions;
 export const CFDoptions: AlgoOption[] = [toAlgoOption('CTane')];
 export const ARoptions: AlgoOption[] = [toAlgoOption('Apriori')];
 export const ApproxOptions: AlgoOption[] = [toAlgoOption('Pyro')];
+export const ACoptions: AlgoOption[] = [toAlgoOption('BHUNT')];
 
 const toScreamingSnakeAlgoOption = (algo: Algorithms): AlgoOption => {
   return {
@@ -68,6 +71,7 @@ export const optionsByPrimitive: Record<MainPrimitiveType, AlgoOption[]> = {
   [MainPrimitiveType.CFD]: CFDoptions,
   [MainPrimitiveType.TypoFD]: TypoOptions,
   [MainPrimitiveType.MFD]: MFDAlgoOptions,
+  [MainPrimitiveType.AC]: ACoptions,
   [MainPrimitiveType.Stats]: [], // Pechenux to reviewers: temporary solution
 };
 
@@ -86,6 +90,7 @@ export const optionsByAlgorithms: Record<Algorithms, AlgoProps[]> = {
   Brute: [], // Metric Algorithms
   Approx: [], // Metric Algorithms
   Calipers: [], // Metric Algorithms
+  BHUNT: [],
 };
 
 // ------------------------ METRIC FUNCTIONAL DEPENDENCIES ONLY PARAMETERS ---------------------------
@@ -102,15 +107,13 @@ export const MFDMetricOptions: MFDMetricOption[] = MFDMetrics.map(
   toScreamingSnakeOption
 );
 
-export const metricOptionsByPrimitive: Record<
-  MainPrimitiveType,
-  MFDMetricOption[]
-> = {
+export const metricOptionsByPrimitive: Record<MainPrimitiveType, MFDMetricOption[]> = {
   [MainPrimitiveType.FD]: [],
   [MainPrimitiveType.AR]: [],
   [MainPrimitiveType.CFD]: [],
   [MainPrimitiveType.TypoFD]: [],
   [MainPrimitiveType.MFD]: MFDMetricOptions,
+  [MainPrimitiveType.AC]: [],
   [MainPrimitiveType.Stats]: [], // Pechenux to reviewers: temporary solution
 };
 
@@ -141,6 +144,7 @@ export const metricColumnTypeOptionsByPrimitive: Record<
   [MainPrimitiveType.CFD]: [],
   [MainPrimitiveType.TypoFD]: [],
   [MainPrimitiveType.MFD]: MFDColumnTypeOptions,
+  [MainPrimitiveType.AC]: [],
   [MainPrimitiveType.Stats]: [], // Pechenux to reviewers: temporary solution
 };
 

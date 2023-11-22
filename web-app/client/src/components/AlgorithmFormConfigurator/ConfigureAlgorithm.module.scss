@@ -4,14 +4,31 @@
   margin-top: 16px;
 }
 
-$container-width: 466px;
-
-.container {
+.containerLess4Inputs, .bigContainer {
   margin: auto;
   flex-direction: column;
   gap: 24px;
   display: flex;
-  width: $container-width;
+  width: 100%;
+  max-width: 466px;
+}
+
+.bigContainer {
+  max-width: 1100px;
+}
+
+.containerOver4Inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 32px;
+  row-gap: 24px;
+  width: 100%;
+
+  @media (max-width: 960px) {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
 }
 
 .filler {
@@ -30,9 +47,9 @@ $container-width: 466px;
 }
 
 .line {
-  width: $container-width;
+  width: 100%;
+  grid-column: span 2;
   border: 0;
   border-top: 1px solid $black-25;
-  margin: 1em 0;
   padding: 0;
 }
