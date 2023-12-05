@@ -69,15 +69,15 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
 
   const placeInsideBorders = (s: string): number => {
     const parsed = Number.parseFloat(s);
-    if (!Number.isNaN(parsed)) {
-      if (parsed <= min) return min;
-      if (parsed >= max) return max;
-      return parsed;
-    } else return min;
+    if (Number.isNaN(parsed)) {
+      return min;
+    }
+    if (parsed <= min) return min;
+    if (parsed >= max) return max;
+    return parsed;
   };
   const prepareValue = (s: string): number => {
-    const parsed = placeInsideBorders(s);
-    return parsed;
+    return placeInsideBorders(s);
   };
 
   return (

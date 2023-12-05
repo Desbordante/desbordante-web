@@ -1,11 +1,12 @@
-import { useRouter } from 'next/router';
-import React from 'react';
 import FormFooter from '@components/AlgorithmFormConfigurator/FormFooter';
 import FormHeader from '@components/AlgorithmFormConfigurator/FormHeader';
 import useFormFactory from '@components/AlgorithmFormConfigurator/useFormFactory';
 import PresetSelector from '@components/PresetSelector';
 import WizardLayout from '@components/WizardLayout';
 import { UsedPrimitivesType } from '@constants/formPrimitives';
+import cn from 'classnames';
+import { useRouter } from 'next/router';
+import React from 'react';
 import styles from './ConfigureAlgorithm.module.scss';
 
 type QueryProps<T extends UsedPrimitivesType> = {
@@ -38,11 +39,14 @@ const AlgorithmFormConfigurator = <T extends UsedPrimitivesType>({
     entries.length > 4 ? 'Over4' : 'Less4'
   }Inputs`;
 
-  const containerOuter = entries.length > 4 ? 'bigContainer' : 'containerLess4Inputs'
-
   return (
     <WizardLayout header={FormHeader} footer={FormFooter(router, onSubmit)}>
-      <div className={styles[containerOuter]}>
+      <div
+        className={cn(
+          styles.baseFormContainer,
+          entries.length > 4 && styles.bigFormContainer,
+        )}
+      >
         <div className={styles[numColumnContainer]}>
           <PresetSelector
             presets={formPresets}

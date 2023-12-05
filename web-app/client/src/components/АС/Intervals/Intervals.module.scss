@@ -1,0 +1,62 @@
+@import "styles/common";
+
+.containerOuter {
+  @include paragraph-small;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  padding: 16px;
+  max-width: 836px;
+  cursor: pointer;
+  background-color: $white;
+  border: solid 2px $black;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.icons {
+  color: $black-75;
+  width: 16px;
+  height: 16px;
+}
+
+.containerInner {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.default {
+  background-color: $white-25;
+  border-color: $black-50;
+}
+
+.error {
+  background-color: $error-10;
+  border-color: $error;
+}
+
+.selected {
+  background-color: $secondary-1;
+  border-color: $primary-0;
+}
+
+.attributes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.attr {
+  @include paragraph-small;
+  border-radius: 8px;
+  text-align: center;
+  background: $black-10;
+  border: 2px solid transparent;
+  color: $black-75;
+  padding-left: 8px;
+  padding-right: 8px;
+}

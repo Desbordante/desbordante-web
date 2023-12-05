@@ -1,66 +1,47 @@
+import { Intervals } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
 import { atom } from 'jotai';
-import { MFDSortBy, OrderBy, Pagination } from 'types/globalTypes';
+import { ACSortBy, OrderBy, Pagination } from 'types/globalTypes';
 
-export type ACHighlight = {
-  index: number;
-  rowIndex: number;
-  withinLimit: boolean;
-  maximumDistance: string;
-  furthestPointIndex: number;
-  value: string;
-  clusterValue: string;
-};
-
-export type ACCluster = {
-  value: string;
-  highlightsTotalCount: number;
-  highlights: ACHighlight[];
+export type ACInstance = {
+  attribute1: string;
+  attribute2: string;
+  intervals: Intervals[];
+  outliers: number[];
 };
 
 type ACTaskAtom = {
   taskID: string;
-  result: boolean | undefined;
-  clustersTotalCount: number;
-  clusterIndex: number;
-  cluster: ACCluster;
+  instanceSelected: ACInstance | null;
   pagination: Pagination;
-  sortBy: MFDSortBy;
+  sortBy: ACSortBy;
   orderBy: OrderBy;
 };
 
 export const ACAtomDefaultValues: ACTaskAtom = {
   // general task data
   taskID: '',
-  result: undefined,
-  clustersTotalCount: 0,
-  // current cluster data
-  clusterIndex: 0,
-  cluster: {
-    value: '',
-    highlightsTotalCount: 0,
-    highlights: [],
-  },
+  instanceSelected: null,
   pagination: {
     offset: 0,
-    limit: 0,
+    limit: 6,
   },
-  sortBy: MFDSortBy.MAXIMUM_DISTANCE,
+  sortBy: ACSortBy.NUMBER_OF_INTERVALS,
   orderBy: OrderBy.ASC,
 };
 
-export const MFDAtomDefaultValuesWithParams = (
+export const ACAtomDefaultValuesWithParams = (
   taskID: string,
-  clusterIndex = 0,
-  limit = 0,
-  sortBy = MFDSortBy.MAXIMUM_DISTANCE,
-  orderBy = OrderBy.ASC
+  instanceSelected: ACInstance | null,
+  sortBy = ACSortBy.NUMBER_OF_INTERVALS,
+  orderBy = OrderBy.ASC,
+  offset = 0,
 ) => ({
   ...ACAtomDefaultValues,
+  instanceSelected,
   taskID,
-  clusterIndex,
   pagination: {
-    offset: 0,
-    limit,
+    offset,
+    limit: 6,
   },
   sortBy,
   orderBy,

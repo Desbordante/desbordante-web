@@ -11,7 +11,7 @@ import { InputPropsBase, Text } from '@components/Inputs';
 import Tooltip from '@components/Tooltip';
 import styles from './NumberInput.module.scss';
 
-interface NumberInputProps {
+export interface NumberInputProps {
   defaultNum: number;
   min?: number;
   includingMin?: boolean;
@@ -40,7 +40,7 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
     onChange,
     ...props
   },
-  ref
+  ref,
 ) => {
   const {
     numbersAfterDot,
@@ -78,7 +78,7 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       className={classNames(
         styles.inputText,
         props.disabled && styles.disabled,
-        className
+        className,
       )}
     >
       <div className={styles.top}>

@@ -1,0 +1,16 @@
+@import "styles/common";
+
+.filler {
+  height: 80px;
+  width: fit-content;
+  margin: auto;
+  display: flex;
+  align-items: center;
+
+  .text {
+    h6 {
+      @include heading-6;
+      margin-bottom: 8px;
+    }
+  }
+}
