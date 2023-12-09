@@ -2,8 +2,8 @@
 
 .attributes {
   display: flex;
+  align-items: center;
   gap: 8px;
-  align-items: baseline;
   color: $primary-0;
 }
 
@@ -12,12 +12,12 @@
   height: 24px;
 }
 
-.attr {
+.attribute {
   @include paragraph;
   border-radius: 8px;
-  text-align: center;
-  background: $secondary-2;
   padding: 16px 32px;
+  background: $secondary-2;
+  text-align: center;
 }
 
 .header {
@@ -32,11 +32,15 @@
 
 .customTooltip {
   @include paragraph-small;
-  color: $black-75;
-  background-color: $white;
   border: 2px solid $black-50;
   border-radius: 4px;
   padding: 16px;
   max-width: 400px;
+  background-color: $white;
+  color: $black-75;
+}
 
+.histogramContainer {
+  width: 80%;
+  height: 80%;
 }

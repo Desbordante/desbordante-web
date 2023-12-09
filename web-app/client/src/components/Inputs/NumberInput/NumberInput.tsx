@@ -1,14 +1,16 @@
 import classNames from 'classnames';
 import {
-  forwardRef,
   ForwardRefRenderFunction,
   HTMLProps,
   ReactNode,
+  forwardRef,
   useEffect,
   useState,
 } from 'react';
+
 import { InputPropsBase, Text } from '@components/Inputs';
 import Tooltip from '@components/Tooltip';
+
 import styles from './NumberInput.module.scss';
 
 export interface NumberInputProps {
@@ -90,8 +92,9 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
           {...props}
           value={displayValue}
           onBlur={(e) => {
-            onChange(prepareValue(e.target.value));
-            setDisplayValue(prepareValue(e.target.value).toString());
+            const preparedValue = prepareValue(e.target.value);
+            onChange(preparedValue);
+            setDisplayValue(preparedValue.toString());
           }}
           onChange={(e) => setDisplayValue(e.currentTarget.value)}
           className={styles.text}

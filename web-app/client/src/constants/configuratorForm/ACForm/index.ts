@@ -2,7 +2,7 @@ import { ACoptions } from '@constants/options';
 import { UpperCaseOption } from '@utils/uppercaseOptions';
 import { toScreamingSnakeOption } from '@constants/options';
 import { Defaults, FormFieldsProps, CreateForm, Presets } from 'types/form';
-import SeedCustomInput from './SeedCustomInputs/SeedCustomInput';
+import SeedCustomInput from './SeedCustomInput';
 
 const ACoperations = [
   'Addition',
@@ -30,7 +30,7 @@ export const ACDefaults = {
   operation: 'MULTIPLICATION',
 } satisfies Defaults;
 
-const FDPresets: Presets<typeof ACDefaults> = [
+const ACPresets: Presets<typeof ACDefaults> = [
   {
     filenames: 'EveryFile',
     presetName: 'Some preset',
@@ -49,6 +49,13 @@ const ACFields = {
     isLoading: false,
     options: ACoptions,
   },
+  operation: {
+    order: 1,
+    type: 'select',
+    label: 'Operation',
+    isLoading: false,
+    options: ACoperationOptions,
+  },
   bumpsLimit: {
     order: 2,
     type: 'number_input',
@@ -61,6 +68,14 @@ const ACFields = {
       includingMin: true,
       numbersAfterDot: 0,
     },
+  },
+  weight: {
+    order: 3,
+    type: 'number_slider',
+    label: 'Weight',
+    tooltip:
+      'Weight defines the size of discovered intervals, 0 — lots of small intervals, 1 — a single large one. This parameter is called w in the paper.',
+    numberSliderProps: { min: 0, max: 1, step: 1e-4, size: 4 },
   },
   iterationsLimit: {
     order: 4,
@@ -75,12 +90,13 @@ const ACFields = {
       numbersAfterDot: 0,
     },
   },
-  operation: {
-    order: 1,
-    type: 'select',
-    label: 'Operation',
-    isLoading: false,
-    options: ACoperationOptions,
+  fuzziness: {
+    order: 5,
+    type: 'number_slider',
+    label: 'Fuzziness',
+    tooltip:
+      'Fuzziness is the fraction of rows not included in the sample: the closer to 0, the more rows will be selected and the closer to 1, the fewer rows will be selected. This parameter is called f in the paper.',
+    numberSliderProps: { min: 0, max: 1, step: 1e-4, size: 4 },
   },
   seed: {
     order: 6,
@@ -91,22 +107,6 @@ const ACFields = {
       numbersAfterDot: 5,
     },
     component: SeedCustomInput as any, //TODO: investigate later
-  },
-  weight: {
-    order: 3,
-    type: 'number_slider',
-    label: 'Weight',
-    tooltip:
-      'Weight defines the size of discovered intervals, 0 — lots of small intervals, 1 — a single large one. This parameter is called w in the paper.',
-    numberSliderProps: { min: 0, max: 1, step: 1e-4, size: 4 },
-  },
-  fuzziness: {
-    order: 5,
-    type: 'number_slider',
-    label: 'Fuzziness',
-    tooltip:
-      'Fuzziness is the fraction of rows not included in the sample: the closer to 0, the more rows will be selected and the closer to 1, the fewer rows will be selected. This parameter is called f in the paper.',
-    numberSliderProps: { min: 0, max: 1, step: 1e-4, size: 4 },
   },
   pFuzz: {
     order: 7,
@@ -121,5 +121,5 @@ const ACFields = {
 export const ACForm = CreateForm({
   formDefaults: ACDefaults,
   formFields: ACFields,
-  formPresets: FDPresets,
+  formPresets: ACPresets,
 });

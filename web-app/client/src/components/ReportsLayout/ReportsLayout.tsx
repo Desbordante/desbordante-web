@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import React, { FC, PropsWithChildren } from 'react';
 import Background from '@assets/backgrounds/reports.svg?component';
 import ChartIcon from '@assets/icons/chart.svg?component';
+import HistogramIcon from '@assets/icons/bar-chart.svg?component';
 import ClusterIcon from '@assets/icons/cluster.svg?component';
 import DatatableIcon from '@assets/icons/datatable.svg?component';
 import DropDownIcon from '@assets/icons/list-dropdown.svg?component';
@@ -41,6 +42,16 @@ const menuMFDClusters = {
   pathname: '/reports/metric-dependencies',
   icon: <ClusterIcon />,
 };
+const menuACHistogram = {
+  label: 'Histogram',
+  pathname: '/reports/histogram',
+  icon: <HistogramIcon />,
+};
+const menuACInstanceList = {
+  label: 'Instance List',
+  pathname: '/reports/ac-instance-list',
+  icon: <DropDownIcon />,
+};
 
 export const reportsTabs: Record<
   PrimitiveType,
@@ -53,6 +64,7 @@ export const reportsTabs: Record<
   [PrimitiveType.TypoFD]: [menuPrimitiveList, menuClusters, menuDatasetSnippet],
   [PrimitiveType.MFD]: [menuMFDClusters],
   [PrimitiveType.Stats]: [],
+  [PrimitiveType.AC]: [menuACInstanceList, menuACHistogram, menuDatasetSnippet],
 };
 
 export const ReportsLayout: FC<Props> = ({
@@ -62,7 +74,7 @@ export const ReportsLayout: FC<Props> = ({
 }) => {
   const router = useRouter();
   const { data } = useTaskState();
-  const type = data.type as PrimitiveType;
+  const type = data.taskID === '22fcfc02-de6e-4e4b-b75d-16e3881f68ad' ? PrimitiveType.AC : data.type as PrimitiveType;
 
   return (
     <div className={classNames(styles.page, pageClass)}>

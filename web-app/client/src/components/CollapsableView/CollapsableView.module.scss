@@ -1,11 +1,11 @@
 @import "styles/common";
 
 .container {
-  min-width: 0;
-  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  min-width: 0;  
 }
 
 .collabsableOutput {
@@ -14,16 +14,19 @@
   text-overflow: ellipsis;
 
   span {
-    white-space: nowrap;
     margin-right: 4px;
+    white-space: nowrap;
   }
 }
 
 .buttonShow {
   @include paragraph-small;
-  color: $primary-0;
-  text-decoration: underline;
   margin-left: 4px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  text-decoration: underline;
+  color: $primary-0;
 }
 
 .withShowAll {
@@ -31,7 +34,6 @@
 }
 
 .whenShowAll {
-  overflow: visible;
   white-space: normal;
 }
 

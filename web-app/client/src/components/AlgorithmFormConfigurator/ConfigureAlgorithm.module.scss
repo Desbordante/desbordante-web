@@ -4,27 +4,17 @@
   margin-top: 16px;
 }
 
-
-.baseFormContainer {
-  margin: auto;
+.baseFormContainer, .containerLess4Inputs {
+  display: flex;
   flex-direction: column;
   gap: 24px;
-  display: flex;
+  margin: auto;
   width: 100%;
   max-width: 466px;
 }
 
 .bigFormContainer {
   max-width: 1100px;
-}
-
-.containerLess4Inputs {
-  margin: auto;
-  flex-direction: column;
-  gap: 24px;
-  display: flex;
-  width: 100%;
-  max-width: 466px;
 }
 
 .containerOver4Inputs {
@@ -42,9 +32,9 @@
 }
 
 .line {
-  width: 100%;
   grid-column: span 2;
   border: 0;
   border-top: 1px solid $black-25;
+  width: 100%;
   padding: 0;
 }

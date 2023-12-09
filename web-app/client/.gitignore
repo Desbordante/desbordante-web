@@ -43,4 +43,4 @@ cmsTypes.ts
 .graphqlconfig
 schema.graphql
 
-web-app\client\proxy.config.js
+proxy.config.js

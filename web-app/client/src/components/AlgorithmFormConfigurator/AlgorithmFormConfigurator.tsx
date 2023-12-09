@@ -1,12 +1,11 @@
+import cn from 'classnames';
+import { useRouter } from 'next/router';
 import FormFooter from '@components/AlgorithmFormConfigurator/FormFooter';
 import FormHeader from '@components/AlgorithmFormConfigurator/FormHeader';
 import useFormFactory from '@components/AlgorithmFormConfigurator/useFormFactory';
 import PresetSelector from '@components/PresetSelector';
 import WizardLayout from '@components/WizardLayout';
 import { UsedPrimitivesType } from '@constants/formPrimitives';
-import cn from 'classnames';
-import { useRouter } from 'next/router';
-import React from 'react';
 import styles from './ConfigureAlgorithm.module.scss';
 
 type QueryProps<T extends UsedPrimitivesType> = {
@@ -34,11 +33,7 @@ const AlgorithmFormConfigurator = <T extends UsedPrimitivesType>({
     primitive,
     formParams,
   });
-
-  const numColumnContainer = `container${
-    entries.length > 4 ? 'Over4' : 'Less4'
-  }Inputs`;
-
+  
   return (
     <WizardLayout header={FormHeader} footer={FormFooter(router, onSubmit)}>
       <div
@@ -47,7 +42,15 @@ const AlgorithmFormConfigurator = <T extends UsedPrimitivesType>({
           entries.length > 4 && styles.bigFormContainer,
         )}
       >
-        <div className={styles[numColumnContainer]}>
+        <div
+          className={
+            styles[
+              entries.length > 4
+                ? 'containerOver4Inputs'
+                : 'baseFormContainer'
+            ]
+          }
+        >
           <PresetSelector
             presets={formPresets}
             isCustom={methods.formState.isDirty}
@@ -57,7 +60,17 @@ const AlgorithmFormConfigurator = <T extends UsedPrimitivesType>({
         </div>
 
         <div className={styles.line} />
-        <div className={styles[numColumnContainer]}>{entries}</div>
+        <div
+          className={
+            styles[
+              entries.length > 4
+                ? 'containerOver4Inputs'
+                : 'containerLess4Inputs'
+            ]
+          }
+        >
+          {entries}
+        </div>
       </div>
     </WizardLayout>
   );

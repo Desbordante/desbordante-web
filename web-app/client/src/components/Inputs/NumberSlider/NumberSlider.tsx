@@ -1,5 +1,3 @@
-import classNames from 'classnames';
-import Slider, { SliderProps } from 'rc-slider';
 import {
   BaseHTMLAttributes,
   forwardRef,
@@ -9,8 +7,10 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { InputPropsBase, Text } from '@components/Inputs';
+import classNames from 'classnames';
+import Slider, { SliderProps } from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import { InputPropsBase, Text } from '@components/Inputs';
 import Tooltip from '@components/Tooltip';
 import styles from './NumberSlider.module.scss';
 
@@ -76,9 +76,6 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
     if (parsed >= max) return max;
     return parsed;
   };
-  const prepareValue = (s: string): number => {
-    return placeInsideBorders(s);
-  };
 
   return (
     <div
@@ -97,8 +94,9 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
           {...props}
           value={tempValue}
           onBlur={(e) => {
-            onChange(prepareValue(e.target.value));
-            setTempValue(prepareValue(e.target.value).toString());
+            const preparedValue = placeInsideBorders(e.target.value);
+            onChange(preparedValue);
+            setTempValue(preparedValue.toString());
           }}
           onChange={(e) => setTempValue(e.currentTarget.value)}
           className={styles.text}

@@ -1,11 +1,12 @@
-import { Intervals } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
+import { Interval } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
 import { atom } from 'jotai';
 import { ACSortBy, OrderBy, Pagination } from 'types/globalTypes';
 
 export type ACInstance = {
+  id: string;
   attribute1: string;
   attribute2: string;
-  intervals: Intervals[];
+  intervals: Interval[];
   outliers: number[];
 };
 

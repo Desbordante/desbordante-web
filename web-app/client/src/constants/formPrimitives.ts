@@ -2,7 +2,7 @@ import { ARForm } from '@constants/configuratorForm/ARForm';
 import { CFDForm } from '@constants/configuratorForm/CFDForm';
 import { FDForm } from '@constants/configuratorForm/FDForm';
 import { MFDForm } from '@constants/configuratorForm/MFDForm';
-import { ACForm } from '@constants/configuratorForm/ACForm/index';
+import { ACForm } from '@constants/configuratorForm/ACForm';
 import { TypoFDForm } from '@constants/configuratorForm/TypoFDForm';
 import { MainPrimitiveType } from 'types/globalTypes';
 

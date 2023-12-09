@@ -131,7 +131,6 @@ export const errorLink = onError(
 
             return forward$.flatMap(() => forward(operation));
           default:
-            console.log(err)
             showError(err.extensions.code, `Error: ${err.message}`);
         }
       }
