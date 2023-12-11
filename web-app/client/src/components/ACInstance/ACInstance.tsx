@@ -43,9 +43,9 @@ const ACInstance: FC<Props> = ({
   const [atom, setAtom] = useAtom(ACAtom);
   const handleSelect = () => {
     const instance: ACInstance = {
-      id: id,
-      attribute1: attributes.attr1,
-      attribute2: attributes.attr2,
+      id,
+      attribute1: attributes.attribute1,
+      attribute2: attributes.attribute2,
       intervals: intervals.intervals,
       outliers: outliers.outliers,
     };
@@ -64,21 +64,31 @@ const ACInstance: FC<Props> = ({
       <div className={styles.containerInner}>
         Operation
         <div className={styles.attributes}>
-          <div className={styles.attr}>{attributes.attr1}</div>
-          <OperationIcon className={styles.icons}/>
-          
-          <div className={styles.attr}>{attributes.attr2}</div>
+          <div className={styles.attribute}>{attributes.attribute1}</div>
+          <OperationIcon className={styles.icons} />
+
+          <div className={styles.attribute}>{attributes.attribute2}</div>
         </div>
       </div>
-      <CollapsableView
-        title="Intervals"
-        output={intervals.intervals.map((elem) => `[${elem[0]}, ${elem[1]}]`)}
-        amount={intervals.amount}
-      />
-      <CollapsableView
-        title="Outliers"
-        output={outliers.outliers.map((elem) => elem.toString())}
-      />
+      <CollapsableView title={`Intervals ${intervals.amount}`}>
+        {intervals.intervals.map((elem) => (
+          <>
+            <span
+              className={styles.spanS}
+              key={`intervals ${elem[0]} ${elem[1]}`}
+            >{`[${elem[0]}, ${elem[1]}]`}</span>{' '}
+          </>
+        ))}
+      </CollapsableView>
+      <CollapsableView title={`Outliers ${outliers.amount}`}>
+        {outliers.outliers.map((elem) => (
+          <>
+            <span className={styles.spanS} key={`Outliers ${elem}`}>
+              {elem}
+            </span>{' '}
+          </>
+        ))}
+      </CollapsableView>
     </div>
   );
 };

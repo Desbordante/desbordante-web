@@ -1,17 +1,16 @@
 import cn from 'classnames';
-import { FC, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { FCWithChildren } from 'types/react';
 import styles from './CollapsableView.module.scss';
 
 type Props = {
-  output: string[];
   title: string;
-  amount?: number;
 };
 
 const states = ['not required', 'hidden', 'view'] as const;
 type CollapseState = (typeof states)[number];
 
-const CollapsableView: FC<Props> = ({ output, title, amount }) => {
+const CollapsableView: FCWithChildren<Props> = ({ children, title }) => {
   const parentRef = useRef<HTMLDivElement>(null);
   const childRef = useRef<HTMLDivElement>(null);
   const [collapseState, setCollapseState] =
@@ -32,7 +31,6 @@ const CollapsableView: FC<Props> = ({ output, title, amount }) => {
   return (
     <div className={styles.container} ref={parentRef}>
       {title}
-      {amount && ` (${amount})`}
       <div className={styles.withShowAll}>
         <div
           className={cn(
@@ -41,11 +39,7 @@ const CollapsableView: FC<Props> = ({ output, title, amount }) => {
           )}
           ref={childRef}
         >
-          {output.map((elem) => (
-            <>
-              <span key={elem.toString()}>{elem}</span>{' '}
-            </>
-          ))}
+          {children}
           {collapseState === 'view' && (
             <button
               className={cn(styles.buttonShow, styles.withoutMargin)}

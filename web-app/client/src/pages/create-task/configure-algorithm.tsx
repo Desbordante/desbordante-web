@@ -7,7 +7,7 @@ import {
   UsedPrimitivesType,
 } from '@constants/formPrimitives';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
-import styles from '@styles/configure-algorithm.module.scss';
+import styles from '@styles/ConfigureAlgorithm.module.scss';
 
 const ConfigureAlgorithm: NextPage = () => {
   const router = useRouter();

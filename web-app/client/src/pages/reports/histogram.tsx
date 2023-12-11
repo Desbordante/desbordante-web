@@ -1,4 +1,11 @@
+import { operationIcons } from '@components/ACInstance/ACInstance';
+import { NumberInputProps } from '@components/Inputs/NumberInput/NumberInput';
+import NumberInputWithButton from '@components/NumberInputWithButton';
+import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
+import { TaskContextProvider } from '@components/TaskContext';
 import { Operation } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
+import { colors } from '@styles/common/variables';
+import styles from '@styles/Histogram.module.scss';
 import { ReactElement, useState } from 'react';
 import {
   Bar,
@@ -13,19 +20,9 @@ import {
 } from 'recharts';
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
-import styles from '@styles/Histogram.module.scss';
-import { colors } from '@styles/common/variables';
-
-import { operationIcons } from '@components/ACInstance/ACInstance';
-import Button from '@components/Button';
-import { NumberInput } from '@components/Inputs';
-import { NumberInputProps } from '@components/Inputs/NumberInput/NumberInput';
-import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
-import { TaskContextProvider } from '@components/TaskContext';
-
 import { myData } from './ACFakeData/data4Histogram';
-import NumberInputWithButton from '@components/NumberInputWithButton';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomTooltip = (props: any) => {
   const { payload } = props;
   if (payload && payload.length) {
@@ -43,6 +40,7 @@ const CustomTooltip = (props: any) => {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const renderActiveBar = (props: any) => {
   const { x, y, width, height, payload } = props;
   const color =
@@ -110,10 +108,14 @@ const ReportsHistogram: NextPageWithLayout = () => {
   return (
     <>
       <div className={styles.header}>
-        <NumberInputWithButton numberProps={numberProps} buttonText='Change' label='Granularity' />
+        <NumberInputWithButton
+          numberProps={numberProps}
+          buttonText="Change"
+          label="Granularity"
+        />
         <div className={styles.attributes}>
           <div className={styles.attribute}>{attributes.attribute1}</div>
-          <OperationIcon className={styles.icons}/>
+          <OperationIcon className={styles.icons} />
           <div className={styles.attribute}>{attributes.attribute2}</div>
         </div>
       </div>

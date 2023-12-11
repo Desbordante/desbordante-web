@@ -7,6 +7,7 @@ import { customFetch } from '@graphql/customFetch';
 import { pathnameToLocalURL } from '@utils/pathnameToValidURL';
 
 const isServer = typeof window === 'undefined';
+
 const client = new ApolloClient({
   ssrMode: isServer,
   uri: isServer ? pathnameToLocalURL(serverProxyURL) : serverProxyURL,

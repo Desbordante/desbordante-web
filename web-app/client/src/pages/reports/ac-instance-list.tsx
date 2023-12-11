@@ -1,10 +1,5 @@
+import OrderingIcon from '@assets/icons/ordering.svg?component';
 import ACAtom, { ACAtomDefaultValuesWithParams } from '@atoms/ACTaskAtom';
-import { Operation } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
-import { useAtom } from 'jotai';
-import { ReactElement, useEffect, useState } from 'react';
-import { FormProvider } from 'react-hook-form';
-import { ACSortBy, OrderBy, PrimitiveType } from 'types/globalTypes';
-import { NextPageWithLayout } from 'types/pageWithLayout';
 
 import ACInstance from '@components/ACInstance';
 import Button from '@components/Button';
@@ -13,10 +8,14 @@ import { Text } from '@components/Inputs';
 import Pagination from '@components/Pagination/Pagination';
 import ReportsLayout from '@components/ReportsLayout';
 import { TaskContextProvider } from '@components/TaskContext';
+import { Operation } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
 
 import styles from '@styles/Dependencies.module.scss';
-
-import OrderingIcon from '@assets/icons/ordering.svg?component';
+import { useAtom } from 'jotai';
+import { ReactElement, useEffect, useState } from 'react';
+import { FormProvider } from 'react-hook-form';
+import { PrimitiveType } from 'types/globalTypes';
+import { NextPageWithLayout } from 'types/pageWithLayout';
 
 import { myData } from './ACFakeData/data4InstanceList';
 
@@ -48,7 +47,7 @@ const ReportsAlgebraicConstraints: NextPageWithLayout = () => {
         atom.instanceSelected,
       ),
     });
-  }, [shownData.taskInfo.taskID]);
+  }, [atom.instanceSelected, setAtom, shownData.taskInfo.taskID]);
 
   return (
     <>
@@ -85,16 +84,19 @@ const ReportsAlgebraicConstraints: NextPageWithLayout = () => {
       </div>
 
       <div className={styles.rows}>
-        {ACs.map((value) => (
-          <ACInstance
-            key={`${value.attributes.attr1} ${value.attributes.attr2}`}
-            id={`${value.attributes.attr1} ${value.attributes.attr2}`}
-            attributes={value.attributes}
-            operation={operation}
-            intervals={value.intervals}
-            outliers={value.outliers}
-          />
-        ))}
+        {ACs.map((value) => {
+          const unique = `${value.attributes.attribute1} ${value.attributes.attribute2}`;
+          return (
+            <ACInstance
+              key={unique}
+              id={unique}
+              attributes={value.attributes}
+              operation={operation}
+              intervals={value.intervals}
+              outliers={value.outliers}
+            />
+          );
+        })}
       </div>
 
       <div className={styles.pagination}>

@@ -1,4 +1,7 @@
-import { GetMainTaskDeps } from "@graphql/operations/queries/__generated__/GetMainTaskDeps";
+import {
+  GetMainTaskDeps,
+  Operation,
+} from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
 
 export const myData: GetMainTaskDeps = {
   taskInfo: {
@@ -6,7 +9,7 @@ export const myData: GetMainTaskDeps = {
     taskID: '22fcfc02-de6e-4e4b-b75d-16e3881f68ad',
     data: {
       __typename: 'ACTaskData',
-      operation: 'ADDITION',
+      operation: Operation.ADDITION,
       result: {
         __typename: 'ACTaskResult',
         taskID: '22fcfc02-de6e-4e4b-b75d-16e3881f68ad',
@@ -16,8 +19,8 @@ export const myData: GetMainTaskDeps = {
             __typename: 'AC',
             attributes: {
               __typename: 'Attributes',
-              attr1: 'Coffee',
-              attr2: 'Milk',
+              attribute1: 'Coffee',
+              attribute2: 'Milk',
             },
             intervals: {
               __typename: 'Intervals',
@@ -42,8 +45,8 @@ export const myData: GetMainTaskDeps = {
             __typename: 'AC',
             attributes: {
               __typename: 'Attributes',
-              attr1: 'Milk',
-              attr2: 'Chocolate',
+              attribute1: 'Milk',
+              attribute2: 'Chocolate',
             },
             intervals: {
               __typename: 'Intervals',
@@ -63,8 +66,8 @@ export const myData: GetMainTaskDeps = {
             __typename: 'AC',
             attributes: {
               __typename: 'Attributes',
-              attr1: 'Coffee',
-              attr2: 'Chocolate',
+              attribute1: 'Coffee',
+              attribute2: 'Chocolate',
             },
             intervals: {
               __typename: 'Intervals',
@@ -90,8 +93,8 @@ export const myData: GetMainTaskDeps = {
             __typename: 'AC',
             attributes: {
               __typename: 'Attributes',
-              attr1: 'Tea',
-              attr2: 'Milk',
+              attribute1: 'Tea',
+              attribute2: 'Milk',
             },
             intervals: {
               __typename: 'Intervals',
@@ -116,8 +119,8 @@ export const myData: GetMainTaskDeps = {
             __typename: 'AC',
             attributes: {
               __typename: 'Attributes',
-              attr1: 'Tea',
-              attr2: 'Chocolate',
+              attribute1: 'Tea',
+              attribute2: 'Chocolate',
             },
             intervals: {
               __typename: 'Intervals',
@@ -143,8 +146,8 @@ export const myData: GetMainTaskDeps = {
             __typename: 'AC',
             attributes: {
               __typename: 'Attributes',
-              attr1: 'Tea',
-              attr2: 'Coffee',
+              attribute1: 'Tea',
+              attribute2: 'Coffee',
             },
             intervals: {
               __typename: 'Intervals',
