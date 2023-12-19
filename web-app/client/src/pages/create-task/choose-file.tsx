@@ -53,6 +53,18 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
       primitive.value,
     ],
   );
+
+  //удалить, когда будет бэк
+  if (
+    defaultAlgorithmConfig?.algorithmsConfig?.allowedDatasets[0][
+      'supportedPrimitives'
+    ].at(-1) !== MainPrimitiveType.AFD
+  ) {
+    defaultAlgorithmConfig?.algorithmsConfig?.allowedDatasets[0][
+      'supportedPrimitives'
+    ].push(MainPrimitiveType.AFD);
+  }
+
   const selectedDataset = useMemo(
     () =>
       builtinDatasets

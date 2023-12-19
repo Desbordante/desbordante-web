@@ -8,12 +8,16 @@ import {
   AROrderingParameter,
   OrderDirection,
   PrimitiveType,
+  AFDSortRowsBy,
+  AFDSortBy,
 } from 'types/globalTypes';
 
 export type Sorting =
   | FDOrderingParameter
   | CFDOrderingParameter
-  | AROrderingParameter;
+  | AROrderingParameter
+  | AFDSortBy
+  | AFDSortRowsBy;
 
 export type FiltersFields = {
   ordering: Sorting;
@@ -23,6 +27,8 @@ export type FiltersFields = {
   mustContainRhsColIndices: string;
   mustContainLhsColIndices: string;
   showKeys: boolean;
+  rowsOrdering: Sorting;
+  showOnlyLRHS: boolean;
 };
 
 const getDefaultOrdering: (primitive: PrimitiveType) => Sorting = (primitive) =>
@@ -38,6 +44,8 @@ export const useFilters = (primitive: PrimitiveType) => {
       mustContainRhsColIndices: '',
       mustContainLhsColIndices: '',
       showKeys: false,
+      rowsOrdering: AFDSortRowsBy.ROW_INDEX,
+      showOnlyLRHS: false,
     },
   });
 
