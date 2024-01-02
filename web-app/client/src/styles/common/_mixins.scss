@@ -1,4 +1,4 @@
-@import "variables";
+@import "variables.module";
 
 @mixin heading-1 {
   font-family: $font-display;
@@ -75,7 +75,6 @@
     color: $primary-0;
     text-decoration: underline;
   }
-
 }
 
 // Small devices
