@@ -1,0 +1,143 @@
+/* Fonts */
+$font-display: "Palanquin", sans-serif;
+$font-content: "Roboto", sans-serif;
+
+/* Shades */
+$black: #251e29;
+$white: #ffffff;
+
+/* Semantics */
+$error: rgb(230, 72, 91);
+$info: #508ce5;
+$success: #00c1a4;
+$warning: #fab005;
+$button-white: rgb(2, 2, 2);
+$button-black: #101010;
+
+/* Primary */
+$primary-0: #7600d1;
+$primary: $primary-0;
+$primary-1: #59009e;
+$primary-2: #9327e7;
+
+$secondary-0: transparent;
+$secondary-1: rgba(118, 0, 209, 0.05);
+$secondary-2: rgba(118, 0, 209, 0.1);
+
+$primary-gradient-0: linear-gradient(53.13deg, #8200d1 9.04%, #534ac2 89.96%);
+$primary-gradient-1: linear-gradient(53.13deg, #6a00ab 9.04%, #433b9c 89.96%);
+
+$primary-shadow-0:
+  0 75px 92px rgba(0, 0, 0, 0.12),
+  0 31.3332px 38.4354px rgba(0, 0, 0, 0.0862625),
+  0 16.7522px 20.5494px rgba(0, 0, 0, 0.0715329),
+  0 9.39116px 11.5198px rgba(0, 0, 0, 0.06),
+  0 4.98758px 6.11809px rgba(0, 0, 0, 0.0484671),
+  0 2.07544px 2.54588px rgba(0, 0, 0, 0.0337375);
+$primary-shadow-1:
+  0 0 8px $info,
+  0 75px 92px rgba(0, 0, 0, 0.12),
+  0 31.3332px 38.4354px rgba(0, 0, 0, 0.0862625),
+  0 16.7522px 20.5494px rgba(0, 0, 0, 0.0715329),
+  0 9.39116px 11.5198px rgba(0, 0, 0, 0.06),
+  0 4.98758px 6.11809px rgba(0, 0, 0, 0.0484671),
+  0 2.07544px 2.54588px rgba(0, 0, 0, 0.0337375);
+
+$primary-complementary-gradient: linear-gradient(
+  53.13deg,
+  #7600d1 9.04%,
+  #00c1a4 89.96%
+);
+
+/* Opacity variants */
+$black-75: rgba($black, 0.75);
+$black-50: rgba($black, 0.5);
+$black-25: rgba($black, 0.25);
+$black-10: rgba($black, 0.1);
+$black-05: rgba($black, 0.05);
+
+$white-75: rgba($white, 0.75);
+$white-50: rgba($white, 0.5);
+$white-25: rgba($white, 0.25);
+$white-10: rgba($white, 0.1);
+$white-05: rgba($white, 0.05);
+
+$primary-75: rgba($primary, 0.75);
+$primary-50: rgba($primary, 0.5);
+$primary-25: rgba($primary, 0.25);
+$primary-10: rgba($primary, 0.1);
+$primary-05: rgba($primary, 0.05);
+$primary-02: rgba($primary, 0.02);
+$primary-no-alpha-10: rgb(239, 224, 250);
+
+$error-100: rgba($error, 1);
+$error-75: rgba($error, 0.75);
+$error-50: rgba($error, 0.5);
+$error-25: rgba($error, 0.25);
+$error-10: rgba($error, 0.1);
+$error-05: rgba($error, 0.05);
+
+$success-100: rgba($success, 1);
+$success-75: rgba($success, 0.75);
+$success-50: rgba($success, 0.5);
+$success-25: rgba($success, 0.25);
+$success-10: rgba($success, 0.1);
+$success-05: rgba($success, 0.05);
+
+$info-75: rgba($info, 0.75);
+$info-50: rgba($info, 0.5);
+$info-25: rgba($info, 0.25);
+$info-10: rgba($info, 0.1);
+$info-05: rgba($info, 0.05);
+
+$background: rgb(242, 245, 251);
+
+/* Breakpoints */
+$screen-sm-max: 768px;
+$screen-md-min: $screen-sm-max + 1px;
+
+/* stylelint-disable */
+:export {
+  primary100: $primary;
+  primary75: $primary-75;
+  primary50: $primary-50;
+  primary25: $primary-25;
+  primary10: $primary-10;
+  primary05: $primary-05;
+
+  black100: $black;
+  black75: $black-75;
+  black50: $black-50;
+  black25: $black-25;
+  black10: $black-10;
+  black05: $black-05;
+
+  white100: $white;
+  white75: $white-75;
+  white50: $white-50;
+  white25: $white-25;
+  white10: $white-10;
+  white05: $white-05;
+
+  success100: $success;
+  success75: $success-75;
+  success50: $success-50;
+  success25: $success-25;
+  success10: $success-10;
+  success05: $success-05;
+
+  error100: $error;
+  error75: $error-75;
+  error50: $error-50;
+  error25: $error-25;
+  error10: $error-10;
+  error05: $error-05;
+
+  info100: $info;
+  info75: $info-75;
+  info50: $info-50;
+  info25: $info-25;
+  info10: $info-10;
+  info05: $info-05;
+}
+/* stylelint-enable */
