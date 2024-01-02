@@ -1,9 +1,12 @@
 import cn from 'classnames';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { animated, useSpring } from 'react-spring';
 import CloseIcon from '@assets/icons/close.svg?component';
+import OutsideClickObserver from '@components/OutsideClickObserver';
 import { FCWithChildren } from 'types/react';
 import styles from './ModalContainer.module.scss';
+
+const AnimatedOutsideClickObserver = animated(OutsideClickObserver);
 
 export interface ModalProps {
   onClose?: () => void;
@@ -15,10 +18,6 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
   className,
   onClose = () => null,
 }) => {
-  const backgroundFadeRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const didClickStartOutside = useRef(false);
-
   const backgroundFadeProps = useSpring({
     from: {
       opacity: 0,
@@ -52,45 +51,6 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
   });
 
   useEffect(() => {
-    const isOutside = (element: Element) => {
-      if (!backgroundFadeRef.current || !containerRef.current) {
-        return false;
-      }
-
-      return (
-        backgroundFadeRef.current.contains(element) &&
-        !containerRef.current.contains(element)
-      );
-    };
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!(event.target instanceof Element)) {
-        return;
-      }
-
-      didClickStartOutside.current = isOutside(event.target);
-    };
-
-    const handlePointerUp = (event: PointerEvent) => {
-      if (!(event.target instanceof Element)) {
-        return;
-      }
-
-      if (didClickStartOutside.current && isOutside(event.target)) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    document.addEventListener('pointerup', handlePointerUp);
-
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-      document.removeEventListener('pointerup', handlePointerUp);
-    };
-  }, [onClose]);
-
-  useEffect(() => {
     const activeElement = document.activeElement;
 
     if (!(activeElement instanceof HTMLElement)) {
@@ -103,15 +63,11 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
   }, []);
 
   return (
-    <animated.div
-      className={styles.backgroundFade}
-      style={backgroundFadeProps}
-      ref={backgroundFadeRef}
-    >
-      <animated.div
+    <animated.div className={styles.backgroundFade} style={backgroundFadeProps}>
+      <AnimatedOutsideClickObserver
         className={cn(className, styles.container)}
         style={containerProps}
-        ref={containerRef}
+        onClickOutside={onClose}
       >
         <button
           onClick={onClose}
@@ -121,7 +77,7 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
           <CloseIcon width={24} height={24} />
         </button>
         <>{children}</>
-      </animated.div>
+      </AnimatedOutsideClickObserver>
     </animated.div>
   );
 };
