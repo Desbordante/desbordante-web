@@ -26,6 +26,7 @@ const FDAlgorithms = [
 type FDAlgorithm = (typeof FDAlgorithms)[number];
 type CFDAlgorithm = 'CTane';
 type ARAlgorithm = 'Apriori';
+type AFDAlgorithm = 'Naive AFD Verifier';
 
 // const MFDAlgorithms = ['BRUTE', 'APPROX', 'CALIPERS'] as const;
 const MFDAlgorithms = ['Brute', 'Approx', 'Calipers'] as const;
@@ -36,7 +37,8 @@ export type Algorithms =
   | FDAlgorithm
   | CFDAlgorithm
   | ARAlgorithm
-  | MFDAlgorithm;
+  | MFDAlgorithm
+  | AFDAlgorithm;
 
 type AlgoProps = 'arity' | 'threshold' | 'threads';
 
@@ -51,6 +53,7 @@ export const TypoOptions = FDoptions;
 export const CFDoptions: AlgoOption[] = [toAlgoOption('CTane')];
 export const ARoptions: AlgoOption[] = [toAlgoOption('Apriori')];
 export const ApproxOptions: AlgoOption[] = [toAlgoOption('Pyro')];
+export const AFDOptions: AlgoOption[] = [toAlgoOption('Naive AFD Verifier')];
 
 const toScreamingSnakeAlgoOption = (algo: Algorithms): AlgoOption => {
   return {
