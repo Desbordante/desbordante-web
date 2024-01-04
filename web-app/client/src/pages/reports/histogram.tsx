@@ -1,11 +1,3 @@
-import { operationIcons } from '@components/ACInstance/ACInstance';
-import { NumberInputProps } from '@components/Inputs/NumberInput/NumberInput';
-import NumberInputWithButton from '@components/NumberInputWithButton';
-import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
-import { TaskContextProvider } from '@components/TaskContext';
-import { Operation } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
-import { colors } from '@styles/common/variables';
-import styles from '@styles/Histogram.module.scss';
 import { ReactElement, useState } from 'react';
 import {
   Bar,
@@ -18,6 +10,14 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { operationIcons } from '@components/ACInstance/ACInstance';
+import { NumberInputProps } from '@components/Inputs/NumberInput/NumberInput';
+import NumberInputWithButton from '@components/NumberInputWithButton';
+import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
+import { TaskContextProvider } from '@components/TaskContext';
+import colors from '@constants/colors';
+import { Operation } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
+import styles from '@styles/Histogram.module.scss';
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
 import { myData } from './ACFakeData/data4Histogram';

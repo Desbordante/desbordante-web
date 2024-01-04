@@ -1,3 +1,6 @@
+import cn from 'classnames';
+import { useAtom } from 'jotai';
+import { FC } from 'react';
 import DivisionIcon from '@assets/icons/division.svg?component';
 import MinusIcon from '@assets/icons/minus.svg?component';
 import MultiplicationIcon from '@assets/icons/multiplication.svg?component';
@@ -12,9 +15,6 @@ import {
   GetMainTaskDeps_taskInfo_TaskInfo_data_result_ACTaskResult_ACs_outliers,
   Operation,
 } from '@graphql/operations/queries/__generated__/GetMainTaskDeps';
-import cn from 'classnames';
-import { useAtom } from 'jotai';
-import { FC } from 'react';
 import CollapsableView from '../CollapsableView';
 import styles from './ACInstance.module.scss';
 
