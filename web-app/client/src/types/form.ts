@@ -45,12 +45,16 @@ export type FormCustomProps<
   TDefaultValues extends Defaults,
   TName extends Path<TDefaultValues>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TAdditionalProps = Record<string, any>
+  TAdditionalProps = Record<string, any>,
 > = FormFieldProps<TDefaultValues, TName> &
   TAdditionalProps & {
     type: 'custom';
 
-    component: FC<FormFieldProps<TDefaultValues, TName> & TAdditionalProps>;
+    component: FC<
+      Omit<FormFieldProps<TDefaultValues, TName>, 'rules'> &
+        TAdditionalProps &
+        ControllerRenderProps<TDefaultValues, TName>
+    >;
   };
 
 export type FormSelectOptions = OptionWithBadges[];

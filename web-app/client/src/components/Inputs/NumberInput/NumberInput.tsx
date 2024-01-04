@@ -1,17 +1,19 @@
 import classNames from 'classnames';
 import {
-  forwardRef,
   ForwardRefRenderFunction,
   HTMLProps,
   ReactNode,
+  forwardRef,
   useEffect,
   useState,
 } from 'react';
+
 import { InputPropsBase, Text } from '@components/Inputs';
 import Tooltip from '@components/Tooltip';
+
 import styles from './NumberInput.module.scss';
 
-interface NumberInputProps {
+export interface NumberInputProps {
   defaultNum: number;
   min?: number;
   includingMin?: boolean;
@@ -21,7 +23,7 @@ interface NumberInputProps {
 }
 
 type Props = InputPropsBase &
-  Omit<HTMLProps<HTMLInputElement>, 'onChange'> & {
+  Omit<HTMLProps<HTMLInputElement>, 'onChange' | 'value'> & {
     tooltip?: ReactNode;
     numberProps?: NumberInputProps;
     onChange: (value: number) => void;
@@ -40,7 +42,7 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
     onChange,
     ...props
   },
-  ref
+  ref,
 ) => {
   const {
     numbersAfterDot,
@@ -78,7 +80,7 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       className={classNames(
         styles.inputText,
         props.disabled && styles.disabled,
-        className
+        className,
       )}
     >
       <div className={styles.top}>
@@ -90,8 +92,9 @@ const NumberInput: ForwardRefRenderFunction<HTMLInputElement, Props> = (
           {...props}
           value={displayValue}
           onBlur={(e) => {
-            onChange(prepareValue(e.target.value));
-            setDisplayValue(prepareValue(e.target.value).toString());
+            const preparedValue = prepareValue(e.target.value);
+            onChange(preparedValue);
+            setDisplayValue(preparedValue.toString());
           }}
           onChange={(e) => setDisplayValue(e.currentTarget.value)}
           className={styles.text}

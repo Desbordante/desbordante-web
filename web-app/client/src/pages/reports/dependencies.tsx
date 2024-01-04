@@ -130,7 +130,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
         )}
       </FormProvider>
 
-      <h5>Primitive List</h5>
+      <h5>Instance List</h5>
 
       <div className={styles.filters}>
         <Text

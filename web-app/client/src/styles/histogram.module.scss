@@ -1,0 +1,46 @@
+@import "styles/common";
+
+.attributes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $primary-0;
+}
+
+.icons {
+  width: 24px;
+  height: 24px;
+}
+
+.attribute {
+  @include paragraph;
+  border-radius: 8px;
+  padding: 16px 32px;
+  background: $secondary-2;
+  text-align: center;
+}
+
+.header {
+  @include paragraph;
+  display: flex;
+  justify-content: space-between;
+  align-items: last baseline;
+  margin-bottom: 64px;
+  margin-left: 64px;
+  width: calc(80% - 64px);
+}
+
+.customTooltip {
+  @include paragraph-small;
+  border: 2px solid $black-50;
+  border-radius: 4px;
+  padding: 16px;
+  max-width: 400px;
+  background-color: $white;
+  color: $black-75;
+}
+
+.histogramContainer {
+  width: 80%;
+  height: 80%;
+}

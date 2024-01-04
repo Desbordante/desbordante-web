@@ -1,0 +1,8 @@
+@import "styles/common";
+
+.inputContainer {
+  display: flex;
+  align-items: last baseline;
+  gap: 8px;
+  color: $primary-0;
+}

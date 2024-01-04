@@ -1,14 +1,16 @@
+import { ReactNode } from 'react';
 import { MainPrimitiveType } from 'types/globalTypes';
+import DescriptionAC from './descriptionAC';
 
 export type PrimitiveInfoType = {
   label: string;
-  description: string;
+  description: ReactNode;
   link?: string;
 };
 
 const primitiveInfo: Partial<Record<MainPrimitiveType, PrimitiveInfoType>> = {
   [MainPrimitiveType.FD]: {
-    label: 'Functional Dependencies',
+    label: 'Functional Dependency Discovery',
     description:
       'Functional dependencies are crucial metadata for performing schema normalization, data cleaning and various data profiling tasks. A single FD represents a relationship between two disjoint sets of attributes, which states that the values from one set uniquely determine the values of another. Such hidden patterns provide a great start to get to know your data.',
     link: 'https://mstrutov.github.io/Desbordante/guides/fd-mining.html',
@@ -35,6 +37,10 @@ const primitiveInfo: Partial<Record<MainPrimitiveType, PrimitiveInfoType>> = {
     label: 'Metric Dependency Verification',
     description:
       'Metric verification is a process of checking whether a specific metric functional dependency (MFD) holds on data or not. MFD is a relaxed form of classic functional dependencies which allows small variations in the values of the right hand side of a dependency. It other words, for MFD X⟶Y we still expect two different tuples to agree on values of attributes in X, but their values on Y can differ no more than some threshold. MFD can be verified for numeric and string types using different metrics. Currently available are: Euclidean, Levenshtein and Cosine. Results of metric verification process are presented as clusters of records which share the same left hand side, but differ in the right one. If distance of records\' values too far from any points of the same cluster, they are tagged with an "X" mark. A check mark is used otherwise.',
+  },
+  [MainPrimitiveType.AC]: {
+    label: 'Algebraic Constraint Discovery',
+    description: <DescriptionAC />,
   },
 } as const;
 

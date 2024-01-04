@@ -28,5 +28,5 @@ module.exports = async () => {
       source: `${cmsProxyURL}/:path*`,
       destination: `${cmsGraphQLEndpoint}/:path*`,
     },
-  ]
+  ];
 };

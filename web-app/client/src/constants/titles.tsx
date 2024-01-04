@@ -15,7 +15,7 @@ export const OrderingTitles: Record<PrimitiveType, Record<string, string>> = {
     [CFDSortBy.RHS_COL_NAME]: 'RHS NAME',
     [CFDSortBy.CONF]: 'Condfidence',
     [CFDSortBy.LHS_PATTERN]: 'LHS PATTERN',
-    [CFDSortBy.LHS_PATTERN]: 'RHS PATTERN',
+    [CFDSortBy.RHS_PATTERN]: 'RHS PATTERN',
   },
   [PrimitiveType.AR]: {
     [ARSortBy.CONF]: 'Confidence',

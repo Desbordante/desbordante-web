@@ -1,5 +1,3 @@
-import classNames from 'classnames';
-import Slider, { SliderProps } from 'rc-slider';
 import {
   BaseHTMLAttributes,
   forwardRef,
@@ -9,8 +7,10 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { InputPropsBase, Text } from '@components/Inputs';
+import classNames from 'classnames';
+import Slider, { SliderProps } from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import { InputPropsBase, Text } from '@components/Inputs';
 import Tooltip from '@components/Tooltip';
 import styles from './NumberSlider.module.scss';
 
@@ -34,7 +34,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
     onChange,
     ...props
   },
-  ref
+  ref,
 ) => {
   const min = sliderProps?.min || 0;
   const max = sliderProps?.max || 100;
@@ -67,9 +67,14 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
     setTempValue(value === undefined ? '' : value?.toString());
   }, [value]);
 
-  const prepareValue = (s: string) => {
+  const placeInsideBorders = (s: string): number => {
     const parsed = Number.parseFloat(s);
-    return Number.isNaN(parsed) ? min : parsed;
+    if (Number.isNaN(parsed)) {
+      return min;
+    }
+    if (parsed <= min) return min;
+    if (parsed >= max) return max;
+    return parsed;
   };
 
   return (
@@ -77,7 +82,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       className={classNames(
         styles.inputText,
         props.disabled && styles.disabled,
-        className
+        className,
       )}
     >
       <div className={styles.top}>
@@ -88,7 +93,11 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
         <Text
           {...props}
           value={tempValue}
-          onBlur={(e) => onChange(prepareValue(e.target.value))}
+          onBlur={(e) => {
+            const preparedValue = placeInsideBorders(e.target.value);
+            onChange(preparedValue);
+            setTempValue(preparedValue.toString());
+          }}
           onChange={(e) => setTempValue(e.currentTarget.value)}
           className={styles.text}
           ref={ref}

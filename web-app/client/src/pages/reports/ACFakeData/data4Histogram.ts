@@ -1,0 +1,86 @@
+export const myData = {
+  taskInfo: {
+    __typename: 'TaskInfo',
+    taskID: '22fcfc02-de6e-4e4b-b75d-16e3881f68ad',
+    data: {
+      __typename: 'ACTaskData',
+      operation: 'ADDITION',
+      histogramData: {
+        __typename: 'ACHistogramData',
+        taskID: '22fcfc02-de6e-4e4b-b75d-16e3881f68ad',
+        barsAmount: 6,
+        granularity: 10,
+        attributes: {
+          __typename: 'Attributes',
+          attribute1: 'Coffee',
+          attribute2: 'Milk',
+        },
+        data: [
+          {
+            __typename: 'ACHistogramBar',
+            range: [0, 1],
+            valuesInRange: 3,
+            option: 'outlier',
+            associatedInterval: null,
+          },
+          {
+            __typename: 'ACHistogramBar',
+            range: [1, 2],
+            valuesInRange: 8,
+            option: 'default',
+            associatedInterval: [1, 4],
+          },
+          {
+            __typename: 'ACHistogramBar',
+            range: [2, 3],
+            valuesInRange: 10,
+            option: 'default',
+            associatedInterval: [1, 4],
+          },
+          {
+            __typename: 'ACHistogramBar',
+            range: [3, 4],
+            valuesInRange: 9,
+            option: 'default',
+            associatedInterval: [1, 4],
+          },
+          {
+            __typename: 'ACHistogramBar',
+            range: [4, 5],
+            valuesInRange: 11,
+            option: 'outlier',
+            associatedInterval: null,
+          },
+          {
+            __typename: 'ACHistogramBar',
+            range: [5, 6],
+            valuesInRange: null,
+            option: 'outlier',
+            associatedInterval: null,
+          },
+          {
+            __typename: 'ACHistogramBar',
+            range: [6, 7],
+            valuesInRange: 1,
+            option: 'outlier',
+            associatedInterval: null,
+          },
+          {
+            __typename: 'ACHistogramBar',
+            range: [7, 8],
+            valuesInRange: 4,
+            option: 'default',
+            associatedInterval: [7, 8],
+          },
+          {
+            __typename: 'ACHistogramBar',
+            range: [8, 9],
+            valuesInRange: 2,
+            option: 'outlier',
+            associatedInterval: null,
+          },
+        ],
+      },
+    },
+  },
+};
