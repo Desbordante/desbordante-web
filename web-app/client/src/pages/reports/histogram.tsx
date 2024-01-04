@@ -57,9 +57,9 @@ const renderActiveBar = (props: any) => {
   );
 };
 
-interface shownDataType {
+interface ShownDataType {
   range: number[];
-  mediana: number;
+  median: number;
   valuesInRange: number;
   option: 'default' | 'outlier';
   associatedInterval: number[];
@@ -82,15 +82,12 @@ const ReportsHistogram: NextPageWithLayout = () => {
   const data = myData.taskInfo.data.histogramData.data.map(
     (elem) =>
       ({
-        range: elem.range,
-        mediana: (elem.range[0] + elem.range[1]) / 2,
-        valuesInRange: elem.valuesInRange,
-        option: elem.option,
-        associatedInterval: elem.associatedInterval,
-      }) as shownDataType,
+        ...elem,
+        median: (elem.range[0] + elem.range[1]) / 2,
+      }) as ShownDataType,
   );
 
-  const fillActiveBar = (entry: shownDataType) => {
+  const fillActiveBar = (entry: ShownDataType) => {
     if (
       activeInterval &&
       entry.associatedInterval &&
@@ -125,7 +122,7 @@ const ReportsHistogram: NextPageWithLayout = () => {
           <BarChart barCategoryGap={2} data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
-              dataKey="mediana"
+              dataKey="median"
               type="number"
               domain={([dataMin, dataMax]) => [
                 Math.floor(dataMin),
@@ -144,7 +141,7 @@ const ReportsHistogram: NextPageWithLayout = () => {
             >
               {data.map((entry) => (
                 <Cell
-                  key={`cell-${entry.mediana}`}
+                  key={`cell-${entry.median}`}
                   fill={fillActiveBar(entry)}
                 />
               ))}

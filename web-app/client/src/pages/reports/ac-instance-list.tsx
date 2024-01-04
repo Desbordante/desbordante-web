@@ -85,11 +85,11 @@ const ReportsAlgebraicConstraints: NextPageWithLayout = () => {
 
       <div className={styles.rows}>
         {ACs.map((value) => {
-          const unique = `${value.attributes.attribute1} ${value.attributes.attribute2}`;
+          const id = `${value.attributes.attribute1} ${value.attributes.attribute2}`;
           return (
             <ACInstance
-              key={unique}
-              id={unique}
+              key={id}
+              id={id}
               attributes={value.attributes}
               operation={operation}
               intervals={value.intervals}

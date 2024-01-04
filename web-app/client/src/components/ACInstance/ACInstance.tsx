@@ -70,22 +70,19 @@ const ACInstance: FC<Props> = ({
           <div className={styles.attribute}>{attributes.attribute2}</div>
         </div>
       </div>
-      <CollapsableView title={`Intervals ${intervals.amount}`}>
+      <CollapsableView title={`Intervals (${intervals.amount})`}>
         {intervals.intervals.map((elem) => (
           <>
             <span
-              className={styles.spanS}
               key={`intervals ${elem[0]} ${elem[1]}`}
             >{`[${elem[0]}, ${elem[1]}]`}</span>{' '}
           </>
         ))}
       </CollapsableView>
-      <CollapsableView title={`Outliers ${outliers.amount}`}>
+      <CollapsableView title={`Outliers (${outliers.amount})`}>
         {outliers.outliers.map((elem) => (
           <>
-            <span className={styles.spanS} key={`Outliers ${elem}`}>
-              {elem}
-            </span>{' '}
+            <span key={`Outliers ${elem}`}>{elem}</span>{' '}
           </>
         ))}
       </CollapsableView>
