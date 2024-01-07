@@ -1,7 +1,7 @@
 import cn from 'classnames';
 import { useEffect } from 'react';
 import { animated, useSpring } from 'react-spring';
-import CloseIcon from '@assets/icons/close.svg?component';
+import CloseIcon from '@assets/icons/cross.svg?component';
 import OutsideClickObserver from '@components/OutsideClickObserver';
 import { FCWithChildren } from 'types/react';
 import styles from './ModalContainer.module.scss';
