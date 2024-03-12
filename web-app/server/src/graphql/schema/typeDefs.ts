@@ -48,6 +48,7 @@ const typeDefs = gql`
 
     type User {
         userID: String!
+        createdAt: String!
         feedbacks(pagination: Pagination! = { offset: 0, limit: 10 }): [Feedback!]
         roles: [Role!]
         permissions: [PermissionType!]
@@ -198,6 +199,7 @@ const typeDefs = gql`
         maxPhase: Int
         isExecuted: Boolean!
         elapsedTime: Float
+        createdAt: String!
     }
 
     union TaskStateAnswer = TaskState | ResourceLimitTaskError | InternalServerTaskError
@@ -733,12 +735,12 @@ const typeDefs = gql`
         granularity: PeriodGranularity!
     }
 
-    interface GeneralStatisticsEntry {
+    interface GeneralAggregationsEntry {
         from: String!
         to: String!
     }
 
-    type StatisticsUsersEntry implements GeneralStatisticsEntry {
+    type AggregationsUsersEntry implements GeneralAggregationsEntry {
         from: String!
         to: String!
         totalUsers: Int!
@@ -747,7 +749,7 @@ const typeDefs = gql`
         logIns: Int!
     }
 
-    type StatisticsTasksEntry implements GeneralStatisticsEntry {
+    type AggregationsTasksEntry implements GeneralAggregationsEntry {
         from: String!
         to: String!
         totalTasks: Int!
@@ -755,7 +757,7 @@ const typeDefs = gql`
         failedNewTasks: Int!
     }
 
-    type StatisticsFilesEntry implements GeneralStatisticsEntry {
+    type AggregationsFilesEntry implements GeneralAggregationsEntry {
         from: String!
         to: String!
         totalSpaceOccupied: Int!
@@ -764,9 +766,38 @@ const typeDefs = gql`
     }
 
     type Aggregations {
-        users(config: AggregationConfig!): [StatisticsUsersEntry!]
-        tasks(config: AggregationConfig!): [StatisticsTasksEntry!]
-        files(config: AggregationConfig!): [StatisticsFilesEntry!]
+        users(config: AggregationConfig!): [AggregationsUsersEntry!]
+        tasks(config: AggregationConfig!): [AggregationsTasksEntry!]
+        files(config: AggregationConfig!): [AggregationsFilesEntry!]
+    }
+
+    type StatisticsSpaceEntry {
+        used: Int!
+        all: Int!
+    }
+
+    type StatisticsFilesEntry {
+        builtIn: Int!
+        all: Int!
+    }
+
+    type StatisticsTasksEntry {
+        completed: Int!
+        inProgress: Int!
+        failed: Int!
+        queued: Int!
+    }
+
+    type StatisticsUsersEntry {
+        active: Int!
+        all: Int!
+    }
+
+    type Statistics {
+        space: StatisticsSpaceEntry
+        files: StatisticsFilesEntry
+        tasks: StatisticsTasksEntry
+        users: StatisticsUsersEntry
     }
 
     """
@@ -797,11 +828,13 @@ const typeDefs = gql`
         fileID: String!
         createdAt: String!
         userID: ID
+        user: User
         isBuiltIn: Boolean!
         "The name of the file under which it is stored on the server"
         fileName: String!
         "The original name of the file submitted by the user"
         originalFileName: String!
+        fileSize: Int!
         mimeType: String
         encoding: String
         hasHeader: Boolean!
@@ -871,6 +904,11 @@ const typeDefs = gql`
         Query for admins with permission "VIEW_ADMIN_INFO"
         """
         aggregations: Aggregations!
+
+        """
+        Query for admins with permission "VIEW_ADMIN_INFO"
+        """
+        statistics: Statistics!
     }
 
     input FileProps {

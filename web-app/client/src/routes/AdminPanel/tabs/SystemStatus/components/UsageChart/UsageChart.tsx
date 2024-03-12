@@ -39,8 +39,7 @@ const UsageChart: FC<Props> = ({
   }
 
   const itemsToRender = _.sortBy(items, 'value')
-    .reverse()
-    .filter((item) => item.value > 0);
+    .reverse();
 
   if (capacity !== undefined) {
     itemsToRender.push({

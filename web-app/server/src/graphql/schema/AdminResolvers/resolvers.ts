@@ -5,6 +5,9 @@ import { User } from "../../../db/models/UserData/User";
 import { aggregationQuery } from "./util";
 import { config } from "../../../config";
 import { transporter } from "../../../nodemailer";
+import { sequelize } from "../../../db/sequelize";
+import { TaskStatusType } from "../../../db/models/TaskData/TaskState";
+import { Op } from "sequelize";
 
 export const AdminResolvers: Resolvers = {
     Aggregations: {
@@ -57,14 +60,100 @@ export const AdminResolvers: Resolvers = {
                 columns: (start, end) => ({
                     totalFiles: `SELECT COUNT(*) FROM "${fileInfoTable}" WHERE "createdAt" <= ${end}`,
                     newFiles: `SELECT COUNT(*) FROM "${fileInfoTable}" WHERE "createdAt" BETWEEN ${start} AND ${end}`,
-                    totalSpaceOccupied: `SELECT SUM("fileSize") FROM "${fileInfoTable}" WHERE "createdAt" <= ${end}`,
+                    totalSpaceOccupied: `SELECT COALESCE(SUM("fileSize"), 0) FROM "${fileInfoTable}" WHERE "createdAt" <= ${end}`,
                 }),
             });
         },
     },
 
+    Statistics: {
+        space: async (parent, _, { models }) => {
+            const used = await models.FileInfo.sum("fileSize");
+
+            return {
+                all: 100,
+                used,
+            };
+        },
+
+        files: async (parent, _, { models }) => {
+            const builtIn = await models.FileInfo.count({
+                where: {
+                    isBuiltIn: true,
+                },
+            });
+
+            const all = await models.FileInfo.count();
+
+            return {
+                all,
+                builtIn,
+            };
+        },
+
+        tasks: async (parent, _, { models }) => {
+            const completed = await models.TaskState.count({
+                where: {
+                    status: "COMPLETED",
+                },
+            });
+
+            const inProgress = await models.TaskState.count({
+                where: {
+                    status: "IN_PROCESS",
+                },
+            });
+
+            const failed = await models.TaskState.count({
+                where: {
+                    status: {
+                        [Op.or]: ["RESOURCE_LIMIT_IS_REACHED", "INTERNAL_SERVER_ERROR"],
+                    },
+                },
+            });
+
+            const queued = await models.TaskState.count({
+                where: {
+                    status: {
+                        [Op.or]: ["ADDED_TO_THE_TASK_QUEUE", "ADDING_TO_DB"],
+                    },
+                },
+            });
+
+            return {
+                completed,
+                inProgress,
+                failed,
+                queued,
+            };
+        },
+
+        users: async (parent, _, { models }) => {
+            const active = await models.User.count({
+                where: {
+                    accountStatus: "EMAIL_VERIFIED",
+                },
+            });
+
+            const all = await models.User.count();
+
+            return {
+                all,
+                active,
+            };
+        },
+    },
+
     Query: {
         aggregations: async (parent, _, { sessionInfo }) => {
+            if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
+                throw new ForbiddenError("User don't have permission");
+            }
+
+            return {};
+        },
+
+        statistics: async (parent, _, { sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
                 throw new ForbiddenError("User don't have permission");
             }
@@ -118,6 +207,8 @@ export const AdminResolvers: Resolvers = {
                     rejected,
                 };
             } catch (error) {
+                console.log(error);
+
                 return {
                     status: "ERROR",
                 };

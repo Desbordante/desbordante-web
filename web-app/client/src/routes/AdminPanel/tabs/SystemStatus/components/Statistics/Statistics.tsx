@@ -2,24 +2,41 @@ import { FC } from 'react';
 import colors from '@constants/colors';
 import UsageChart from '../UsageChart';
 import styles from './Statistics.module.scss';
+import { useQuery } from '@apollo/client';
+import { getAggregations, getAggregationsVariables } from '@graphql/operations/queries/__generated__/getAggregations';
+import { GET_STATISTICS } from '@graphql/operations/queries/getStatistics';
+import { getStatistics } from '@graphql/operations/queries/__generated__/getStatistics';
+
+
+const toGigabytes = (bytes: number) => +((bytes / (2 ** 30)).toFixed(2))
 
 const Statistics: FC = () => {
+  const { data } = useQuery<getStatistics>(
+    GET_STATISTICS,
+  );
+
+  const statistics = data?.statistics;
+
+  if (!statistics) {
+    return null;
+  }
+
   return (
     <section className={styles.statistics}>
       <h5 className={styles.title}>Statistics</h5>
       <div className={styles.charts}>
         <UsageChart
-          title="Disk usage"
+          title="Disk usage (GB)"
           defaultSelectedKey="used"
           items={[
             {
               key: 'used',
               label: 'Used',
-              value: 87.9,
+              value: toGigabytes(statistics.space?.used ?? 0),
               color: colors.primary[100],
             },
           ]}
-          capacity={100}
+          capacity={statistics.space?.all}
         />
         <UsageChart
           title="Files"
@@ -28,11 +45,11 @@ const Statistics: FC = () => {
             {
               key: 'uploaded',
               label: 'Uploaded',
-              value: 40,
+              value: statistics.files?.builtIn ?? 0,
               color: colors.primary[100],
             },
           ]}
-          capacity={50}
+          capacity={statistics.files?.all}
         />
         <UsageChart
           title="Tasks"
@@ -41,25 +58,25 @@ const Statistics: FC = () => {
             {
               key: 'completed',
               label: 'Completed',
-              value: 60,
+              value: statistics.tasks?.completed ?? 0,
               color: colors.success[100],
             },
             {
               key: 'failed',
               label: 'Failed',
-              value: 10,
+              value: statistics.tasks?.failed ?? 0,
               color: colors.error[100],
             },
             {
               key: 'queued',
               label: 'Queued',
-              value: 5,
+              value: statistics.tasks?.queued ?? 0,
               color: colors.info[100],
             },
             {
               key: 'in-progress',
               label: 'In progress',
-              value: 12,
+              value: statistics.tasks?.inProgress ?? 0,
               color: colors.primary[100],
             },
           ]}
@@ -71,11 +88,11 @@ const Statistics: FC = () => {
             {
               key: 'active',
               label: 'Active',
-              value: 23,
+              value: statistics.users?.active ?? 0,
               color: colors.primary[100],
             },
           ]}
-          capacity={50}
+          capacity={statistics.users?.all}
         />
       </div>
     </section>
