@@ -1,3 +1,5 @@
+import { Icon } from '@components/IconComponent';
+import useTaskState from '@hooks/useTaskState';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import React, { FC, PropsWithChildren, ReactElement } from 'react';
@@ -18,27 +20,27 @@ interface Props extends PropsWithChildren {
 const menuStatistics = {
   label: 'Statistics',
   pathname: '/reports/charts',
-  icon: <ChartIcon />,
+  icon: <Icon name="chart" />,
 };
 const menuClusters = {
   label: 'Clusters',
   pathname: '/reports/clusters',
-  icon: <ClusterIcon />,
+  icon: <Icon name="cluster" />,
 };
 const menuPrimitiveList = {
   label: 'Primitive list',
   pathname: '/reports/dependencies',
-  icon: <DropDownIcon />,
+  icon: <Icon name="listDropDown" />,
 };
 const menuDatasetSnippet = {
   label: 'Dataset snippet',
   pathname: '/reports/snippet',
-  icon: <DatatableIcon />,
+  icon: <Icon name="datatable" />,
 };
 const menuMFDClusters = {
   label: 'Clusters',
   pathname: '/reports/metric-dependencies',
-  icon: <ClusterIcon />,
+  icon: <Icon name="cluster" />,
 };
 
 export const reportsTabs: Record<
@@ -65,12 +67,7 @@ export const ReportsLayout: FC<Props> = ({
 
   return (
     <div className={classNames(styles.page, pageClass)}>
-      <Background
-        className={styles.background}
-        width="100%"
-        height="100%"
-        preserveAspectRatio="xMidYMid slice"
-      />
+      <Icon name="backgroundCreateTask" className={styles.background} />
       <div className={styles.menu}>
         <ul>
           {type &&
