@@ -22,7 +22,7 @@ const SciencePublicationCard: FC<Props> = ({ data }) => {
     navigator.clipboard
       .writeText(data.cite)
       .then(() => {
-        showSuccess('BibTeX cite was copied to your clipboard');
+        showSuccess('BibTeX cite was copied to your clipboard ');
       })
       .catch(() => {
         showError('Could not copy cite to clipboard');
