@@ -1,0 +1,28 @@
+name: Check frontend code lint
+on: 
+  pull_request:
+    paths:
+      - 'web-app/client/**'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v4
+
+        - name: Set Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version-file: 'web-app/client/.nvmrc'
+        
+        - name: Install yarn
+          run: npm install --global yarn
+        
+        - name: Install dependencies
+          working-directory: web-app/client
+          run: yarn install --immutable --immutable-cache --check-cache
+        
+        - name: Run lint
+          working-directory: web-app/client
+          run: yarn lint
+
