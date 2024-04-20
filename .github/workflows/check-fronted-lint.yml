@@ -14,13 +14,26 @@ jobs:
           uses: actions/setup-node@v4
           with:
             node-version-file: 'web-app/client/.nvmrc'
+            cache: 'yarn'
+            cache-dependency-path: |
+              web-app/server/yarn.lock
+              web-app/client/yarn.lock
+
+        - name: Install server dependencies
+          working-directory: web-app/server
+          run: yarn install --immutable
+
+        - name: Generate server schema
+          working-directory: web-app/server
+          run: yarn generate
         
-        - name: Install yarn
-          run: npm install --global yarn
-        
-        - name: Install dependencies
+        - name: Install client dependencies
           working-directory: web-app/client
-          run: yarn install --immutable --immutable-cache --check-cache
+          run: yarn install --immutable
+
+        - name: Generate client types
+          working-directory: web-app/client
+          run: yarn codegen:server
         
         - name: Run lint
           working-directory: web-app/client
