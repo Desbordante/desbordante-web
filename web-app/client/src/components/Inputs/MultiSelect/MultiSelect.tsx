@@ -16,14 +16,14 @@ export type MultiSelectProps = InputPropsBase &
 
 const MultiSelect: ForwardRefRenderFunction<any, MultiSelectProps> = (
   { label, error, tooltip, className, id, components, ...props },
-  ref
+  ref,
 ) => {
   return (
     <div
       className={cn(
         styles.inputSelect,
         props.isDisabled && styles.disabled,
-        className
+        className,
       )}
     >
       <div className={styles.top}>

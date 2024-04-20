@@ -24,13 +24,13 @@ const FormMultiSelect = ({
       value={
         value !== undefined
           ? props.options.filter(({ value: element }) =>
-              value.includes(element)
+              value.includes(element),
             )
           : []
       }
       onChange={(newValues) =>
         onChange(
-          (newValues as OptionWithBadges[]).map((element) => element.value)
+          (newValues as OptionWithBadges[]).map((element) => element.value),
         )
       }
       {..._.omit(props, ['rules', 'disabled', 'isLoading'])}

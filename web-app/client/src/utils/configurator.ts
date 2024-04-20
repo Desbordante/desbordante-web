@@ -3,7 +3,7 @@ export const getSelectValues: (opt: ReadonlyArray<any>) => number[] = (opt) => {
 };
 export const getSelectOptions: (
   options: ReadonlyArray<any>,
-  values: ReadonlyArray<number>
+  values: ReadonlyArray<number>,
 ) => ReadonlyArray<any> = (options, values) => {
   return values !== undefined
     ? options.filter(({ value }) => values.includes(value))

@@ -31,7 +31,7 @@ type MFDTableProps = {
 const getRowColor: (
   withinLimit: boolean,
   index: number,
-  isHighlighted: boolean
+  isHighlighted: boolean,
 ) => string = (withinLimit, index, isHighlighted) => {
   if (withinLimit) {
     if (isHighlighted) {
@@ -53,13 +53,13 @@ const getMFDRow: (
   position: number,
   isHighlighted: boolean,
   isFullValueShown: boolean,
-  callbackFunction: () => void
+  callbackFunction: () => void,
 ) => Row = (
   highlight,
   position,
   isHighlighted,
   isFullValueShown,
-  callbackFunction
+  callbackFunction,
 ) => {
   return {
     items: [
@@ -108,14 +108,14 @@ export const MFDTable: FC<MFDTableProps> = ({
   const data: Row[] = useMemo(() => {
     const insertRowData: Row | undefined = insertedRow
       ? getMFDRow(insertedRow.data, totalCount, true, isFullValueShown, () =>
-          closeInsertedRow()
+          closeInsertedRow(),
         )
       : undefined;
 
     const highlightData = highlights.map((highlight) =>
       getMFDRow(highlight, highlight.rowIndex, false, isFullValueShown, () =>
-        insertRow(highlight.furthestPointIndex, highlight.index)
-      )
+        insertRow(highlight.furthestPointIndex, highlight.index),
+      ),
     );
 
     if (insertRowData) {

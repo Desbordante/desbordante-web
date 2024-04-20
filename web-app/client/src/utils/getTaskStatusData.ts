@@ -8,7 +8,7 @@ import { getTaskInfo } from '@graphql/operations/queries/__generated__/getTaskIn
 
 const getTaskStatusData = (
   error: ApolloError | undefined,
-  state: TaskState | undefined
+  state: TaskState | undefined,
 ) => {
   if (error) {
     return {

@@ -41,7 +41,7 @@ const PresetSelector = ({
           { label: 'Custom', value: CUSTOM_PRESET_INDEX },
           { label: 'Default', value: DEFAULT_PRESET_INDEX },
         ]),
-    [presets]
+    [presets],
   );
 
   useEffect(() => {

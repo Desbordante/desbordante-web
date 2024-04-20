@@ -22,9 +22,9 @@ export const useTaskUrlParams = () => {
           query: { ...router.query, [name]: newValue },
         },
         undefined,
-        { scroll: false }
+        { scroll: false },
       ),
-    [router]
+    [router],
   );
 
   const primitive = useMemo(
@@ -33,7 +33,7 @@ export const useTaskUrlParams = () => {
       set: (newValue: MainPrimitiveType) =>
         changeQueryParamValue('primitive', newValue),
     }),
-    [changeQueryParamValue, router.query.primitive]
+    [changeQueryParamValue, router.query.primitive],
   );
 
   const fileID = useMemo(
@@ -41,7 +41,7 @@ export const useTaskUrlParams = () => {
       value: parseFileId(router.query.fileID),
       set: (newValue: string) => changeQueryParamValue('fileID', newValue),
     }),
-    [changeQueryParamValue, router.query.fileID]
+    [changeQueryParamValue, router.query.fileID],
   );
 
   const config = useMemo(
@@ -49,7 +49,7 @@ export const useTaskUrlParams = () => {
       value: _.omit(router.query, ['primitive', 'fileID']),
       set: changeQueryParamValue,
     }),
-    [changeQueryParamValue, router.query]
+    [changeQueryParamValue, router.query],
   );
 
   return { primitive, fileID, config };

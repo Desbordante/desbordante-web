@@ -44,17 +44,17 @@ const Chart: FC<Props> = ({
   const selectAttribute = useCallback(
     (attr: DepAttribute) =>
       setSelectedAttributeIndices(
-        selectedAttributeIndices.concat(attr.column.index)
+        selectedAttributeIndices.concat(attr.column.index),
       ),
-    [selectedAttributeIndices, setSelectedAttributeIndices]
+    [selectedAttributeIndices, setSelectedAttributeIndices],
   );
 
   const removeAttribute = useCallback(
     (attr: DepAttribute) =>
       setSelectedAttributeIndices(
-        selectedAttributeIndices.filter((index) => index !== attr.column.index)
+        selectedAttributeIndices.filter((index) => index !== attr.column.index),
       ),
-    [selectedAttributeIndices, setSelectedAttributeIndices]
+    [selectedAttributeIndices, setSelectedAttributeIndices],
   );
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const Chart: FC<Props> = ({
 
     const newDisplayAttributes = foundAttributes.slice(
       maxItemsShown * depth,
-      maxItemsShown * (depth + 1)
+      maxItemsShown * (depth + 1),
     );
 
     const newOtherValue = foundAttributes
@@ -110,7 +110,7 @@ const Chart: FC<Props> = ({
       maxItemsShown,
       selectAttribute,
       selectedAttributeIndices.length,
-    ]
+    ],
   );
 
   return (
@@ -148,7 +148,7 @@ const Chart: FC<Props> = ({
                   backgroundColor: displayAttributes.map((attr) =>
                     attr.column.name === 'Other'
                       ? styles.otherSectionColor
-                      : styles.standardSectionColor
+                      : styles.standardSectionColor,
                   ),
                   hoverBackgroundColor: styles.hoverSectionColor,
 
@@ -163,7 +163,7 @@ const Chart: FC<Props> = ({
               onClick: handleSelect,
               onHover: (e: any) => {
                 setHighlightIndex(
-                  e?.chart?._active?.length ? e.chart._active[0].index : null
+                  e?.chart?._active?.length ? e.chart._active[0].index : null,
                 );
               },
               maintainAspectRatio: false,
@@ -213,7 +213,7 @@ const Chart: FC<Props> = ({
       <ul className={styles.selectedAttributesContainer}>
         {selectedAttributeIndices.map((attributeIndex) => {
           const attr = attributes.find(
-            (e) => e.column.index === attributeIndex
+            (e) => e.column.index === attributeIndex,
           );
           return (
             attr && (

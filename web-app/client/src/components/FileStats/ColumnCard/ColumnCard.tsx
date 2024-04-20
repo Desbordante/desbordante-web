@@ -94,7 +94,7 @@ export const ColumnCard: FC<ColumnCardProps> = ({
       className={classNames(
         className,
         styles.wrapper,
-        compact && styles.compact
+        compact && styles.compact,
       )}
       {...props}
     >

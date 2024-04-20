@@ -18,7 +18,7 @@ const getSelectValues: (opt: ReadonlyArray<any>) => number[] = (opt) => {
 
 const getSelectOptions: (
   options: ReadonlyArray<any>,
-  value: ReadonlyArray<number>
+  value: ReadonlyArray<number>,
 ) => ReadonlyArray<any> = (options, values) => {
   return options.filter(({ value }) => values.includes(value));
 };
@@ -38,12 +38,12 @@ const ControlledMultiSelect = <T extends FieldValues>({
         {...field}
         onChange={(newValue, _) =>
           field.onChange(
-            getSelectValues(newValue as { label: string; value: number }[])
+            getSelectValues(newValue as { label: string; value: number }[]),
           )
         }
         value={getSelectOptions(
           rest.options as ReadonlyArray<any>,
-          field.value
+          field.value,
         )}
         {...rest}
       />

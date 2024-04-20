@@ -11,14 +11,14 @@ type Props = CheckboxProps & InputPropsBase & HTMLProps<HTMLInputElement>;
 
 const Checkbox: ForwardRefRenderFunction<HTMLInputElement, Props> = (
   { id, label, error, className, variant = 'outline', ...props },
-  ref
+  ref,
 ) => {
   return (
     <div
       className={cn(
         styles.inputCheckbox,
         props.disabled && styles.disabled,
-        className
+        className,
       )}
     >
       <label className={styles.inputContainer}>
@@ -28,7 +28,7 @@ const Checkbox: ForwardRefRenderFunction<HTMLInputElement, Props> = (
           ref={ref}
           className={cn(
             error && styles.checkboxError,
-            variant === 'simple' && styles.simple
+            variant === 'simple' && styles.simple,
           )}
           {...props}
         />

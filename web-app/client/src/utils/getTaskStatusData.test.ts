@@ -15,8 +15,8 @@ describe('getTaskStatusData Utility Function', () => {
         new ApolloError({
           errorMessage: 'error',
         }),
-        undefined
-      )
+        undefined,
+      ),
     ).toMatchObject({
       description: expect.stringMatching(/something went wrong/i),
       label: expect.stringMatching(/server error/i),
@@ -28,7 +28,7 @@ describe('getTaskStatusData Utility Function', () => {
             __typename: 'InternalServerTaskError',
           },
         },
-      })
+      }),
     ).toMatchObject({
       description: expect.stringMatching(/something went wrong/i),
       label: expect.stringMatching(/server error/i),
@@ -43,7 +43,7 @@ describe('getTaskStatusData Utility Function', () => {
             __typename: 'ResourceLimitTaskError',
           },
         },
-      })
+      }),
     ).toMatchObject({
       description: expect.stringMatching(/ran out of resources/i),
       label: expect.stringMatching(/resource Limit/i),
@@ -59,7 +59,7 @@ describe('getTaskStatusData Utility Function', () => {
             processStatus: 'COMPLETED',
           },
         },
-      })
+      }),
     ).toMatchObject({
       description: expect.stringMatching(/you will see the results/i),
       label: expect.stringMatching(/completed/i),
@@ -75,7 +75,7 @@ describe('getTaskStatusData Utility Function', () => {
             processStatus: 'ADDING_TO_DB',
           },
         },
-      })
+      }),
     ).toMatchObject({
       description: expect.stringMatching(/adding task to the database/i),
       label: expect.stringMatching(/in progress/i),
@@ -94,7 +94,7 @@ describe('getTaskStatusData Utility Function', () => {
             phaseName: 'doing smth',
           },
         },
-      })
+      }),
     ).toMatchObject({
       description: expect.stringMatching(/step 1 of 2: doing smth/i),
       label: expect.stringMatching(/in progress/i),
@@ -109,7 +109,7 @@ describe('getTaskStatusData Utility Function', () => {
             __typename: '',
           },
         },
-      })
+      }),
     ).toMatchObject({
       description: '',
       label: expect.stringMatching(/in progress/i),

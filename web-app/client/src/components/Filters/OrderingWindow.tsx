@@ -32,7 +32,7 @@ export const OrderingWindow: FC<OrderingProps> = ({
     (k: string, v: string) => ({
       label: k,
       value: v,
-    })
+    }),
   );
 
   const directionOptions = {

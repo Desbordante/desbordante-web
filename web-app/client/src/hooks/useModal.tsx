@@ -20,7 +20,7 @@ const useModal = <T extends ModalName>(name: T) => {
 
   const close = useCallback(() => {
     setVisibleModals((prev) =>
-      prev.filter((modal) => modal.callerId !== callerId)
+      prev.filter((modal) => modal.callerId !== callerId),
     );
   }, [callerId, setVisibleModals]);
 
@@ -28,23 +28,23 @@ const useModal = <T extends ModalName>(name: T) => {
     () => ({
       onClose: close,
     }),
-    [close]
+    [close],
   );
 
   const open = useCallback(
     (
       data: ComponentProps<Modals[T]>,
-      { replace } = defaultOpenModalOptions
+      { replace } = defaultOpenModalOptions,
     ) => {
       const persist = replace ? visibleModals.slice(1) : visibleModals;
       setVisibleModals(
         persist.concat({
           callerId,
           node: <Modal {...defaultModalProps} {...data} key={callerId} />,
-        })
+        }),
       );
     },
-    [Modal, callerId, defaultModalProps, setVisibleModals, visibleModals]
+    [Modal, callerId, defaultModalProps, setVisibleModals, visibleModals],
   );
 
   const closeAll = useCallback(() => {

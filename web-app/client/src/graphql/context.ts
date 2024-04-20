@@ -118,14 +118,14 @@ export const errorLink = onError(
                   // eslint-disable-next-line @typescript-eslint/no-loop-func
                   .finally(() => {
                     isRefreshing = false;
-                  })
+                  }),
               ).filter((value) => Boolean(value));
             } else {
               forward$ = fromPromise(
                 // eslint-disable-next-line @typescript-eslint/no-loop-func
                 new Promise<void>((resolve) => {
                   pendingRequests.push(() => resolve());
-                })
+                }),
               );
             }
 
@@ -138,7 +138,7 @@ export const errorLink = onError(
     if (networkError) {
       console.log(`[Network error]: ${networkError}`);
     }
-  }
+  },
 );
 
 const SSR_DEVICE_INFO = {

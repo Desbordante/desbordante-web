@@ -30,7 +30,7 @@ const ReportsCharts: NextPageWithLayout = () => {
 
   const { loading, data } = useQuery<getPieChartData, getPieChartDataVariables>(
     GET_PIE_CHART_DATA,
-    { variables: { taskID } }
+    { variables: { taskID } },
   );
 
   const { lhs, rhs } = getChartData(data);

@@ -53,7 +53,7 @@ export const MFDAtomDefaultValuesWithParams = (
   clusterIndex = 0,
   limit = 0,
   sortBy = MFDSortBy.MAXIMUM_DISTANCE,
-  orderBy = OrderBy.ASC
+  orderBy = OrderBy.ASC,
 ) => ({
   ...MFDAtomDefaultValues,
   taskID,

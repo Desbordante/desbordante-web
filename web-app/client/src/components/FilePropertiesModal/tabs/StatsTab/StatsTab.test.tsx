@@ -208,13 +208,13 @@ describe('StatsTab Component', () => {
       case notProcessedFileIdMock:
         const startProcessingMutationMock = mutationMocks[0].newData;
         await waitFor(() =>
-          expect(startProcessingMutationMock).toHaveBeenCalled()
+          expect(startProcessingMutationMock).toHaveBeenCalled(),
         );
         break;
       case startErrorFileIdMock:
         // Alert
         expect(await screen.findByRole('alert')).toHaveTextContent(
-          startErrorFileStatsMock[0].message
+          startErrorFileStatsMock[0].message,
         );
         break;
     }
@@ -228,7 +228,7 @@ describe('StatsTab Component', () => {
 
     // Progress bar
     const progressBar = await waitFor(() =>
-      screen.getByLabelText('Discovering statistics')
+      screen.getByLabelText('Discovering statistics'),
     );
 
     const progress = (
@@ -276,7 +276,7 @@ describe('StatsTab Component', () => {
 
     await waitFor(() => {
       expect(routerPushMock).toBeCalledWith(
-        `/create-task/file-stats?fileID=${completedFileStatsMock.datasetInfo.fileID}`
+        `/create-task/file-stats?fileID=${completedFileStatsMock.datasetInfo.fileID}`,
       );
     });
   });
@@ -304,7 +304,7 @@ describe('StatsTab Component', () => {
 
     // Alert
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      /not supported/i
+      /not supported/i,
     );
   });
 });

@@ -33,7 +33,7 @@ export const StatsBlock: FC<StatsBlockProps> = ({
         <Statistic header={item.name} size={size} key={index}>
           {item.value}
         </Statistic>
-      ))
+      )),
   );
 
   return (

@@ -18,7 +18,7 @@ type ClustersResult = {
 
 const useClustersPreview: (
   specificTaskID: string | undefined,
-  page: number
+  page: number,
 ) => ClustersResult = (specificTaskID, page) => {
   const [
     getClustersPreview,
@@ -27,7 +27,7 @@ const useClustersPreview: (
     GET_CLUSTERS_PREVIEW,
     {
       fetchPolicy: 'network-only',
-    }
+    },
   );
   const { showError } = useErrorContext();
   const [totalCount, setTotalCount] = useState<number | undefined>();
@@ -74,7 +74,7 @@ const useClustersPreview: (
         ('result' in data?.taskInfo.data &&
           data?.taskInfo?.data?.result &&
           data?.taskInfo?.data?.result.clustersCount) ||
-          0
+          0,
       );
     }
   }, [data]);

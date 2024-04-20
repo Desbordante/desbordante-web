@@ -26,7 +26,7 @@ const Team: NextPage<Props> = ({ team }) => {
         <ol className={styles.teamCardsContainer}>
           {teamMembers.data.map(
             ({ id, attributes }) =>
-              attributes && <TeamMemberBadge data={attributes} key={id} />
+              attributes && <TeamMemberBadge data={attributes} key={id} />,
           )}
         </ol>
       )}

@@ -1,7 +1,7 @@
 import { UserPermissions } from 'types/auth';
 
 export default function parseUserPermissions(
-  permissions: string[] | null
+  permissions: string[] | null,
 ): UserPermissions {
   return {
     canUseBuiltinDatasets:

@@ -6,21 +6,21 @@ import { Toast } from '@components/Toast';
 export const showToast = (
   header: ReactNode,
   text?: ReactNode,
-  options?: ToastOptions
+  options?: ToastOptions,
 ) =>
   toast(
     <Toast header={text ? header : null}>{text ? text : header}</Toast>,
-    options
+    options,
   );
 
 export const showError = (
   header: ReactNode,
   text?: ReactNode,
-  options?: ToastOptions
+  options?: ToastOptions,
 ) => showToast(header, text, { type: 'error', ...options });
 
 export const showSuccess = (
   header: ReactNode,
   text?: ReactNode,
-  options?: ToastOptions
+  options?: ToastOptions,
 ) => showToast(header, text, { type: 'success', ...options });

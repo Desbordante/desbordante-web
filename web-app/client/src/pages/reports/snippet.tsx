@@ -27,7 +27,7 @@ const ReportsSnippet: NextPageWithLayout<Props> = ({ snippet }) => {
   const { taskID, selectedDependency } = useTaskContext();
   const paginationLimit = useRef(DEFAULT_LIMIT);
   const [getDataset] = useLazyQuery<getDataset, getDatasetVariables>(
-    GET_DATASET
+    GET_DATASET,
   );
   const [rows, setRows] = useState<string[][]>(snippet.rows);
 
@@ -52,7 +52,7 @@ const ReportsSnippet: NextPageWithLayout<Props> = ({ snippet }) => {
 
   const highlightedColumnIndices = useMemo(
     () => selectedDependency.map((attribute) => attribute.column.index),
-    [selectedDependency]
+    [selectedDependency],
   );
 
   return (
@@ -80,7 +80,7 @@ ReportsSnippet.getLayout = function getLayout(page: ReactElement) {
 };
 
 export const getServerSideProps: GetServerSideProps<Props> = async (
-  context
+  context,
 ) => {
   const taskID = context.query.taskID;
   if (!taskID || typeof taskID !== 'string') {

@@ -9,9 +9,9 @@ export const useStartProcessing = (
   options: MutationHookOptions<
     startProcessingStats,
     startProcessingStatsVariables
-  >
+  >,
 ) =>
   useMutation<startProcessingStats, startProcessingStatsVariables>(
     START_PROCESSING_STATS,
-    options
+    options,
   );

@@ -28,7 +28,7 @@ const Control: ComponentType<ControlProps & InputPropsBase> = ({
     className={cn(
       styles.control,
       error && styles.error,
-      isFocused && styles.focused
+      isFocused && styles.focused,
     )}
   >
     {children}
@@ -87,7 +87,7 @@ export const Option: ComponentType<OptionProps & InputPropsBase> = ({
     className={cn(
       styles.option,
       isFocused && styles.focused,
-      isSelected && styles.selected
+      isSelected && styles.selected,
     )}
     {...innerProps}
     ref={innerRef}

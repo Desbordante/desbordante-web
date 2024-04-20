@@ -21,7 +21,7 @@ const header = (
           window.open(
             'https://github.com/Mstrutov/Desbordante/issues/new',
             '_blank',
-            'noreferrer'
+            'noreferrer',
           )
         }
       >

@@ -80,7 +80,7 @@ export const ReportsLayout: FC<Props> = ({
               <li
                 key={pathname}
                 className={classNames(
-                  router.pathname === pathname && styles.active
+                  router.pathname === pathname && styles.active,
                 )}
                 onClick={() =>
                   router.push({

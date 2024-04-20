@@ -43,7 +43,7 @@ const ClusterTable: FC<ClusterTableProps> = ({
     GET_SPECIFIC_CLUSTER,
     {
       fetchPolicy: 'network-only',
-    }
+    },
   );
   const pageCompleted =
     pageResult?.taskInfo.data &&
@@ -54,14 +54,14 @@ const ClusterTable: FC<ClusterTableProps> = ({
   const parseItem = (e: any) => e.row;
   const parseSquashItem = (e: any) =>
     ['x' + e.amount].concat(
-      selectedDependency.map((column) => e.row[column.column.index])
+      selectedDependency.map((column) => e.row[column.column.index]),
     );
   const pageRows =
     pageCompleted &&
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     pageResult?.taskInfo.data.result.specificCluster?.items.map(
-      squash ? parseSquashItem : parseItem
+      squash ? parseSquashItem : parseItem,
     );
 
   useEffect(() => {
@@ -119,7 +119,7 @@ const ClusterTable: FC<ClusterTableProps> = ({
         header={
           header && squash
             ? ['Rows count'].concat(
-                selectedDependency.map((e) => e.column.name)
+                selectedDependency.map((e) => e.column.name),
               )
             : header
         }

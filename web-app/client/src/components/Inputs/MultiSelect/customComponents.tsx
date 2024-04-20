@@ -36,7 +36,7 @@ const Control: ComponentType<ControlProps & InputPropsBase> = (props) => (
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       props.selectProps.error && styles.error,
-      props.isFocused && styles.focused
+      props.isFocused && styles.focused,
     )}
     {...props}
   />
@@ -74,7 +74,7 @@ const MultiValueRemove: ComponentType<
 );
 
 const Placeholder: ComponentType<PlaceholderProps & InputPropsBase> = (
-  props
+  props,
 ) => <components.Placeholder className={styles.placeholder} {...props} />;
 
 const Input: ComponentType<InputProps & InputPropsBase> = (props) => (
@@ -125,7 +125,7 @@ export const Option: ComponentType<OptionProps & InputPropsBase> = ({
         styles.option,
         optionData.badges?.length == 1 && styles.once,
         isFocused && styles.focused,
-        isSelected && styles.selected
+        isSelected && styles.selected,
       )}
       {...innerProps}
       ref={innerRef}

@@ -29,7 +29,7 @@ const Header = () => {
     <header
       className={classNames(
         styles.header,
-        headerBackground && styles.background
+        headerBackground && styles.background,
       )}
     >
       <NavBar />

@@ -37,7 +37,7 @@ const ProgressBar = ({ progress }: Props) => {
       className={classNames(
         styles.progress,
         isComplete && styles.complete,
-        isError && styles.fail
+        isError && styles.fail,
       )}
     >
       <div style={{ width: `${progressAmount * 100}%` }}></div>

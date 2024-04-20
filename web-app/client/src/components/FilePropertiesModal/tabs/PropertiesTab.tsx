@@ -98,7 +98,7 @@ export const FilePropsForm: FC<PropertyFormProps> = ({ onSubmit, onClose }) => {
             : delimiter,
         value: delimiter,
       })),
-    [data?.algorithmsConfig.fileConfig.allowedDelimiters]
+    [data?.algorithmsConfig.fileConfig.allowedDelimiters],
   );
 
   const inputFormat = watch('inputFormat');
