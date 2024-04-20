@@ -7,7 +7,7 @@ type Props = InputPropsBase & Omit<HTMLProps<HTMLInputElement>, 'type'>;
 
 const Radio: ForwardRefRenderFunction<HTMLInputElement, Props> = (
   { label, className, ...props },
-  ref
+  ref,
 ) => {
   return (
     <label className={cn(className, styles.container)}>

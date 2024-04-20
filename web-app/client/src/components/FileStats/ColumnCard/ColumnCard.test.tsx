@@ -23,7 +23,7 @@ describe('ColumnCard Component', () => {
     const { container } = render(<ColumnCard columnStats={column} />);
 
     const collapse = container.getElementsByClassName(
-      'ReactCollapse--collapse'
+      'ReactCollapse--collapse',
     )[0];
 
     expect(collapse.getAttribute('aria-hidden')).toBe('true');

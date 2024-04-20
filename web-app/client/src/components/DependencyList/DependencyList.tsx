@@ -17,7 +17,7 @@ type Props = {
 
 const makeSide: (
   data: GeneralColumn | GeneralColumn[],
-  infoVisible: boolean
+  infoVisible: boolean,
 ) => ReactElement = (data, infoVisible) => {
   if (Array.isArray(data)) {
     return (
@@ -54,7 +54,7 @@ const DependencyList: FC<Props> = ({ deps, infoVisible }) => {
             className={classNames(
               styles.row,
               isSelected && styles.selectedRow,
-              isError && styles.errorRow
+              isError && styles.errorRow,
             )}
             onClick={() => selectDependency(isSelected ? [] : fullDependency)}
           >

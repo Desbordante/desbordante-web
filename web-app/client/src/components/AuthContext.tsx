@@ -47,7 +47,7 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const [getUser] = useLazyQuery<getUser, getUserVariables>(GET_USER);
   const [getAnonymousPermissions] = useLazyQuery<getAnonymousPermissions>(
-    GET_ANONYMOUS_PERMISSIONS
+    GET_ANONYMOUS_PERMISSIONS,
   );
   const [logOut] = useMutation<logOut, logOutVariables>(LOG_OUT, {
     variables: {
@@ -132,7 +132,7 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
             setUser((prevUser) => ({
               ...prevUser,
               permissions: parseUserPermissions(
-                anonymousPermissions.data!.getAnonymousPermissions
+                anonymousPermissions.data!.getAnonymousPermissions,
               ),
               datasets: [],
             }));

@@ -42,7 +42,7 @@ const EmailVerification: FC<Props> = ({ onSuccess }) => {
     approveUserEmailVariables
   >(APPROVE_USER_EMAIL);
   const [issueCode] = useMutation<issueVerificationCode>(
-    ISSUE_VERIFICATION_CODE
+    ISSUE_VERIFICATION_CODE,
   );
 
   const onSubmit = handleSubmit(async (values) => {

@@ -60,7 +60,7 @@ const ReportsMFD: NextPageWithLayout = () => {
     clusterIndex,
     limit,
     sortBy,
-    orderBy
+    orderBy,
   );
 
   useEffect(() => {
@@ -130,7 +130,7 @@ const ReportsMFD: NextPageWithLayout = () => {
         },
       });
     },
-    [loadMFDHighlight, taskID, clusterIndex]
+    [loadMFDHighlight, taskID, clusterIndex],
   );
 
   const closeInsertedRow = useCallback(() => {
@@ -149,7 +149,7 @@ const ReportsMFD: NextPageWithLayout = () => {
         }
       }
     },
-    [data.cluster.highlightsTotalCount, limit]
+    [data.cluster.highlightsTotalCount, limit],
   );
 
   return (

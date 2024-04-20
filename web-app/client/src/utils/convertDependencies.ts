@@ -22,7 +22,7 @@ type FilteredDeps = {
 
 const getFilteredDeps: (
   data: GetMainTaskDeps,
-  type: PrimitiveType
+  type: PrimitiveType,
 ) => FilteredDeps = (data, type) => {
   const { result } = data.taskInfo.data;
   if (!result || result.__typename !== (`${type}TaskResult` as const)) {
@@ -34,7 +34,7 @@ const getFilteredDeps: (
 
 export const convertDependencies: (
   primitive?: PrimitiveType,
-  shownData?: GetMainTaskDeps
+  shownData?: GetMainTaskDeps,
 ) => {
   confidence?: any;
   rhs: GeneralColumn[];

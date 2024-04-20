@@ -76,7 +76,7 @@ const FDProcessor = CreateFormProcessor<typeof FDDefaults, typeof FDFields>(
       return { ...formSnapshot };
     });
   },
-  [['algorithmName']]
+  [['algorithmName']],
 );
 
 export const FDForm = CreateForm({

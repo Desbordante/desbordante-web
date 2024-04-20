@@ -31,10 +31,10 @@ const DatasetUploader: FC<Props> = ({ onUpload }) => {
     state: 'idle',
   });
   const { data: algorithmsConfig } = useQuery<getAlgorithmsConfig>(
-    GET_ALGORITHMS_CONFIG
+    GET_ALGORITHMS_CONFIG,
   );
   const [uploadDataset] = useMutation<uploadDataset, uploadDatasetVariables>(
-    UPLOAD_DATASET
+    UPLOAD_DATASET,
   );
   const { open: openFilePropertiesModal, close: closeFilePropertiesModal } =
     useModal('FILE_PROPERTIES');
@@ -137,7 +137,7 @@ const DatasetUploader: FC<Props> = ({ onUpload }) => {
         styles.uploader,
         isFileDragged && styles.dragged_outside,
         isDraggedInside && styles.dragged_inside,
-        styles[fileUploadProgress.state]
+        styles[fileUploadProgress.state],
       )}
       tabIndex={0}
       onClick={() => inputFile?.current?.click()}

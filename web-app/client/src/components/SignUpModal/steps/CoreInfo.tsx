@@ -44,7 +44,7 @@ const CoreInfo: FC<Props> = ({ onSuccess }) => {
   const { applyTokens } = useAuthContext();
 
   const [createUser] = useMutation<createUser, createUserVariables>(
-    CREATE_USER
+    CREATE_USER,
   );
 
   const {

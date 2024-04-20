@@ -286,8 +286,8 @@ const MFDFields = {
         return formState.rhsColumnType == 'Numeric' && value != 'EUCLIDEAN'
           ? 'Must be Euclidean if column type is numeric'
           : formState.rhsColumnType != 'Numeric' && value == 'EUCLIDEAN'
-          ? "Can't be Euclidean if column type is not numeric"
-          : undefined;
+            ? "Can't be Euclidean if column type is not numeric"
+            : undefined;
       },
     },
   },
@@ -347,7 +347,7 @@ const MFDFields = {
 const useMFDFormHook: FormHook<typeof MFDDefaults, typeof MFDFields> = (
   fileID,
   form,
-  setForm
+  setForm,
 ) => {
   const { loading, data } = useQuery<
     getCountOfColumns,
@@ -357,7 +357,7 @@ const useMFDFormHook: FormHook<typeof MFDDefaults, typeof MFDFields> = (
     onError: (error) => {
       showError(
         error.message,
-        "Can't fetch columns information. Please try later."
+        "Can't fetch columns information. Please try later.",
       );
     },
   });
@@ -432,10 +432,10 @@ const MFDProcessor = CreateFormProcessor<typeof MFDDefaults, typeof MFDFields>(
               (elem) =>
                 TypesCategories[
                   ColumnData?.[elem].badges?.[0].label || 'NotValid'
-                ] || 'Undefined'
-            )
+                ] || 'Undefined',
+            ),
           )
-        : []
+        : [],
     );
 
     if (types.length === 0) {
@@ -457,7 +457,7 @@ const MFDProcessor = CreateFormProcessor<typeof MFDDefaults, typeof MFDFields>(
   [
     ['rhsIndices', 'rhsColumnType', 'metric', 'metricAlgorithm'],
     ['rhsIndices', 'metric', 'metricAlgorithm'],
-  ]
+  ],
 );
 
 export const MFDForm = CreateForm({

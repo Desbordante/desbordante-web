@@ -40,7 +40,7 @@ const useTaskState = () => {
       onError: (error) => {
         showError(error.message, "Can't fetch task state. Please try later.");
       },
-    }
+    },
   );
 
   const [

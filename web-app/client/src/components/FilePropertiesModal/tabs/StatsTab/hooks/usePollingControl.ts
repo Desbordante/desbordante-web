@@ -4,7 +4,7 @@ import { StatsStage } from '@components/FilePropertiesModal/tabs/StatsTab';
 export const usePollingControl = (
   stage: StatsStage | null,
   startPolling?: (pollInterval: number) => void,
-  stopPolling?: () => void
+  stopPolling?: () => void,
 ) =>
   useEffect(() => {
     if (stage === StatsStage.Processing) startPolling?.(1000);

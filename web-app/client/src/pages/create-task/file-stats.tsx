@@ -22,7 +22,7 @@ const FileStats: NextPage = () => {
       variables: {
         fileID: router.query.fileID as string,
       },
-    }
+    },
   );
 
   if (!data) {

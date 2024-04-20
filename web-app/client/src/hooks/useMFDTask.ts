@@ -15,7 +15,7 @@ const useMFDTask = (
   clusterIndex = 0,
   limit = 150,
   sortBy = MFDSortBy.MAXIMUM_DISTANCE,
-  orderBy = OrderBy.ASC
+  orderBy = OrderBy.ASC,
 ) => {
   const [MFDTask, setMFDTask] = useAtom(MFDAtom);
   const [loadMFDData, { loading, error, data }] = useLazyQuery<
@@ -68,7 +68,7 @@ const useMFDTask = (
           clusterIndex,
           limit,
           sortBy,
-          orderBy
+          orderBy,
         ),
         result: taskResult.result || false,
         clustersTotalCount: taskResult.depsAmount || 0,
@@ -76,7 +76,7 @@ const useMFDTask = (
           value: clusterValue,
           highlightsTotalCount: taskResult.filteredDeps.filteredDepsAmount || 0,
           highlights: (taskResult.filteredDeps.deps || []).map(
-            (highlight, index) => ({ ...highlight, rowIndex: index })
+            (highlight, index) => ({ ...highlight, rowIndex: index }),
           ),
         },
       });
@@ -87,7 +87,7 @@ const useMFDTask = (
             taskID,
             clusterIndex,
             limit,
-            sortBy
+            sortBy,
           ),
         });
       }

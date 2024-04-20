@@ -13,11 +13,11 @@ const SignUpModal: FC<ModalProps> = ({ onClose }) => {
 
   const goToNextStage = useCallback(
     () => setStage((prevStage) => prevStage + 1),
-    []
+    [],
   );
   const onSuccess = useCallback(
     () => openAuthSuccessModal({}),
-    [openAuthSuccessModal]
+    [openAuthSuccessModal],
   );
 
   return (

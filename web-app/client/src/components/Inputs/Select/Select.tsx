@@ -16,14 +16,14 @@ export type Props = InputPropsBase &
 
 const Select: ForwardRefRenderFunction<any, Props> = (
   { label, error, tooltip, className, id, components, ...props },
-  ref
+  ref,
 ) => {
   return (
     <div
       className={cn(
         styles.inputSelect,
         props.isDisabled && styles.disabled,
-        className
+        className,
       )}
     >
       <div className={styles.top}>

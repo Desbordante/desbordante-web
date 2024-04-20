@@ -41,7 +41,7 @@ const BaseCard: FC<BaseCardProps> = ({
       className={classNames(
         styles.card,
         isSelected && styles.selected,
-        isDisabled && styles.disabled
+        isDisabled && styles.disabled,
       )}
       title={
         isDisabled

@@ -33,7 +33,7 @@ const NavBar: FC = () => {
   const router = useRouter();
 
   const selectedRouteIndex = routes.findIndex(({ path }) =>
-    router.pathname.includes(path)
+    router.pathname.includes(path),
   );
 
   return (
@@ -57,7 +57,7 @@ const NavBar: FC = () => {
             key={path}
             className={cn(
               styles.underline,
-              index === selectedRouteIndex && styles.selected
+              index === selectedRouteIndex && styles.selected,
             )}
             ref={(node) => {
               widths.current[index] = node?.offsetWidth ?? 0;

@@ -34,7 +34,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
     onChange,
     ...props
   },
-  ref
+  ref,
 ) => {
   const min = sliderProps?.min || 0;
   const max = sliderProps?.max || 100;
@@ -77,7 +77,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       className={classNames(
         styles.inputText,
         props.disabled && styles.disabled,
-        className
+        className,
       )}
     >
       <div className={styles.top}>

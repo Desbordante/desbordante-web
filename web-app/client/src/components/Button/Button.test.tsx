@@ -15,7 +15,7 @@ describe('Button Component', () => {
   it('Should render with text and icon', () => {
     render(<Button icon={iconPathMock}>Click me</Button>);
     expect(
-      screen.getByRole('button', { name: /click me/i })
+      screen.getByRole('button', { name: /click me/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole('img')).toBeInTheDocument();
   });

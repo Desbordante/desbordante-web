@@ -10,7 +10,7 @@ import { GET_FILE_STATS } from '@graphql/operations/queries/getFileStats';
 export const useFileStats = (
   fileID: string,
   setStage: Dispatch<SetStateAction<StatsStage | null>>,
-  setError: Dispatch<SetStateAction<string | null>>
+  setError: Dispatch<SetStateAction<string | null>>,
 ) =>
   useQuery<getFileStats, getFileStatsVariables>(GET_FILE_STATS, {
     variables: {

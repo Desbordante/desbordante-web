@@ -30,7 +30,7 @@ const Papers: NextPage<Props> = ({ papers }) => {
           <ol className={styles.papersContainer}>
             {prPublications.map(
               ({ id, attributes }) =>
-                attributes && <PrPublicationCard key={id} data={attributes} />
+                attributes && <PrPublicationCard key={id} data={attributes} />,
             )}
           </ol>
         </section>
@@ -44,7 +44,7 @@ const Papers: NextPage<Props> = ({ papers }) => {
               ({ id, attributes }) =>
                 attributes && (
                   <SciencePublicationCard key={id} data={attributes} />
-                )
+                ),
             )}
           </ol>
         </section>

@@ -76,8 +76,8 @@ const useFormFactory = <T extends UsedPrimitivesType>({
       ({
         ...formObject.formDefaults,
         ...formParams,
-      } as typeof formObject.formDefaults),
-    [formObject, formParams]
+      }) as typeof formObject.formDefaults,
+    [formObject, formParams],
   );
   const formFields = formObject.formFields as FormFieldsProps<
     typeof formDefaultValues
@@ -102,7 +102,7 @@ const useFormFactory = <T extends UsedPrimitivesType>({
     onError: (error) => {
       showError(
         error.message,
-        "Can't fetch file information. Please try later."
+        "Can't fetch file information. Please try later.",
       );
     },
   });
@@ -116,9 +116,9 @@ const useFormFactory = <T extends UsedPrimitivesType>({
             (value) =>
               value.filenames === 'EveryFile' ||
               (fileNameData?.datasetInfo?.fileName &&
-                value.filenames.includes(fileNameData?.datasetInfo?.fileName))
+                value.filenames.includes(fileNameData?.datasetInfo?.fileName)),
           )) as Presets<typeof formObject.formDefaults>,
-    [fileNameData?.datasetInfo?.fileName, fileNameLoading, formObject]
+    [fileNameData?.datasetInfo?.fileName, fileNameLoading, formObject],
   );
 
   const methods = useForm<typeof formDefaultValues>({
@@ -156,11 +156,11 @@ const useFormFactory = <T extends UsedPrimitivesType>({
         checkbox: FormCheckbox, // not working, don't use
         radio: FormRadio, // not working, don't use
         text: FormText, // not working, don't use
-      } as unknown as Record<
+      }) as unknown as Record<
         string,
         FormInputElement<typeof formDefaultValues>
-      >),
-    []
+      >,
+    [],
   );
 
   type FormInput = {
@@ -177,7 +177,7 @@ const useFormFactory = <T extends UsedPrimitivesType>({
     () =>
       (
         Object.entries(formState).sort(
-          (A, B) => A[1].order - B[1].order
+          (A, B) => A[1].order - B[1].order,
         ) as Entries<typeof formState>
       ).map(([name, fieldProps]) => {
         return {
@@ -221,7 +221,7 @@ const useFormFactory = <T extends UsedPrimitivesType>({
           },
         } as FormInput;
       }),
-    [formState, inputs]
+    [formState, inputs],
   );
 
   const [createTask] = useMutation<
@@ -240,7 +240,7 @@ const useFormFactory = <T extends UsedPrimitivesType>({
         .map(([name]) => name);
       const cleanedData = _.omit(
         data,
-        clientOnlyFields
+        clientOnlyFields,
       ) as IntersectionMainTaskProps;
       createTask({
         variables: {
@@ -258,20 +258,20 @@ const useFormFactory = <T extends UsedPrimitivesType>({
             query: {
               taskID: resp.data?.createMainTaskWithDatasetChoosing.taskID,
             },
-          })
+          }),
         )
         .catch((error) => {
           if (error instanceof Error) {
             showError(
               error.message,
-              'Internal error occurred. Please try later.'
+              'Internal error occurred. Please try later.',
             );
           }
         });
     },
     () => {
       showError('Input error', 'You need to correct the errors in the form.');
-    }
+    },
   );
 
   const entries = formInputs.map(({ name, rules, render }) => (
@@ -298,7 +298,7 @@ const useFormFactory = <T extends UsedPrimitivesType>({
       formLogic(formState, setFormState, methods, depsIndex);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [formDefaultValues, formLogic, formPresets, methods]
+    [formDefaultValues, formLogic, formPresets, methods],
   );
 
   return {

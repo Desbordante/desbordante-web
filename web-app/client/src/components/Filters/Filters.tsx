@@ -40,7 +40,7 @@ export const useFilters = (primitive: PrimitiveType) => {
 
   useEffect(
     () => methods.setValue('ordering', getDefaultOrdering(primitive)),
-    [primitive]
+    [primitive],
   );
 
   return methods;

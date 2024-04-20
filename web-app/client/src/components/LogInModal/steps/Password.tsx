@@ -29,7 +29,7 @@ interface Props {
 const Password: FC<Props> = ({ onSuccess, email }) => {
   const { applyTokens } = useAuthContext();
   const [changePassword] = useMutation<changePassword, changePasswordVariables>(
-    CHANGE_PASSWORD
+    CHANGE_PASSWORD,
   );
 
   const {
