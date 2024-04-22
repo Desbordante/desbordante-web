@@ -8,9 +8,9 @@ type InputBase<T> = {
   name: T;
 };
 
-type Option = {
+export type Option<TValue = string> = {
   label: string;
-  value: string;
+  value: TValue;
 };
 
 type SelectProps = {

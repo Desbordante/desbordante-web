@@ -13,15 +13,12 @@ import {
 } from 'react-select';
 import ChevronDownIcon from '@assets/icons/arrow-down.svg?component';
 import { InputPropsBase } from '@components/Inputs';
+import { Option as OptionType } from 'types/inputs';
 import styles from './Select.module.scss';
 
-const Control: ComponentType<ControlProps & InputPropsBase> = ({
-  children,
-  error,
-  innerRef,
-  innerProps,
-  isFocused,
-}) => (
+const Control: ComponentType<
+  ControlProps<OptionType, false> & InputPropsBase
+> = ({ children, error, innerRef, innerProps, isFocused }) => (
   <div
     {...innerProps}
     ref={innerRef}
@@ -35,54 +32,49 @@ const Control: ComponentType<ControlProps & InputPropsBase> = ({
   </div>
 );
 
-const ValueContainer: ComponentType<ValueContainerProps & InputPropsBase> = ({
-  children,
-  innerProps,
-}) => (
+const ValueContainer: ComponentType<
+  ValueContainerProps<OptionType, false> & InputPropsBase
+> = ({ children, innerProps }) => (
   <div {...innerProps} className={styles.valueContainer}>
     {children}
   </div>
 );
 
-const SingleValue: ComponentType<SingleValueProps & InputPropsBase> = ({
-  children,
-  innerProps,
-}) => (
+const SingleValue: ComponentType<
+  SingleValueProps<OptionType, false> & InputPropsBase
+> = ({ children, innerProps }) => (
   <div {...innerProps} className={styles.singleValue}>
     {children}
   </div>
 );
 
-const Placeholder: ComponentType<PlaceholderProps & InputPropsBase> = ({
-  children,
-  innerProps,
-}) => (
+const Placeholder: ComponentType<
+  PlaceholderProps<OptionType, false> & InputPropsBase
+> = ({ children, innerProps }) => (
   <div className={styles.placeholder} {...innerProps}>
     {children}
   </div>
 );
 
-const Input: ComponentType<InputProps & InputPropsBase> = (inputProps) => (
+const Input: ComponentType<InputProps<OptionType, false> & InputPropsBase> = (
+  inputProps,
+) => (
   <div className={cn(styles.input, inputProps.value && styles.hasValue)}>
     <components.Input {...inputProps} />
   </div>
 );
 
 const IndicatorsContainer: ComponentType<
-  IndicatorsContainerProps & InputPropsBase
+  IndicatorsContainerProps<OptionType, false> & InputPropsBase
 > = ({ innerProps }) => (
   <div className={styles.indicatorsContainer} {...innerProps}>
     <ChevronDownIcon />
   </div>
 );
 
-export const Option: ComponentType<OptionProps & InputPropsBase> = ({
-  innerProps,
-  innerRef,
-  children,
-  isFocused,
-  isSelected,
-}) => (
+export const Option: ComponentType<
+  OptionProps<OptionType, false> & InputPropsBase
+> = ({ innerProps, innerRef, children, isFocused, isSelected }) => (
   <div
     className={cn(
       styles.option,
@@ -96,10 +88,9 @@ export const Option: ComponentType<OptionProps & InputPropsBase> = ({
   </div>
 );
 
-const NoOptionsMessage: ComponentType<NoticeProps & InputPropsBase> = ({
-  innerProps,
-  children,
-}) => (
+const NoOptionsMessage: ComponentType<
+  NoticeProps<OptionType, false> & InputPropsBase
+> = ({ innerProps, children }) => (
   <div className={cn(styles.option, styles.noOptionsMessage)} {...innerProps}>
     {children}
   </div>

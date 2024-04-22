@@ -1,5 +1,6 @@
 import { upperCase, UpperCaseOption } from '@utils/uppercaseOptions';
 import { MainPrimitiveType } from 'types/globalTypes';
+import { Option } from 'types/inputs';
 
 function toScreamingSnakeOption<T extends string>(
   value: T,
@@ -122,10 +123,7 @@ export const optionsByMetrics: Record<MFDMetric, string[]> = {
 
 export type MFDColumnType = 'Numeric' | 'String';
 
-export type MFDColumnTypeOption = {
-  label: string;
-  value: MFDColumnType;
-};
+export type MFDColumnTypeOption = Option<MFDColumnType>;
 
 export const MFDColumnTypeOptions: MFDColumnTypeOption[] = [
   { label: 'Numeric', value: 'Numeric' },

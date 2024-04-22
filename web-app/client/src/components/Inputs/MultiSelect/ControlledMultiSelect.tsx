@@ -1,6 +1,7 @@
 import { ComponentProps } from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
-import MultiSelect, { MultiSelectProps as SelectProps } from './MultiSelect';
+import { Option } from 'types/inputs';
+import MultiSelect, { MultiSelectProps } from './MultiSelect';
 
 type ControlRules<T extends FieldValues> = ComponentProps<
   typeof Controller<T>
@@ -12,41 +13,34 @@ type ControlProps<T extends FieldValues> = {
   rules?: ControlRules<T>;
 };
 
-const getSelectValues: (
-  opt: ReadonlyArray<{ label: string; value: number }>,
-) => number[] = (opt) => {
+const getSelectValues: <TValue = string>(
+  opt: ReadonlyArray<Option<TValue>>,
+) => TValue[] = (opt) => {
   return opt.map((element) => element.value);
 };
 
-const getSelectOptions: (
-  options: ReadonlyArray<{ label: string; value: number }>,
-  value: ReadonlyArray<number>,
-) => ReadonlyArray<{ label: string; value: number }> = (options, values) => {
-  return options.filter(({ value }) => values.includes(value));
+const getSelectOptions: <TValue = string>(
+  options: ReadonlyArray<Option<TValue>> | undefined,
+  value: TValue[],
+) => ReadonlyArray<Option<TValue>> | undefined = (options, values) => {
+  return options?.filter(({ value }) => values.includes(value));
 };
 
-const ControlledMultiSelect = <T extends FieldValues>({
+const ControlledMultiSelect = <T extends FieldValues, TValue = string>({
   controlName,
   control,
   rules,
   ...rest
-}: SelectProps & ControlProps<T>) => (
+}: MultiSelectProps<TValue> & ControlProps<T>) => (
   <Controller
     name={controlName}
     control={control}
     rules={rules}
     render={({ field }) => (
-      <MultiSelect
+      <MultiSelect<TValue>
         {...field}
-        onChange={(newValue) =>
-          field.onChange(
-            getSelectValues(newValue as { label: string; value: number }[]),
-          )
-        }
-        value={getSelectOptions(
-          rest.options as ReadonlyArray<{ label: string; value: number }>,
-          field.value,
-        )}
+        onChange={(newValue) => field.onChange(getSelectValues(newValue))}
+        value={getSelectOptions(rest.options, field.value)}
         {...rest}
       />
     )}
