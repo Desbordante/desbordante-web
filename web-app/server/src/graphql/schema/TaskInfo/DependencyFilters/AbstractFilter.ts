@@ -14,7 +14,7 @@ import { applyPagination } from "../../../util";
 export type SortFunction<CompactDep> = (lhs: CompactDep, rhs: CompactDep) => boolean;
 export type ConditionFunction<CompactDep> = (dep: CompactDep) => boolean;
 export type ComparatorWithParam<T> = {
-    sortBy: string;
+    parameter: string;
     comparator: SortFunction<T>;
 };
 
@@ -52,7 +52,7 @@ export abstract class AbstractFilter<CompactDep, Dep> {
         deps = (await this.filterDeps(deps)) || [];
         const filteredDepsAmount = deps.length;
         deps = deps.sort(await this.getComparator());
-        this.filter.orderBy === "DESC" && deps.reverse();
+        this.filter.orderDirection === "DESC" && deps.reverse();
         deps = applyPagination(deps, this.filter.pagination, 500);
         deps = await this.applyTransformation(deps);
         return { filteredDepsAmount, deps };
@@ -86,7 +86,7 @@ export abstract class AbstractFilter<CompactDep, Dep> {
         const comparators = this.getComparators();
         const temp = comparators[0];
         const mainComparatorIndex = comparators.findIndex(
-            ({ sortBy }) => sortBy === this.getMainComparatorParam()
+            ({ parameter }) => parameter === this.getMainComparatorParam()
         );
         if (~mainComparatorIndex) {
             comparators[0] = comparators[mainComparatorIndex];
@@ -107,23 +107,23 @@ export abstract class AbstractFilter<CompactDep, Dep> {
     };
 
     public getMainComparatorParam = () => {
-        const getStringOrThrowError = <T>(sortBy: T): string => {
-            if (_.isString(sortBy)) {
-                return sortBy;
+        const getStringOrThrowError = <T>(parameter: T): string => {
+            if (_.isString(parameter)) {
+                return parameter;
             } else {
-                throw new UserInputError("SortBy param is undefined");
+                throw new UserInputError("OrderingParameter param is undefined");
             }
         };
         switch (this.type) {
             case "AR":
-                return getStringOrThrowError(this.filter.ARSortBy);
+                return getStringOrThrowError(this.filter.AROrderingParameter);
             case "CFD":
-                return getStringOrThrowError(this.filter.CFDSortBy);
+                return getStringOrThrowError(this.filter.CFDOrderingParameter);
             case "FD":
             case "TypoFD":
-                return getStringOrThrowError(this.filter.FDSortBy);
+                return getStringOrThrowError(this.filter.FDOrderingParameter);
             case "MFD":
-                return getStringOrThrowError(this.filter.MFDSortBy);
+                return getStringOrThrowError(this.filter.MFDOrderingParameter);
         }
         throw new ApolloError(`Type ${this.type} not implemented yet`);
     };

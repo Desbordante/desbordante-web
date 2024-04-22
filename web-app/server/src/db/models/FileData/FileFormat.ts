@@ -33,7 +33,7 @@ export class FileFormat extends Model {
     hasTid!: boolean | null;
 
     // TODO (vs9h): refactor
-    static createFileFormatIfPropsValid = async (file: FileInfo, props: FileProps) => {
+    static buildFileFormatIfPropsValid = (file: FileInfo, props: FileProps) => {
         const { inputFormat, tidColumnIndex, itemColumnIndex, hasTid } = props;
         if (inputFormat === undefined) {
             throw new UserInputError("You must provide file input format");
@@ -77,6 +77,10 @@ export class FileFormat extends Model {
                     inputFormat,
                 });
         }
-        return (await file.$create("fileFormat", { ...props })) as FileFormat;
+
+        return FileFormat.build({
+            ...props,
+            fileID: file.fileID,
+        });
     };
 }

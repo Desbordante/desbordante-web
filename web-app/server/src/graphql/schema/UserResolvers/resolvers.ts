@@ -9,14 +9,21 @@ import {
     RefreshTokenInstance,
     SessionStatusType,
 } from "../../../db/models/UserData/Session";
-import { AccountStatusType } from "../../../db/models/UserData/User";
+import {
+    getFindOptionsFromProps,
+    getQueryFromRangeFilter,
+    getQueryFromSearchFilter,
+} from "../util";
+import { AccountStatusType, User } from "../../../db/models/UserData/User";
 import { AuthenticationError } from "apollo-server-express";
-import { FindOptions } from "sequelize";
+import { FindOptions, Op } from "sequelize";
 import { Permission } from "../../../db/models/UserData/Permission";
 import { Role } from "../../../db/models/UserData/Role";
+import { TaskState } from "../../../db/models/TaskData/TaskState";
 import config from "../../../config";
 import { createAndSendVerificationCode } from "./emailSender";
 import jwt from "jsonwebtoken";
+import sequelize from "sequelize";
 
 export const UserResolvers: Resolvers = {
     Role: {
@@ -57,29 +64,93 @@ export const UserResolvers: Resolvers = {
             }
             return await models.Feedback.findAll({ where: { userID } });
         },
-        tasks: async ({ userID }, _, { models }) => {
+        tasks: async ({ userID }, { props }, { models }) => {
             if (!userID) {
                 throw new ApolloError("UserID is undefined");
             }
-            const configs = await models.GeneralTaskConfig.findAll({
-                where: { userID },
-                paranoid: true,
-                attributes: ["taskID", "fileID", ["type", "propertyPrefix"]],
-            });
-            return configs as (GeneralTaskConfig & {
-                prefix: MainPrimitiveType;
-            })[];
-        },
-        datasets: async ({ userID }, _, { models }) => {
-            if (!userID) {
-                throw new ApolloError("UserID is undefined");
-            }
-            return await models.FileInfo.findAll({
+
+            const options = getFindOptionsFromProps(
+                props,
+                {
+                    period: (value) => ({
+                        createdAt: getQueryFromRangeFilter(value),
+                    }),
+                    elapsedTime: (value) => ({
+                        "$taskState.elapsedTime$": getQueryFromRangeFilter(value),
+                    }),
+                },
+                {
+                    ELAPSED_TIME: "\"taskState\".\"elapsedTime\"",
+                    STATUS: "status",
+                    CREATION_TIME: "\"GeneralTaskConfig\".\"createdAt\"",
+                    USER: "\"userID\"",
+                },
+                ["includeDeleted", "searchString"]
+            );
+
+            const { rows, count } = await models.GeneralTaskConfig.findAndCountAll({
+                ...options,
                 where: {
+                    ...options.where,
+                    "$taskState.userID$": userID,
+                },
+                attributes: ["taskID", "fileID", ["type", "prefix"]],
+                raw: true,
+                include: TaskState,
+                paranoid: props.filters?.includeDeleted ?? false,
+            });
+
+            return {
+                data: rows as (GeneralTaskConfig & {
+                    prefix: MainPrimitiveType;
+                })[],
+                total: count,
+            };
+        },
+        remainingDiskSpace: async ({ getRemainingDiskSpace }, _, { models }) => {
+            return await getRemainingDiskSpace();
+        },
+        datasets: async ({ userID }, { props }, { models }) => {
+            if (!userID) {
+                throw new ApolloError("UserID is undefined");
+            }
+
+            const options = getFindOptionsFromProps(
+                props,
+                {
+                    searchString: (value) => ({
+                        originalFileName: getQueryFromSearchFilter(value),
+                    }),
+                    includeBuiltIn: (value) =>
+                        value === true ? {} : { isBuiltIn: false },
+                    period: (value) => ({
+                        createdAt: getQueryFromRangeFilter(value),
+                    }),
+                    fileSize: (value) => ({
+                        fileSize: getQueryFromRangeFilter(value),
+                    }),
+                },
+                {
+                    FILE_NAME: "\"originalFileName\"",
+                    FILE_SIZE: "\"fileSize\"",
+                    CREATION_TIME: "\"createdAt\"",
+                    USER: "\"userID\"",
+                },
+                ["includeDeleted"]
+            );
+
+            const { rows, count } = await models.FileInfo.findAndCountAll({
+                ...options,
+                where: {
+                    ...options.where,
                     userID,
-                    isValid: true,
                 },
             });
+
+            return {
+                data: rows,
+                total: count,
+            };
         },
     },
     Feedback: {
@@ -127,11 +198,44 @@ export const UserResolvers: Resolvers = {
             }
             throw new ForbiddenError("User doesn't have permissions");
         },
-        users: async (parent, { pagination }, { models, sessionInfo }) => {
-            if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
-                throw new ForbiddenError("User don't have permission");
+        users: async (parent, { props }, { models, sessionInfo }) => {
+            if (!sessionInfo) {
+                throw new AuthenticationError("User must be authorized");
             }
-            return await models.User.findAll(pagination);
+
+            if (!sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
+                throw new ForbiddenError("User doesn't have permissions");
+            }
+
+            const options = getFindOptionsFromProps(
+                props,
+                {
+                    fullName: (value) => ({
+                        fullName: getQueryFromSearchFilter(value),
+                    }),
+                    country: (value) => ({ isBuiltIn: getQueryFromSearchFilter(value) }),
+                    registrationTime: (value) => ({
+                        createdAt: getQueryFromRangeFilter(value),
+                    }),
+                },
+                {
+                    FULL_NAME: "\"fullName\"",
+                    COUNTRY: "country",
+                    CREATION_TIME: "\"createdAt\"",
+                    STATUS: "\"accountStatus\"",
+                },
+                ["includeDeleted"]
+            );
+
+            const { rows, count } = await models.User.findAndCountAll({
+                ...options,
+                paranoid: props.filters?.includeDeleted ?? false,
+            });
+
+            return {
+                data: rows,
+                total: count,
+            };
         },
         sessions: async (parent, { pagination, onlyValid }, { models, sessionInfo }) => {
             if (!sessionInfo || !sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
@@ -329,9 +433,12 @@ export const UserResolvers: Resolvers = {
                 throw new UserInputError(`Email ${props.email} already used`);
             }
             const accountStatus: AccountStatusType = "EMAIL_VERIFICATION";
+            const { userDiskLimit } = config.appConfig.fileConfig;
+
             const newUser = await models.User.create({
                 ...props,
                 accountStatus,
+                reservedDiskSpace: userDiskLimit,
             });
             await newUser.addRole("ANONYMOUS");
 
@@ -340,6 +447,19 @@ export const UserResolvers: Resolvers = {
             logger("New account created");
             const tokens = await session.issueTokenPair();
             return { message: "New account created", tokens };
+        },
+        updateUser: async (parent, { props }, { models, sessionInfo }) => {
+            if (!sessionInfo) {
+                throw new AuthenticationError("User must be authorized");
+            }
+
+            await models.User.update(props, {
+                where: {
+                    userID: sessionInfo.userID,
+                },
+            });
+
+            return { message: "User info updated" };
         },
         approveUserEmail: async (
             parent,

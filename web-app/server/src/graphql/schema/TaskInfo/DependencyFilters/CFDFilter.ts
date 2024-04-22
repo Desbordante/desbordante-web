@@ -111,33 +111,36 @@ export class CFDFilter extends AbstractFilter<CFDCompactType, Cfd> {
         const cfdPatternValueComparator = (lhs: Item, rhs: Item) =>
             lhs.patternIndex < rhs.patternIndex || _.isEqual(lhs, rhs);
         return [
-            { sortBy: "CONF", comparator: (lhs, rhs) => lhs.confidence < rhs.confidence },
-            { sortBy: "SUP", comparator: (lhs, rhs) => lhs.support < rhs.support },
             {
-                sortBy: "LHS_COL_NAME",
+                parameter: "CONF",
+                comparator: (lhs, rhs) => lhs.confidence < rhs.confidence,
+            },
+            { parameter: "SUP", comparator: (lhs, rhs) => lhs.support < rhs.support },
+            {
+                parameter: "LHS_COL_NAME",
                 comparator: (lhs, rhs) =>
                     compareArrays(lhs.lhs, rhs.lhs, cfdItemNameComparator),
             },
             {
-                sortBy: "RHS_COL_NAME",
+                parameter: "RHS_COL_NAME",
                 comparator: (lhs, rhs) => cfdItemNameComparator(lhs.rhs, rhs.rhs),
             },
             {
-                sortBy: "LHS_COL_ID",
+                parameter: "LHS_COL_ID",
                 comparator: (lhs, rhs) =>
                     compareArrays(lhs.lhs, rhs.lhs, cfdColIdComparator),
             },
             {
-                sortBy: "RHS_COL_ID",
+                parameter: "RHS_COL_ID",
                 comparator: (lhs, rhs) => cfdColIdComparator(lhs.rhs, rhs.rhs),
             },
             {
-                sortBy: "LHS_PATTERN",
+                parameter: "LHS_PATTERN",
                 comparator: (lhs, rhs) =>
                     compareArrays(lhs.lhs, rhs.lhs, cfdPatternValueComparator),
             },
             {
-                sortBy: "RHS_PATTERN",
+                parameter: "RHS_PATTERN",
                 comparator: (lhs, rhs) => cfdPatternValueComparator(lhs.rhs, rhs.rhs),
             },
         ];

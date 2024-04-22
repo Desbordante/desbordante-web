@@ -4,7 +4,7 @@ query AlgorithmsConfig {
         fileConfig {
             allowedFileFormats
             allowedDelimiters
-            maxFileSize
+            userDiskLimit
         }
         allowedFDAlgorithms {
             name
@@ -22,4 +22,3 @@ query AlgorithmsConfig {
         }
     }
 }
-

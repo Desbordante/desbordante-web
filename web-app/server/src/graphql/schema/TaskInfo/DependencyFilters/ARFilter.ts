@@ -51,16 +51,16 @@ export class ARFilter extends AbstractFilter<ARCompactType, Ar> {
             itemIndicesOrder[lhs] < itemIndicesOrder[rhs];
         return [
             {
-                sortBy: "CONF",
+                parameter: "CONF",
                 comparator: (lhs, rhs) => lhs.confidence < rhs.confidence,
             },
             {
-                sortBy: "LHS_NAME",
+                parameter: "LHS_NAME",
                 comparator: (lhs, rhs) =>
                     compareArrays(lhs.lhs, rhs.lhs, ARItemComparator),
             },
             {
-                sortBy: "RHS_NAME",
+                parameter: "RHS_NAME",
                 comparator: (lhs, rhs) =>
                     compareArrays(lhs.rhs, rhs.rhs, ARItemComparator),
             },
