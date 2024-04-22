@@ -1,0 +1,33 @@
+@import "styles/common";
+
+.beforeMenu {
+  display: flex;
+  margin: 0 0 32px;
+
+  .iconContainer {
+    padding: 6px;
+    margin: 0 8px 0 0;
+
+    .iconBackground {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 60px;
+      height: 60px;
+      background: $black-50;
+      border-radius: 100vmax;
+    }
+
+    .icon {
+      width: 32px;
+      height: 32px;
+      color: $white;
+    }
+  }
+
+  .nameContainer {
+    small {
+      color: $black-50;
+    }
+  }
+}

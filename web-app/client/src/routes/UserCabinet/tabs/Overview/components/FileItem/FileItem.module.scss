@@ -1,0 +1,48 @@
+@import "styles/common";
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px;
+  background: $white-25;
+  border: 1px solid $black-25;
+  border-radius: 8px;
+
+  .iconContainer {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    background: $black-10;
+    border-radius: 8px;
+
+    svg path {
+      fill: $black-50;
+    }
+  }
+
+  .middle {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+
+    .fileName {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .fileSize {
+      color: $black-50;
+    }
+  }
+
+  .percentage {
+    color: $primary-0;
+  }
+}
