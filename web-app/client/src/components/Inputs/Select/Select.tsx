@@ -1,19 +1,27 @@
 import cn from 'classnames';
-import { forwardRef, ForwardRefRenderFunction, ReactNode } from 'react';
+import {
+  ForwardedRef,
+  forwardRef,
+  ForwardRefRenderFunction,
+  ReactNode,
+} from 'react';
 import ReactSelect, { Props as ReactSelectProps } from 'react-select';
 import { InputPropsBase } from '@components/Inputs';
 import Tooltip from '@components/Tooltip';
+import { Option } from 'types/inputs';
 import customComponents from './customComponents';
 import styles from './Select.module.scss';
 
-export type Props = InputPropsBase &
-  ReactSelectProps & {
+export type Props<TValue = string> = InputPropsBase &
+  ReactSelectProps<Option<TValue>, false> & {
     tooltip?: ReactNode;
   };
 
 // Can't recreate explicit type
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-const Select: ForwardRefRenderFunction<any, Props> = (
+type RefElement = any;
+
+const Select: ForwardRefRenderFunction<RefElement, Props> = (
   { label, error, tooltip, className, id, components, ...props },
   ref,
 ) => {
@@ -45,4 +53,6 @@ const Select: ForwardRefRenderFunction<any, Props> = (
   );
 };
 
-export default forwardRef(Select);
+export default forwardRef(Select) as <TValue = string>(
+  props: Props<TValue> & { ref?: ForwardedRef<RefElement> },
+) => ReturnType<typeof Select>;

@@ -19,17 +19,20 @@ import ChevronDownIcon from '@assets/icons/arrow-down.svg?component';
 import EmptyButton from '@assets/icons/close.svg?component';
 import { InputPropsBase } from '@components/Inputs';
 import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
+import { Option as OptionType } from 'types/inputs';
 import { OptionWithBadges } from 'types/multiSelect';
 import { OptionBadge } from './OptionBadge';
 import styles from './MultiSelect.module.scss';
 
-export const colorStyles: StylesConfig = {
+export const colorStyles: StylesConfig<OptionType, true> = {
   control: () => ({}),
   valueContainer: (styles) => ({ ...styles, padding: 0 }),
   indicatorSeparator: (styles) => ({ ...styles, margin: 0 }),
 };
 
-const Control: ComponentType<ControlProps & InputPropsBase> = (props) => (
+const Control: ComponentType<
+  ControlProps<OptionType, true> & InputPropsBase
+> = (props) => (
   <components.Control
     className={cn(
       styles.control,
@@ -43,15 +46,17 @@ const Control: ComponentType<ControlProps & InputPropsBase> = (props) => (
 );
 
 const MultiValueContainer: ComponentType<
-  MultiValueGenericProps & InputPropsBase
+  MultiValueGenericProps<OptionType, true> & InputPropsBase
 > = (props) => <components.MultiValueContainer {...props} />;
 
-const MultiValue: ComponentType<MultiValueProps & InputPropsBase> = (props) => (
+const MultiValue: ComponentType<
+  MultiValueProps<OptionType, true> & InputPropsBase
+> = (props) => (
   <components.MultiValue className={styles.multiValue} {...props} />
 );
 
 const MultiValueLabel: ComponentType<
-  MultiValueGenericProps & InputPropsBase
+  MultiValueGenericProps<OptionType, true> & InputPropsBase
 > = (props) => (
   <div
     {...props.innerProps}
@@ -63,7 +68,7 @@ const MultiValueLabel: ComponentType<
 );
 
 const MultiValueRemove: ComponentType<
-  MultiValueRemoveProps & InputPropsBase
+  MultiValueRemoveProps<OptionType, true> & InputPropsBase
 > = (props) => (
   <div
     {...props.innerProps}
@@ -73,27 +78,31 @@ const MultiValueRemove: ComponentType<
   </div>
 );
 
-const Placeholder: ComponentType<PlaceholderProps & InputPropsBase> = (
-  props,
-) => <components.Placeholder className={styles.placeholder} {...props} />;
+const Placeholder: ComponentType<
+  PlaceholderProps<OptionType, true> & InputPropsBase
+> = (props) => (
+  <components.Placeholder className={styles.placeholder} {...props} />
+);
 
-const Input: ComponentType<InputProps & InputPropsBase> = (props) => (
+const Input: ComponentType<InputProps<OptionType, true> & InputPropsBase> = (
+  props,
+) => (
   <components.Input
     className={cn(styles.input, props.value && styles.hasValue)}
     {...props}
   />
 );
 
-const ClearIndicator: ComponentType<ClearIndicatorProps & InputPropsBase> = ({
-  innerProps,
-}) => (
+const ClearIndicator: ComponentType<
+  ClearIndicatorProps<OptionType, true> & InputPropsBase
+> = ({ innerProps }) => (
   <div className={styles.clearIndicator} {...innerProps}>
     <EmptyButton />
   </div>
 );
 
 const DropdownIndicator: ComponentType<
-  DropdownIndicatorProps & InputPropsBase
+  DropdownIndicatorProps<OptionType, true> & InputPropsBase
 > = ({ innerProps }) => (
   <div className={styles.dropdownIndicator} {...innerProps}>
     <ChevronDownIcon />
@@ -101,7 +110,7 @@ const DropdownIndicator: ComponentType<
 );
 
 const IndicatorsContainer: ComponentType<
-  IndicatorsContainerProps & InputPropsBase
+  IndicatorsContainerProps<OptionType, true> & InputPropsBase
 > = (props) => (
   <components.IndicatorsContainer
     className={styles.indicatorsContainer}
@@ -109,14 +118,9 @@ const IndicatorsContainer: ComponentType<
   />
 );
 
-export const Option: ComponentType<OptionProps & InputPropsBase> = ({
-  innerProps,
-  innerRef,
-  children,
-  isFocused,
-  isSelected,
-  data,
-}) => {
+export const Option: ComponentType<
+  OptionProps<OptionType, true> & InputPropsBase
+> = ({ innerProps, innerRef, children, isFocused, isSelected, data }) => {
   const optionData = data as OptionWithBadges;
 
   return (
@@ -148,19 +152,17 @@ export const Option: ComponentType<OptionProps & InputPropsBase> = ({
   );
 };
 
-const NoOptionsMessage: ComponentType<NoticeProps & InputPropsBase> = ({
-  innerProps,
-  children,
-}) => (
+const NoOptionsMessage: ComponentType<
+  NoticeProps<OptionType, true> & InputPropsBase
+> = ({ innerProps, children }) => (
   <div className={cn(styles.option, styles.noOptionsMessage)} {...innerProps}>
     {children}
   </div>
 );
 
-const LoadingMessage: ComponentType<NoticeProps & InputPropsBase> = ({
-  innerProps,
-  children,
-}) => (
+const LoadingMessage: ComponentType<
+  NoticeProps<OptionType, true> & InputPropsBase
+> = ({ innerProps, children }) => (
   <div className={cn(styles.option, styles.noOptionsMessage)} {...innerProps}>
     {children}
   </div>
