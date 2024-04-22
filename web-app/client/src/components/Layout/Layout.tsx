@@ -1,11 +1,12 @@
-import visibleModalsAtom from '@atoms/visibleModalsAtom';
-import Header from '@components/Header';
 const MobileBanner = dynamic(() => import('@components/MobileBanner'), {
   ssr: false,
 });
+
 import { useAtom } from 'jotai';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
+import visibleModalsAtom from '@atoms/visibleModalsAtom';
+import Header from '@components/Header';
 import { FCWithChildren } from 'types/react';
 import styles from './Layout.module.scss';
 

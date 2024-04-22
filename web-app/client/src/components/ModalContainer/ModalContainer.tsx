@@ -41,7 +41,7 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
         transform: 'translate3d(0, 0, 0)',
       },
       {
-        transform: 'none',
+        transform: 'translate3d(0, 0, 0)',
         immediate: true,
       },
     ],

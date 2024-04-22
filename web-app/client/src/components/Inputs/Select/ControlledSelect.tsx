@@ -24,7 +24,11 @@ const ControlledSelect = <T extends FieldValues>({
     render={({ field }) => (
       <Select
         {...field}
+        // Can't recreate explicit type
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
         onChange={(option: any) => field.onChange(option?.value)}
+        // Can't recreate explicit type
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
         value={rest.options?.find((e: any) => e?.value === field.value)}
         {...rest}
       />

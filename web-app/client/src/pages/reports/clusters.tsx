@@ -93,7 +93,7 @@ const Loader: FC<LoaderProps> = ({ lhs, rhs }) => {
               {attr}
             </span>
           ))}
-          <Image src={longArrowIcon} width={66} height={15} />
+          <Image src={longArrowIcon} width={66} height={15} alt="" />
           <span className={styles.attr}>{rhs}</span>
         </div>
       </div>

@@ -24,7 +24,7 @@ import { OptionBadge } from './OptionBadge';
 import styles from './MultiSelect.module.scss';
 
 export const colorStyles: StylesConfig = {
-  control: (styles) => ({}),
+  control: () => ({}),
   valueContainer: (styles) => ({ ...styles, padding: 0 }),
   indicatorSeparator: (styles) => ({ ...styles, margin: 0 }),
 };

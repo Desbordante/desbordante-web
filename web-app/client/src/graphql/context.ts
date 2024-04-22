@@ -53,10 +53,10 @@ export const requestIdLink = setContext((operation, previousContext) => {
 });
 
 let isRefreshing = false;
-let pendingRequests: any = [];
+let pendingRequests: (() => void)[] = [];
 
 const resolvePendingRequests = () => {
-  pendingRequests.map((callback: any) => callback());
+  pendingRequests.map((callback) => callback());
   pendingRequests = [];
 };
 

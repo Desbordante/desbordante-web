@@ -1,12 +1,11 @@
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import React, { FC, PropsWithChildren } from 'react';
+import React, { FC, PropsWithChildren, ReactElement } from 'react';
 import Background from '@assets/backgrounds/reports.svg?component';
 import ChartIcon from '@assets/icons/chart.svg?component';
 import ClusterIcon from '@assets/icons/cluster.svg?component';
 import DatatableIcon from '@assets/icons/datatable.svg?component';
 import DropDownIcon from '@assets/icons/list-dropdown.svg?component';
-import { useTaskContext } from '@components/TaskContext';
 import useTaskState from '@hooks/useTaskState';
 import { PrimitiveType } from 'types/globalTypes';
 import styles from './ReportsLayout.module.scss';
@@ -44,7 +43,7 @@ const menuMFDClusters = {
 
 export const reportsTabs: Record<
   PrimitiveType,
-  { label: string; pathname: string; icon: any }[]
+  { label: string; pathname: string; icon: ReactElement }[]
 > = {
   [PrimitiveType.TypoCluster]: [],
   [PrimitiveType.FD]: [menuStatistics, menuPrimitiveList, menuDatasetSnippet],

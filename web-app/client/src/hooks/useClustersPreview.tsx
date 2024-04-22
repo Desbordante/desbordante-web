@@ -47,6 +47,7 @@ const useClustersPreview: (
         },
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, specificTaskID]);
 
   useEffect(() => {
@@ -57,6 +58,7 @@ const useClustersPreview: (
       // do polling if there is a response but with no results
       startPolling(2000);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, error]);
 
   useEffect(() => {
@@ -65,6 +67,7 @@ const useClustersPreview: (
         message: 'Error occurred while loading clusters',
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error]);
 
   useEffect(() => {

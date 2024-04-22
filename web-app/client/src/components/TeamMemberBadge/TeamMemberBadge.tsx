@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { FC } from 'react';
 import DesbordanteIcon from '@assets/icons/desbordante.svg?component';
 import { getTeamMembers_teamMembers_data_attributes } from '@graphql/operations/queries/__generated__/getTeamMembers';
@@ -41,6 +42,10 @@ const TeamMemberBadge: FC<Props> = ({ data }) => {
             const imagePath = platformAttributes.icon.data?.attributes?.url;
             const imageSrc = imagePath && cmsUrlWrapper(imagePath);
 
+            if (!imageSrc) {
+              return null;
+            }
+
             return (
               <li key={id}>
                 <a
@@ -49,7 +54,14 @@ const TeamMemberBadge: FC<Props> = ({ data }) => {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <img src={imageSrc} alt="" />
+                  {/* Sync width and height with css because next Image want these properties set */}
+                  <Image
+                    width={24}
+                    height={24}
+                    className={styles.icon}
+                    src={imageSrc}
+                    alt=""
+                  />
                 </a>
               </li>
             );

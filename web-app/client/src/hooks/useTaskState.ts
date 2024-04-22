@@ -57,6 +57,7 @@ const useTaskState = () => {
       setTaskState(taskStateAtomDefaultValuesWithID(taskID));
       startPolling(2000);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -102,6 +103,7 @@ const useTaskState = () => {
         state,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liteData]);
 
   useEffect(() => {
@@ -125,6 +127,7 @@ const useTaskState = () => {
         state: state || taskStateAtomDefaultValues.state,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fullLoading, fullData]);
 
   return {

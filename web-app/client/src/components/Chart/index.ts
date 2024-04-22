@@ -1,3 +1,3 @@
 import Chart from './LayeredChart';
 
-export default { Chart };
+export default Chart;

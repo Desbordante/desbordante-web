@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { FC } from 'react';
 import Badge from '@components/Badge';
 import { getPublications_prPublications_data_attributes } from '@graphql/operations/queries/__generated__/getPublications';
@@ -26,12 +27,17 @@ const PrPublicationCard: FC<Props> = ({ data }) => {
 
   return (
     <li className={styles.prPublicationCard}>
-      <img
-        src={imageSrc}
-        alt=""
-        className={styles.thumbnail}
-        title={platform?.title}
-      />
+      {/* Sync width and height with css because next Image want these properties set */}
+      {imageSrc && (
+        <Image
+          width={64}
+          height={64}
+          src={imageSrc}
+          alt=""
+          className={styles.thumbnail}
+          title={platform?.title}
+        />
+      )}
 
       <div className={styles.data}>
         <h6 className={styles.top}>
@@ -50,7 +56,9 @@ const PrPublicationCard: FC<Props> = ({ data }) => {
         </h6>
 
         <p className={styles.bottom}>
-          <span className={styles.platform}>{platform?.title}</span>
+          {platform?.title && (
+            <span className={styles.platform}>{platform?.title}</span>
+          )}
           <time className={styles.date} dateTime={data.date}>
             {displayDate}
           </time>

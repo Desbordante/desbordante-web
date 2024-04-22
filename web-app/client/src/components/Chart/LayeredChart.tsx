@@ -94,7 +94,7 @@ const Chart: FC<Props> = ({
   ]);
 
   const handleSelect = useCallback(
-    (_: any, item: Column[]) => {
+    (_: never, item: Column[]) => {
       if (!item.length) {
         return;
       }
@@ -161,7 +161,8 @@ const Chart: FC<Props> = ({
             }}
             options={{
               onClick: handleSelect,
-              onHover: (e: any) => {
+              // @ts-expect-error Have no idea, looks wrong but it's legacy code
+              onHover: (e) => {
                 setHighlightIndex(
                   e?.chart?._active?.length ? e.chart._active[0].index : null,
                 );
@@ -169,7 +170,7 @@ const Chart: FC<Props> = ({
               maintainAspectRatio: false,
               responsive: true,
               cutout: '50%',
-              // @ts-ignore
+              // @ts-expect-error Have no idea, looks wrong but it's legacy code
               cutoutPercentage: 10,
               layout: {
                 padding: rem,
@@ -199,7 +200,8 @@ const Chart: FC<Props> = ({
                   titleMarginBottom: 0.5 * rem,
                   padding: rem,
                   callbacks: {
-                    label: (tooltipItem: any) => tooltipItem.label,
+                    // @ts-expect-error Have no idea, looks wrong but it's legacy code
+                    label: (tooltipItem) => tooltipItem.label,
                   },
                 },
               },

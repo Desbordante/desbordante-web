@@ -35,7 +35,6 @@ const Email: FC<Props> = ({ onSuccess, email, setEmail }) => {
   const {
     register,
     handleSubmit,
-    setError,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>({

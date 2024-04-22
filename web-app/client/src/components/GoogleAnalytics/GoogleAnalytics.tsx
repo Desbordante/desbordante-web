@@ -20,6 +20,7 @@ const GoogleAnalytics = () => {
         router.events.off('hashChangeComplete', handleRouteChange);
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router?.events]);
 
   return (
