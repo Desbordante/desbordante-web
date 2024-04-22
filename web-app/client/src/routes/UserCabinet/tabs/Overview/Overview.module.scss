@@ -1,0 +1,12 @@
+@import "styles/common";
+
+.overviewTab {
+  display: flex;
+  justify-content: space-between;
+  gap: 64px;
+
+  .left {
+    max-width: 980px;
+    width: 100%;
+  }
+}

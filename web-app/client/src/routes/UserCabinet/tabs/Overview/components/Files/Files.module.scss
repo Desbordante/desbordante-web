@@ -1,0 +1,41 @@
+@import "styles/common";
+
+.filesSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 356px;
+
+  .top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin: 0 0 48px;
+
+    .chart {
+      width: 256px;
+      height: 128px;
+    }
+
+    .stats {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: absolute;
+      bottom: 0;
+
+      p {
+        color: $black-50;
+      }
+    }
+  }
+
+  .files {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+}

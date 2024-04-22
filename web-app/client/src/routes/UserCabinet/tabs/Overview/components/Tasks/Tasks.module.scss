@@ -1,0 +1,13 @@
+@import "styles/common";
+
+.tasksSection {
+  .title {
+    margin: 0 0 32px;
+  }
+
+  .taskList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}

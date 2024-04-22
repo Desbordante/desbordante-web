@@ -1,0 +1,18 @@
+@import "styles/common";
+
+.accountSettingsTab {
+  max-width: 464px;
+
+  .title {
+    margin: 0 0 32px;
+  }
+
+  .additionalActions {
+    display: flex;
+    gap: 16px;
+
+    button {
+      width: 100%;
+    }
+  }
+}

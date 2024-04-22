@@ -1,0 +1,12 @@
+@import "styles/common";
+
+.statistic {
+  .label {
+    text-transform: uppercase;
+    color: $black-50;
+  }
+
+  .value {
+    font-size: 32px;
+  }
+}
