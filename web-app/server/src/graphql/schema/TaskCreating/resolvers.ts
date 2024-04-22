@@ -37,7 +37,6 @@ export const TaskCreatingResolvers: Resolvers = {
             const file = await models.FileInfo.findOne({
                 where: {
                     fileID,
-                    isValid: true,
                 },
             });
             if (!file) {

@@ -100,15 +100,15 @@ export class MFDFilter extends AbstractFilter<MFDCompactType, Mfd> {
     getComparators = (): ComparatorWithParam<MFDCompactType>[] => {
         return [
             {
-                sortBy: "POINT_INDEX",
+                parameter: "POINT_INDEX",
                 comparator: (lhs, rhs) => lhs.index < rhs.index,
             },
             {
-                sortBy: "FURTHEST_POINT_INDEX",
+                parameter: "FURTHEST_POINT_INDEX",
                 comparator: (lhs, rhs) => lhs.furthestPointIndex < rhs.furthestPointIndex,
             },
             {
-                sortBy: "MAXIMUM_DISTANCE",
+                parameter: "MAXIMUM_DISTANCE",
                 comparator: (lhs, rhs) => lhs.maximumDistance < rhs.maximumDistance,
             },
         ];

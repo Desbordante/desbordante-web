@@ -19,8 +19,8 @@ const getDefaultFDFilter = (
     pagination: { offset: 0, limit: 10 },
     filterString: "",
     withoutKeys,
-    orderBy: "ASC",
-    FDSortBy: "LHS_COL_ID",
+    orderDirection: "ASC",
+    FDOrderingParameter: "LHS_COL_ID",
 });
 
 const testFDTaskWithDefaultParamsParallel = async (

@@ -46,8 +46,59 @@ const typeDefs = gql`
         limit: Int!
     }
 
+    input TasksFilter {
+        searchString: String
+        includeDeleted: Boolean
+    }
+
+    enum TasksOrderingParameter {
+        ELAPSED_TIME
+        STATUS
+        CREATION_TIME
+    }
+
+    input TasksOrdering {
+        direction: OrderDirection!
+        parameter: TasksOrderingParameter!
+    }
+
+    input DatasetsFilter {
+        originalFileName: String!
+    }
+
+    enum DatasetsOrderingParameter {
+        ORIGINAL_FILE_NAME
+        USAGE_FREQUENCY
+        FILE_SIZE
+    }
+
+    input DatasetsOrdering {
+        direction: OrderDirection!
+        parameter: DatasetsOrderingParameter!
+    }
+
+    interface PaginatedAnswer {
+        total: Int!
+    }
+
+    type AbstractTasksAnswer implements PaginatedAnswer {
+        total: Int!
+        data: [AbstractTaskInfo!]
+    }
+
+    type TasksAnswer implements PaginatedAnswer {
+        total: Int!
+        data: [TaskInfo!]
+    }
+
+    type DatasetsAnswer implements PaginatedAnswer {
+        total: Int!
+        data: [DatasetInfo!]
+    }
+
     type User {
         userID: String!
+        createdAt: String!
         feedbacks(pagination: Pagination! = { offset: 0, limit: 10 }): [Feedback!]
         roles: [Role!]
         permissions: [PermissionType!]
@@ -57,8 +108,15 @@ const typeDefs = gql`
         companyOrAffiliation: String!
         occupation: String!
         accountStatus: String!
-        tasks(pagination: Pagination!, withDeleted: Boolean! = False): [TaskInfo!]
-        datasets(pagination: Pagination! = { offset: 0, limit: 10 }): [DatasetInfo!]
+        tasks(props: TasksQueryProps!): TasksAnswer!
+        datasets(props: DatasetsQueryProps!): DatasetsAnswer!
+        reservedDiskSpace: Int!
+        remainingDiskSpace: Int!
+    }
+
+    type UsersAnswer implements PaginatedAnswer {
+        total: Int!
+        data: [User!]
     }
 
     enum AccountStatusType {
@@ -116,7 +174,7 @@ const typeDefs = gql`
     type InputFileConfig {
         allowedFileFormats: [String!]!
         allowedDelimiters: [String!]!
-        maxFileSize: Float!
+        userDiskLimit: Float!
     }
 
     type AlgorithmsConfig {
@@ -198,6 +256,7 @@ const typeDefs = gql`
         maxPhase: Int
         isExecuted: Boolean!
         elapsedTime: Float
+        createdAt: String!
     }
 
     union TaskStateAnswer = TaskState | ResourceLimitTaskError | InternalServerTaskError
@@ -388,7 +447,7 @@ const typeDefs = gql`
         itemsAmount: Int!
     }
 
-    enum ARSortBy {
+    enum AROrderingParameter {
         LHS_NAME
         RHS_NAME
         CONF
@@ -403,7 +462,7 @@ const typeDefs = gql`
         """
         All deps
         """
-        orderBy: OrderBy!
+        orderDirection: OrderDirection!
         """
         All deps. Can be null, but only for downloadResults mutation
         """
@@ -411,19 +470,19 @@ const typeDefs = gql`
         """
         ARs
         """
-        ARSortBy: ARSortBy
+        AROrderingParameter: AROrderingParameter
         """
         CFDs
         """
-        CFDSortBy: CFDSortBy
+        CFDOrderingParameter: CFDOrderingParameter
         """
         FDs
         """
-        FDSortBy: FDSortBy
+        FDOrderingParameter: FDOrderingParameter
         """
         MFD
         """
-        MFDSortBy: MFDSortBy
+        MFDOrderingParameter: MFDOrderingParameter
         """
         MFD
         """
@@ -442,7 +501,7 @@ const typeDefs = gql`
         withoutKeys: Boolean
     }
 
-    enum CFDSortBy {
+    enum CFDOrderingParameter {
         LHS_COL_NAME
         RHS_COL_NAME
         LHS_COL_ID
@@ -463,24 +522,24 @@ const typeDefs = gql`
         RHS
     }
 
-    enum SortBy {
+    enum OrderingParameter {
         COL_ID
         COL_NAME
     }
 
-    enum FDSortBy {
+    enum FDOrderingParameter {
         LHS_COL_ID
         RHS_COL_ID
         LHS_NAME
         RHS_NAME
     }
 
-    enum MFDSortBy {
+    enum MFDOrderingParameter {
         POINT_INDEX
         FURTHEST_POINT_INDEX
         MAXIMUM_DISTANCE
     }
-    enum OrderBy {
+    enum OrderDirection {
         ASC
         DESC
     }
@@ -606,9 +665,89 @@ const typeDefs = gql`
         datasetInfo: DatasetInfo!
     }
 
+    input StringRange {
+        from: String
+        to: String
+    }
+
+    input IntRange {
+        from: Int
+        to: Int
+    }
+
+    input DatasetsQueryFilters {
+        searchString: String
+        includeBuiltIn: Boolean! = true
+        includeDeleted: Boolean
+        period: StringRange
+        fileSize: IntRange
+    }
+
+    enum DatasetsQueryOrderingParameter {
+        FILE_NAME
+        FILE_SIZE
+        CREATION_TIME
+        USER
+    }
+
+    input DatasetsQueryOrdering {
+        parameter: DatasetsQueryOrderingParameter!
+        direction: OrderDirection!
+    }
+
     input DatasetsQueryProps {
-        includeBuiltInDatasets: Boolean! = true
-        includeDeletedDatasets: Boolean! = false
+        filters: DatasetsQueryFilters! = {}
+        ordering: DatasetsQueryOrdering! = {}
+        pagination: Pagination! = { offset: 0, limit: 10 }
+    }
+
+    input TasksQueryFilters {
+        searchString: String
+        includeDeleted: Boolean
+        elapsedTime: IntRange
+        period: StringRange
+    }
+
+    enum TasksQueryOrderingParameter {
+        ELAPSED_TIME
+        STATUS
+        CREATION_TIME
+        USER
+    }
+
+    input TasksQueryOrdering {
+        parameter: TasksQueryOrderingParameter!
+        direction: OrderDirection!
+    }
+
+    input TasksQueryProps {
+        filters: TasksQueryFilters! = {}
+        ordering: TasksQueryOrdering! = {}
+        pagination: Pagination! = { offset: 0, limit: 10 }
+    }
+
+    input UsersQueryFilters {
+        fullName: String
+        country: String
+        includeDeleted: Boolean
+        registrationTime: StringRange
+    }
+
+    enum UsersQueryOrderingParameter {
+        FULL_NAME
+        COUNTRY
+        STATUS
+        CREATION_TIME
+    }
+
+    input UsersQueryOrdering {
+        parameter: UsersQueryOrderingParameter!
+        direction: OrderDirection!
+    }
+
+    input UsersQueryProps {
+        filters: UsersQueryFilters! = {}
+        ordering: UsersQueryOrdering! = {}
         pagination: Pagination! = { offset: 0, limit: 10 }
     }
 
@@ -639,6 +778,85 @@ const typeDefs = gql`
         quantile75: String
     }
 
+    enum PeriodGranularity {
+        HOUR
+        DAY
+        WEEK
+        MONTH
+        YEAR
+    }
+
+    input AggregationConfig {
+        from: String
+        to: String
+        granularity: PeriodGranularity!
+    }
+
+    interface GeneralAggregationsEntry {
+        from: String!
+        to: String!
+    }
+
+    type AggregationsUsersEntry implements GeneralAggregationsEntry {
+        from: String!
+        to: String!
+        totalUsers: Int!
+        newUsers: Int!
+        activeUsers: Int!
+        logIns: Int!
+    }
+
+    type AggregationsTasksEntry implements GeneralAggregationsEntry {
+        from: String!
+        to: String!
+        totalTasks: Int!
+        successfullyExecutedNewTasks: Int!
+        failedNewTasks: Int!
+    }
+
+    type AggregationsFilesEntry implements GeneralAggregationsEntry {
+        from: String!
+        to: String!
+        totalSpaceOccupied: Int!
+        totalFiles: Int!
+        newFiles: Int!
+    }
+
+    type Aggregations {
+        users(config: AggregationConfig!): [AggregationsUsersEntry!]
+        tasks(config: AggregationConfig!): [AggregationsTasksEntry!]
+        files(config: AggregationConfig!): [AggregationsFilesEntry!]
+    }
+
+    type StatisticsSpaceEntry {
+        used: Int!
+        all: Int!
+    }
+
+    type StatisticsFilesEntry {
+        builtIn: Int!
+        all: Int!
+    }
+
+    type StatisticsTasksEntry {
+        completed: Int!
+        inProgress: Int!
+        failed: Int!
+        queued: Int!
+    }
+
+    type StatisticsUsersEntry {
+        active: Int!
+        all: Int!
+    }
+
+    type Statistics {
+        space: StatisticsSpaceEntry
+        files: StatisticsFilesEntry
+        tasks: StatisticsTasksEntry
+        users: StatisticsUsersEntry
+    }
+
     """
     If 'name' = Columns, 'amount' contains the number of columns in the dataset.
     If 'name' = Rows, 'amount' contains the number of rows in the dataset.
@@ -667,12 +885,15 @@ const typeDefs = gql`
         fileID: String!
         createdAt: String!
         userID: ID
+        user: User
         isBuiltIn: Boolean!
         "The name of the file under which it is stored on the server"
         fileName: String!
         "The original name of the file submitted by the user"
         originalFileName: String!
         mimeType: String
+        "File size in bytes"
+        fileSize: Int!
         encoding: String
         hasHeader: Boolean!
         header: [String!]
@@ -708,7 +929,7 @@ const typeDefs = gql`
         """
         Query for admins with permission "VIEW_ADMIN_INFO"
         """
-        datasets(props: DatasetsQueryProps!): [DatasetInfo!]
+        datasets(props: DatasetsQueryProps!): DatasetsAnswer!
         """
         All user can see built in dataset
         Authorized users can see their dataset
@@ -726,16 +947,26 @@ const typeDefs = gql`
         """
         Query for admins with permission "VIEW_ADMIN_INFO"
         """
-        tasksInfo(pagination: Pagination!): [AbstractTaskInfo!]
+        tasksInfo(props: TasksQueryProps!): AbstractTasksAnswer!
         user(userID: ID): User
         """
         Query for admins with permission "VIEW_ADMIN_INFO"
         """
-        users(pagination: Pagination!): [User!]!
+        users(props: UsersQueryProps!): UsersAnswer!
         """
         Query for admins with permission "VIEW_ADMIN_INFO"
         """
         sessions(pagination: Pagination!, onlyValid: Boolean! = true): [Session]!
+
+        """
+        Query for admins with permission "VIEW_ADMIN_INFO"
+        """
+        aggregations: Aggregations!
+
+        """
+        Query for admins with permission "VIEW_ADMIN_INFO"
+        """
+        statistics: Statistics!
     }
 
     input FileProps {
@@ -776,6 +1007,17 @@ const typeDefs = gql`
     }
 
     type IssueVerificationCodeAnswer {
+        message: String!
+    }
+
+    input UpdatingUserProps {
+        fullName: String
+        country: String
+        companyOrAffiliation: String
+        occupation: String
+    }
+
+    type UpdateUserAnswer {
         message: String!
     }
 
@@ -870,11 +1112,32 @@ const typeDefs = gql`
 
     union ChangePasswordAnswer = TokenPair | SuccessfulMessage
 
+    input MessageData {
+        subject: String!
+        body: String!
+    }
+
+    enum SendMesssageStatus {
+        OK
+        ERROR
+    }
+
+    type SendMessageAnswer {
+        status: SendMesssageStatus!
+        accepted: [String!]
+        rejected: [String!]
+    }
+
     type Mutation {
         """
         After creating new account user will have anonymous permissions;
         """
         createUser(props: CreatingUserProps!): CreateUserAnswer!
+
+        """
+        Update user info
+        """
+        updateUser(props: UpdatingUserProps!): UpdateUserAnswer!
 
         """
         Code for email approving is temporary (24 hours, destroys after first attempt).
@@ -999,6 +1262,11 @@ const typeDefs = gql`
         Admins can remove info about all stats tasks.
         """
         deleteStatsInfo(fileID: String!): String!
+
+        """
+        Query for admins with permission "VIEW_ADMIN_INFO"
+        """
+        sendMessage(userIDs: [ID!], messageData: MessageData!): SendMessageAnswer!
     }
 `;
 

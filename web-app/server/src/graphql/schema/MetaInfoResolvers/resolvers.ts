@@ -1,7 +1,12 @@
+import {
+    getFindOptionsFromProps,
+    getQueryFromRangeFilter,
+    getQueryFromSearchFilter,
+} from "../util";
 import { AuthenticationError } from "apollo-server-express";
-import { FindOptions } from "sequelize";
 import { ForbiddenError } from "apollo-server-core";
 import { Resolvers } from "../../types/types";
+import { User } from "../../../db/models/UserData/User";
 
 export const MetaInfoResolvers: Resolvers = {
     Query: {
@@ -9,21 +14,45 @@ export const MetaInfoResolvers: Resolvers = {
             if (!sessionInfo) {
                 throw new AuthenticationError("User must be authorized");
             }
+
             if (!sessionInfo.permissions.includes("VIEW_ADMIN_INFO")) {
                 throw new ForbiddenError("User doesn't have permissions");
             }
 
-            const { includeBuiltInDatasets, includeDeletedDatasets, pagination } = props;
-            let options: FindOptions = { where: { isValid: true }, ...pagination };
+            const options = getFindOptionsFromProps(
+                props,
+                {
+                    searchString: (value) => ({
+                        originalFileName: getQueryFromSearchFilter(value),
+                    }),
+                    includeBuiltIn: (value) =>
+                        value === true ? {} : { isBuiltIn: false },
+                    period: (value) => ({
+                        createdAt: getQueryFromRangeFilter(value),
+                    }),
+                    fileSize: (value) => ({
+                        fileSize: getQueryFromRangeFilter(value),
+                    }),
+                },
+                {
+                    FILE_NAME: "\"originalFileName\"",
+                    FILE_SIZE: "\"fileSize\"",
+                    CREATION_TIME: "\"createdAt\"",
+                    USER: "\"userID\"",
+                },
+                ["includeDeleted"]
+            );
 
-            if (includeBuiltInDatasets === false) {
-                options.where = { ...options.where, isBuiltInDataset: false };
-            }
-            if (includeDeletedDatasets === true) {
-                options = { ...options, paranoid: false };
-            }
+            const { rows, count } = await models.FileInfo.findAndCountAll({
+                ...options,
+                include: User,
+                paranoid: props.filters?.includeDeleted ?? false,
+            });
 
-            return await models.FileInfo.findAll(options);
+            return {
+                total: count,
+                data: rows,
+            };
         },
     },
 };

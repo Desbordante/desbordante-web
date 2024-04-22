@@ -8,8 +8,8 @@ const getDefaultCFDFilter = (
     pagination: { offset: 0, limit: 10 },
     filterString: "",
     withoutKeys,
-    orderBy: "ASC",
-    CFDSortBy: "RHS_COL_NAME",
+    orderDirection: "ASC",
+    CFDOrderingParameter: "RHS_COL_NAME",
 });
 
 const getCFDFilter = (
@@ -65,7 +65,7 @@ it("test CFD task with another sortby", async () => {
                 type: "CFD",
             },
         },
-        getCFDFilter({ CFDSortBy: "RHS_PATTERN" }),
+        getCFDFilter({ CFDOrderingParameter: "RHS_PATTERN" }),
         { depsAmount: 36, filteredDepsAmount: 36 }
     );
 });

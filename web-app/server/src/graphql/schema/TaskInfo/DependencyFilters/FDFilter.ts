@@ -71,21 +71,21 @@ export class FDFilter extends AbstractFilter<FDCompactType, Fd> {
         const fdColIdComparator = (lhs: number, rhs: number) => lhs < rhs;
         return [
             {
-                sortBy: "LHS_NAME",
+                parameter: "LHS_NAME",
                 comparator: (lhs, rhs) =>
                     compareArrays(lhs.lhs, rhs.lhs, fdColIdComparator),
             },
             {
-                sortBy: "RHS_NAME",
+                parameter: "RHS_NAME",
                 comparator: (lhs, rhs) => fdColIdComparator(lhs.rhs, rhs.rhs),
             },
             {
-                sortBy: "LHS_COL_ID",
+                parameter: "LHS_COL_ID",
                 comparator: (lhs, rhs) =>
                     compareArrays(lhs.lhs, rhs.lhs, fdColNameComparator),
             },
             {
-                sortBy: "RHS_COL_ID",
+                parameter: "RHS_COL_ID",
                 comparator: (lhs, rhs) => fdColNameComparator(lhs.rhs, rhs.rhs),
             },
         ];

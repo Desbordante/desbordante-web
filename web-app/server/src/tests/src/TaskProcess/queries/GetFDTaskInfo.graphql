@@ -1,4 +1,4 @@
-query GetFDTaskInfo($taskID: ID!){
+query GetFDTaskInfo($taskID: ID!) {
     taskInfo(taskID: $taskID) {
         state {
             __typename
@@ -16,7 +16,7 @@ query GetFDTaskInfo($taskID: ID!){
                     type
                 }
                 specificConfig {
-                    ...on FDTaskConfig {
+                    ... on FDTaskConfig {
                         taskID
                         maxLHS
                         threadsCount
@@ -26,14 +26,22 @@ query GetFDTaskInfo($taskID: ID!){
                 }
                 result {
                     __typename
-                    ...on TaskWithDepsResult {
+                    ... on TaskWithDepsResult {
                         depsAmount
                     }
                     ... on FDTaskResult {
                         PKs {
                             ...Col
                         }
-                        filteredDeps(filter: {pagination: {offset: 0, limit: 10}, filterString: "", withoutKeys:true orderBy: ASC, FDSortBy: LHS_COL_ID}) {
+                        filteredDeps(
+                            filter: {
+                                pagination: { offset: 0, limit: 10 }
+                                filterString: ""
+                                withoutKeys: true
+                                orderDirection: ASC
+                                FDOrderingParameter: LHS_COL_ID
+                            }
+                        ) {
                             filteredDepsAmount
                             ... on FilteredFDs {
                                 __typename
@@ -49,7 +57,7 @@ query GetFDTaskInfo($taskID: ID!){
                         }
                         pieChartData {
                             withoutPatterns {
-                                lhs{
+                                lhs {
                                     ...Row
                                 }
                                 rhs {
@@ -57,7 +65,6 @@ query GetFDTaskInfo($taskID: ID!){
                                 }
                             }
                         }
-
                     }
                 }
             }
