@@ -1,34 +1,34 @@
 import {
-  ARSortBy,
-  CFDSortBy,
-  FDSortBy,
+  AROrderingParameter,
+  CFDOrderingParameter,
+  FDOrderingParameter,
   PrimitiveType,
 } from 'types/globalTypes';
 
 export const OrderingTitles: Record<PrimitiveType, Record<string, string>> = {
   [PrimitiveType.FD]: {
-    [FDSortBy.LHS_NAME]: 'LHS NAME',
-    [FDSortBy.RHS_NAME]: 'RHS NAME',
+    [FDOrderingParameter.LHS_NAME]: 'LHS NAME',
+    [FDOrderingParameter.RHS_NAME]: 'RHS NAME',
   },
   [PrimitiveType.CFD]: {
-    [CFDSortBy.LHS_COL_NAME]: 'LHS NAME',
-    [CFDSortBy.RHS_COL_NAME]: 'RHS NAME',
-    [CFDSortBy.CONF]: 'Condfidence',
-    [CFDSortBy.LHS_PATTERN]: 'LHS PATTERN',
-    [CFDSortBy.LHS_PATTERN]: 'RHS PATTERN',
+    [CFDOrderingParameter.LHS_COL_NAME]: 'LHS NAME',
+    [CFDOrderingParameter.RHS_COL_NAME]: 'RHS NAME',
+    [CFDOrderingParameter.CONF]: 'Condfidence',
+    [CFDOrderingParameter.LHS_PATTERN]: 'LHS PATTERN',
+    [CFDOrderingParameter.LHS_PATTERN]: 'RHS PATTERN',
   },
   [PrimitiveType.AR]: {
-    [ARSortBy.CONF]: 'Confidence',
-    [ARSortBy.DEFAULT]: 'Default',
-    [ARSortBy.LHS_NAME]: 'LHS NAME',
-    [ARSortBy.RHS_NAME]: 'RHS NAME',
+    [AROrderingParameter.CONF]: 'Confidence',
+    [AROrderingParameter.DEFAULT]: 'Default',
+    [AROrderingParameter.LHS_NAME]: 'LHS NAME',
+    [AROrderingParameter.RHS_NAME]: 'RHS NAME',
   },
   [PrimitiveType.TypoFD]: {
-    [FDSortBy.LHS_NAME]: 'LHS NAME',
-    [FDSortBy.RHS_NAME]: 'RHS NAME',
+    [FDOrderingParameter.LHS_NAME]: 'LHS NAME',
+    [FDOrderingParameter.RHS_NAME]: 'RHS NAME',
   },
   [PrimitiveType.TypoCluster]: {
-    [FDSortBy.LHS_NAME]: 'LHS NAME',
-    [FDSortBy.RHS_NAME]: 'RHS NAME',
+    [FDOrderingParameter.LHS_NAME]: 'LHS NAME',
+    [FDOrderingParameter.RHS_NAME]: 'RHS NAME',
   },
 };

@@ -29,7 +29,7 @@ import useMFDHighlight from '@hooks/useMFDHighlight';
 import useMFDTask from '@hooks/useMFDTask';
 import styles from '@styles/MetricDependencies.module.scss';
 
-import { MFDSortBy, OrderBy } from 'types/globalTypes';
+import { MFDOrderingParameter, OrderDirection } from 'types/globalTypes';
 
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
@@ -52,15 +52,17 @@ const ReportsMFD: NextPageWithLayout = () => {
   // TODO: move parameters in one object
   const [clusterIndex, setClusterIndex] = useState(0);
   const [limit, setLimit] = useState(defaultLimit);
-  const [sortBy, setSortBy] = useState(MFDSortBy.MAXIMUM_DISTANCE);
-  const [orderBy, setOrderBy] = useState(OrderBy.ASC);
+  const [parameter, setOrderingParameter] = useState(
+    MFDOrderingParameter.MAXIMUM_DISTANCE,
+  );
+  const [orderDirection, setOrderDirection] = useState(OrderDirection.ASC);
 
   const { data, loading, error } = useMFDTask(
     taskID,
     clusterIndex,
     limit,
-    sortBy,
-    orderBy,
+    parameter,
+    orderDirection,
   );
 
   useEffect(() => {
@@ -157,8 +159,8 @@ const ReportsMFD: NextPageWithLayout = () => {
       {isOrderingShown && (
         <OrderingWindow
           setIsOrderingShown={setIsOrderingShown}
-          setSortBy={setSortBy}
-          setOrderBy={setOrderBy}
+          setOrderingParameter={setOrderingParameter}
+          setOrderDirection={setOrderDirection}
         />
       )}
       {data.result === undefined && <ReportFiller title={'Loading'} />}
@@ -264,35 +266,38 @@ const ReportFiller: FC<ReportFillerProps> = ({ title, description, icon }) => {
 
 type OrderingProps = {
   setIsOrderingShown: (arg: boolean) => void;
-  setSortBy: (arg: MFDSortBy) => void;
-  setOrderBy: (arg: OrderBy) => void;
+  setOrderingParameter: (arg: MFDOrderingParameter) => void;
+  setOrderDirection: (arg: OrderDirection) => void;
 };
 
 type SortingProps = {
-  sorting: MFDSortBy;
-  ordering: OrderBy;
+  sorting: MFDOrderingParameter;
+  ordering: OrderDirection;
 };
 
 const OrderingWindow: FC<OrderingProps> = ({
   setIsOrderingShown,
-  setSortBy,
-  setOrderBy,
+  setOrderingParameter,
+  setOrderDirection,
 }) => {
   const sortingOptions = [
-    { value: MFDSortBy.POINT_INDEX, label: 'Point index' },
-    { value: MFDSortBy.FURTHEST_POINT_INDEX, label: 'Furthest point index' },
-    { value: MFDSortBy.MAXIMUM_DISTANCE, label: 'Maximum distance' },
+    { value: MFDOrderingParameter.POINT_INDEX, label: 'Point index' },
+    {
+      value: MFDOrderingParameter.FURTHEST_POINT_INDEX,
+      label: 'Furthest point index',
+    },
+    { value: MFDOrderingParameter.MAXIMUM_DISTANCE, label: 'Maximum distance' },
   ];
 
   const orderingOptions = {
-    [OrderBy.ASC]: { value: OrderBy.ASC, label: 'Ascending' },
-    [OrderBy.DESC]: { value: OrderBy.DESC, label: 'Descending' },
+    [OrderDirection.ASC]: { value: OrderDirection.ASC, label: 'Ascending' },
+    [OrderDirection.DESC]: { value: OrderDirection.DESC, label: 'Descending' },
   };
 
   const { control, watch, reset } = useForm<SortingProps>({
     defaultValues: {
-      sorting: MFDSortBy.MAXIMUM_DISTANCE,
-      ordering: OrderBy.ASC,
+      sorting: MFDOrderingParameter.MAXIMUM_DISTANCE,
+      ordering: OrderDirection.ASC,
     },
   });
 
@@ -307,8 +312,8 @@ const OrderingWindow: FC<OrderingProps> = ({
         setIsOrderingShown(false);
       }}
       onApply={() => {
-        setSortBy(sorting);
-        setOrderBy(ordering);
+        setOrderingParameter(sorting);
+        setOrderDirection(ordering);
         setIsOrderingShown(false);
       }}
     >

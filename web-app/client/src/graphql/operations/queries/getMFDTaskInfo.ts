@@ -6,8 +6,8 @@ export const GET_MFD_TASK_INFO = gql`
     $clusterIndex: Int!
     $offset: Int!
     $limit: Int!
-    $sortBy: MFDSortBy!
-    $orderBy: OrderBy!
+    $parameter: MFDOrderingParameter!
+    $orderDirection: OrderDirection!
   ) {
     taskInfo(taskID: $taskID) {
       __typename
@@ -20,8 +20,8 @@ export const GET_MFD_TASK_INFO = gql`
               result
               filteredDeps(
                 filter: {
-                  MFDSortBy: $sortBy
-                  orderBy: $orderBy
+                  MFDOrderingParameter: $parameter
+                  orderDirection: $orderDirection
                   filterString: ""
                   pagination: { offset: $offset, limit: $limit }
                   MFDClusterIndex: $clusterIndex

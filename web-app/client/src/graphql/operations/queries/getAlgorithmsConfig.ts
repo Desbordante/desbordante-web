@@ -48,7 +48,7 @@ export const GET_ALGORITHMS_CONFIG = gql`
       fileConfig {
         allowedFileFormats
         allowedDelimiters
-        maxFileSize
+        userDiskLimit
       }
     }
   }

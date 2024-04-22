@@ -14,10 +14,7 @@ import {
 } from '@graphql/operations/mutations/__generated__/logOut';
 import { LOG_OUT } from '@graphql/operations/mutations/logOut';
 import { getAnonymousPermissions } from '@graphql/operations/queries/__generated__/getAnonymousPermissions';
-import {
-  getUser,
-  getUserVariables,
-} from '@graphql/operations/queries/__generated__/getUser';
+import { getUser } from '@graphql/operations/queries/__generated__/getUser';
 import { GET_ANONYMOUS_PERMISSIONS } from '@graphql/operations/queries/getAnonymousPermissions';
 import { GET_USER } from '@graphql/operations/queries/getUser';
 import parseUserPermissions from '@utils/parseUserPermissions';
@@ -45,7 +42,7 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<User | undefined>();
 
-  const [getUser] = useLazyQuery<getUser, getUserVariables>(GET_USER);
+  const [getUser] = useLazyQuery<getUser>(GET_USER);
   const [getAnonymousPermissions] = useLazyQuery<getAnonymousPermissions>(
     GET_ANONYMOUS_PERMISSIONS,
   );
@@ -87,9 +84,6 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
     }
 
     const response = await getUser({
-      variables: {
-        userID: user.id,
-      },
       fetchPolicy: 'network-only',
     });
 
@@ -102,7 +96,7 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
         email,
         isVerified: accountStatus === 'EMAIL_VERIFIED',
         permissions: parseUserPermissions(permissions),
-        datasets: datasets || [],
+        datasets: datasets.data || [],
       });
     } else {
       showError('Your authentication expired.', 'Please, log in again.');

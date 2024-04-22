@@ -94,14 +94,14 @@ const DatasetUploader: FC<Props> = ({ onUpload }) => {
       return;
     }
 
-    const { allowedFileFormats, maxFileSize } =
+    const { allowedFileFormats, userDiskLimit } =
       algorithmsConfig?.algorithmsConfig.fileConfig;
 
     if (
       !files ||
       files.length !== 1 ||
       !allowedFileFormats.includes(files[0].type) ||
-      files[0].size > maxFileSize
+      files[0].size > userDiskLimit
     ) {
       setFileUploadProgress({ state: 'fail' });
       return;

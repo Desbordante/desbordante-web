@@ -1,0 +1,76 @@
+@import "styles/common";
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: $white-25;
+  border: 1px solid $black-25;
+  border-radius: 8px;
+
+  .statusIcon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .middle {
+    flex-grow: 1;
+    min-width: 0;
+
+    .top {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin: 0 0 8px;
+
+      .fileName {
+        @include paragraph;
+        max-width: 560px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .primitiveType {
+        @include paragraph;
+        white-space: nowrap;
+        color: $black-50;
+      }
+
+      .algorithmName {
+        @include paragraph-small;
+        color: $black-50;
+      }
+    }
+
+    .bottom {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+
+      .status,
+      .createdAt,
+      .user {
+        @include paragraph-small;
+        color: $black-50;
+
+        .primary {
+          color: $primary;
+        }
+
+        .info {
+          color: $info;
+        }
+
+        .success {
+          color: $success;
+        }
+
+        .danger {
+          color: $error;
+        }
+      }
+    }
+  }
+}

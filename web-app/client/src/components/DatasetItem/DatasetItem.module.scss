@@ -1,0 +1,68 @@
+@import "styles/common";
+
+.datasetItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: $white-25;
+  border: 1px solid $black-25;
+  border-radius: 8px;
+
+  .iconContainer {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    background: $black-10;
+    border-radius: 8px;
+
+    .icon {
+      width: 24px;
+      height: 24px;
+      color: $black-75;
+    }
+  }
+
+  .middle {
+    flex-grow: 1;
+    min-width: 0;
+
+    .top {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin: 0 0 8px;
+
+      .fileName {
+        @include paragraph;
+        max-width: 560px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .fileType,
+      .numberOfUses {
+        @include paragraph;
+        white-space: nowrap;
+        color: $black-50;
+      }
+    }
+
+    .bottom {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+
+      .size,
+      .createdAt,
+      .user {
+        @include paragraph-small;
+        color: $black-50;
+      }
+    }
+  }
+}

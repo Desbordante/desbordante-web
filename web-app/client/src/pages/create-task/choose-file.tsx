@@ -23,7 +23,7 @@ const sortDatasetsBySupportedPrimitive = (
 ) =>
   datasets &&
   primitive &&
-  datasets.sort(
+  [...datasets].sort(
     (a, b) =>
       Number(b.supportedPrimitives.includes(primitive)) -
       Number(a.supportedPrimitives.includes(primitive)),
