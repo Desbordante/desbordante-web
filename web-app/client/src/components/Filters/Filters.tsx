@@ -3,18 +3,21 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { OrderingTitles } from '@constants/titles';
 import {
-  FDSortBy,
-  CFDSortBy,
-  ARSortBy,
-  OrderBy,
+  FDOrderingParameter,
+  CFDOrderingParameter,
+  AROrderingParameter,
+  OrderDirection,
   PrimitiveType,
 } from 'types/globalTypes';
 
-export type Sorting = FDSortBy | CFDSortBy | ARSortBy;
+export type Sorting =
+  | FDOrderingParameter
+  | CFDOrderingParameter
+  | AROrderingParameter;
 
 export type FiltersFields = {
   ordering: Sorting;
-  direction: OrderBy;
+  direction: OrderDirection;
   search: string;
   page: number;
   mustContainRhsColIndices: string;
@@ -30,7 +33,7 @@ export const useFilters = (primitive: PrimitiveType) => {
     defaultValues: {
       page: 1,
       ordering: getDefaultOrdering(primitive),
-      direction: OrderBy.ASC,
+      direction: OrderDirection.ASC,
       search: '',
       mustContainRhsColIndices: '',
       mustContainLhsColIndices: '',
@@ -50,6 +53,6 @@ export const useFilters = (primitive: PrimitiveType) => {
 export const getSortingParams = (primitive: PrimitiveType) => {
   return {
     [(primitive === PrimitiveType.TypoFD ? PrimitiveType.FD : primitive) +
-    'SortBy']: _.keys(OrderingTitles[primitive])[0],
+    'OrderingParameter']: _.keys(OrderingTitles[primitive])[0],
   };
 };

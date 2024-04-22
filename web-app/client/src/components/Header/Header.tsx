@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import ListIcon from '@assets/icons/list.svg?component';
 import Button from '@components/Button';
@@ -43,7 +44,12 @@ const Header = () => {
       <div className={styles.auth}>
         {user?.name ? (
           <>
-            <p>Welcome, {user.name}</p>
+            <p>
+              Welcome,{' '}
+              <Link className={styles.userCabinetLink} href="/me">
+                {user.name}
+              </Link>
+            </p>
             {!user.isVerified && (
               <Button
                 variant="secondary"
