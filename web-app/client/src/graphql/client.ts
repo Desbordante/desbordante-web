@@ -13,11 +13,14 @@ const client = new ApolloClient({
   uri: isServer ? pathnameToLocalURL(serverProxyURL) : serverProxyURL,
   cache: new InMemoryCache(),
   link: ApolloLink.from([
-    //@ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     errorLink,
     requestIdLink,
     createUploadLink({
       uri: isServer ? pathnameToLocalURL(serverProxyURL) : serverProxyURL,
+      // Can't recreate explicit type
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
       fetch: customFetch as any,
     }),
   ]),

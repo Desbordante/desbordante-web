@@ -46,6 +46,7 @@ const useMFDTask = (
     ) {
       void loadMFDData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -92,6 +93,7 @@ const useMFDTask = (
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, error, data, setMFDTask, clusterIndex, taskID, limit]);
 
   return {

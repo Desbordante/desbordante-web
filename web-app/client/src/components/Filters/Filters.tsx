@@ -40,6 +40,7 @@ export const useFilters = (primitive: PrimitiveType) => {
 
   useEffect(
     () => methods.setValue('ordering', getDefaultOrdering(primitive)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [primitive],
   );
 

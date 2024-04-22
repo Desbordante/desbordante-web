@@ -117,6 +117,7 @@ export const TaskContextProvider: FC<PropsWithChildren> = ({ children }) => {
         },
       },
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDependency]);
 
   useEffect(() => {

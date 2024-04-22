@@ -154,31 +154,36 @@ const DatasetUploader: FC<Props> = ({ onUpload }) => {
           !isFileDragged &&
           !isDraggedInside && (
             <>
-              <Image src={uploadIcon} height={20} width={20} />
+              <Image
+                src={uploadIcon}
+                height={20}
+                width={20}
+                alt="Upload a File"
+              />
               <p>Upload a File</p>
             </>
           )}
         {(isFileDragged || isDraggedInside) && (
           <>
-            <Image src={dragIcon} height={20} width={20} />
+            <Image src={dragIcon} height={20} width={20} alt="Drop here" />
             <p>Drop here</p>
           </>
         )}
         {fileUploadProgress.state === 'process' && (
           <>
-            <Image src={uploadIcon} height={20} width={20} />
+            <Image src={uploadIcon} height={20} width={20} alt="Uploading..." />
             <p>Uploading...</p>
           </>
         )}
         {fileUploadProgress.state === 'complete' && (
           <>
-            <Image src={checkIcon} height={20} width={20} />
+            <Image src={checkIcon} height={20} width={20} alt="Complete" />
             <p>Complete</p>
           </>
         )}
         {fileUploadProgress.state === 'fail' && (
           <>
-            <Image src={crossIcon} height={20} width={20} />
+            <Image src={crossIcon} height={20} width={20} alt="Error" />
             <p>Error</p>
           </>
         )}

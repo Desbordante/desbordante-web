@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { ReactElement } from 'react';
-import LayeredChart from '@components/Chart/LayeredChart';
+import LayeredChart from '@components/Chart';
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
 import {
