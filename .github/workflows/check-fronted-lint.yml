@@ -33,7 +33,9 @@ jobs:
 
         - name: Generate client types
           working-directory: web-app/client
-          run: yarn codegen:server
+          run: |
+            yarn codegen:server
+            yarn codegen:cms
         
         - name: Run lint
           working-directory: web-app/client
