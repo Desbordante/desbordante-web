@@ -23,7 +23,7 @@ const Loader: FC = () => {
       type !== ''
     ) {
       setTimeout(() => {
-        void router.push({
+        void router.replace({
           pathname: primitivePathnames[type as PrimitiveType],
           query: {
             taskID: data.taskID,
