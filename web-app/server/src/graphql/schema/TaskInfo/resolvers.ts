@@ -709,6 +709,10 @@ export const TaskInfoResolvers: Resolvers = {
 
             const { rows, count } = await models.GeneralTaskConfig.findAndCountAll({
                 ...options,
+                where: {
+                    ...options.where,
+                    type: { [Op.in]: mainPrimitives },
+                },
                 attributes: ["taskID", "fileID", ["type", "prefix"]],
                 raw: true,
                 include: TaskState,
