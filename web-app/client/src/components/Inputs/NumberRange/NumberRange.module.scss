@@ -45,27 +45,27 @@
 
     .sliderTrack {
 
-        .sliderHandle {
-            position: absolute;
-            width: 0;
-            height: 13px;
-            border: 2px solid $black;
-            border-radius: 5px;
-            margin-top: -6px;
-            background-color: $primary-0;
-            cursor: grab;
-            touch-action: pan-x;
+      .sliderHandle {
+        position: absolute;
+        width: 0;
+        height: 13px;
+        border: 2px solid $black;
+        border-radius: 5px;
+        margin-top: -6px;
+        background-color: $primary-0;
+        cursor: grab;
+        touch-action: pan-x;
             
-            &::before {
-                content: "";
-                position: absolute;
-                left: 0;
-                top: 50%;
-                transform: translate(-50%, -50%);
-                width: 24px;
-                height: 24px;
-            }
-          }
+        &::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 24px;
+          height: 24px;
+        }
+      }
     }
   }
 }
