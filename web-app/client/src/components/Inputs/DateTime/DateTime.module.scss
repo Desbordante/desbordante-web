@@ -110,6 +110,7 @@
     }
   }
 
+  /* stylelint-disable no-descending-specificity */
   :global {
     .rdtPicker {
       @include paragraph;
@@ -231,4 +232,6 @@
       }
     }
   }
+
+  /* stylelint-enable no-descending-specificity */
 }
