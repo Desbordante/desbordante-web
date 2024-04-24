@@ -101,5 +101,5 @@ export const getQueryFromRangeFilter = <TValue extends string | number>(filter: 
 export const getQueryFromSearchFilter = (
     filter: string
 ): WhereAttributeHashValue<any> => {
-    return { [Op.like]: `%${filter}%` };
+    return { [Op.iLike]: `%${filter}%` };
 };
