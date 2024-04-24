@@ -3,6 +3,7 @@ import { Code, CodeType } from "../../../db/models/UserData/Code";
 import {
     GeneralTaskConfig,
     MainPrimitiveType,
+    mainPrimitives,
 } from "../../../db/models/TaskData/configs/GeneralTaskConfig";
 import { PermissionType, Resolvers } from "../../types/types";
 import {
@@ -93,6 +94,7 @@ export const UserResolvers: Resolvers = {
                 where: {
                     ...options.where,
                     "$taskState.userID$": userID,
+                    type: { [Op.in]: mainPrimitives },
                 },
                 attributes: ["taskID", "fileID", ["type", "prefix"]],
                 raw: true,
