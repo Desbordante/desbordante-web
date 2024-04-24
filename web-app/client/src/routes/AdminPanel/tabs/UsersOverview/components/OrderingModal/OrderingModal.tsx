@@ -2,14 +2,14 @@ import React, { FC } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { Select } from '@components/Inputs';
 import ListPropertiesModal from '@components/ListPropertiesModal';
-import { OrderDirection, TasksQueryOrderingParameter } from 'types/globalTypes';
+import { OrderDirection, UsersQueryOrderingParameter } from 'types/globalTypes';
 import { Ordering } from '../../UsersOverview';
 
-const parameterLabels: Record<TasksQueryOrderingParameter, string> = {
+const parameterLabels: Record<UsersQueryOrderingParameter, string> = {
   CREATION_TIME: 'Created',
-  ELAPSED_TIME: 'Elapsed time',
   STATUS: 'Status',
-  USER: 'User',
+  COUNTRY: 'Country',
+  FULL_NAME: 'Full name',
 };
 
 const directionLabels: Record<OrderDirection, string> = {
