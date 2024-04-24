@@ -11,6 +11,7 @@ import {
 } from '@graphql/operations/mutations/__generated__/logIn';
 import { LOG_IN } from '@graphql/operations/mutations/logIn';
 import { useAuthContext } from '@hooks/useAuthContext';
+import hashPassword from '@utils/hashPassword';
 import styles from '../LogInModal.module.scss';
 
 type Inputs = {
@@ -45,7 +46,7 @@ const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
       const response = await logIn({
         variables: {
           email: values.email,
-          pwdHash: values.password,
+          pwdHash: hashPassword(values.password),
         },
       });
 
