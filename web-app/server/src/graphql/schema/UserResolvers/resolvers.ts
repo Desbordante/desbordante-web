@@ -85,10 +85,10 @@ export const UserResolvers: Resolvers = {
                     }),
                 },
                 {
-                    ELAPSED_TIME: '"taskState"."elapsedTime"',
+                    ELAPSED_TIME: "\"taskState\".\"elapsedTime\"",
                     STATUS: "status",
-                    CREATION_TIME: '"GeneralTaskConfig"."createdAt"',
-                    USER: '"userID"',
+                    CREATION_TIME: "\"GeneralTaskConfig\".\"createdAt\"",
+                    USER: "\"userID\"",
                 },
                 ["includeDeleted"]
             );
@@ -137,10 +137,10 @@ export const UserResolvers: Resolvers = {
                     }),
                 },
                 {
-                    FILE_NAME: '"originalFileName"',
-                    FILE_SIZE: '"fileSize"',
-                    CREATION_TIME: '"createdAt"',
-                    USER: '"userID"',
+                    FILE_NAME: "\"originalFileName\"",
+                    FILE_SIZE: "\"fileSize\"",
+                    CREATION_TIME: "\"createdAt\"",
+                    USER: "\"userID\"",
                 },
                 ["includeDeleted"]
             );
@@ -219,16 +219,16 @@ export const UserResolvers: Resolvers = {
                     fullName: (value) => ({
                         fullName: getQueryFromSearchFilter(value),
                     }),
-                    country: (value) => ({ isBuiltIn: getQueryFromSearchFilter(value) }),
+                    country: (value) => ({ country: getQueryFromSearchFilter(value) }),
                     registrationTime: (value) => ({
                         createdAt: getQueryFromRangeFilter(value),
                     }),
                 },
                 {
-                    FULL_NAME: '"fullName"',
+                    FULL_NAME: "\"fullName\"",
                     COUNTRY: "country",
-                    CREATION_TIME: '"createdAt"',
-                    STATUS: '"accountStatus"',
+                    CREATION_TIME: "\"createdAt\"",
+                    STATUS: "\"accountStatus\"",
                 },
                 ["includeDeleted"]
             );
