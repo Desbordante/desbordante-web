@@ -15,12 +15,13 @@ import {
     getQueryFromRangeFilter,
     getQueryFromSearchFilter,
 } from "../util";
-import { AccountStatusType, User } from "../../../db/models/UserData/User";
+import { AccountStatusType } from "../../../db/models/UserData/User";
 import { AuthenticationError } from "apollo-server-express";
 import { FindOptions, Op } from "sequelize";
 import { Permission } from "../../../db/models/UserData/Permission";
 import { Role } from "../../../db/models/UserData/Role";
 import { TaskState } from "../../../db/models/TaskData/TaskState";
+import { FileInfo } from "../../../db/models/FileData/FileInfo";
 import config from "../../../config";
 import { createAndSendVerificationCode } from "./emailSender";
 import jwt from "jsonwebtoken";
@@ -73,6 +74,9 @@ export const UserResolvers: Resolvers = {
             const options = getFindOptionsFromProps(
                 props,
                 {
+                    searchString: (value) => ({
+                        "$file.originalFileName$": getQueryFromSearchFilter(value),
+                    }),
                     period: (value) => ({
                         createdAt: getQueryFromRangeFilter(value),
                     }),
@@ -81,12 +85,12 @@ export const UserResolvers: Resolvers = {
                     }),
                 },
                 {
-                    ELAPSED_TIME: "\"taskState\".\"elapsedTime\"",
+                    ELAPSED_TIME: '"taskState"."elapsedTime"',
                     STATUS: "status",
-                    CREATION_TIME: "\"GeneralTaskConfig\".\"createdAt\"",
-                    USER: "\"userID\"",
+                    CREATION_TIME: '"GeneralTaskConfig"."createdAt"',
+                    USER: '"userID"',
                 },
-                ["includeDeleted", "searchString"]
+                ["includeDeleted"]
             );
 
             const { rows, count } = await models.GeneralTaskConfig.findAndCountAll({
@@ -98,7 +102,7 @@ export const UserResolvers: Resolvers = {
                 },
                 attributes: ["taskID", "fileID", ["type", "prefix"]],
                 raw: true,
-                include: TaskState,
+                include: [TaskState, FileInfo],
                 paranoid: props.filters?.includeDeleted ?? false,
             });
 
@@ -133,10 +137,10 @@ export const UserResolvers: Resolvers = {
                     }),
                 },
                 {
-                    FILE_NAME: "\"originalFileName\"",
-                    FILE_SIZE: "\"fileSize\"",
-                    CREATION_TIME: "\"createdAt\"",
-                    USER: "\"userID\"",
+                    FILE_NAME: '"originalFileName"',
+                    FILE_SIZE: '"fileSize"',
+                    CREATION_TIME: '"createdAt"',
+                    USER: '"userID"',
                 },
                 ["includeDeleted"]
             );
@@ -221,10 +225,10 @@ export const UserResolvers: Resolvers = {
                     }),
                 },
                 {
-                    FULL_NAME: "\"fullName\"",
+                    FULL_NAME: '"fullName"',
                     COUNTRY: "country",
-                    CREATION_TIME: "\"createdAt\"",
-                    STATUS: "\"accountStatus\"",
+                    CREATION_TIME: '"createdAt"',
+                    STATUS: '"accountStatus"',
                 },
                 ["includeDeleted"]
             );

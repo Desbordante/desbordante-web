@@ -22,6 +22,7 @@ import { CompactData } from "./DependencyFilters/CompactData";
 import { FDFilter } from "./DependencyFilters/FDFilter";
 import { FileInfo } from "../../../db/models/FileData/FileInfo";
 import { TaskState } from "../../../db/models/TaskData/TaskState";
+import { User } from "../../../db/models/UserData/User";
 import { MFDFilter } from "./DependencyFilters/MFDFilter";
 import { Row } from "@fast-csv/parse";
 import { TaskCreatorFactory } from "../TaskCreating/Creator/AbstractCreator";
@@ -691,6 +692,9 @@ export const TaskInfoResolvers: Resolvers = {
             const options = getFindOptionsFromProps(
                 props,
                 {
+                    searchString: (value) => ({
+                        "$file.originalFileName$": getQueryFromSearchFilter(value),
+                    }),
                     period: (value) => ({
                         createdAt: getQueryFromRangeFilter(value),
                     }),
@@ -699,12 +703,12 @@ export const TaskInfoResolvers: Resolvers = {
                     }),
                 },
                 {
-                    ELAPSED_TIME: "\"taskState\".\"elapsedTime\"",
+                    ELAPSED_TIME: '"taskState"."elapsedTime"',
                     STATUS: "status",
-                    CREATION_TIME: "\"GeneralTaskConfig\".\"createdAt\"",
-                    USER: "\"userID\"",
+                    CREATION_TIME: '"GeneralTaskConfig"."createdAt"',
+                    USER: '"userID"',
                 },
-                ["includeDeleted", "searchString"]
+                ["includeDeleted"]
             );
 
             const { rows, count } = await models.GeneralTaskConfig.findAndCountAll({
@@ -715,7 +719,7 @@ export const TaskInfoResolvers: Resolvers = {
                 },
                 attributes: ["taskID", "fileID", ["type", "prefix"]],
                 raw: true,
-                include: TaskState,
+                include: [TaskState, FileInfo],
                 paranoid: props.filters?.includeDeleted ?? false,
             });
 
