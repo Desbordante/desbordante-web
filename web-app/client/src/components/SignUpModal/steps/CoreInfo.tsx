@@ -18,6 +18,19 @@ import styles from '../../LogInModal/LogInModal.module.scss';
 
 const countryNames = Object.entries(countries).map(([, country]) => country);
 
+const passwordTooltip = (
+  <>
+    The password must contain
+    <ul>
+      <li>at least 8 characters</li>
+      <li>at least 1 uppercase letter</li>
+      <li>at least 1 lowercase letter</li>
+      <li>at least 1 digit</li>
+      <li>at least 1 special character</li>
+    </ul>
+  </>
+);
+
 type Inputs = {
   fullName: string;
   email: string;
@@ -44,7 +57,7 @@ const CoreInfo: FC<Props> = ({ onSuccess }) => {
   const { applyTokens } = useAuthContext();
 
   const [createUser] = useMutation<createUser, createUserVariables>(
-    CREATE_USER
+    CREATE_USER,
   );
 
   const {
@@ -56,6 +69,8 @@ const CoreInfo: FC<Props> = ({ onSuccess }) => {
     defaultValues,
   });
   const onSubmit = handleSubmit(async (values) => {
+    onSuccess();
+    return
     try {
       const response = await createUser({
         variables: {
@@ -111,10 +126,17 @@ const CoreInfo: FC<Props> = ({ onSuccess }) => {
           <Text
             label="Password"
             type="password"
+            tooltip={passwordTooltip}
             placeholder="admin1234"
             {...register('password', {
               required: 'Required',
-              validate: (value) => isStrongPassword(value) || 'Weak password',
+              validate: (value) => {
+                console.log(isStrongPassword(value));
+                return (
+                  isStrongPassword(value) ||
+                  'The password does not match the pattern (see tooltip)'
+                );
+              },
             })}
             error={errors.password?.message}
           />

@@ -13,7 +13,6 @@ import {
 import { Dispatch, SetStateAction } from 'react';
 import { FCWithChildren } from 'types/react';
 import styles from './ModalContainer.module.scss';
-import cn from 'classnames';
 
 export interface ModalProps {
   onClose?: () => void;
@@ -27,12 +26,16 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
   children,
   isOpen,
   setIsOpen,
-  className,
 }) => {
   const { refs, context } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
   });
+
+  const handleClickClose = () => {
+    onClose();
+    setIsOpen(false);
+  };
 
   const stylesOverlay = useTransitionStyles(context, {
     duration: 300,
@@ -64,13 +67,13 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
             <FloatingFocusManager context={context}>
               <div
                 style={stylesDialog}
-                className={cn(styles.dialog, className)}
+                className={styles.dialog}
                 ref={refs.setFloating}
                 {...getFloatingProps()}
               >
                 {children}
                 <button
-                  onClick={onClose}
+                  onClick={handleClickClose}
                   aria-label="Close"
                   className={styles.closeButton}
                 >

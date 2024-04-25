@@ -4,6 +4,11 @@
   display: inline-block;
   position: relative;
 
+  ul {
+    list-style: disc;
+    margin-left: 24px;
+  }
+
   .icon {
     cursor: pointer;
   }
@@ -66,3 +71,4 @@
     }
   }
 }
+

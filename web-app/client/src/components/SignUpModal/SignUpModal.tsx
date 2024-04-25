@@ -1,30 +1,41 @@
-import React, { FC, useCallback, useState } from 'react';
+import AuthSuccessModal from '@components/AuthSuccessModal';
 import { useAuthContext } from '@hooks/useAuthContext';
-import useModal from '@hooks/useModal';
+import React, { FC, useState } from 'react';
 import ModalContainer, { ModalProps } from '../ModalContainer';
 import CoreInfo from './steps/CoreInfo';
 import EmailVerification from './steps/EmailVerification';
 
-const SignUpModal: FC<ModalProps> = ({ onClose }) => {
+const SignUpModal: FC<ModalProps> = ({ isOpen, setIsOpen }) => {
   const { user } = useAuthContext();
-  const { open: openAuthSuccessModal } = useModal('AUTH.SUCCESS');
 
   const [stage, setStage] = useState(user?.id && !user?.isVerified ? 2 : 1);
+  const [isOpenSuccessVerified, setIsOpenSuccessVerified] = useState(false);
 
-  const goToNextStage = useCallback(
-    () => setStage((prevStage) => prevStage + 1),
-    []
-  );
-  const onSuccess = useCallback(
-    () => openAuthSuccessModal({}),
-    [openAuthSuccessModal]
-  );
+  const goToNextStage = () => setStage((prev) => prev + 1);
+  const onSuccess = () => {
+    setIsOpen(false);
+    setIsOpenSuccessVerified(true);
+  };
+  const onCloseSignUp = () => setIsOpen(false);
+  const onCloseSuccessVerified = () => setIsOpenSuccessVerified(false);
+  console.log(stage, isOpen);
 
   return (
-    <ModalContainer onClose={onClose}>
-      {stage === 1 && <CoreInfo onSuccess={goToNextStage} />}
-      {stage === 2 && <EmailVerification onSuccess={onSuccess} />}
-    </ModalContainer>
+    <>
+      <ModalContainer
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        onClose={onCloseSignUp}
+      >
+        {stage === 1 && <CoreInfo onSuccess={goToNextStage} />}
+        {stage === 2 && <EmailVerification onSuccess={onSuccess} />}
+      </ModalContainer>
+      <AuthSuccessModal
+        isOpen={isOpenSuccessVerified}
+        setIsOpen={setIsOpenSuccessVerified}
+        onClose={onCloseSuccessVerified}
+      />
+    </>
   );
 };
 

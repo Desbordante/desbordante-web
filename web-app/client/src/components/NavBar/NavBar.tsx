@@ -40,7 +40,7 @@ const NavBar: FC = () => {
       <ul className={styles.itemsContainer}>
         <li>
           <Link href="/" className={styles.brand}>
-            <Icon name="logo" size={40} className={styles.logo} />
+            <Icon name="desbordanteColor" size={40} className={styles.logo} />
             Desbordante
           </Link>
         </li>

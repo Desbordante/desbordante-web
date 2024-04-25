@@ -1,18 +1,20 @@
 import Button from '@components/Button';
 import { Icon } from '@components/IconComponent';
+import LogInModal from '@components/LogInModal';
 import NavBar from '@components/NavBar';
+import SignUpModal from '@components/SignUpModal';
 import { useAuthContext } from '@hooks/useAuthContext';
-import useModal from '@hooks/useModal';
 import classNames from 'classnames';
 import { useEffect, useState } from 'react';
 import styles from './Header.module.scss';
 
 const Header = () => {
   const { user, signOut } = useAuthContext();
-  const { open: openLogInModal } = useModal('AUTH.LOG_IN');
-  const { open: openSignUpModal } = useModal('AUTH.SIGN_UP');
 
   const [headerBackground, setHeaderBackground] = useState(false);
+  const [isOpenSignUpModal, setIsOpenSignUpModal] = useState(false);
+  const [isOpenLogInModal, setIsOpenLogInModal] = useState(false);
+  const [isOpenVerifyModal, setIsOpenVerifyModal] = useState(false);
 
   useEffect(() => {
     const checkScroll = () => {
@@ -45,13 +47,20 @@ const Header = () => {
           <>
             <p>Welcome, {user.name}</p>
             {!user.isVerified && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => openSignUpModal({})}
-              >
-                Verify Email
-              </Button>
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsOpenVerifyModal(true)}
+                >
+                  Verify Email
+                </Button>
+                <SignUpModal
+                  isOpen={isOpenVerifyModal}
+                  setIsOpen={setIsOpenVerifyModal}
+                  onClose={() => setIsOpenVerifyModal(false)}
+                />
+              </>
             )}
             <Button variant="secondary-danger" size="sm" onClick={signOut}>
               Log Out
@@ -62,17 +71,27 @@ const Header = () => {
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => openLogInModal({})}
+              onClick={() => setIsOpenLogInModal(true)}
             >
               Log In
             </Button>
+            <LogInModal
+              isOpen={isOpenLogInModal}
+              setIsOpen={setIsOpenLogInModal}
+              onClose={() => setIsOpenLogInModal(false)}
+            />
+
             <Button
               variant="gradient"
               size="sm"
-              onClick={() => openSignUpModal({})}
+              onClick={() => setIsOpenSignUpModal(true)}
             >
               Sign Up
             </Button>
+            <SignUpModal
+              isOpen={isOpenSignUpModal}
+              setIsOpen={setIsOpenSignUpModal}
+            />
           </>
         )}
       </div>
