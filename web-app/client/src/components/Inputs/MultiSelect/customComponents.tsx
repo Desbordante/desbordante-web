@@ -38,7 +38,6 @@ const Control: ComponentType<
       // @ts-ignore
       props.selectProps.error && styles.error,
       props.isFocused && styles.focused,
-      props.isFocused && styles.focused,
     )}
     {...props}
   />
@@ -126,7 +125,6 @@ export const Option: ComponentType<
         styles.option,
         optionData.badges?.length == 1 && styles.once,
         isFocused && styles.focused,
-        isSelected && styles.selected,
         isSelected && styles.selected,
       )}
       {...innerProps}

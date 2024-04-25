@@ -5,7 +5,6 @@ import colors from '@constants/colors';
 const getTaskStatusData = (
   error: ApolloError | undefined,
   state: TaskState | undefined,
-  state: TaskState | undefined,
 ) => {
   if (error) {
     return {

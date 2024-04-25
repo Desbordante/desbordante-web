@@ -25,7 +25,6 @@ const Control: ComponentType<
       styles.control,
       error && styles.error,
       isFocused && styles.focused,
-      isFocused && styles.focused,
     )}
   >
     {children}
@@ -79,7 +78,6 @@ export const Option: ComponentType<
     className={cn(
       styles.option,
       isFocused && styles.focused,
-      isSelected && styles.selected,
       isSelected && styles.selected,
     )}
     {...innerProps}

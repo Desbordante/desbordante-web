@@ -2,13 +2,7 @@ import { Icon } from '@components/IconComponent';
 import useTaskState from '@hooks/useTaskState';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import React, { FC, PropsWithChildren, ReactElement } from 'react';
-import Background from '@assets/backgrounds/reports.svg?component';
-import ChartIcon from '@assets/icons/chart.svg?component';
-import ClusterIcon from '@assets/icons/cluster.svg?component';
-import DatatableIcon from '@assets/icons/datatable.svg?component';
-import DropDownIcon from '@assets/icons/list-dropdown.svg?component';
-import useTaskState from '@hooks/useTaskState';
+import React, { FC, PropsWithChildren } from 'react';
 import { PrimitiveType } from 'types/globalTypes';
 import styles from './ReportsLayout.module.scss';
 

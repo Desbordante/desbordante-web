@@ -12,6 +12,20 @@ import { MFDTable } from '@components/ScrollableNodeTable/implementations/MFDTab
 import useMFDHighlight from '@hooks/useMFDHighlight';
 import useMFDTask from '@hooks/useMFDTask';
 import styles from '@styles/MetricDependencies.module.scss';
+import { MFDHighlight } from '@atoms/MFDTaskAtom';
+import Button from '@components/Button';
+import { Icon } from '@components/IconComponent';
+import { ControlledSelect } from '@components/Inputs/Select';
+
+import ListPropertiesModal from '@components/ListPropertiesModal';
+import Pagination from '@components/Pagination/Pagination';
+import ReportsLayout from '@components/ReportsLayout';
+
+import { ScrollDirection } from '@components/ScrollableNodeTable';
+import { MFDTable } from '@components/ScrollableNodeTable/implementations/MFDTable';
+import useMFDHighlight from '@hooks/useMFDHighlight';
+import useMFDTask from '@hooks/useMFDTask';
+import styles from '@styles/MetricDependencies.module.scss';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import React, {
@@ -58,6 +72,7 @@ const ReportsMFD: NextPageWithLayout = () => {
     clusterIndex,
     limit,
     sortBy,
+    orderBy,
     orderBy,
   );
 
@@ -171,6 +186,7 @@ const ReportsMFD: NextPageWithLayout = () => {
               }
               description={'Try restarting the task with different parameters'}
               icon={<Icon name="lineArrowRight" />}
+              icon={<Icon name="lineArrowRight" />}
             />
           )}
           {!data.clustersTotalCount && !data.result && (
@@ -179,6 +195,7 @@ const ReportsMFD: NextPageWithLayout = () => {
                 'No clusters have been discovered (metric dependency may not hold)'
               }
               description={'Try restarting the task with different parameters'}
+              icon={<Icon name="lineArrowRightCrossed" />}
               icon={<Icon name="lineArrowRightCrossed" />}
             />
           )}
@@ -192,6 +209,7 @@ const ReportsMFD: NextPageWithLayout = () => {
                     variant="secondary"
                     size="md"
                     icon={<Icon name="ordering" />}
+                    icon={<Icon name="ordering" />}
                     onClick={() => setIsOrderingShown(true)}
                   >
                     Ordering
@@ -199,6 +217,7 @@ const ReportsMFD: NextPageWithLayout = () => {
                   <Button
                     variant="secondary"
                     size="md"
+                    icon={<Icon name="eye" />}
                     icon={<Icon name="eye" />}
                     onClick={() => setShowFullValue((e) => !e)}
                   >
