@@ -2,7 +2,6 @@ import { useMutation } from '@apollo/client';
 import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import isEmail from 'validator/lib/isEmail';
-import isStrongPassword from 'validator/lib/isStrongPassword';
 import Button from '@components/Button';
 import { Text } from '@components/Inputs';
 import {
@@ -78,7 +77,6 @@ const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
             placeholder="admin1234"
             {...register('password', {
               required: 'Required',
-              validate: (value) => isStrongPassword(value) || 'Weak password',
             })}
             error={errors.password?.message}
           />
