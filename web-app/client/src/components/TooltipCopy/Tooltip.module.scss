@@ -1,0 +1,28 @@
+@import "styles/common";
+
+.button {
+  display: inline;
+}
+
+.icon {
+  cursor: pointer;
+}
+.content {
+  @include paragraph-small;
+  padding: 16px;
+  width: 256px;
+  color: $white;
+  background: $primary-gradient-0;
+  border-radius: 8px;
+  box-shadow: 0 51px 48px rgba(0, 0, 0, 0.06),
+    0 21.3066px 20.0533px rgba(0, 0, 0, 0.0431313),
+    0 11.3915px 10.7214px rgba(0, 0, 0, 0.0357664),
+    0 6.38599px 6.01034px rgba(0, 0, 0, 0.03),
+    0 3.39155px 3.19205px rgba(0, 0, 0, 0.0242336),
+    0 1.4113px 1.32828px rgba(0, 0, 0, 0.0168687);
+  z-index: 99999;
+  ul {
+    list-style: disc;
+    margin-left: 24px;
+  }
+}

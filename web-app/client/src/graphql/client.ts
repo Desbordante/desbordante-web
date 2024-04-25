@@ -26,4 +26,6 @@ const client = new ApolloClient({
   ]),
 });
 
+console.log(pathnameToLocalURL(serverProxyURL), serverProxyURL);
+
 export default client;
