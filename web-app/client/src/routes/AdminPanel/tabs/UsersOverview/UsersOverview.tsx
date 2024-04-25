@@ -111,7 +111,7 @@ const UsersOverview: FC = () => {
             onSendEmail={() => {
               sendMessageMethods.reset({
                 recepients: 'custom',
-                to: [item.email],
+                to: [item.userID],
               });
               setIsEmailModalShown(true);
             }}
