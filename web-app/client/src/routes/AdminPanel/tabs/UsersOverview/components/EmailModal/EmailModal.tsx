@@ -91,9 +91,9 @@ const EmailModal: FC<Props> = ({ onClose }) => {
 
   const userEmailOptions = useMemo(
     () =>
-      data?.users?.data?.map(({ email }) => ({
+      data?.users?.data?.map(({ email, userID }) => ({
         label: email,
-        value: email,
+        value: userID,
       })) ?? [],
     [data?.users],
   );
