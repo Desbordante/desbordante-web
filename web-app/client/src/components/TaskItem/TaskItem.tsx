@@ -22,8 +22,6 @@ import {
 } from 'types/globalTypes';
 import styles from './TaskItem.module.scss';
 
-const nanoSecondsToMilliseconds = (ns: number) => ns * 1e-6;
-
 const getIcon = (state: getTasksInfo_tasksInfo_data_state): ReactNode => {
   const props = {
     className: styles.statusIcon,
@@ -83,9 +81,8 @@ const getStatus = (state: getTasksInfo_tasksInfo_data_state): ReactNode => {
         <>
           <span className={styles.success}>Completed</span> in{' '}
           {state.elapsedTime !== null && (
-            <span title={`${state.elapsedTime} ns`}>
-              {humanizeDuration(nanoSecondsToMilliseconds(state.elapsedTime), {
-                units: ['h', 'm', 's', 'ms'],
+            <span title={`${state.elapsedTime} ms`}>
+              {humanizeDuration(state.elapsedTime, {
                 round: true,
               })}
             </span>
