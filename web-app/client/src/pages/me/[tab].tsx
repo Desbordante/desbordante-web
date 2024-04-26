@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import UserIcon from '@assets/icons/user.svg?component';
 import TabsLayout from '@components/TabsLayout';
 import { useAuthContext } from '@hooks/useAuthContext';
@@ -6,9 +7,19 @@ import styles from '@styles/Me.module.scss';
 import tabs from 'src/routes/UserCabinet/tabs';
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
-const AdminPanel: NextPageWithLayout = () => {
+const UserCabinet: NextPageWithLayout = () => {
   const router = useRouter();
   const { user } = useAuthContext();
+
+  useEffect(() => {
+    if (user === null) {
+      router.push('/');
+    }
+  }, [router, user]);
+
+  if (!user) {
+    return null;
+  }
 
   const currentTab =
     tabs.find((tab) => router.query.tab === tab.pathname) ?? tabs[0];
@@ -39,4 +50,4 @@ const AdminPanel: NextPageWithLayout = () => {
   );
 };
 
-export default AdminPanel;
+export default UserCabinet;

@@ -24,7 +24,7 @@ import { removeTokenPair, saveTokenPair } from '@utils/tokens';
 import { DecodedToken, TokenPair, User } from 'types/auth';
 
 type AuthContextType = {
-  user: User | undefined;
+  user: User | undefined | null;
   setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
   isSignUpShown: boolean;
   setIsSignUpShown: React.Dispatch<React.SetStateAction<boolean>>;
@@ -40,7 +40,7 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [user, setUser] = useState<User | undefined>();
+  const [user, setUser] = useState<User | undefined | null>();
 
   const [getUser] = useLazyQuery<getUser>(GET_USER);
   const [getAnonymousPermissions] = useLazyQuery<getAnonymousPermissions>(
@@ -55,7 +55,7 @@ export const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const removeUser = () => {
     localStorage.removeItem('user');
     removeTokenPair();
-    setUser(undefined);
+    setUser(null);
   };
 
   const signOut = async () => {
