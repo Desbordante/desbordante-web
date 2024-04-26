@@ -46,7 +46,7 @@ export const MetaInfoResolvers: Resolvers = {
             const { rows, count } = await models.FileInfo.findAndCountAll({
                 ...options,
                 include: User,
-                paranoid: props.filters?.includeDeleted ?? false,
+                paranoid: !(props.filters?.includeDeleted ?? false),
             });
 
             return {

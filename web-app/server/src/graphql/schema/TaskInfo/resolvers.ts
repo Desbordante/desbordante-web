@@ -703,10 +703,10 @@ export const TaskInfoResolvers: Resolvers = {
                     }),
                 },
                 {
-                    ELAPSED_TIME: '"taskState"."elapsedTime"',
+                    ELAPSED_TIME: "\"taskState\".\"elapsedTime\"",
                     STATUS: "status",
-                    CREATION_TIME: '"GeneralTaskConfig"."createdAt"',
-                    USER: '"userID"',
+                    CREATION_TIME: "\"GeneralTaskConfig\".\"createdAt\"",
+                    USER: "\"userID\"",
                 },
                 ["includeDeleted"]
             );
@@ -720,7 +720,7 @@ export const TaskInfoResolvers: Resolvers = {
                 attributes: ["taskID", "fileID", ["type", "prefix"]],
                 raw: true,
                 include: [TaskState, FileInfo],
-                paranoid: props.filters?.includeDeleted ?? false,
+                paranoid: !(props.filters?.includeDeleted ?? false),
             });
 
             return {
