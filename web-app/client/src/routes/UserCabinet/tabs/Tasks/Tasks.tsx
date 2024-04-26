@@ -40,12 +40,12 @@ const defaultOrdering: Ordering = {
   direction: OrderDirection.DESC,
 };
 
-const secondsToNanoseconds = (s: number) => s * 1e9;
+const secondsToMilliseconds = (s: number) => s * 1e3;
 
 const filtersToApi = (filters: Filters): TasksQueryFilters => ({
   ...filters,
   searchString: filters.searchString || undefined,
-  elapsedTime: formatToRange(filters.elapsedTime, secondsToNanoseconds),
+  elapsedTime: formatToRange(filters.elapsedTime, secondsToMilliseconds),
   period: formatToRange(filters.period, (value) => value.toISOString()),
 });
 
