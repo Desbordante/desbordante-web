@@ -103,7 +103,7 @@ export const UserResolvers: Resolvers = {
                 attributes: ["taskID", "fileID", ["type", "prefix"]],
                 raw: true,
                 include: [TaskState, FileInfo],
-                paranoid: props.filters?.includeDeleted ?? false,
+                paranoid: !(props.filters?.includeDeleted ?? false),
             });
 
             return {
@@ -235,7 +235,7 @@ export const UserResolvers: Resolvers = {
 
             const { rows, count } = await models.User.findAndCountAll({
                 ...options,
-                paranoid: props.filters?.includeDeleted ?? false,
+                paranoid: !(props.filters?.includeDeleted ?? false),
             });
 
             return {
