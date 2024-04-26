@@ -10,7 +10,7 @@ import {
   useInteractions,
   useRole,
 } from '@floating-ui/react';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { FCWithChildren } from 'types/react';
 import styles from './ModalContainer.module.scss';
 import cn from 'classnames';
@@ -29,6 +29,11 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
   setIsOpen,
   className,
 }) => {
+  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setPortalNode(document.getElementById('portals-container-node'));
+  }, []);
   const { refs, context } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
@@ -54,8 +59,8 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
   const { getFloatingProps } = useInteractions([dismiss, role]);
   return (
     <>
-      <FloatingPortal>
-        {isOpen && (
+      {isOpen && (
+        <FloatingPortal root={portalNode}>
           <FloatingOverlay
             style={stylesOverlay}
             className={styles.dialogOverlay}
@@ -79,8 +84,8 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
               </div>
             </FloatingFocusManager>
           </FloatingOverlay>
-        )}
-      </FloatingPortal>
+        </FloatingPortal>
+      )}
     </>
   );
 };

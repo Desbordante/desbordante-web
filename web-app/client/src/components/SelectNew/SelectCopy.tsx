@@ -35,37 +35,16 @@ const data = [
   'White',
 ];
 
-const ItemSelect = forwardRef<
-  HTMLDivElement,
-  ItemProps & React.HTMLProps<HTMLDivElement>
->(({ children, active, ...rest }, ref) => {
-  const id = useId();
-  return (
-    <div
-      ref={ref}
-      role="option"
-      id={id}
-      aria-selected={active}
-      {...rest}
-      style={{
-        background: active ? 'lightblue' : 'none',
-        padding: 4,
-        cursor: 'default',
-        ...rest.style,
-      }}
-    >
-      {children}
-    </div>
-  );
-});
-
-ItemSelect.displayName = 'ItemSelect';
-
 const AutoComplete = ({ options }) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(0);
+  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setPortalNode(document.getElementById('portals-container-node'));
+  }, []);
 
   useEffect(() => {
     setOpen(false);
@@ -157,7 +136,7 @@ const AutoComplete = ({ options }) => {
         })}
       />
       {open && (
-        <FloatingPortal>
+        <FloatingPortal root={portalNode}>
           <FloatingFocusManager
             context={context}
             initialFocus={-1}

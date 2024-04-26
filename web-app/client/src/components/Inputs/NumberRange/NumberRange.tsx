@@ -9,7 +9,7 @@ import {
   useId,
   useState,
 } from 'react';
-import Tooltip from '@components/Tooltip';
+import Tooltip from '@components/TooltipOld';
 import colors from '@constants/colors';
 import { InputPropsBase } from '..';
 import styles from './NumberRange.module.scss';

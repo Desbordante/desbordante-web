@@ -1,5 +1,4 @@
 import { Icon } from '@components/IconComponent';
-import { Icon } from '@components/IconComponent';
 import cn from 'classnames';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -49,7 +48,6 @@ const NavBar: FC = () => {
       <ul className={styles.itemsContainer}>
         <li>
           <Link href="/" className={styles.brand}>
-            <Icon name="desbordanteColor" size={40} className={styles.logo} />
             <Icon name="desbordanteColor" size={40} className={styles.logo} />
             Desbordante
           </Link>

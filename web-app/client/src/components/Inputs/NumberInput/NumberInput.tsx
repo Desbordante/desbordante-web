@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import { InputPropsBase, Text } from '@components/Inputs';
-import Tooltip from '@components/Tooltip';
+import Tooltip from '@components/TooltipOld';
 import styles from './NumberInput.module.scss';
 
 interface NumberInputProps {

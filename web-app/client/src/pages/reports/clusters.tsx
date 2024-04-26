@@ -3,7 +3,7 @@ import Pagination from '@components/Pagination/Pagination';
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
 import ClusterTable from '@components/ScrollableTable/ClusterTable';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
-import Tooltip from '@components/Tooltip';
+import Tooltip from '@components/TooltipOld';
 import { getClustersPreview } from '@graphql/operations/queries/EDP/__generated__/getClustersPreview';
 import useClustersPreview from '@hooks/useClustersPreview';
 import styles from '@styles/Clusters.module.scss';

@@ -15,7 +15,7 @@ import 'react-datetime/css/react-datetime.css';
 import CalendarIcon from '@assets/icons/calendar.svg?component';
 import { InputPropsBase } from '@components/Inputs';
 import OutsideClickObserver from '@components/OutsideClickObserver';
-import Tooltip from '@components/Tooltip';
+import Tooltip from '@components/TooltipOld';
 import styles from './DateTime.module.scss';
 // eslint-disable-next-line import/order
 import moment, { Moment } from 'moment';

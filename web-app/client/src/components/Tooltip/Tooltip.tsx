@@ -1,7 +1,15 @@
 import { Icon } from '@components/IconComponent';
 import colors from '@constants/colors';
-import cn from 'classnames';
-import { useState } from 'react';
+import {
+  FloatingPortal,
+  autoUpdate,
+  offset,
+  useFloating,
+  useHover,
+  useInteractions,
+  useRole,
+} from '@floating-ui/react';
+import { useEffect, useState } from 'react';
 import { FCWithChildren } from 'types/react';
 
 import styles from './Tooltip.module.scss';
@@ -11,33 +19,57 @@ interface Props {
   className?: string;
 }
 
-const Tooltip: FCWithChildren<Props> = ({
-  className,
-  position = 'top',
-  children,
-}) => {
+const Tooltip: FCWithChildren<Props> = ({ position = 'top', children }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setPortalNode(document.getElementById('portals-container-node'));
+  }, []);
+
+  const { refs, floatingStyles, context } = useFloating({
+    open: isHovered,
+    onOpenChange: setIsHovered,
+    whileElementsMounted: autoUpdate,
+    placement: position,
+    middleware: [offset(5)],
+  });
+
+  const hover = useHover(context, { move: false });
+  const role = useRole(context, { role: 'tooltip' });
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    hover,
+    role,
+  ]);
 
   return (
-    <div className={cn(styles.tooltip, className)}>
-      <Icon
-        name="info"
-        size={16}
-        color={colors.primary[100]}
-        className={styles.icon}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      />
+    <>
       <div
-        className={cn(
-          styles.content,
-          styles[position],
-          !isHovered && styles.hidden,
-        )}
+        ref={refs.setReference}
+        {...getReferenceProps({ className: styles.tooltip })}
       >
-        {children}
+        <Icon
+          name="info"
+          size={16}
+          color={colors.primary[100]}
+          className={styles.icon}
+        />
       </div>
-    </div>
+
+      {isHovered && (
+        <FloatingPortal root={portalNode}>
+          <div
+            {...getFloatingProps({
+              ref: refs.setFloating,
+              className: styles.content,
+              style: floatingStyles,
+            })}
+          >
+            {children}
+          </div>
+        </FloatingPortal>
+      )}
+    </>
   );
 };
 

@@ -7,7 +7,7 @@ import {
 } from 'react';
 import ReactSelect, { Props as ReactSelectProps } from 'react-select';
 import { InputPropsBase } from '@components/Inputs';
-import Tooltip from '@components/Tooltip';
+import Tooltip from '@components/TooltipOld';
 import { Option } from 'types/inputs';
 import customComponents, { colorStyles } from './customComponents';
 import styles from './MultiSelect.module.scss';

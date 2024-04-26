@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { InputPropsBase, Text } from '@components/Inputs';
 import 'rc-slider/assets/index.css';
-import Tooltip from '@components/Tooltip';
+import Tooltip from '@components/TooltipOld';
 import styles from './NumberSlider.module.scss';
 
 type Props = InputPropsBase &

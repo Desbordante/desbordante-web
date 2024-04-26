@@ -7,7 +7,7 @@ import {
   useId,
 } from 'react';
 import { InputPropsBase } from '@components/Inputs';
-import Tooltip from '@components/Tooltip';
+import Tooltip from '@components/TooltipOld';
 import styles from './TextArea.module.scss';
 
 type Props = InputPropsBase &

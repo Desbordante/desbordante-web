@@ -12,8 +12,11 @@ import {
   SingleValueProps,
   ValueContainerProps,
   NoticeProps,
+  MenuProps,
 } from 'react-select';
+import { Option as OptionType } from 'types/inputs';
 import styles from './Select.module.scss';
+import { FloatingPortal } from '@floating-ui/react';
 
 const Control: ComponentType<
   ControlProps<OptionType, false> & InputPropsBase
@@ -70,6 +73,17 @@ const IndicatorsContainer: ComponentType<
     <Icon name="angle" />
   </div>
 );
+
+const Menu: ComponentType<MenuProps<OptionType, false> & InputPropsBase> = (
+  innerProps,
+) => {
+  console.log(innerProps);
+  return (
+    <FloatingPortal>
+      <components.Menu {...innerProps}></components.Menu>
+    </FloatingPortal>
+  );
+};
 
 export const Option: ComponentType<
   OptionProps<OptionType, false> & InputPropsBase
