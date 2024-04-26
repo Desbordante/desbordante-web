@@ -9,6 +9,7 @@ import {
   getOwnTasks_user_tasks_data,
 } from '@graphql/operations/queries/__generated__/getOwnTasks';
 import { GET_OWN_TASKS } from '@graphql/operations/queries/getOwnTasks';
+import { formatToRange } from '@utils/formatToRange';
 import {
   OrderDirection,
   TasksQueryFilters,
@@ -39,21 +40,13 @@ const defaultOrdering: Ordering = {
   direction: OrderDirection.DESC,
 };
 
+const secondsToNanoseconds = (s: number) => s * 1e9;
+
 const filtersToApi = (filters: Filters): TasksQueryFilters => ({
   ...filters,
   searchString: filters.searchString || undefined,
-  elapsedTime: filters.elapsedTime.some(Boolean)
-    ? {
-        from: filters.elapsedTime[0] ?? undefined,
-        to: filters.elapsedTime[1] ?? undefined,
-      }
-    : undefined,
-  period: filters.period.some(Boolean)
-    ? {
-        from: filters.period[0]?.toISOString() ?? undefined,
-        to: filters.period[1]?.toISOString() ?? undefined,
-      }
-    : undefined,
+  elapsedTime: formatToRange(filters.elapsedTime, secondsToNanoseconds),
+  period: formatToRange(filters.period, (value) => value.toISOString()),
 });
 
 const Tasks: FC = () => (

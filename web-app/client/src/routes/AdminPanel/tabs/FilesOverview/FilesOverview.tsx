@@ -9,6 +9,7 @@ import {
   getDatasetsInfo_datasets_data,
 } from '@graphql/operations/queries/__generated__/getDatasetsInfo';
 import { GET_DATASETS_INFO } from '@graphql/operations/queries/getDatasetsInfo';
+import { formatToRange } from '@utils/formatToRange';
 import {
   DatasetsQueryFilters,
   DatasetsQueryOrderingParameter,
@@ -42,17 +43,6 @@ const defaultOrdering: Ordering = {
   parameter: DatasetsQueryOrderingParameter.CREATION_TIME,
   direction: OrderDirection.DESC,
 };
-
-const formatToRange = <T, TResult>(
-  values: [T | undefined, T | undefined],
-  formatter: (value: T) => TResult,
-) =>
-  values.some(Boolean)
-    ? {
-        from: values[0] ? formatter(values[0]) : undefined,
-        to: values[1] ? formatter(values[1]) : undefined,
-      }
-    : undefined;
 
 const filtersToApi = (filters: Filters): DatasetsQueryFilters => ({
   ...filters,
