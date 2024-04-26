@@ -1,3 +1,4 @@
+import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
 import Link from 'next/link';
 import { FC, ReactNode } from 'react';
@@ -20,6 +21,8 @@ import {
   TaskProcessStatusType,
 } from 'types/globalTypes';
 import styles from './TaskItem.module.scss';
+
+const nanoSecondsToMilliseconds = (ns: number) => ns * 1e-6;
 
 const getIcon = (state: getTasksInfo_tasksInfo_data_state): ReactNode => {
   const props = {
@@ -79,7 +82,14 @@ const getStatus = (state: getTasksInfo_tasksInfo_data_state): ReactNode => {
       return (
         <>
           <span className={styles.success}>Completed</span> in{' '}
-          {moment.duration(state.elapsedTime).humanize()}
+          {state.elapsedTime !== null && (
+            <span title={`${state.elapsedTime} ns`}>
+              {humanizeDuration(nanoSecondsToMilliseconds(state.elapsedTime), {
+                units: ['h', 'm', 's', 'ms'],
+                round: true,
+              })}
+            </span>
+          )}
         </>
       );
   }
