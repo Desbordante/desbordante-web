@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { FC, ButtonHTMLAttributes, ReactNode } from 'react';
 import styles from './Button.module.scss';
 
-type ButtonVariant =
+export type ButtonVariant =
   | 'gradient'
   | 'primary'
   | 'secondary'

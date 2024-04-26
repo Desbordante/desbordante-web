@@ -20,6 +20,7 @@ const DatasetItem: FC<Props> = ({ data, displayUserName = false }) => {
     createdAt,
     user,
     numberOfUses,
+    isBuiltIn,
   } = data;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,7 +48,9 @@ const DatasetItem: FC<Props> = ({ data, displayUserName = false }) => {
             {moment(+createdAt).format('[Uploaded] L LT')}
           </div>
           {displayUserName && (
-            <div className={styles.user}>{user?.fullName ?? 'Anonymous'}</div>
+            <div className={styles.user}>
+              {isBuiltIn ? 'System' : user?.fullName ?? 'Anonymous'}
+            </div>
           )}
         </div>
       </div>

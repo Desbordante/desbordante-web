@@ -109,6 +109,14 @@
   @extend %secondary;
   background: $error-10;
   color: $error;
+
+  &:hover {
+    background: $error-10;
+  }
+
+  &:focus {
+    outline: 2px solid $error;
+  }
 }
 
 .primary {

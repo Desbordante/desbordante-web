@@ -1,7 +1,22 @@
 import { DocumentNode, useLazyQuery } from '@apollo/client';
+import _ from 'lodash';
 import { useRouter } from 'next/router';
-import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
-import { DefaultValues, FormProvider, useForm } from 'react-hook-form';
+import {
+  FC,
+  FormEventHandler,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  DefaultValues,
+  FieldValues,
+  FormProvider,
+  UseFormReturn,
+  useForm,
+} from 'react-hook-form';
 import { Subscription } from 'react-hook-form/dist/utils/createSubject';
 import FilterIcon from '@assets/icons/filter.svg?component';
 import OrderingIcon from '@assets/icons/ordering.svg?component';
@@ -10,15 +25,12 @@ import { Text } from '@components/Inputs';
 import PaginationComponent from '@components/Pagination';
 import useFormPersist, { StorageToValues } from '@hooks/useFormPersist';
 import { OrderDirection, Pagination } from 'types/globalTypes';
+import InputGroupModal from './InputGroupModal';
 import styles from './TabLayout.module.scss';
 
 type BaseQueryResult<TItem> = {
   data: TItem[] | null;
   total: number;
-};
-
-type BaseFilters = {
-  searchString?: string;
 };
 
 type BaseOrdering<TOrderingParameter extends string = string> = {
@@ -27,7 +39,7 @@ type BaseOrdering<TOrderingParameter extends string = string> = {
 };
 
 type BaseQueryVariables<
-  TFilters extends BaseFilters,
+  TFilters extends FieldValues,
   TOrdering extends BaseOrdering,
 > = {
   props: {
@@ -37,9 +49,15 @@ type BaseQueryVariables<
   };
 };
 
-type InputModalProps = {
-  onClose: () => void;
-  onApply: () => void;
+type GroupInputProps<
+  TQueryVariables extends { props: Record<TName, object> },
+  TGroupInputs extends FieldValues,
+  TName extends string,
+> = {
+  defaultValues: DefaultValues<TGroupInputs>;
+  valuesToApi?: (values: TGroupInputs) => TQueryVariables['props'][TName];
+  storageToValues?: StorageToValues<TGroupInputs>;
+  renderModalContent?: (formMethods: UseFormReturn<TGroupInputs>) => ReactNode;
 };
 
 interface Props<
@@ -51,18 +69,9 @@ interface Props<
 > {
   title?: string;
   query: DocumentNode;
-  filters?: {
-    defaultValues: DefaultValues<TFilters>;
-    valuesToApi?: (values: TFilters) => TQueryVariables['props']['filters'];
-    storageToValues?: StorageToValues<TFilters>;
-    modal?: FC<InputModalProps>;
-  };
-  ordering?: {
-    defaultValues: DefaultValues<TOrdering>;
-    valuesToApi?: (values: TOrdering) => TQueryVariables['props']['ordering'];
-    storageToValues?: StorageToValues<TOrdering>;
-    modal?: FC<InputModalProps>;
-  };
+  searchStringParameterName?: string;
+  filters?: GroupInputProps<TQueryVariables, TFilters, 'filters'>;
+  ordering?: GroupInputProps<TQueryVariables, TOrdering, 'ordering'>;
   defaultPageSize?: number;
   getData: (result?: TQueryResult) => BaseQueryResult<TItem> | undefined;
   itemRenderer: (item: TItem) => ReactNode;
@@ -78,6 +87,7 @@ const TabLayout = <
 >({
   title,
   query: queryName,
+  searchStringParameterName = 'searchString',
   filters,
   ordering,
   defaultPageSize = 10,
@@ -99,9 +109,6 @@ const TabLayout = <
     },
   });
 
-  const [isFiltersModalShown, setIsFiltersModalShown] = useState(false);
-  const [isOrderingModalShown, setIsOrderingModalShown] = useState(false);
-
   useFormPersist(`${router.asPath}-filters`, {
     ...filterMethods,
     transformValues: filters?.storageToValues,
@@ -111,6 +118,10 @@ const TabLayout = <
     ...orderingMethods,
     transformValues: ordering?.storageToValues,
   });
+
+  const [searchString, setSearchString] = useState('');
+  const [isFiltersModalShown, setIsFiltersModalShown] = useState(false);
+  const [isOrderingModalShown, setIsOrderingModalShown] = useState(false);
 
   const [query, { data: queryResult }] = useLazyQuery<
     TQueryResult,
@@ -125,10 +136,13 @@ const TabLayout = <
     [queryResult],
   );
 
-  const doQuery = () => {
+  const doQuery = useCallback(() => {
     const queryProps = {
       filters: filters?.valuesToApi
-        ? filters.valuesToApi(filterMethods.watch())
+        ? filters.valuesToApi({
+            ...filterMethods.watch(),
+            [searchStringParameterName]: searchString,
+          })
         : filterMethods.watch(),
       ordering: ordering?.valuesToApi
         ? ordering.valuesToApi(orderingMethods.watch())
@@ -140,15 +154,25 @@ const TabLayout = <
         props: queryProps,
       },
     });
+  }, [query]);
+
+  const debouncedSendRequest = useMemo(() => {
+    return _.debounce(doQuery, 250);
+  }, []);
+
+  const handleSearchStringChange: FormEventHandler<HTMLInputElement> = (e) => {
+    const { value } = e.currentTarget;
+
+    setSearchString(value);
+    debouncedSendRequest();
   };
 
-  const filtersValues = filterMethods.watch();
   const pagination = paginationMethods.watch();
 
   useEffect(() => {
     doQuery();
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [filtersValues.searchString, pagination.limit, pagination.offset]);
+  }, [pagination.limit, pagination.offset]);
 
   useEffect(() => {
     const subscriptions = [filterMethods, orderingMethods].map(
@@ -176,9 +200,10 @@ const TabLayout = <
           size={15}
           label="Search"
           placeholder="Search string or regex"
-          {...filterMethods.register('searchString')}
+          value={searchString}
+          onChange={handleSearchStringChange}
         />
-        {filters?.modal && (
+        {filters?.renderModalContent && (
           <Button
             variant="secondary"
             icon={<FilterIcon />}
@@ -187,7 +212,7 @@ const TabLayout = <
             Filters
           </Button>
         )}
-        {ordering?.modal && (
+        {ordering?.renderModalContent && (
           <Button
             variant="secondary"
             icon={<OrderingIcon />}
@@ -207,19 +232,27 @@ const TabLayout = <
         />
       )}
       <FormProvider {...filterMethods}>
-        {filters?.modal && isFiltersModalShown && (
-          <filters.modal
+        {filters?.renderModalContent && isFiltersModalShown && (
+          <InputGroupModal
+            name="Filters"
+            onReset={() => filterMethods.reset(filters.defaultValues)}
             onClose={() => setIsFiltersModalShown(false)}
             onApply={doQuery}
-          />
+          >
+            {filters.renderModalContent(filterMethods)}
+          </InputGroupModal>
         )}
       </FormProvider>
       <FormProvider {...orderingMethods}>
-        {ordering?.modal && isOrderingModalShown && (
-          <ordering.modal
+        {ordering?.renderModalContent && isOrderingModalShown && (
+          <InputGroupModal
+            name="Ordering"
+            onReset={() => orderingMethods.reset(ordering.defaultValues)}
             onClose={() => setIsOrderingModalShown(false)}
             onApply={doQuery}
-          />
+          >
+            {ordering.renderModalContent(orderingMethods)}
+          </InputGroupModal>
         )}
       </FormProvider>
     </div>

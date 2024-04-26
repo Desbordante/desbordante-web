@@ -17,6 +17,7 @@ const FilterModal: FC<Props> = ({ onClose, onApply }) => {
     <ListPropertiesModal
       name="Filters"
       onClose={onClose}
+      onReset={() => reset()}
       onApply={() => {
         onApply();
         onClose();
