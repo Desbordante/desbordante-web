@@ -675,6 +675,11 @@ const typeDefs = gql`
         to: Int
     }
 
+    input FloatRange {
+        from: Float
+        to: Float
+    }
+
     input DatasetsQueryFilters {
         searchString: String
         includeBuiltIn: Boolean! = true
@@ -704,7 +709,7 @@ const typeDefs = gql`
     input TasksQueryFilters {
         searchString: String
         includeDeleted: Boolean
-        elapsedTime: IntRange
+        elapsedTime: FloatRange
         period: StringRange
     }
 
