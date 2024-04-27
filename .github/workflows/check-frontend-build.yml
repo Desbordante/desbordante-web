@@ -42,7 +42,7 @@ jobs:
         
         - name: Check typing
           working-directory: web-app/client
-          run: yarn check-types
+          run: yarn tsc --noEmit
         
         - name: Build client
           if: always()
