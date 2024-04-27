@@ -7,13 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      SERVER_PROTOCOL: http
-      SERVER_IP: localhost
-      SERVER_PORT: 5000
-      CMS_PROTOCOL: http
-      CMS_IP: localhost
-      CMS_PORT: 1337
     steps:
         - uses: actions/checkout@v4
 
@@ -21,6 +14,13 @@ jobs:
           uses: actions/setup-node@v4
           with:
             node-version-file: 'web-app/client/.nvmrc'
+
+        - name: Load .env.example file
+          uses: falti/dotenv-action@v1.1.2
+          with:
+            path: web-app/client/.env.example
+            export-variables: true
+            keys-case: bypass
 
         - name: Install server dependencies
           working-directory: web-app/server
