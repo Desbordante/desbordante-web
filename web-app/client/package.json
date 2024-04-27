@@ -13,7 +13,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "check-types": "tsx --noEmit",
+    "check-types": "tsс --noEmit",
     "test": "jest --coverage --verbose --runInBand",
     "test:coverage": "jest --coverage --maxWorkers=50%"
   },
