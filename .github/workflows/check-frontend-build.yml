@@ -1,11 +1,11 @@
-name: Check frontend code lint
+name: Check frontend code build
 on: 
   pull_request:
     paths:
       - 'web-app/client/**'
 
 jobs:
-  lint:
+  build:
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v4
@@ -33,7 +33,12 @@ jobs:
             yarn codegen:server
             yarn codegen:cms
         
-        - name: Run lint
+        - name: Check typing
           working-directory: web-app/client
-          run: yarn lint
+          run: yarn check-types
+        
+        - name: Build client
+          if: always()
+          working-directory: web-app/client
+          run: yarn build
 

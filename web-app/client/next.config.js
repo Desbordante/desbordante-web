@@ -10,7 +10,7 @@ module.exports = {
   swcMinify: true,
   eslint: {
     dirs: ['src'],
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
     ignoreBuildErrors: true,
