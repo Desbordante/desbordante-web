@@ -1,11 +1,10 @@
 import _ from 'lodash';
-import { Moment } from 'moment';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import EmailIcon from '@assets/icons/email.svg?component';
-import Button from '@components/Button';
-import TabLayout from '@components/TabLayout';
+import TabLayout from '@components/common/layout/TabLayout';
+import Button from '@components/common/uikit/Button';
 import {
   getUsersInfo,
   getUsersInfoVariables,

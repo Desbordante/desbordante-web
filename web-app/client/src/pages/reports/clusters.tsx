@@ -1,11 +1,14 @@
 import Image from 'next/image';
 import { FC, ReactElement, useState } from 'react';
 import longArrowIcon from '@assets/icons/long-arrow.svg';
-import Pagination from '@components/Pagination/Pagination';
-import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
-import ClusterTable from '@components/ScrollableTable/ClusterTable';
-import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
-import Tooltip from '@components/Tooltip';
+import { ReportsLayout } from '@components/common/layout/ReportsLayout/ReportsLayout';
+import Pagination from '@components/common/uikit/Pagination/Pagination';
+import ClusterTable from '@components/common/uikit/ScrollableTable/ClusterTable';
+import Tooltip from '@components/common/uikit/Tooltip';
+import {
+  TaskContextProvider,
+  useTaskContext,
+} from '@components/meta/TaskContext';
 import { getClustersPreview } from '@graphql/operations/queries/EDP/__generated__/getClustersPreview';
 import useClustersPreview from '@hooks/useClustersPreview';
 import styles from '@styles/Clusters.module.scss';

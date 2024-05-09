@@ -1,8 +1,7 @@
-import { Moment } from 'moment';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { FC } from 'react';
-import TabLayout from '@components/TabLayout';
-import TaskItem from '@components/TaskItem';
+import TabLayout from '@components/common/layout/TabLayout';
+import TaskItem from '@components/common/uikit/TaskItem';
 import {
   getOwnTasks,
   getOwnTasksVariables,

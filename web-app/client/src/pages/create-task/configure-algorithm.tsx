@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React from 'react';
-import AlgorithmFormConfigurator from '@components/AlgorithmFormConfigurator';
+import AlgorithmFormConfigurator from '@components/configure-algorithm/AlgorithmFormConfigurator';
 import {
   excludedPrimitives,
   UsedPrimitivesType,

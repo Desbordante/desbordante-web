@@ -1,12 +1,12 @@
 import { ApolloProvider } from '@apollo/client';
-import { AuthContextProvider } from '@components/AuthContext';
-import { ErrorContextProvider } from '@components/ErrorContext';
-import Layout from '@components/Layout';
-import { ToastContainer } from '@components/Toast';
+import Layout from '@components/common/layout/Layout';
+import { ToastContainer } from '@components/common/uikit/Toast';
+import { AuthContextProvider } from '@components/meta/AuthContext';
+import { ErrorContextProvider } from '@components/meta/ErrorContext';
 import client from '@graphql/client';
 import '@styles/globals.scss';
-import { AppPropsWithLayout } from 'types/pageWithLayout';
 import 'react-toastify/dist/ReactToastify.css';
+import { AppPropsWithLayout } from 'types/pageWithLayout';
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);

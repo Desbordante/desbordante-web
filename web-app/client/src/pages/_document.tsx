@@ -1,5 +1,5 @@
 import { Html, Head, Main, NextScript } from 'next/document';
-import GoogleAnalytics from '@components/GoogleAnalytics';
+import GoogleAnalytics from '@components/meta/GoogleAnalytics';
 import { isGoogleAnalyticsEnabled } from '@utils/env';
 
 const MyDocument = () => {

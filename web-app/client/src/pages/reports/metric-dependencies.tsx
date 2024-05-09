@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { useRouter } from 'next/router';
-import React, {
+import {
   FC,
   ReactElement,
   ReactNode,
@@ -16,15 +16,15 @@ import ArrowCrossed from '@assets/icons/line-arrow-right-crossed.svg?component';
 import Arrow from '@assets/icons/line-arrow-right.svg?component';
 import OrderingIcon from '@assets/icons/ordering.svg?component';
 import { MFDHighlight } from '@atoms/MFDTaskAtom';
-import Button from '@components/Button';
+import ListPropertiesModal from '@components/common/layout/ListPropertiesModal';
+import ReportsLayout from '@components/common/layout/ReportsLayout';
+import { ScrollDirection } from '@components/common/layout/ScrollableNodeTable';
+import { MFDTable } from '@components/common/layout/ScrollableNodeTable/implementations/MFDTable';
+import Button from '@components/common/uikit/Button';
+import { ControlledSelect } from '@components/common/uikit/Inputs/Select';
 
-import { ControlledSelect } from '@components/Inputs/Select';
-import ListPropertiesModal from '@components/ListPropertiesModal';
-import Pagination from '@components/Pagination/Pagination';
-import ReportsLayout from '@components/ReportsLayout';
+import Pagination from '@components/common/uikit/Pagination/Pagination';
 
-import { ScrollDirection } from '@components/ScrollableNodeTable';
-import { MFDTable } from '@components/ScrollableNodeTable/implementations/MFDTable';
 import useMFDHighlight from '@hooks/useMFDHighlight';
 import useMFDTask from '@hooks/useMFDTask';
 import styles from '@styles/MetricDependencies.module.scss';

@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import TaskItem from '@components/TaskItem';
+import TaskItem from '@components/common/uikit/TaskItem';
 import { getUser_user_tasks_data } from '@graphql/operations/queries/__generated__/getUser';
 import styles from './Tasks.module.scss';
 

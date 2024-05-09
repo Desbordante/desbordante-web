@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { toast } from 'react-toastify';
 import { ToastOptions } from 'react-toastify/dist/types';
-import { Toast } from '@components/Toast';
+import { Toast } from '@components/common/uikit/Toast';
 
 export const showToast = (
   header: ReactNode,

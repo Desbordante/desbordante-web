@@ -1,7 +1,7 @@
-import AuthSuccessModal from '@components/AuthSuccessModal';
-import FilePropertiesModal from '@components/FilePropertiesModal';
-import LogInModal from '@components/LogInModal';
-import SignUpModal from '@components/SignUpModal';
+import AuthSuccessModal from '@components/auth/AuthSuccessModal';
+import LogInModal from '@components/auth/LogInModal';
+import SignUpModal from '@components/auth/SignUpModal';
+import FilePropertiesModal from '@components/choose-file/FilePropertiesModal';
 
 const modals = {
   'AUTH.LOG_IN': LogInModal,

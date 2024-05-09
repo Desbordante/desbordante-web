@@ -1,9 +1,9 @@
 import { useRouter } from 'next/router';
 import FileIcon from '@assets/icons/file.svg?component';
-import Button from '@components/Button';
-import PrimitiveCard from '@components/PrimitiveCard';
-import PrimitiveDescription from '@components/PrimitiveDescription';
-import WizardLayout from '@components/WizardLayout';
+import PrimitiveCard from '@components/choose-primitive/PrimitiveCard';
+import PrimitiveDescription from '@components/choose-primitive/PrimitiveDescription';
+import WizardLayout from '@components/common/layout/WizardLayout';
+import Button from '@components/common/uikit/Button';
 import primitiveInfo from '@constants/primitiveInfoType';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ChoosePrimitive.module.scss';

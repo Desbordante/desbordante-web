@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from '@apollo/client';
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import Button from '@components/Button';
-import { Text, TextArea } from '@components/Inputs';
-import { ControlledSelect as ControlledMultiSelect } from '@components/Inputs/MultiSelect';
-import { ControlledSelect } from '@components/Inputs/Select';
-import ModalContainer from '@components/ModalContainer';
+import ModalContainer from '@components/common/layout/ModalContainer';
+import Button from '@components/common/uikit/Button';
+import { Text, TextArea } from '@components/common/uikit/Inputs';
+import { ControlledSelect as ControlledMultiSelect } from '@components/common/uikit/Inputs/MultiSelect';
+import { ControlledSelect } from '@components/common/uikit/Inputs/Select';
 import {
   sendMessage,
   sendMessageVariables,

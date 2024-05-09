@@ -1,8 +1,8 @@
 import { Moment } from 'moment';
 import moment from 'moment';
 import { FC } from 'react';
-import DatasetItem from '@components/DatasetItem';
-import TabLayout from '@components/TabLayout';
+import TabLayout from '@components/common/layout/TabLayout';
+import DatasetItem from '@components/common/uikit/DatasetItem';
 import {
   getOwnDatasets,
   getOwnDatasetsVariables,

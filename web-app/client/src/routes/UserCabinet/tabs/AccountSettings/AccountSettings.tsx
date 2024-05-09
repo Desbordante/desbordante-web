@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { FC, useState } from 'react';
-import Button from '@components/Button';
+import Button from '@components/common/uikit/Button';
 import { getUser } from '@graphql/operations/queries/__generated__/getUser';
 import { GET_USER } from '@graphql/operations/queries/getUser';
 import ChangePasswordModal from './components/ChangePasswordModal';

@@ -1,7 +1,7 @@
-import Button from '@components/Button';
-import { Text, Checkbox, Select } from '@components/Inputs';
-import Radio from '@components/Inputs/Radio';
-import Tooltip from '@components/Tooltip';
+import Button from '@components/common/uikit/Button';
+import { Checkbox, Select, Text } from '@components/common/uikit/Inputs';
+import Radio from '@components/common/uikit/Inputs/Radio';
+import Tooltip from '@components/common/uikit/Tooltip';
 import styles from '@styles/UiKit.module.scss';
 
 const tooltipContent = (

@@ -3,8 +3,8 @@ import moment, { Moment } from 'moment';
 import prettyBytes from 'pretty-bytes';
 import { FC } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { DateTime } from '@components/Inputs';
-import { ControlledSelect } from '@components/Inputs/Select';
+import { DateTime } from '@components/common/uikit/Inputs';
+import { ControlledSelect } from '@components/common/uikit/Inputs/Select';
 import colors from '@constants/colors';
 import {
   getAggregations,
