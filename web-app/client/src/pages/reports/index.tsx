@@ -1,6 +1,6 @@
 import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import Loader from '@components/Loader/Loader';
+import Loader from '@components/reports/Loader/Loader';
 import styles from '@styles/Reports.module.scss';
 
 const ReportsHome: NextPage = () => {

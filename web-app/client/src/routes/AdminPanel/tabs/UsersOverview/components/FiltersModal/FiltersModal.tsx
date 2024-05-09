@@ -1,9 +1,9 @@
 import { countries } from 'countries-list';
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { Checkbox, DateTime } from '@components/Inputs';
-import { ControlledSelect } from '@components/Inputs/Select';
-import ListPropertiesModal from '@components/ListPropertiesModal';
+import ListPropertiesModal from '@components/common/layout/ListPropertiesModal';
+import { Checkbox, DateTime } from '@components/common/uikit/Inputs';
+import { ControlledSelect } from '@components/common/uikit/Inputs/Select';
 import { Filters } from '../../UsersOverview';
 import styles from './FiltersModal.module.scss';
 

@@ -3,8 +3,8 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import HomeBackground from '@assets/backgrounds/home.svg?component';
 import UnidataLogo from '@assets/images/unidata-logo.svg?component';
-import Button from '../components/Button';
-import ExternalLink from '../components/ExternalLink';
+import Button from '../components/common/uikit/Button';
+import ExternalLink from '../components/common/uikit/ExternalLink';
 import styles from '../styles/Home.module.scss';
 
 const Home: NextPage = () => {

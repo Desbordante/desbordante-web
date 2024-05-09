@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import TabsLayout from '@components/TabsLayout';
+import TabsLayout from '@components/common/layout/TabsLayout';
 import { useAuthContext } from '@hooks/useAuthContext';
 import tabs from 'src/routes/AdminPanel/tabs';
 import { NextPageWithLayout } from 'types/pageWithLayout';

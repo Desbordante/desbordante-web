@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo } from 'react';
-import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
+import badgeStyles from '@components/common/uikit/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
 import {
   MFDAlgoOptions,
   MFDColumnType,
@@ -18,12 +18,12 @@ import {
 import { GET_COUNT_OF_COLUMNS } from '@graphql/operations/queries/getDatasetColumnCount';
 import { showError } from '@utils/toasts';
 import {
+  CreateForm,
+  CreateFormProcessor,
   Defaults,
   FormFieldsProps,
-  CreateFormProcessor,
-  CreateForm,
-  FormSelectOptions,
   FormHook,
+  FormSelectOptions,
   Presets,
 } from 'types/form';
 import { OptionWithBadges } from 'types/multiSelect';

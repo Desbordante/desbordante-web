@@ -1,10 +1,10 @@
 import { useQuery } from '@apollo/client';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ColumnCard } from '@components/FileStats/ColumnCard';
-import { Group } from '@components/FileStats/Group';
-import { OverviewCard } from '@components/FileStats/OverviewCard';
-import WizardLayout from '@components/WizardLayout/WizardLayout';
+import WizardLayout from '@components/common/layout/WizardLayout/WizardLayout';
+import { ColumnCard } from '@components/common/uikit/FileStats/ColumnCard';
+import { Group } from '@components/common/uikit/FileStats/Group';
+import { OverviewCard } from '@components/common/uikit/FileStats/OverviewCard';
 import {
   getFileStats,
   getFileStatsVariables,

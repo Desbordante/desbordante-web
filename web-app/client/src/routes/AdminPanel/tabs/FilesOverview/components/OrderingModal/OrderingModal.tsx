@@ -1,7 +1,7 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { Select } from '@components/Inputs';
-import ListPropertiesModal from '@components/ListPropertiesModal';
+import ListPropertiesModal from '@components/common/layout/ListPropertiesModal';
+import { Select } from '@components/common/uikit/Inputs';
 import {
   DatasetsQueryOrderingParameter,
   OrderDirection,

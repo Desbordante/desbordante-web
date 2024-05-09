@@ -1,9 +1,12 @@
 import { useLazyQuery } from '@apollo/client';
 import { GetServerSideProps } from 'next';
 import { ReactElement, useMemo, useRef, useState } from 'react';
-import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
-import ScrollableTable from '@components/ScrollableTable';
-import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
+import { ReportsLayout } from '@components/common/layout/ReportsLayout/ReportsLayout';
+import ScrollableTable from '@components/common/uikit/ScrollableTable';
+import {
+  TaskContextProvider,
+  useTaskContext,
+} from '@components/meta/TaskContext';
 import client from '@graphql/client';
 import {
   getDataset,

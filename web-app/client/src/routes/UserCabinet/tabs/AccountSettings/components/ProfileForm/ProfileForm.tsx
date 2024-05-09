@@ -3,9 +3,9 @@ import { countries } from 'countries-list';
 import _ from 'lodash';
 import { FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import Button from '@components/Button';
-import { Text } from '@components/Inputs';
-import { ControlledSelect } from '@components/Inputs/Select';
+import Button from '@components/common/uikit/Button';
+import { Text } from '@components/common/uikit/Inputs';
+import { ControlledSelect } from '@components/common/uikit/Inputs/Select';
 import {
   updateUser,
   updateUserVariables,

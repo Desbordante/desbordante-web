@@ -2,7 +2,7 @@ import { countries } from 'countries-list';
 import moment from 'moment';
 import { FC } from 'react';
 import UserIcon from '@assets/icons/user.svg?component';
-import Button from '@components/Button';
+import Button from '@components/common/uikit/Button';
 import { getUsersInfo_users_data } from '@graphql/operations/queries/__generated__/getUsersInfo';
 import styles from './UserItem.module.scss';
 
