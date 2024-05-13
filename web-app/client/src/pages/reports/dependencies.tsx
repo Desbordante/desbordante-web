@@ -1,10 +1,4 @@
 import { useLazyQuery } from '@apollo/client';
-import type { GetServerSideProps } from 'next';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
-import { FormProvider } from 'react-hook-form';
-import EyeIcon from '@assets/icons/eye.svg?component';
-import FilterIcon from '@assets/icons/filter.svg?component';
-import OrderingIcon from '@assets/icons/ordering.svg?component';
 import Button from '@components/Button';
 import DependencyList from '@components/DependencyList/DependencyList';
 import DownloadResult from '@components/DownloadResult';
@@ -14,7 +8,9 @@ import {
   OrderingWindow,
   useFilters,
 } from '@components/Filters';
+import { Icon } from '@components/IconComponent';
 import { Text } from '@components/Inputs';
+import ModalContainer from '@components/ModalContainer';
 import Pagination from '@components/Pagination/Pagination';
 import ReportsLayout from '@components/ReportsLayout';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
@@ -28,11 +24,10 @@ import { GET_MAIN_TASK_DEPS } from '@graphql/operations/queries/getDeps';
 import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 import styles from '@styles/Dependencies.module.scss';
 import { convertDependencies } from '@utils/convertDependencies';
-import {
-  IntersectionFilter,
-  OrderDirection,
-  PrimitiveType,
-} from 'types/globalTypes';
+import type { GetServerSideProps } from 'next';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { FormProvider } from 'react-hook-form';
+import { IntersectionFilter, OrderBy, OrderDirection, PrimitiveType } from 'types/globalTypes';
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
 type Props = {
@@ -117,17 +112,19 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
     <>
       <FormProvider {...methods}>
         {isOrderingShown && (
-          <OrderingWindow
-            {...{
-              setIsOrderingShown,
-              primitive: primitive || PrimitiveType.FD,
-            }}
-          />
+            <OrderingWindow
+              {...{
+                isOrderingShown,
+                setIsOrderingShown,
+                primitive: primitive || PrimitiveType.FD,
+              }}
+            />
         )}
 
         {isFilteringShown && (
           <FilteringWindow
             {...{
+              isFilteringShown,
               setIsFilteringShown,
             }}
           />
@@ -147,7 +144,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
           <Button
             variant="secondary"
             size="md"
-            icon={<FilterIcon />}
+            icon={<Icon name="filter" />}
             onClick={() => setIsFilteringShown(true)}
           >
             Filters
@@ -155,7 +152,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
           <Button
             variant="secondary"
             size="md"
-            icon={<OrderingIcon />}
+            icon={<Icon name="ordering" />}
             onClick={() => setIsOrderingShown(true)}
           >
             Ordering
@@ -166,7 +163,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
                 <Button
                   variant="secondary"
                   size="md"
-                  icon={<EyeIcon />}
+                  icon={<Icon name="eye" />}
                   onClick={() => setInfoVisible((e) => !e)}
                 >
                   Visibility

@@ -73,19 +73,6 @@
     opacity: 0.5;
   }
 
-  .option {
-    @include paragraph;
-    padding: 16px;
-
-    &.focused {
-      background: $primary-02;
-    }
-
-    &.selected {
-      background: $primary-10;
-    }
-  }
-
   .noOptionsMessage {
     color: $black-50;
     text-align: center;
@@ -99,5 +86,18 @@
 
   &.disabled {
     opacity: 0.5;
+  }
+}
+
+.option {
+  @include paragraph;
+  padding: 16px;
+
+  &.focused {
+    background: $primary-02;
+  }
+
+  &.selected {
+    background: $primary-10;
   }
 }

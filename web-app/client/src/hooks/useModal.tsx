@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import { ComponentProps, useCallback, useId, useMemo } from 'react';
+import { ComponentProps, useCallback, useId, useMemo, useState } from 'react';
 import visibleModalsAtom from '@atoms/visibleModalsAtom';
 import modals from '@constants/modals';
 
@@ -15,6 +15,7 @@ const defaultOpenModalOptions: OpenModalOptions = {
 
 const useModal = <T extends ModalName>(name: T) => {
   const [visibleModals, setVisibleModals] = useAtom(visibleModalsAtom);
+  const [isOpen, setIsOpen] = useState(true);
   const callerId = useId();
   const Modal = useMemo(() => modals[name], [name]);
 
@@ -27,8 +28,10 @@ const useModal = <T extends ModalName>(name: T) => {
   const defaultModalProps = useMemo(
     () => ({
       onClose: close,
+      isOpen: visibleModals,
+      setIsOpen: setVisibleModals,
     }),
-    [close],
+    [close, visibleModals, setVisibleModals],
   );
 
   const open = useCallback(
@@ -41,10 +44,19 @@ const useModal = <T extends ModalName>(name: T) => {
         persist.concat({
           callerId,
           node: <Modal {...defaultModalProps} {...data} key={callerId} />,
+          isOpen,
+          setIsOpen,
         }),
       );
     },
-    [Modal, callerId, defaultModalProps, setVisibleModals, visibleModals],
+    [
+      Modal,
+      callerId,
+      defaultModalProps,
+      setVisibleModals,
+      visibleModals,
+      isOpen,
+    ],
   );
 
   const closeAll = useCallback(() => {

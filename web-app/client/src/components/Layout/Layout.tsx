@@ -1,24 +1,44 @@
+import visibleModalsAtom from '@atoms/visibleModalsAtom';
+import Header from '@components/Header';
+import { useAtom } from 'jotai';
+import dynamic from 'next/dynamic';
+import { NextSeo } from 'next-seo';
+import { FCWithChildren } from 'types/react';
+import styles from './Layout.module.scss';
+
 const MobileBanner = dynamic(() => import('@components/MobileBanner'), {
   ssr: false,
 });
-
-import { useAtom } from 'jotai';
-import dynamic from 'next/dynamic';
-import Head from 'next/head';
-import visibleModalsAtom from '@atoms/visibleModalsAtom';
-import Header from '@components/Header';
-import { FCWithChildren } from 'types/react';
-import styles from './Layout.module.scss';
 
 const Layout: FCWithChildren = ({ children }) => {
   const [visibleModals] = useAtom(visibleModalsAtom);
 
   return (
     <>
-      <Head>
-        <title>Desbordante | Open-source Data Profiling Tool</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
+      <NextSeo
+        titleTemplate="Desbordante | %s"
+        defaultTitle="Desbordante | Open-source data profiling tool"
+        description="Open-source data profiling tool"
+        themeColor="#000000"
+        canonical="https://desbordante.unidata-platform.ru/"
+        openGraph={{
+          type: 'website',
+          url: 'https://desbordante.unidata-platform.ru/',
+          siteName: 'Desbordante',
+          locale: 'en_US',
+          images: [
+            {
+              url: 'https://desbordante.unidata-platform.ru/og-image.jpg',
+              width: 1200,
+              height: 630,
+              alt: 'Desbordante Logo',
+            },
+          ],
+        }}
+        twitter={{
+          cardType: 'summary_large_image',
+        }}
+      />
       <Header />
       {visibleModals.map((modal) => modal.node)}
       <main className={styles.content}>{children}</main>

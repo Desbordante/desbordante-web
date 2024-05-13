@@ -1,0 +1,74 @@
+@import "styles/common";
+
+.tooltip {
+  display: inline-block;
+  position: relative;
+
+  ul {
+    list-style: disc;
+    margin-left: 24px;
+  }
+
+  .icon {
+    cursor: pointer;
+  }
+
+  .content {
+    @include paragraph-small;
+    position: absolute;
+    padding: 16px;
+    width: 256px;
+    color: $white;
+    background: $primary-gradient-0;
+    border-radius: 8px;
+    box-shadow: 0 51px 48px rgba(0, 0, 0, 0.06), 0 21.3066px 20.0533px rgba(0, 0, 0, 0.0431313), 0 11.3915px 10.7214px rgba(0, 0, 0, 0.0357664), 0 6.38599px 6.01034px rgba(0, 0, 0, 0.03), 0 3.39155px 3.19205px rgba(0, 0, 0, 0.0242336), 0 1.4113px 1.32828px rgba(0, 0, 0, 0.0168687);
+    transition: 0.2s;
+
+    &.top {
+      top: -8px;
+      left: 50%;
+      transform: translateY(-100%) translateX(-50%);
+    }
+
+    &.right {
+      right: -8px;
+      top: 50%;
+      transform: translateX(100%) translateY(-50%);
+    }
+
+    &.bottom {
+      bottom: -8px;
+      left: 50%;
+      transform: translateY(100%) translateX(-50%);
+    }
+
+    &.left {
+      left: -8px;
+      top: 50%;
+      transform: translateX(-100%) translateY(-50%);
+    }
+
+    &.hidden {
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+
+      &.top {
+        top: -5px;
+      }
+
+      &.right {
+        right: -5px;
+      }
+
+      &.bottom {
+        bottom: -5px;
+      }
+
+      &.left {
+        left: -5px;
+      }
+    }
+  }
+}
+

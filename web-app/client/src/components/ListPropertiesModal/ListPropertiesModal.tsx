@@ -2,20 +2,29 @@ import Button from '@components/Button';
 import ModalContainer, { ModalProps } from '@components/ModalContainer';
 import { FCWithChildren } from 'types/react';
 import styles from './ListPropertiesModal.module.scss';
+import { Dispatch, SetStateAction } from 'react';
 
 interface Props extends ModalProps {
+  isOpen: boolean;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
   name: string;
   onApply: () => void;
 }
 
 const ListPropertiesModal: FCWithChildren<Props> = ({
+  isOpen,
+  setIsOpen,
   name,
   onClose,
   onApply,
   children,
 }) => {
   return (
-    <ModalContainer onClose={onClose}>
+    <ModalContainer
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      onClose={onClose}
+    >
       <h4 className={styles.title}>{name}</h4>
       <div className={styles.inputs}>{children}</div>
       <div className={styles.buttons}>
