@@ -18,7 +18,6 @@ const SignUpModal: FC<ModalProps> = ({ isOpen, setIsOpen }) => {
   };
   const onCloseSignUp = () => setIsOpen(false);
   const onCloseSuccessVerified = () => setIsOpenSuccessVerified(false);
-  console.log(stage, isOpen);
 
   return (
     <>

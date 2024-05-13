@@ -131,7 +131,6 @@ const CoreInfo: FC<Props> = ({ onSuccess }) => {
             {...register('password', {
               required: 'Required',
               validate: (value) => {
-                console.log(isStrongPassword(value));
                 return (
                   isStrongPassword(value) ||
                   'The password does not match the pattern (see tooltip)'

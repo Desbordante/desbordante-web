@@ -7,6 +7,7 @@ import { useAuthContext } from '@hooks/useAuthContext';
 import classNames from 'classnames';
 import { useEffect, useState } from 'react';
 import styles from './Header.module.scss';
+import Link from 'next/link';
 
 const Header = () => {
   const { user, signOut } = useAuthContext();

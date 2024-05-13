@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React, { FC } from 'react';
+import React, { Dispatch, FC, SetStateAction } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
 import { ControlledSelect } from '@components/Inputs/Select';
 import ListPropertiesModal from '@components/ListPropertiesModal';
@@ -8,11 +8,13 @@ import { OrderDirection, PrimitiveType } from 'types/globalTypes';
 import { FiltersFields } from './Filters';
 
 type OrderingProps = {
-  setIsOrderingShown: (arg: boolean) => void;
+  isOrderingShown: boolean;
+  setIsOrderingShown: Dispatch<SetStateAction<boolean>>;
   primitive: PrimitiveType;
 };
 
 export const OrderingWindow: FC<OrderingProps> = ({
+  isOrderingShown,
   setIsOrderingShown,
   primitive,
 }) => {
@@ -42,6 +44,8 @@ export const OrderingWindow: FC<OrderingProps> = ({
 
   return (
     <ListPropertiesModal
+      isOpen={isOrderingShown}
+      setIsOpen={setIsOrderingShown}
       name="Ordering"
       onClose={() => {
         reset();

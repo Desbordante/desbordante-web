@@ -16,7 +16,6 @@ const defaultOpenModalOptions: OpenModalOptions = {
 const useModal = <T extends ModalName>(name: T) => {
   const [visibleModals, setVisibleModals] = useAtom(visibleModalsAtom);
   const [isOpen, setIsOpen] = useState(true);
-  console.log(visibleModals);
   const callerId = useId();
   const Modal = useMemo(() => modals[name], [name]);
 

@@ -12,26 +12,14 @@ import { MFDTable } from '@components/ScrollableNodeTable/implementations/MFDTab
 import useMFDHighlight from '@hooks/useMFDHighlight';
 import useMFDTask from '@hooks/useMFDTask';
 import styles from '@styles/MetricDependencies.module.scss';
-import { MFDHighlight } from '@atoms/MFDTaskAtom';
-import Button from '@components/Button';
-import { Icon } from '@components/IconComponent';
-import { ControlledSelect } from '@components/Inputs/Select';
-
-import ListPropertiesModal from '@components/ListPropertiesModal';
-import Pagination from '@components/Pagination/Pagination';
-import ReportsLayout from '@components/ReportsLayout';
-
-import { ScrollDirection } from '@components/ScrollableNodeTable';
-import { MFDTable } from '@components/ScrollableNodeTable/implementations/MFDTable';
-import useMFDHighlight from '@hooks/useMFDHighlight';
-import useMFDTask from '@hooks/useMFDTask';
-import styles from '@styles/MetricDependencies.module.scss';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import React, {
+  Dispatch,
   FC,
   ReactElement,
   ReactNode,
+  SetStateAction,
   useCallback,
   useEffect,
   useRef,
@@ -39,7 +27,12 @@ import React, {
 } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { MFDSortBy, OrderBy } from 'types/globalTypes';
+import {
+  MFDOrderingParameter,
+  MFDSortBy,
+  OrderBy,
+  OrderDirection,
+} from 'types/globalTypes';
 
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
@@ -144,7 +137,6 @@ const ReportsMFD: NextPageWithLayout = () => {
       });
     },
     [loadMFDHighlight, taskID, clusterIndex],
-    [loadMFDHighlight, taskID, clusterIndex],
   );
 
   const closeInsertedRow = useCallback(() => {
@@ -164,13 +156,13 @@ const ReportsMFD: NextPageWithLayout = () => {
       }
     },
     [data.cluster.highlightsTotalCount, limit],
-    [data.cluster.highlightsTotalCount, limit],
   );
 
   return (
     <>
       {isOrderingShown && (
         <OrderingWindow
+          isOrderingShown={isOrderingShown}
           setIsOrderingShown={setIsOrderingShown}
           setOrderingParameter={setOrderingParameter}
           setOrderDirection={setOrderDirection}
@@ -186,7 +178,6 @@ const ReportsMFD: NextPageWithLayout = () => {
               }
               description={'Try restarting the task with different parameters'}
               icon={<Icon name="lineArrowRight" />}
-              icon={<Icon name="lineArrowRight" />}
             />
           )}
           {!data.clustersTotalCount && !data.result && (
@@ -195,7 +186,6 @@ const ReportsMFD: NextPageWithLayout = () => {
                 'No clusters have been discovered (metric dependency may not hold)'
               }
               description={'Try restarting the task with different parameters'}
-              icon={<Icon name="lineArrowRightCrossed" />}
               icon={<Icon name="lineArrowRightCrossed" />}
             />
           )}
@@ -209,7 +199,6 @@ const ReportsMFD: NextPageWithLayout = () => {
                     variant="secondary"
                     size="md"
                     icon={<Icon name="ordering" />}
-                    icon={<Icon name="ordering" />}
                     onClick={() => setIsOrderingShown(true)}
                   >
                     Ordering
@@ -217,7 +206,6 @@ const ReportsMFD: NextPageWithLayout = () => {
                   <Button
                     variant="secondary"
                     size="md"
-                    icon={<Icon name="eye" />}
                     icon={<Icon name="eye" />}
                     onClick={() => setShowFullValue((e) => !e)}
                   >
@@ -282,7 +270,8 @@ const ReportFiller: FC<ReportFillerProps> = ({ title, description, icon }) => {
 };
 
 type OrderingProps = {
-  setIsOrderingShown: (arg: boolean) => void;
+  isOrderingShown: boolean;
+  setIsOrderingShown: Dispatch<SetStateAction<boolean>>;
   setOrderingParameter: (arg: MFDOrderingParameter) => void;
   setOrderDirection: (arg: OrderDirection) => void;
 };
@@ -293,6 +282,7 @@ type SortingProps = {
 };
 
 const OrderingWindow: FC<OrderingProps> = ({
+  isOrderingShown,
   setIsOrderingShown,
   setOrderingParameter,
   setOrderDirection,
@@ -323,6 +313,8 @@ const OrderingWindow: FC<OrderingProps> = ({
   // TODO: Fix "value.match..." error when changing form parameter (this error is present on deployed version, btw)
   return (
     <ListPropertiesModal
+      isOpen={isOrderingShown}
+      setIsOpen={setIsOrderingShown}
       name="Ordering"
       onClose={() => {
         reset();

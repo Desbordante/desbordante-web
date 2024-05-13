@@ -78,7 +78,6 @@ const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
             placeholder="admin1234"
             {...register('password', {
               required: 'Required',
-              validate: (value) => isStrongPassword(value) || 'Weak password',
             })}
             error={errors.password?.message}
           />

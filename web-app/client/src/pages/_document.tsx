@@ -1,7 +1,6 @@
 import GoogleAnalytics from '@components/GoogleAnalytics';
 import { isGoogleAnalyticsEnabled } from '@utils/env';
 import { Html, Head, Main, NextScript } from 'next/document';
-import Portals from './portals';
 
 const MyDocument = () => {
   return (
@@ -26,7 +25,6 @@ const MyDocument = () => {
       <body>
         <Main />
         <NextScript />
-        <Portals />
       </body>
     </Html>
   );

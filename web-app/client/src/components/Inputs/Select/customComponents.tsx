@@ -76,14 +76,11 @@ const IndicatorsContainer: ComponentType<
 
 const Menu: ComponentType<MenuProps<OptionType, false> & InputPropsBase> = (
   innerProps,
-) => {
-  console.log(innerProps);
-  return (
+) => (
     <FloatingPortal>
       <components.Menu {...innerProps}></components.Menu>
     </FloatingPortal>
   );
-};
 
 export const Option: ComponentType<
   OptionProps<OptionType, false> & InputPropsBase

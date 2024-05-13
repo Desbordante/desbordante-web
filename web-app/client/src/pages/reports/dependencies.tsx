@@ -10,6 +10,7 @@ import {
 } from '@components/Filters';
 import { Icon } from '@components/IconComponent';
 import { Text } from '@components/Inputs';
+import ModalContainer from '@components/ModalContainer';
 import Pagination from '@components/Pagination/Pagination';
 import ReportsLayout from '@components/ReportsLayout';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
@@ -26,7 +27,7 @@ import { convertDependencies } from '@utils/convertDependencies';
 import type { GetServerSideProps } from 'next';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { IntersectionFilter, OrderBy, PrimitiveType } from 'types/globalTypes';
+import { IntersectionFilter, OrderBy, OrderDirection, PrimitiveType } from 'types/globalTypes';
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
 type Props = {
@@ -111,17 +112,19 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
     <>
       <FormProvider {...methods}>
         {isOrderingShown && (
-          <OrderingWindow
-            {...{
-              setIsOrderingShown,
-              primitive: primitive || PrimitiveType.FD,
-            }}
-          />
+            <OrderingWindow
+              {...{
+                isOrderingShown,
+                setIsOrderingShown,
+                primitive: primitive || PrimitiveType.FD,
+              }}
+            />
         )}
 
         {isFilteringShown && (
           <FilteringWindow
             {...{
+              isFilteringShown,
               setIsFilteringShown,
             }}
           />

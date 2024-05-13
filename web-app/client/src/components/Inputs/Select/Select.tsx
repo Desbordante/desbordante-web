@@ -55,7 +55,6 @@ const Select: ForwardRefRenderFunction<RefElement, Props> = (
         ref={ref}
         styles={{
           menuPortal: (base) => {
-            console.log(base);
             return { ...base, zIndex: 9999999 };
           },
         }}
