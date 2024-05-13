@@ -1,3 +1,5 @@
+import { Icon } from '@components/IconComponent';
+import { InputPropsBase } from '@components/Inputs';
 import cn from 'classnames';
 import { ComponentType } from 'react';
 import {
@@ -10,11 +12,11 @@ import {
   SingleValueProps,
   ValueContainerProps,
   NoticeProps,
+  MenuProps,
 } from 'react-select';
-import ChevronDownIcon from '@assets/icons/arrow-down.svg?component';
-import { InputPropsBase } from '@components/Inputs';
 import { Option as OptionType } from 'types/inputs';
 import styles from './Select.module.scss';
+import { FloatingPortal } from '@floating-ui/react';
 
 const Control: ComponentType<
   ControlProps<OptionType, false> & InputPropsBase
@@ -68,9 +70,17 @@ const IndicatorsContainer: ComponentType<
   IndicatorsContainerProps<OptionType, false> & InputPropsBase
 > = ({ innerProps }) => (
   <div className={styles.indicatorsContainer} {...innerProps}>
-    <ChevronDownIcon />
+    <Icon name="angle" />
   </div>
 );
+
+const Menu: ComponentType<MenuProps<OptionType, false> & InputPropsBase> = (
+  innerProps,
+) => (
+    <FloatingPortal>
+      <components.Menu {...innerProps}></components.Menu>
+    </FloatingPortal>
+  );
 
 export const Option: ComponentType<
   OptionProps<OptionType, false> & InputPropsBase

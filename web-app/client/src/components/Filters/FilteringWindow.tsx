@@ -1,13 +1,15 @@
-import React, { FC, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Checkbox } from '@components/Inputs';
 import ListPropertiesModal from '@components/ListPropertiesModal';
 
 type FilteringProps = {
-  setIsFilteringShown: (arg: boolean) => void;
+  isFilteringShown: boolean;
+  setIsFilteringShown: Dispatch<SetStateAction<boolean>>;
 };
 
 export const FilteringWindow: FC<FilteringProps> = ({
+  isFilteringShown,
   setIsFilteringShown,
 }) => {
   const { watch, setValue } = useFormContext();
@@ -16,6 +18,8 @@ export const FilteringWindow: FC<FilteringProps> = ({
 
   return (
     <ListPropertiesModal
+      isOpen={isFilteringShown}
+      setIsOpen={setIsFilteringShown}
       name="Filters"
       onClose={() => {
         setShowKeys(initialShowKeys);

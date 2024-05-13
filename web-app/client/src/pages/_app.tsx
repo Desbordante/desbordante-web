@@ -7,6 +7,7 @@ import client from '@graphql/client';
 import '@styles/globals.scss';
 import { AppPropsWithLayout } from 'types/pageWithLayout';
 import 'react-toastify/dist/ReactToastify.css';
+import Portals from './portals';
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);
@@ -16,6 +17,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       <ErrorContextProvider>
         <AuthContextProvider>
           <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
+          <Portals />
           <ToastContainer />
         </AuthContextProvider>
       </ErrorContextProvider>

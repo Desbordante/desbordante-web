@@ -1,23 +1,25 @@
-import classNames from 'classnames';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import ListIcon from '@assets/icons/list.svg?component';
 import Button from '@components/Button';
+import { Icon } from '@components/IconComponent';
+import LogInModal from '@components/LogInModal';
 import NavBar from '@components/NavBar';
+import SignUpModal from '@components/SignUpModal';
 import { useAuthContext } from '@hooks/useAuthContext';
-import useModal from '@hooks/useModal';
+import classNames from 'classnames';
+import { useEffect, useState } from 'react';
 import styles from './Header.module.scss';
+import Link from 'next/link';
 
 const Header = () => {
   const { user, signOut } = useAuthContext();
-  const { open: openLogInModal } = useModal('AUTH.LOG_IN');
-  const { open: openSignUpModal } = useModal('AUTH.SIGN_UP');
 
   const [headerBackground, setHeaderBackground] = useState(false);
+  const [isOpenSignUpModal, setIsOpenSignUpModal] = useState(false);
+  const [isOpenLogInModal, setIsOpenLogInModal] = useState(false);
+  const [isOpenVerifyModal, setIsOpenVerifyModal] = useState(false);
 
   useEffect(() => {
     const checkScroll = () => {
-      setHeaderBackground(window.pageYOffset > 100);
+      setHeaderBackground(window.scrollY > 64);
     };
 
     window.addEventListener('scroll', checkScroll);
@@ -38,7 +40,7 @@ const Header = () => {
         variant="secondary"
         size="sm"
         aria-label="open menu"
-        icon={<ListIcon />}
+        icon={<Icon name="list" />}
         className={styles.menu}
       />
       <div className={styles.auth}>
@@ -51,13 +53,20 @@ const Header = () => {
               </Link>
             </p>
             {!user.isVerified && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => openSignUpModal({})}
-              >
-                Verify Email
-              </Button>
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsOpenVerifyModal(true)}
+                >
+                  Verify Email
+                </Button>
+                <SignUpModal
+                  isOpen={isOpenVerifyModal}
+                  setIsOpen={setIsOpenVerifyModal}
+                  onClose={() => setIsOpenVerifyModal(false)}
+                />
+              </>
             )}
             <Button variant="secondary-danger" size="sm" onClick={signOut}>
               Log Out
@@ -68,17 +77,27 @@ const Header = () => {
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => openLogInModal({})}
+              onClick={() => setIsOpenLogInModal(true)}
             >
               Log In
             </Button>
+            <LogInModal
+              isOpen={isOpenLogInModal}
+              setIsOpen={setIsOpenLogInModal}
+              onClose={() => setIsOpenLogInModal(false)}
+            />
+
             <Button
               variant="gradient"
               size="sm"
-              onClick={() => openSignUpModal({})}
+              onClick={() => setIsOpenSignUpModal(true)}
             >
               Sign Up
             </Button>
+            <SignUpModal
+              isOpen={isOpenSignUpModal}
+              setIsOpen={setIsOpenSignUpModal}
+            />
           </>
         )}
       </div>
