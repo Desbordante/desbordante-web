@@ -21,6 +21,7 @@ import {
 import { OptionWithBadges } from 'types/multiSelect';
 import { OptionBadge } from './OptionBadge';
 import styles from './MultiSelect.module.scss';
+import { Option as OptionType } from 'types/inputs';
 
 export const colorStyles: StylesConfig = {
   control: (style) => ({}),
