@@ -73,11 +73,6 @@
     opacity: 0.5;
   }
 
-  .noOptionsMessage {
-    color: $black-50;
-    text-align: center;
-  }
-
   p.error {
     @include paragraph-small;
     margin: 8px 0 0;
@@ -87,6 +82,11 @@
   &.disabled {
     opacity: 0.5;
   }
+}
+
+.noOptionsMessage {
+  color: $black-50;
+  text-align: center;
 }
 
 .option {

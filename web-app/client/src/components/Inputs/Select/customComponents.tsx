@@ -74,14 +74,6 @@ const IndicatorsContainer: ComponentType<
   </div>
 );
 
-const Menu: ComponentType<MenuProps<OptionType, false> & InputPropsBase> = (
-  innerProps,
-) => (
-    <FloatingPortal>
-      <components.Menu {...innerProps}></components.Menu>
-    </FloatingPortal>
-  );
-
 export const Option: ComponentType<
   OptionProps<OptionType, false> & InputPropsBase
 > = ({ innerProps, innerRef, children, isFocused, isSelected }) => (
