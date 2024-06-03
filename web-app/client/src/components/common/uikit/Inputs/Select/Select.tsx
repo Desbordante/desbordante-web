@@ -42,11 +42,13 @@ const Select: ForwardRefRenderFunction<RefElement, Props> = (
         {tooltip && <Tooltip>{tooltip}</Tooltip>}
       </div>
       <ReactSelect
-        className={styles.selectContainer}
-        classNamePrefix={styles.selectContainer}
+        className={cn(styles.selectContainer, error && styles.error)}
         {...props}
         ref={ref}
         components={{ ...customComponents, ...components }}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        error={error}
       />
       {error && <p className={styles.error}>{error}</p>}
     </div>

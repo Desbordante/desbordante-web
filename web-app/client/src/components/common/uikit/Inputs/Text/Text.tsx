@@ -30,10 +30,12 @@ const Text: ForwardRefRenderFunction<HTMLInputElement, Props> = (
         className,
       )}
     >
-      <div className={styles.top}>
-        {label && <label htmlFor={inputId}>{label}</label>}
-        {tooltip && <Tooltip>{tooltip}</Tooltip>}
-      </div>
+      {(label || tooltip) && (
+        <div className={styles.top}>
+          {label && <label htmlFor={inputId}>{label}</label>}
+          {tooltip && <Tooltip>{tooltip}</Tooltip>}
+        </div>
+      )}
       <input
         type={type}
         ref={ref}

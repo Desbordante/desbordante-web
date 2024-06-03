@@ -18,13 +18,15 @@ import styles from './Select.module.scss';
 
 const Control: ComponentType<
   ControlProps<OptionType, false> & InputPropsBase
-> = ({ children, error, innerRef, innerProps, isFocused }) => (
+> = ({ children, selectProps, innerRef, innerProps, isFocused }) => (
   <div
     {...innerProps}
     ref={innerRef}
     className={cn(
       styles.control,
-      error && styles.error,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      selectProps.error && styles.error,
       isFocused && styles.focused,
     )}
   >

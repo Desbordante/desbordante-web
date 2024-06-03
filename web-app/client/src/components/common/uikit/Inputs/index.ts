@@ -10,7 +10,7 @@ import Text from './Text';
 import TextArea from './TextArea';
 
 export interface InputPropsBase {
-  error?: string;
+  error?: string | boolean;
   label?: string;
 }
 

@@ -14,7 +14,7 @@ import { InputPropsBase, Text } from '@components/common/uikit/Inputs';
 import Tooltip from '@components/common/uikit/Tooltip';
 import styles from './NumberSlider.module.scss';
 
-type Props = InputPropsBase &
+export type Props = InputPropsBase &
   Omit<HTMLProps<HTMLInputElement>, 'onChange'> & {
     tooltip?: ReactNode;
     sliderProps?: SliderProps;
@@ -86,6 +86,7 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
       </div>
       <div className={styles.slider}>
         <Text
+          error={error ? true : undefined}
           {...props}
           value={tempValue}
           onBlur={(e) => onChange(prepareValue(e.target.value))}
@@ -120,8 +121,8 @@ const NumberSlider: ForwardRefRenderFunction<HTMLInputElement, Props> = (
           )}
           {...sliderProps}
         />
-        {error && <p className={styles.error}>{error}</p>}
       </div>
+      {error && <p className={styles.error}>{error}</p>}
     </div>
   );
 };

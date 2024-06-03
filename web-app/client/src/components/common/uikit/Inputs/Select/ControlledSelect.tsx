@@ -21,9 +21,10 @@ const ControlledSelect = <T extends FieldValues, TValue = string>({
     name={controlName}
     control={control}
     rules={rules}
-    render={({ field }) => (
+    render={({ field, fieldState }) => (
       <Select<TValue>
         {...field}
+        error={fieldState.error?.message}
         onChange={(option) => field.onChange(option?.value)}
         value={rest.options?.find((e) => e?.value === field.value)}
         {...rest}

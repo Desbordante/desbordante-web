@@ -1,17 +1,7 @@
-import { ComponentProps } from 'react';
-import { Control, Controller, FieldValues, Path } from 'react-hook-form';
+import { Controller, FieldValues } from 'react-hook-form';
+import { ControlProps } from 'types/controlledInputs';
 import { Option } from 'types/inputs';
 import MultiSelect, { MultiSelectProps } from './MultiSelect';
-
-type ControlRules<T extends FieldValues> = ComponentProps<
-  typeof Controller<T>
->['rules'];
-
-type ControlProps<T extends FieldValues> = {
-  controlName: Path<T>;
-  control: Control<T>;
-  rules?: ControlRules<T>;
-};
 
 const getSelectValues: <TValue = string>(
   opt: ReadonlyArray<Option<TValue>>,
@@ -21,9 +11,9 @@ const getSelectValues: <TValue = string>(
 
 const getSelectOptions: <TValue = string>(
   options: ReadonlyArray<Option<TValue>> | undefined,
-  value: TValue[],
+  value: TValue[] | undefined,
 ) => ReadonlyArray<Option<TValue>> | undefined = (options, values) => {
-  return options?.filter(({ value }) => values.includes(value));
+  return options?.filter(({ value }) => values?.includes(value));
 };
 
 const ControlledMultiSelect = <T extends FieldValues, TValue = string>({
@@ -36,9 +26,10 @@ const ControlledMultiSelect = <T extends FieldValues, TValue = string>({
     name={controlName}
     control={control}
     rules={rules}
-    render={({ field }) => (
+    render={({ field, fieldState }) => (
       <MultiSelect<TValue>
         {...field}
+        error={fieldState.error?.message}
         onChange={(newValue) => field.onChange(getSelectValues(newValue))}
         value={getSelectOptions(rest.options, field.value)}
         {...rest}
