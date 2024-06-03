@@ -4,7 +4,7 @@ import { ControlledNumberSlider } from '@components/common/uikit/Inputs/NumberSl
 import { ControlledSelect } from '@components/common/uikit/Inputs/Select';
 import { ApproxOptions, TypoOptions } from '@constants/options';
 import { TypoFDPresets } from '@constants/presets/TypoFDPresets';
-import { FormComponent } from '../types/form';
+import { FormComponent } from 'types/form';
 
 export type TypoFDFormInputs = {
   preciseAlgorithm: string;

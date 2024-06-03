@@ -3,13 +3,13 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import { ControlledNumberSlider } from '@components/common/uikit/Inputs/NumberSlider';
 import { ControlledSelect } from '@components/common/uikit/Inputs/Select';
 import {
-  FDoptions,
-  optionsByAlgorithms,
   AlgoProps,
   Algorithms,
+  FDoptions,
+  optionsByAlgorithms,
 } from '@constants/options';
 import { FDPresets } from '@constants/presets/FDPresets';
-import { FormComponent } from '../types/form';
+import { FormComponent } from 'types/form';
 
 export type FDFormInputs = {
   algorithmName: string;

@@ -1,5 +1,5 @@
 import { ARFormInputs } from '@components/configure-algorithm/forms/ARForm';
-import { Presets } from '@components/configure-algorithm/types/form';
+import { Presets } from 'types/form';
 
 export const ARPresets: Presets<ARFormInputs> = {
   common: [

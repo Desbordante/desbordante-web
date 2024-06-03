@@ -1,5 +1,5 @@
 import { FDFormInputs } from '@components/configure-algorithm/forms/FDForm';
-import { Presets } from '@components/configure-algorithm/types/form';
+import { Presets } from 'types/form';
 
 export const FDPresets: Presets<FDFormInputs> = {
   common: [

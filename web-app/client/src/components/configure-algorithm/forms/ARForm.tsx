@@ -4,7 +4,7 @@ import { ControlledNumberSlider } from '@components/common/uikit/Inputs/NumberSl
 import { ControlledSelect } from '@components/common/uikit/Inputs/Select';
 import { ARoptions } from '@constants/options';
 import { ARPresets } from '@constants/presets/ARPresets';
-import { FormComponent } from '../types/form';
+import { FormComponent } from 'types/form';
 
 export type ARFormInputs = {
   algorithmName: string;

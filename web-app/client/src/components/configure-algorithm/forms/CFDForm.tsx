@@ -4,7 +4,7 @@ import { ControlledNumberSlider } from '@components/common/uikit/Inputs/NumberSl
 import { ControlledSelect } from '@components/common/uikit/Inputs/Select';
 import { CFDoptions } from '@constants/options';
 import { CFDPresets } from '@constants/presets/CFDPresets';
-import { FormComponent } from '../types/form';
+import { FormComponent } from 'types/form';
 
 export type CFDFormInputs = {
   algorithmName: string;

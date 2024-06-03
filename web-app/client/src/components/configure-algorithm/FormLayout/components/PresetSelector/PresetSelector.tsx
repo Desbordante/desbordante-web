@@ -2,13 +2,13 @@ import { useQuery } from '@apollo/client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm, useWatch, FieldValues } from 'react-hook-form';
 import { Select } from '@components/common/uikit/Inputs';
-import { Presets } from '@components/configure-algorithm/types/form';
 import {
   getFileName,
   getFileNameVariables,
 } from '@graphql/operations/queries/__generated__/getFileName';
 import { GET_FILE_NAME } from '@graphql/operations/queries/getFileName';
 import { showError } from '@utils/toasts';
+import { Presets } from 'types/form';
 import { OptionWithBadges } from 'types/multiSelect';
 
 type PresetSelectorProps = {

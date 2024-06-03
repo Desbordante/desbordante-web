@@ -1,5 +1,5 @@
 import { MFDFormInputs } from '@components/configure-algorithm/forms/MFDForm';
-import { Presets } from '@components/configure-algorithm/types/form';
+import { Presets } from 'types/form';
 
 export const MFDPresets: Presets<MFDFormInputs> = {
   common: [

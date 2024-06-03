@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import cn from 'classnames';
 import { useRouter } from 'next/router';
-import { FC, useState, useCallback, useLayoutEffect, useRef } from 'react';
+import { FC, useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import WizardLayout from '@components/common/layout/WizardLayout';
 import {
@@ -10,8 +10,8 @@ import {
 } from '@graphql/operations/mutations/__generated__/createTaskWithDatasetChoosing';
 import { CREATE_TASK_WITH_CHOOSING_DATASET } from '@graphql/operations/mutations/chooseTask';
 import { showError } from '@utils/toasts';
+import { FormComponent, FormData, Presets } from 'types/form';
 import { MainPrimitiveType } from 'types/globalTypes';
-import { FormData, FormComponent, Presets } from '../types/form';
 import FormFooter from './components/FormFooter';
 import FormHeader from './components/FormHeader';
 import PresetSelector from './components/PresetSelector';

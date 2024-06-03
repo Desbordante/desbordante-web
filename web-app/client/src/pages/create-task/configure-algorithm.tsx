@@ -8,10 +8,9 @@ import {
   FDForm,
   TypoFDForm,
 } from '@components/configure-algorithm/forms';
-import { FormComponent } from '@components/configure-algorithm/types/form';
-import { FormData } from '@components/configure-algorithm/types/form';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
+import { FormComponent, FormData } from 'types/form';
 import { MainPrimitiveType } from 'types/globalTypes';
 
 const forms: Partial<Record<MainPrimitiveType, FormComponent>> = {

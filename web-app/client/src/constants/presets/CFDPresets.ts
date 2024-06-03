@@ -1,5 +1,5 @@
 import { CFDFormInputs } from '@components/configure-algorithm/forms/CFDForm';
-import { Presets } from '@components/configure-algorithm/types/form';
+import { Presets } from 'types/form';
 
 export const CFDPresets: Presets<CFDFormInputs> = {
   common: [

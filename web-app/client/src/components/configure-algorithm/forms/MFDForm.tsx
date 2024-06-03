@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
+import ControlledMultiSelect from '@components/common/uikit/Inputs/MultiSelect/ControlledMultiSelect';
 import badgeStyles from '@components/common/uikit/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
 import { ControlledNumberInput } from '@components/common/uikit/Inputs/NumberInput';
 import { ControlledSelect } from '@components/common/uikit/Inputs/Select';
@@ -22,9 +23,8 @@ import {
 } from '@graphql/operations/queries/__generated__/getCountOfColumns';
 import { GET_COUNT_OF_COLUMNS } from '@graphql/operations/queries/getDatasetColumnCount';
 import { showError } from '@utils/toasts';
+import { FormComponent } from 'types/form';
 import { OptionWithBadges } from 'types/multiSelect';
-import ControlledMultiSelect from '../../common/uikit/Inputs/MultiSelect/ControlledMultiSelect';
-import { FormComponent } from '../types/form';
 
 export type MFDFormInputs = {
   lhsIndices: number[];
