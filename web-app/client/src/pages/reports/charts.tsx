@@ -1,8 +1,11 @@
 import { useQuery } from '@apollo/client';
 import { ReactElement } from 'react';
-import LayeredChart from '@components/Chart';
-import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
-import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
+import { ReportsLayout } from '@components/common/layout/ReportsLayout/ReportsLayout';
+import LayeredChart from '@components/common/uikit/Chart';
+import {
+  TaskContextProvider,
+  useTaskContext,
+} from '@components/meta/TaskContext';
 import {
   getPieChartData,
   getPieChartDataVariables,

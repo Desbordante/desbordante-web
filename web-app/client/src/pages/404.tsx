@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Background from '@assets/backgrounds/404.svg?component';
-import Button from '@components/Button';
+import Button from '@components/common/uikit/Button';
 import styles from '@styles/404.module.scss';
 
 const _404: NextPage = () => {

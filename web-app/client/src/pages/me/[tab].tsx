@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import UserIcon from '@assets/icons/user.svg?component';
-import TabsLayout from '@components/TabsLayout';
+import TabsLayout from '@components/common/layout/TabsLayout';
 import { useAuthContext } from '@hooks/useAuthContext';
 import styles from '@styles/Me.module.scss';
 import tabs from 'src/routes/UserCabinet/tabs';

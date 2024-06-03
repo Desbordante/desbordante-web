@@ -1,7 +1,11 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { Checkbox, DateTime, NumberRange } from '@components/Inputs';
-import ListPropertiesModal from '@components/ListPropertiesModal';
+import ListPropertiesModal from '@components/common/layout/ListPropertiesModal';
+import {
+  Checkbox,
+  DateTime,
+  NumberRange,
+} from '@components/common/uikit/Inputs';
 import { Filters } from '../../FilesOverview';
 import styles from './FiltersModal.module.scss';
 

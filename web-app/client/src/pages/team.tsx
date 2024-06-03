@@ -1,6 +1,6 @@
 import { GetServerSideProps, NextPage } from 'next';
 import HomeBackground from '@assets/backgrounds/home.svg?component';
-import TeamMemberBadge from '@components/TeamMemberBadge';
+import TeamMemberBadge from '@components/team/TeamMemberBadge';
 import cmsClient from '@graphql/cmsClient';
 import { getTeamMembers } from '@graphql/operations/queries/__generated__/getTeamMembers';
 import { GET_TEAM_MEMBERS } from '@graphql/operations/queries/getTeamMembers';

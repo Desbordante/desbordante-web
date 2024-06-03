@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   postgres:
-    image: postgres:14.1
+    image: mirror.gcr.io/postgres:14.1
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
       POSTGRES_USER: "${POSTGRES_USER}"
@@ -142,7 +142,7 @@ services:
         max-size: 20m
 
   postgres_cms:
-    image: postgres:14.1
+    image: mirror.gcr.io/postgres:14.1
     restart: always
     environment:
       POSTGRES_USER: ${CMS_DATABASE_USERNAME}
@@ -178,7 +178,7 @@ services:
         max-size: 20m
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.0
+    image: mirror.gcr.io/confluentinc/cp-zookeeper:7.0.0
     user: root
     expose:
       - "2181"
@@ -198,7 +198,7 @@ services:
         max-size: 20m
 
   kafka:
-    image: confluentinc/cp-kafka:7.0.0
+    image: mirror.gcr.io/confluentinc/cp-kafka:7.0.0
     user: root
     expose:
       - '9092'
@@ -260,7 +260,7 @@ services:
         max-size: 20m
 
   prometheus:
-    image: prom/prometheus
+    image: mirror.gcr.io/prom/prometheus
     volumes:
       - ./web-app/prometheus/:/etc/prometheus/
     networks:
@@ -271,7 +271,7 @@ services:
       - 'grafana'
 
   node-exporter:
-    image: prom/node-exporter
+    image: mirror.gcr.io/prom/node-exporter
     container_name: monitoring_node_exporter
     restart: always
     networks:
@@ -304,7 +304,7 @@ services:
       - 'prometheus'
 
   grafana:
-    image: grafana/grafana
+    image: mirror.gcr.io/grafana/grafana
     networks:
       - network
     expose:
@@ -315,6 +315,7 @@ services:
 
 networks:
   network:
+    name: desbordante_network
 
 volumes:
   uploads:

@@ -5,19 +5,22 @@ import { FormProvider } from 'react-hook-form';
 import EyeIcon from '@assets/icons/eye.svg?component';
 import FilterIcon from '@assets/icons/filter.svg?component';
 import OrderingIcon from '@assets/icons/ordering.svg?component';
-import Button from '@components/Button';
-import DependencyList from '@components/DependencyList/DependencyList';
-import DownloadResult from '@components/DownloadResult';
+import ReportsLayout from '@components/common/layout/ReportsLayout';
+import Button from '@components/common/uikit/Button';
+import { Text } from '@components/common/uikit/Inputs';
+import Pagination from '@components/common/uikit/Pagination/Pagination';
+import DependencyList from '@components/dependencies/DependencyList/DependencyList';
+import DownloadResult from '@components/dependencies/DownloadResult';
 import {
   FilteringWindow,
   getSortingParams,
   OrderingWindow,
   useFilters,
-} from '@components/Filters';
-import { Text } from '@components/Inputs';
-import Pagination from '@components/Pagination/Pagination';
-import ReportsLayout from '@components/ReportsLayout';
-import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
+} from '@components/dependencies/Filters';
+import {
+  TaskContextProvider,
+  useTaskContext,
+} from '@components/meta/TaskContext';
 import client from '@graphql/client';
 import {
   GetMainTaskDeps,

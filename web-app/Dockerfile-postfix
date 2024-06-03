@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM mirror.gcr.io/debian:bullseye-slim
 
 ### ############ ###
 ### INSTALLATION ###

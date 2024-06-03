@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ErrorContext } from '@components/ErrorContext';
+import { ErrorContext } from '@components/meta/ErrorContext';
 
 export const useErrorContext = () => {
   const ctx = useContext(ErrorContext);

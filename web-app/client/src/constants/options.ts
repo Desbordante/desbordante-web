@@ -38,7 +38,7 @@ export type Algorithms =
   | ARAlgorithm
   | MFDAlgorithm;
 
-type AlgoProps = 'arity' | 'threshold' | 'threads';
+export type AlgoProps = 'arity' | 'threshold' | 'threads';
 
 const toAlgoOption = (algo: Algorithms) => ({
   value: algo,

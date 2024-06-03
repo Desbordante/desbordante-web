@@ -2,9 +2,11 @@ import { useMutation } from '@apollo/client';
 import { FC, useId } from 'react';
 import { useForm } from 'react-hook-form';
 import isStrongPassword from 'validator/lib/isStrongPassword';
-import Button from '@components/Button';
-import { Text } from '@components/Inputs';
-import ModalContainer, { ModalProps } from '@components/ModalContainer';
+import ModalContainer, {
+  ModalProps,
+} from '@components/common/layout/ModalContainer';
+import Button from '@components/common/uikit/Button';
+import { Text } from '@components/common/uikit/Inputs';
 import {
   changePassword,
   changePasswordVariables,
