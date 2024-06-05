@@ -1,5 +1,5 @@
 import Button from '@components/Button';
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import { Checkbox } from '@components/Inputs';
 import cn from 'classnames';
 import { Dispatch, FC, SetStateAction, useState } from 'react';

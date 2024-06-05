@@ -46,7 +46,6 @@ const EmailVerification: FC<Props> = ({ onSuccess }) => {
   );
 
   const onSubmit = handleSubmit(async (values) => {
-    onSuccess();
     try {
       const response = await verifyEmail({
         variables: {

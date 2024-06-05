@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import { InputPropsBase } from '@components/Inputs';
 import cn from 'classnames';
 import { ComponentType } from 'react';

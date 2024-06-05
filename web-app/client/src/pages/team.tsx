@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import TeamMemberBadge from '@components/TeamMemberBadge';
 import cmsClient from '@graphql/cmsClient';
 import { getTeamMembers } from '@graphql/operations/queries/__generated__/getTeamMembers';

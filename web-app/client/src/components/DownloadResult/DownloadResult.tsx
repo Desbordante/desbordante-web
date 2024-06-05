@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
 import Button from '@components/Button';
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import { useTaskContext } from '@components/TaskContext';
 import {
   downloadResults,

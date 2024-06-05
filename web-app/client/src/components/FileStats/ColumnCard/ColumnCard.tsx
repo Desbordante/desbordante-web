@@ -4,7 +4,7 @@ import { useToggle } from '@components/FileStats/hooks';
 import { ModeButton } from '@components/FileStats/ModeButton';
 import { Paper } from '@components/FileStats/Paper';
 import { StatsBlock } from '@components/FileStats/StatsBlock';
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import { getFileStats_datasetInfo_statsInfo_stats as ColumnStats } from '@graphql/operations/queries/__generated__/getFileStats';
 import classNames from 'classnames';
 import { FC, HTMLProps } from 'react';

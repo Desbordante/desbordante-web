@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import colors from '@constants/colors';
 import {
   FloatingPortal,
@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { FCWithChildren } from 'types/react';
 
 import styles from './Tooltip.module.scss';
+import { portalRoot } from '@constants/portalRoot';
 
 interface Props {
   position?: 'top' | 'right' | 'bottom' | 'left';
@@ -21,11 +22,6 @@ interface Props {
 
 const Tooltip: FCWithChildren<Props> = ({ position = 'top', children }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setPortalNode(document.getElementById('portals-container-node'));
-  }, []);
 
   const { refs, floatingStyles, context } = useFloating({
     open: isHovered,
@@ -57,7 +53,7 @@ const Tooltip: FCWithChildren<Props> = ({ position = 'top', children }) => {
       </div>
 
       {isHovered && (
-        <FloatingPortal root={portalNode}>
+        <FloatingPortal root={portalRoot}>
           <div
             {...getFloatingProps({
               ref: refs.setFloating,

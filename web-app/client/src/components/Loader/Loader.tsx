@@ -1,4 +1,4 @@
-import { Icon, IconName } from '@components/IconComponent';
+import Icon, { IconName } from '@components/Icon';
 import { primitivePathnames } from '@constants/primitiveReportPathnames';
 import useTaskState from '@hooks/useTaskState';
 import getTaskStatusData from '@utils/getTaskStatusData';

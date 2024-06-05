@@ -53,7 +53,9 @@ const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
         applyTokens(response.data.logIn);
         onSuccess();
       }
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
   });
 
   return (

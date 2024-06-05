@@ -4,8 +4,6 @@ import {
   forwardRef,
   ForwardRefRenderFunction,
   ReactNode,
-  useEffect,
-  useState,
 } from 'react';
 import ReactSelect, { Props as ReactSelectProps } from 'react-select';
 import { InputPropsBase } from '@components/Inputs';
@@ -13,6 +11,7 @@ import Tooltip from '@components/Tooltip';
 import { Option } from 'types/inputs';
 import customComponents, { colorStyles } from './customComponents';
 import styles from './MultiSelect.module.scss';
+import { portalRoot } from '@constants/portalRoot';
 
 export type MultiSelectProps<TValue = string> = InputPropsBase &
   ReactSelectProps<Option<TValue>, true> & {
@@ -27,11 +26,6 @@ const MultiSelect: ForwardRefRenderFunction<RefElement, MultiSelectProps> = (
   { label, error, tooltip, className, id, components, ...props },
   ref,
 ) => {
-  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setPortalNode(document.getElementById('portals-container-node'));
-  }, []);
   return (
     <div
       className={cn(
@@ -55,13 +49,12 @@ const MultiSelect: ForwardRefRenderFunction<RefElement, MultiSelectProps> = (
         ref={ref}
         styles={{
           menuPortal: (base) => {
-            return { ...base, zIndex: 9999999 };
+            return { ...base };
           },
           ...colorStyles,
         }}
-        menuPortalTarget={portalNode}
+        menuPortalTarget={portalRoot}
         components={{ ...customComponents, ...components }}
-        // styles={colorStyles}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         error={error}

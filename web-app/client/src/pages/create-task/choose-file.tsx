@@ -2,7 +2,7 @@ import Button from '@components/Button';
 import { Collapse } from '@components/Collapse';
 import { DatasetCard } from '@components/DatasetCard';
 import { DatasetUploader } from '@components/DatasetUploader';
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import WizardLayout from '@components/WizardLayout';
 import client from '@graphql/client';
 import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
@@ -13,7 +13,7 @@ import styles from '@styles/ChooseFile.module.scss';
 import cn from 'classnames';
 import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AllowedDataset } from 'types/algorithms';
 import { MainPrimitiveType } from 'types/globalTypes';
 
@@ -37,6 +37,8 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
   const router = useRouter();
   const { primitive, fileID } = useTaskUrlParams();
   const { user, refreshUserData } = useAuthContext();
+
+  const [isOpen, setIsOpen] = useState(false);
 
   const userDatasets = useMemo(
     () => sortDatasetsBySupportedPrimitive(user?.datasets, primitive.value),
@@ -87,6 +89,8 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
       {(user?.permissions.canUploadFiles && (
         <div className={styles.files}>
           <DatasetUploader
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
             onUpload={(dataset) => {
               refreshUserData();
               fileID.set(dataset.fileID);

@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import useTaskState from '@hooks/useTaskState';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';

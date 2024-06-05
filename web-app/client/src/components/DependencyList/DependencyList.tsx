@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import { useTaskContext } from '@components/TaskContext';
 import { GeneralColumn } from '@utils/convertDependencies';
 import classNames from 'classnames';

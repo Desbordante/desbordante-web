@@ -1,5 +1,5 @@
 import Button from '@components/Button';
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import classNames from 'classnames';
 import { ButtonHTMLAttributes, FC } from 'react';
 import styles from './ModeButton.module.scss';

@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import { FC } from 'react';
 import {
   ToastContainerProps,

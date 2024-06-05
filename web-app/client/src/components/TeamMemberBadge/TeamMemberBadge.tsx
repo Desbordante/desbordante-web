@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import colors from '@constants/colors';
 import { getTeamMembers_teamMembers_data_attributes } from '@graphql/operations/queries/__generated__/getTeamMembers';
 import { cmsUrlWrapper } from '@utils/cmsUrlWrapper';

@@ -25,6 +25,9 @@ const MyDocument = () => {
       <body>
         <Main />
         <NextScript />
+        <div
+          id="portals-container-node"
+          style={{ position: 'fixed', zIndex: 1001, inset: 0, height: 0 }} />
       </body>
     </Html>
   );

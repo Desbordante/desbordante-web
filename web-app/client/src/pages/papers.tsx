@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import PrPublicationCard from '@components/PrPublicationCard';
 import SciencePublicationCard from '@components/SciencePublicationCard';
 import cmsClient from '@graphql/cmsClient';
@@ -48,7 +48,7 @@ const Papers: NextPage<Props> = ({ papers }) => {
   );
 };
 
-/*
+
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
   const { data } = await cmsClient.query<getPublications>({
     query: GET_PUBLICATIONS,
@@ -59,6 +59,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
       papers: data,
     },
   };
-};*/
+};
 
 export default Papers;

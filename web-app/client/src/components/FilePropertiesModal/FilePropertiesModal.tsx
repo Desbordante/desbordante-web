@@ -21,9 +21,10 @@ type Props = ModalProps &
       }
   );
 
-const FilePropertiesModal: FC<Props> = ({ onClose, ...props }) => {
+const FilePropertiesModal: FC<Props> = ({ isOpen, onClose, ...props }) => {
+  
   return (
-    <ModalContainer onClose={onClose}>
+    <ModalContainer isOpen={isOpen} onClose={onClose}>
       <h4 className={styles.header}>File Properties</h4>
       {'data' in props ? (
         <TabView>

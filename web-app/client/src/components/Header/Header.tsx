@@ -1,5 +1,5 @@
 import Button from '@components/Button';
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import LogInModal from '@components/LogInModal';
 import NavBar from '@components/NavBar';
 import SignUpModal from '@components/SignUpModal';
@@ -63,7 +63,6 @@ const Header = () => {
                 </Button>
                 <SignUpModal
                   isOpen={isOpenVerifyModal}
-                  setIsOpen={setIsOpenVerifyModal}
                   onClose={() => setIsOpenVerifyModal(false)}
                 />
               </>
@@ -81,12 +80,6 @@ const Header = () => {
             >
               Log In
             </Button>
-            <LogInModal
-              isOpen={isOpenLogInModal}
-              setIsOpen={setIsOpenLogInModal}
-              onClose={() => setIsOpenLogInModal(false)}
-            />
-
             <Button
               variant="gradient"
               size="sm"
@@ -94,12 +87,16 @@ const Header = () => {
             >
               Sign Up
             </Button>
-            <SignUpModal
-              isOpen={isOpenSignUpModal}
-              setIsOpen={setIsOpenSignUpModal}
-            />
           </>
         )}
+        <LogInModal
+          isOpen={isOpenLogInModal}
+          onClose={() => setIsOpenLogInModal(false)}
+        />
+        <SignUpModal
+          isOpen={isOpenSignUpModal}
+          onClose={() => setIsOpenSignUpModal(false)}
+        />
       </div>
     </header>
   );

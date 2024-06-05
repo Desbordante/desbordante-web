@@ -18,8 +18,8 @@ import styles from '../../LogInModal/LogInModal.module.scss';
 
 const countryNames = Object.entries(countries).map(([, country]) => country);
 
-const passwordTooltip = (
-  <>
+export const passwordTooltip = (
+  <div className={styles.tooltip}>
     The password must contain
     <ul>
       <li>at least 8 characters</li>
@@ -28,7 +28,7 @@ const passwordTooltip = (
       <li>at least 1 digit</li>
       <li>at least 1 special character</li>
     </ul>
-  </>
+  </div>
 );
 
 type Inputs = {
@@ -69,8 +69,6 @@ const CoreInfo: FC<Props> = ({ onSuccess }) => {
     defaultValues,
   });
   const onSubmit = handleSubmit(async (values) => {
-    onSuccess();
-    return
     try {
       const response = await createUser({
         variables: {

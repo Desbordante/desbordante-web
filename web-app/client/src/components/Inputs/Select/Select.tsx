@@ -4,8 +4,6 @@ import {
   forwardRef,
   ForwardRefRenderFunction,
   ReactNode,
-  useEffect,
-  useState,
 } from 'react';
 import ReactSelect, { Props as ReactSelectProps } from 'react-select';
 import { InputPropsBase } from '@components/Inputs';
@@ -13,6 +11,7 @@ import Tooltip from '@components/Tooltip';
 import { Option } from 'types/inputs';
 import customComponents from './customComponents';
 import styles from './Select.module.scss';
+import { portalRoot } from '@constants/portalRoot';
 
 export type Props<TValue = string> = InputPropsBase &
   ReactSelectProps<Option<TValue>, false> & {
@@ -27,11 +26,6 @@ const Select: ForwardRefRenderFunction<RefElement, Props> = (
   { label, error, tooltip, className, id, components, ...props },
   ref,
 ) => {
-  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setPortalNode(document.getElementById('portals-container-node'));
-  }, []);
   return (
     <div
       className={cn(
@@ -55,10 +49,10 @@ const Select: ForwardRefRenderFunction<RefElement, Props> = (
         ref={ref}
         styles={{
           menuPortal: (base) => {
-            return { ...base, zIndex: 9999999 };
+            return { ...base};
           },
         }}
-        menuPortalTarget={portalNode}
+        menuPortalTarget={portalRoot}
         components={{ ...customComponents, ...components }}
       />
       {error && <p className={styles.error}>{error}</p>}

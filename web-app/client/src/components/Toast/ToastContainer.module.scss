@@ -2,6 +2,7 @@
 
 
 .wrapper {
+  z-index: 1002;
   &:global(.Toastify__toast-container) {
     padding: 0;
     width: initial;

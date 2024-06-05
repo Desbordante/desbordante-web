@@ -93,8 +93,7 @@ export const optionsByAlgorithms: Record<Algorithms, AlgoProps[]> = {
 
 // Metrics Options
 
-// const MFDMetrics = ['Euclidean', 'Cosine', 'Levenshtein'] as const;
-const MFDMetrics = [] as const;
+const MFDMetrics = ['Euclidean', 'Cosine', 'Levenshtein'] as const;
 
 export type MFDMetric = (typeof MFDMetrics)[number];
 
