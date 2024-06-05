@@ -45,7 +45,6 @@ export const OrderingWindow: FC<OrderingProps> = ({
   return (
     <ListPropertiesModal
       isOpen={isOrderingShown}
-      setIsOpen={setIsOrderingShown}
       name="Ordering"
       onClose={() => {
         reset();
