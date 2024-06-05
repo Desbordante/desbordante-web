@@ -1,6 +1,6 @@
-import Icon from '@components/Icon';
 import cn from 'classnames';
 import { useState } from 'react';
+import Icon from '@components/Icon';
 import { FCWithChildren } from 'types/react';
 import styles from './Collapse.module.scss';
 

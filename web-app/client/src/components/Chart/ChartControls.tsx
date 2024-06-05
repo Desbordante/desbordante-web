@@ -1,7 +1,7 @@
+import { FC } from 'react';
 import Button from '@components/Button';
 import Icon from '@components/Icon';
 import { Text } from '@components/Inputs';
-import { FC } from 'react';
 import styles from './ChartControls.module.scss';
 
 type Props = {

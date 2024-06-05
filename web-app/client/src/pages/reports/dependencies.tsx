@@ -1,4 +1,7 @@
 import { useLazyQuery } from '@apollo/client';
+import type { GetServerSideProps } from 'next';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { FormProvider } from 'react-hook-form';
 import Button from '@components/Button';
 import DependencyList from '@components/DependencyList/DependencyList';
 import DownloadResult from '@components/DownloadResult';
@@ -10,7 +13,6 @@ import {
 } from '@components/Filters';
 import Icon from '@components/Icon';
 import { Text } from '@components/Inputs';
-import ModalContainer from '@components/ModalContainer';
 import Pagination from '@components/Pagination/Pagination';
 import ReportsLayout from '@components/ReportsLayout';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
@@ -24,12 +26,8 @@ import { GET_MAIN_TASK_DEPS } from '@graphql/operations/queries/getDeps';
 import { GET_TASK_INFO } from '@graphql/operations/queries/getTaskInfo';
 import styles from '@styles/Dependencies.module.scss';
 import { convertDependencies } from '@utils/convertDependencies';
-import type { GetServerSideProps } from 'next';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
-import { FormProvider } from 'react-hook-form';
 import {
   IntersectionFilter,
-  OrderBy,
   OrderDirection,
   PrimitiveType,
 } from 'types/globalTypes';

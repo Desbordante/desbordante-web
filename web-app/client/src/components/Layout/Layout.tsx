@@ -1,6 +1,6 @@
-import Header from '@components/Header';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
+import Header from '@components/Header';
 import { FCWithChildren } from 'types/react';
 import styles from './Layout.module.scss';
 
@@ -9,7 +9,6 @@ const MobileBanner = dynamic(() => import('@components/MobileBanner'), {
 });
 
 const Layout: FCWithChildren = ({ children }) => {
-
   return (
     <>
       <NextSeo

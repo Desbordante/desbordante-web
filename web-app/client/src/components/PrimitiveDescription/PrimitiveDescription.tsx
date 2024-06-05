@@ -1,8 +1,8 @@
+import cn from 'classnames';
+import { FC } from 'react';
 import Icon from '@components/Icon';
 import colors from '@constants/colors';
 import { PrimitiveInfoType } from '@constants/primitiveInfoType';
-import cn from 'classnames';
-import { FC } from 'react';
 import styles from './PrimitiveDescription.module.scss';
 
 interface Props {

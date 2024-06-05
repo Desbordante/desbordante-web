@@ -1,9 +1,9 @@
-import Icon from '@components/Icon';
-import { useTaskContext } from '@components/TaskContext';
-import { GeneralColumn } from '@utils/convertDependencies';
 import classNames from 'classnames';
 import _ from 'lodash';
 import { FC, ReactElement } from 'react';
+import Icon from '@components/Icon';
+import { useTaskContext } from '@components/TaskContext';
+import { GeneralColumn } from '@utils/convertDependencies';
 import styles from './DependencyList.module.scss';
 
 type Props = {

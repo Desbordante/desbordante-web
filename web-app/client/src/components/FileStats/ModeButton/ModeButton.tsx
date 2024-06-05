@@ -1,7 +1,7 @@
-import Button from '@components/Button';
-import Icon from '@components/Icon';
 import classNames from 'classnames';
 import { ButtonHTMLAttributes, FC } from 'react';
+import Button from '@components/Button';
+import Icon from '@components/Icon';
 import styles from './ModeButton.module.scss';
 
 type ModeButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {

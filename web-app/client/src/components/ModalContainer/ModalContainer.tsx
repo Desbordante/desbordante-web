@@ -1,4 +1,3 @@
-import Icon from '@components/Icon';
 import {
   useFloating,
   FloatingPortal,
@@ -9,10 +8,11 @@ import {
   useInteractions,
   useRole,
 } from '@floating-ui/react';
+import cn from 'classnames';
+import Icon from '@components/Icon';
+import { portalRoot } from '@constants/portalRoot';
 import { FCWithChildren } from 'types/react';
 import styles from './ModalContainer.module.scss';
-import cn from 'classnames';
-import { portalRoot } from '@constants/portalRoot';
 
 export interface ModalProps {
   onClose: () => void;

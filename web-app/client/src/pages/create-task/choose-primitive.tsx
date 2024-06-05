@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import Button from '@components/Button';
 import Icon from '@components/Icon';
 import PrimitiveCard from '@components/PrimitiveCard';
@@ -6,7 +7,6 @@ import WizardLayout from '@components/WizardLayout';
 import primitiveInfo from '@constants/primitiveInfoType';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ChoosePrimitive.module.scss';
-import { useRouter } from 'next/router';
 import { MainPrimitiveType } from 'types/globalTypes';
 
 const header = (

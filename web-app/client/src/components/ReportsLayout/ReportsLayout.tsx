@@ -1,8 +1,8 @@
-import Icon from '@components/Icon';
-import useTaskState from '@hooks/useTaskState';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import React, { FC, PropsWithChildren } from 'react';
+import Icon from '@components/Icon';
+import useTaskState from '@hooks/useTaskState';
 import { PrimitiveType } from 'types/globalTypes';
 import styles from './ReportsLayout.module.scss';
 

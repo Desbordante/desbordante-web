@@ -1,8 +1,8 @@
+import cn from 'classnames';
+import { Dispatch, FC, SetStateAction, useState } from 'react';
 import Button from '@components/Button';
 import Icon from '@components/Icon';
 import { Checkbox } from '@components/Inputs';
-import cn from 'classnames';
-import { Dispatch, FC, SetStateAction, useState } from 'react';
 import styles from './ClusterOptions.module.scss';
 
 interface Props {

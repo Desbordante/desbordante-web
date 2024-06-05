@@ -1,5 +1,3 @@
-import Icon from '@components/Icon';
-import colors from '@constants/colors';
 import {
   FloatingPortal,
   autoUpdate,
@@ -9,11 +7,13 @@ import {
   useInteractions,
   useRole,
 } from '@floating-ui/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import Icon from '@components/Icon';
+import colors from '@constants/colors';
+import { portalRoot } from '@constants/portalRoot';
 import { FCWithChildren } from 'types/react';
 
 import styles from './Tooltip.module.scss';
-import { portalRoot } from '@constants/portalRoot';
 
 interface Props {
   position?: 'top' | 'right' | 'bottom' | 'left';

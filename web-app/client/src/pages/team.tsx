@@ -1,10 +1,10 @@
+import { GetServerSideProps, NextPage } from 'next';
 import Icon from '@components/Icon';
 import TeamMemberBadge from '@components/TeamMemberBadge';
 import cmsClient from '@graphql/cmsClient';
 import { getTeamMembers } from '@graphql/operations/queries/__generated__/getTeamMembers';
 import { GET_TEAM_MEMBERS } from '@graphql/operations/queries/getTeamMembers';
 import styles from '@styles/Team.module.scss';
-import { GetServerSideProps, NextPage } from 'next';
 
 interface Props {
   team: getTeamMembers;

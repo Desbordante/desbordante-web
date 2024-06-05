@@ -1,17 +1,3 @@
-import { MFDHighlight } from '@atoms/MFDTaskAtom';
-import Button from '@components/Button';
-import Icon from '@components/Icon';
-import { ControlledSelect } from '@components/Inputs/Select';
-
-import ListPropertiesModal from '@components/ListPropertiesModal';
-import Pagination from '@components/Pagination/Pagination';
-import ReportsLayout from '@components/ReportsLayout';
-
-import { ScrollDirection } from '@components/ScrollableNodeTable';
-import { MFDTable } from '@components/ScrollableNodeTable/implementations/MFDTable';
-import useMFDHighlight from '@hooks/useMFDHighlight';
-import useMFDTask from '@hooks/useMFDTask';
-import styles from '@styles/MetricDependencies.module.scss';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import React, {
@@ -26,6 +12,20 @@ import React, {
   useState,
 } from 'react';
 import { useForm } from 'react-hook-form';
+import { MFDHighlight } from '@atoms/MFDTaskAtom';
+import Button from '@components/Button';
+import Icon from '@components/Icon';
+import { ControlledSelect } from '@components/Inputs/Select';
+
+import ListPropertiesModal from '@components/ListPropertiesModal';
+import Pagination from '@components/Pagination/Pagination';
+import ReportsLayout from '@components/ReportsLayout';
+
+import { ScrollDirection } from '@components/ScrollableNodeTable';
+import { MFDTable } from '@components/ScrollableNodeTable/implementations/MFDTable';
+import useMFDHighlight from '@hooks/useMFDHighlight';
+import useMFDTask from '@hooks/useMFDTask';
+import styles from '@styles/MetricDependencies.module.scss';
 
 import {
   MFDOrderingParameter,

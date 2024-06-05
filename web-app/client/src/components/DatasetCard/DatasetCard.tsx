@@ -1,13 +1,14 @@
-import Icon from '@components/Icon';
-import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import classNames from 'classnames';
 import { formatDistance } from 'date-fns';
 import { FC, PropsWithChildren, useState } from 'react';
+import FilePropertiesModal from '@components/FilePropertiesModal';
+import Icon from '@components/Icon';
+import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import '@formatjs/intl-numberformat/polyfill';
 import '@formatjs/intl-numberformat/locale-data/en';
 import { AllowedDataset } from 'types/algorithms';
 import styles from './DatasetCard.module.scss';
-import FilePropertiesModal from '@components/FilePropertiesModal';
+
 interface BaseCardProps extends PropsWithChildren {
   isSelected?: boolean;
   isDisabled?: boolean;
@@ -75,12 +76,13 @@ export const DatasetCard: FC<DatasetCardProps> = ({ file }) => {
     >
       <div className={styles.cardTitle}>
         <p title={fileName}>{fileName}</p>
-        <Icon
-          name="threeDots"
-          size={20}
-          onClick={() => setIsOpen(true)}
+        <Icon name="threeDots" size={20} onClick={() => setIsOpen(true)} />
+        <FilePropertiesModal
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          fileID={file.fileID}
+          data={file}
         />
-        <FilePropertiesModal isOpen={isOpen} onClose={() => setIsOpen(false)} fileID={file.fileID} data={file} />
       </div>
       <div className={styles.cardDescription}>
         <span>{descriptionList.join('\n')}</span>

@@ -1,8 +1,8 @@
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import Button from '@components/Button';
 import Icon from '@components/Icon';
 import styles from '@styles/404.module.scss';
-import { NextPage } from 'next';
-import { useRouter } from 'next/router';
 
 const _404: NextPage = () => {
   const { push } = useRouter();
