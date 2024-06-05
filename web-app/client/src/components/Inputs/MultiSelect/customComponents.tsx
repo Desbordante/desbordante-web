@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import { InputPropsBase } from '@components/Inputs';
 import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
 import cn from 'classnames';
@@ -24,7 +24,7 @@ import styles from './MultiSelect.module.scss';
 import { Option as OptionType } from 'types/inputs';
 
 export const colorStyles: StylesConfig = {
-  control: (style) => ({}),
+  control: () => ({}),
   valueContainer: (styles) => ({ ...styles, padding: 0 }),
   indicatorSeparator: (styles) => ({ ...styles, margin: 0 }),
 };

@@ -12,6 +12,7 @@ import { CHANGE_PASSWORD } from '@graphql/operations/mutations/changePassword';
 import { useAuthContext } from '@hooks/useAuthContext';
 import hashPassword from '@utils/hashPassword';
 import styles from '../LogInModal.module.scss';
+import { passwordTooltip } from '@components/SignUpModal/steps/CoreInfo';
 
 type Inputs = {
   password: string;
@@ -63,6 +64,7 @@ const Password: FC<Props> = ({ onSuccess, email }) => {
             label="Password"
             type="password"
             placeholder="admin1234"
+            tooltip={passwordTooltip}
             {...register('password', {
               required: 'Required',
               validate: (value) => isStrongPassword(value) || 'Weak password',

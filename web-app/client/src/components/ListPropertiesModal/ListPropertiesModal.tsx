@@ -5,8 +5,6 @@ import styles from './ListPropertiesModal.module.scss';
 import { Dispatch, SetStateAction } from 'react';
 
 interface Props extends ModalProps {
-  isOpen: boolean;
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
   name: string;
   onApply: () => void;
 }

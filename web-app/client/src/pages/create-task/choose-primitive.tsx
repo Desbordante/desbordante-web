@@ -1,5 +1,5 @@
 import Button from '@components/Button';
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import PrimitiveCard from '@components/PrimitiveCard';
 import PrimitiveDescription from '@components/PrimitiveDescription';
 import WizardLayout from '@components/WizardLayout';

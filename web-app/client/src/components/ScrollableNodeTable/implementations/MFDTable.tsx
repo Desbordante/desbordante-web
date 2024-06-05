@@ -1,6 +1,6 @@
 import { MFDHighlight } from '@atoms/MFDTaskAtom';
 
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import Table, {
   Row,
   ScrollDirection,

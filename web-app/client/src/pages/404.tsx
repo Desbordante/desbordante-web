@@ -1,5 +1,5 @@
 import Button from '@components/Button';
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import styles from '@styles/404.module.scss';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';

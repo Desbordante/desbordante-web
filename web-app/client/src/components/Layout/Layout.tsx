@@ -1,6 +1,4 @@
-import visibleModalsAtom from '@atoms/visibleModalsAtom';
 import Header from '@components/Header';
-import { useAtom } from 'jotai';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
 import { FCWithChildren } from 'types/react';
@@ -11,7 +9,6 @@ const MobileBanner = dynamic(() => import('@components/MobileBanner'), {
 });
 
 const Layout: FCWithChildren = ({ children }) => {
-  const [visibleModals] = useAtom(visibleModalsAtom);
 
   return (
     <>
@@ -40,7 +37,6 @@ const Layout: FCWithChildren = ({ children }) => {
         }}
       />
       <Header />
-      {visibleModals.map((modal) => modal.node)}
       <main className={styles.content}>{children}</main>
       <MobileBanner />
     </>

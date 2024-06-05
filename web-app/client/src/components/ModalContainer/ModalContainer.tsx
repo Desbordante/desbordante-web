@@ -1,5 +1,4 @@
-import { Icon } from '@components/IconComponent';
-
+import Icon from '@components/Icon';
 import {
   useFloating,
   FloatingPortal,
@@ -10,33 +9,26 @@ import {
   useInteractions,
   useRole,
 } from '@floating-ui/react';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { FCWithChildren } from 'types/react';
 import styles from './ModalContainer.module.scss';
 import cn from 'classnames';
+import { portalRoot } from '@constants/portalRoot';
 
 export interface ModalProps {
-  onClose?: () => void;
+  onClose: () => void;
   className?: string;
   isOpen: boolean;
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const ModalContainer: FCWithChildren<ModalProps> = ({
-  onClose = () => null,
+  onClose,
   children,
-  isOpen,
-  setIsOpen,
+  isOpen = true,
   className,
 }) => {
-  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setPortalNode(document.getElementById('portals-container-node'));
-  }, []);
   const { refs, context } = useFloating({
     open: isOpen,
-    onOpenChange: setIsOpen,
+    onOpenChange: (prop: boolean) => !prop && onClose(),
   });
 
   const stylesOverlay = useTransitionStyles(context, {
@@ -53,14 +45,14 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
     },
   }).styles;
 
-  const dismiss = useDismiss(context, { outsidePressEvent: 'mousedown' });
+  const dismiss = useDismiss(context, { outsidePressEvent: 'click' });
   const role = useRole(context, { role: 'dialog' });
 
   const { getFloatingProps } = useInteractions([dismiss, role]);
   return (
     <>
       {isOpen && (
-        <FloatingPortal root={portalNode}>
+        <FloatingPortal root={portalRoot}>
           <FloatingOverlay
             style={stylesOverlay}
             className={styles.dialogOverlay}

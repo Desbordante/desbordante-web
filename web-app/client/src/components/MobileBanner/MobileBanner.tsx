@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import { FC, useLayoutEffect, useReducer, useRef } from 'react';
 import styles from './MobileBanner.module.scss';
 

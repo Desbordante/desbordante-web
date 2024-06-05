@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import Pagination from '@components/Pagination/Pagination';
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
 import ClusterTable from '@components/ScrollableTable/ClusterTable';

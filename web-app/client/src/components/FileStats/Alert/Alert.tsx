@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import colors from '@constants/colors';
 import classNames from 'classnames';
 import { FC, HTMLProps, ReactNode } from 'react';

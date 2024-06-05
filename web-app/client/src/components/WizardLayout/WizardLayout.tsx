@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import cn from 'classnames';
 import { FC, PropsWithChildren, ReactElement } from 'react';
 import styles from './WizardLayout.module.scss';

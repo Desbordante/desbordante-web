@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import cn from 'classnames';
 import Link from 'next/link';
 import { useRouter } from 'next/router';

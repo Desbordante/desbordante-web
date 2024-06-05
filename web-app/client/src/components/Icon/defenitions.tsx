@@ -1,5 +1,4 @@
 import { HTMLProps, ReactNode } from 'react';
-//import colors from '@constants/colors';
 
 type IconDefinition = Record<string, (props: object) => ReactNode>;
 
@@ -931,16 +930,3 @@ export const icons = {
     </svg>
   ),
 } satisfies IconDefinition;
-
-type IconConfig = typeof icons;
-export type IconName = keyof IconConfig;
-type IconProps<TName extends IconName> = Parameters<IconConfig[TName]>[0];
-
-export const Icon = <TName extends IconName>(
-  props: { name: TName } & IconProps<TName>,
-) => {
-  if (!icons[props.name]) {
-    throw new Error(`There is not the icon with name "${props.name}!"`);
-  }
-  return icons[props.name](props);
-};

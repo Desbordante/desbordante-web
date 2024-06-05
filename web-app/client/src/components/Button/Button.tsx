@@ -14,8 +14,6 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   icon?: ReactNode;
-  ref?: ((node: ReferenceType | null) => void) &
-    ((node: ReferenceType | null) => void);
 }
 
 const Button: FC<Props> = ({

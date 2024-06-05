@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import colors from '@constants/colors';
 import { PrimitiveInfoType } from '@constants/primitiveInfoType';
 import cn from 'classnames';

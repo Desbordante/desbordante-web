@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import cn from 'classnames';
 import { useState } from 'react';
 import { FCWithChildren } from 'types/react';

@@ -1,4 +1,4 @@
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import colors from '@constants/colors';
 import * as React from 'react';
 import { FC } from 'react';

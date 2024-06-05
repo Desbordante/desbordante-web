@@ -1,6 +1,6 @@
 import { MFDHighlight } from '@atoms/MFDTaskAtom';
 import Button from '@components/Button';
-import { Icon } from '@components/IconComponent';
+import Icon from '@components/Icon';
 import { ControlledSelect } from '@components/Inputs/Select';
 
 import ListPropertiesModal from '@components/ListPropertiesModal';
