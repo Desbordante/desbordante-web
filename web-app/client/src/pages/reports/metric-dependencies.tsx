@@ -1,22 +1,21 @@
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import React, {
-  Dispatch,
   FC,
   ReactElement,
   ReactNode,
-  SetStateAction,
   useCallback,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import { useForm } from 'react-hook-form';
+
 import { MFDHighlight } from '@atoms/MFDTaskAtom';
 import Button from '@components/Button';
+
 import Icon from '@components/Icon';
 import { ControlledSelect } from '@components/Inputs/Select';
-
 import ListPropertiesModal from '@components/ListPropertiesModal';
 import Pagination from '@components/Pagination/Pagination';
 import ReportsLayout from '@components/ReportsLayout';
@@ -27,12 +26,7 @@ import useMFDHighlight from '@hooks/useMFDHighlight';
 import useMFDTask from '@hooks/useMFDTask';
 import styles from '@styles/MetricDependencies.module.scss';
 
-import {
-  MFDOrderingParameter,
-  MFDSortBy,
-  OrderBy,
-  OrderDirection,
-} from 'types/globalTypes';
+import { MFDOrderingParameter, OrderDirection } from 'types/globalTypes';
 
 import { NextPageWithLayout } from 'types/pageWithLayout';
 
@@ -64,9 +58,8 @@ const ReportsMFD: NextPageWithLayout = () => {
     taskID,
     clusterIndex,
     limit,
-    sortBy,
-    orderBy,
-    orderBy,
+    parameter,
+    orderDirection,
   );
 
   useEffect(() => {
@@ -271,7 +264,7 @@ const ReportFiller: FC<ReportFillerProps> = ({ title, description, icon }) => {
 
 type OrderingProps = {
   isOrderingShown: boolean;
-  setIsOrderingShown: Dispatch<SetStateAction<boolean>>;
+  setIsOrderingShown: (arg: boolean) => void;
   setOrderingParameter: (arg: MFDOrderingParameter) => void;
   setOrderDirection: (arg: OrderDirection) => void;
 };
@@ -314,7 +307,6 @@ const OrderingWindow: FC<OrderingProps> = ({
   return (
     <ListPropertiesModal
       isOpen={isOrderingShown}
-      setIsOpen={setIsOrderingShown}
       name="Ordering"
       onClose={() => {
         reset();
