@@ -1,10 +1,10 @@
 import { FC, useEffect, useState } from 'react';
+import AuthSuccessModal from '@components/AuthSuccessModal';
 import ModalContainer, { ModalProps } from '../ModalContainer';
 import Code from './steps/Code';
 import Email from './steps/Email';
 import LogIn from './steps/LogIn';
 import Password from './steps/Password';
-import AuthSuccessModal from '@components/AuthSuccessModal';
 
 const LogInModal: FC<ModalProps> = ({ isOpen, onClose }) => {
   const [stage, setStage] = useState(1);

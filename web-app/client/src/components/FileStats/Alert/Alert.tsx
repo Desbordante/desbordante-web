@@ -1,7 +1,7 @@
-import Icon from '@components/Icon';
-import colors from '@constants/colors';
 import classNames from 'classnames';
 import { FC, HTMLProps, ReactNode } from 'react';
+import Icon from '@components/Icon';
+import colors from '@constants/colors';
 import styles from './Alert.module.scss';
 
 type AlertVariant = 'info' | 'error' | 'success' | 'warning';

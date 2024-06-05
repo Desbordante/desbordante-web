@@ -8,10 +8,10 @@ import {
 import ReactSelect, { Props as ReactSelectProps } from 'react-select';
 import { InputPropsBase } from '@components/Inputs';
 import Tooltip from '@components/Tooltip';
+import { portalRoot } from '@constants/portalRoot';
 import { Option } from 'types/inputs';
 import customComponents from './customComponents';
 import styles from './Select.module.scss';
-import { portalRoot } from '@constants/portalRoot';
 
 export type Props<TValue = string> = InputPropsBase &
   ReactSelectProps<Option<TValue>, false> & {
@@ -49,7 +49,7 @@ const Select: ForwardRefRenderFunction<RefElement, Props> = (
         ref={ref}
         styles={{
           menuPortal: (base) => {
-            return { ...base};
+            return { ...base };
           },
         }}
         menuPortalTarget={portalRoot}

@@ -1,6 +1,6 @@
+import React, { FC, useState } from 'react';
 import AuthSuccessModal from '@components/AuthSuccessModal';
 import { useAuthContext } from '@hooks/useAuthContext';
-import React, { FC, useState } from 'react';
 import ModalContainer, { ModalProps } from '../ModalContainer';
 import CoreInfo from './steps/CoreInfo';
 import EmailVerification from './steps/EmailVerification';
@@ -20,10 +20,7 @@ const SignUpModal: FC<ModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <>
-      <ModalContainer
-        isOpen={isOpen}
-        onClose={onClose}
-      >
+      <ModalContainer isOpen={isOpen} onClose={onClose}>
         {stage === 1 && <CoreInfo onSuccess={goToNextStage} />}
         {stage === 2 && <EmailVerification onSuccess={onSuccess} />}
       </ModalContainer>

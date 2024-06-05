@@ -1,8 +1,8 @@
-import Icon from '@components/Icon';
-import colors from '@constants/colors';
 import * as React from 'react';
 import { FC } from 'react';
 import ReactPaginate from 'react-paginate';
+import Icon from '@components/Icon';
+import colors from '@constants/colors';
 import styles from './Pagination.module.scss';
 
 type Props = {

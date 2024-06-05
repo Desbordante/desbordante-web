@@ -1,7 +1,7 @@
-import Button from '@components/Button';
-import Icon from '@components/Icon';
 import { NextRouter } from 'next/router';
 import React from 'react';
+import Button from '@components/Button';
+import Icon from '@components/Icon';
 
 const FormFooter = (router: NextRouter, onSubmit: () => Promise<void>) => (
   <>

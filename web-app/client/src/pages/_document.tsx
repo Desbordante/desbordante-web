@@ -1,6 +1,6 @@
+import { Html, Head, Main, NextScript } from 'next/document';
 import GoogleAnalytics from '@components/GoogleAnalytics';
 import { isGoogleAnalyticsEnabled } from '@utils/env';
-import { Html, Head, Main, NextScript } from 'next/document';
 
 const MyDocument = () => {
   return (
@@ -27,7 +27,8 @@ const MyDocument = () => {
         <NextScript />
         <div
           id="portals-container-node"
-          style={{ position: 'fixed', zIndex: 1001, inset: 0, height: 0 }} />
+          style={{ position: 'fixed', zIndex: 1001, inset: 0, height: 0 }}
+        />
       </body>
     </Html>
   );

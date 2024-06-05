@@ -1,6 +1,6 @@
-import Icon from '@components/Icon';
 import cn from 'classnames';
 import { FC, PropsWithChildren, ReactElement } from 'react';
+import Icon from '@components/Icon';
 import styles from './WizardLayout.module.scss';
 
 interface Props extends PropsWithChildren {

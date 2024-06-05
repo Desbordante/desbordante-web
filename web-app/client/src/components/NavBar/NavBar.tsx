@@ -1,10 +1,9 @@
-import Icon from '@components/Icon';
 import cn from 'classnames';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FC, useRef } from 'react';
+import Icon from '@components/Icon';
 import { useAuthContext } from '@hooks/useAuthContext';
-import logo from '@public/logo.svg';
 import { User } from 'types/auth';
 import styles from './NavBar.module.scss';
 

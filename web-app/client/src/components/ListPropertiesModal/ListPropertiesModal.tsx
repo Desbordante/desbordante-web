@@ -2,7 +2,6 @@ import Button from '@components/Button';
 import ModalContainer, { ModalProps } from '@components/ModalContainer';
 import { FCWithChildren } from 'types/react';
 import styles from './ListPropertiesModal.module.scss';
-import { Dispatch, SetStateAction } from 'react';
 
 interface Props extends ModalProps {
   name: string;
@@ -11,18 +10,13 @@ interface Props extends ModalProps {
 
 const ListPropertiesModal: FCWithChildren<Props> = ({
   isOpen,
-  setIsOpen,
   name,
   onClose,
   onApply,
   children,
 }) => {
   return (
-    <ModalContainer
-      isOpen={isOpen}
-      setIsOpen={setIsOpen}
-      onClose={onClose}
-    >
+    <ModalContainer isOpen={isOpen} onClose={onClose}>
       <h4 className={styles.title}>{name}</h4>
       <div className={styles.inputs}>{children}</div>
       <div className={styles.buttons}>

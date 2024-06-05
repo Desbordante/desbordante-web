@@ -1,10 +1,10 @@
+import cn from 'classnames';
+import { useRouter } from 'next/router';
+import { FC, useEffect } from 'react';
 import Icon, { IconName } from '@components/Icon';
 import { primitivePathnames } from '@constants/primitiveReportPathnames';
 import useTaskState from '@hooks/useTaskState';
 import getTaskStatusData from '@utils/getTaskStatusData';
-import cn from 'classnames';
-import { useRouter } from 'next/router';
-import { FC, useEffect } from 'react';
 import { PrimitiveType } from 'types/globalTypes';
 import styles from './Loader.module.scss';
 

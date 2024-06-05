@@ -1,3 +1,4 @@
+import { FC, useMemo } from 'react';
 import { MFDHighlight } from '@atoms/MFDTaskAtom';
 
 import Icon from '@components/Icon';
@@ -7,7 +8,6 @@ import Table, {
   TableProps,
 } from '@components/ScrollableNodeTable';
 import colors from '@constants/colors';
-import { FC, useMemo } from 'react';
 import styles from './MFDTable.module.scss';
 
 type MFDTableProps = {

@@ -1,8 +1,8 @@
-import UnidataLogo from '@assets/images/unidata-logo.svg?component';
-import Icon from '@components/Icon';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import UnidataLogo from '@assets/images/unidata-logo.svg?component';
+import Icon from '@components/Icon';
 import Button from '../components/Button';
 import ExternalLink from '../components/ExternalLink';
 import styles from '../styles/Home.module.scss';

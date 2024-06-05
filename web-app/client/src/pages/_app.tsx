@@ -8,7 +8,6 @@ import '@styles/globals.scss';
 import { AppPropsWithLayout } from 'types/pageWithLayout';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);
 

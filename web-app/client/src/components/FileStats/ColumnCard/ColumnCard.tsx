@@ -1,3 +1,6 @@
+import classNames from 'classnames';
+import { FC, HTMLProps } from 'react';
+import { Collapse } from 'react-collapse';
 import Button from '@components/Button';
 import { Badge } from '@components/FileStats/Badge';
 import { useToggle } from '@components/FileStats/hooks';
@@ -6,9 +9,6 @@ import { Paper } from '@components/FileStats/Paper';
 import { StatsBlock } from '@components/FileStats/StatsBlock';
 import Icon from '@components/Icon';
 import { getFileStats_datasetInfo_statsInfo_stats as ColumnStats } from '@graphql/operations/queries/__generated__/getFileStats';
-import classNames from 'classnames';
-import { FC, HTMLProps } from 'react';
-import { Collapse } from 'react-collapse';
 import styles from './ColumnCard.module.scss';
 
 type ColumnCardProps = {

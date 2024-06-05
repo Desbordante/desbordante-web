@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import isStrongPassword from 'validator/lib/isStrongPassword';
 import Button from '@components/Button';
 import { Text } from '@components/Inputs';
+import { passwordTooltip } from '@components/SignUpModal/steps/CoreInfo';
 import {
   changePassword,
   changePasswordVariables,
@@ -12,7 +13,6 @@ import { CHANGE_PASSWORD } from '@graphql/operations/mutations/changePassword';
 import { useAuthContext } from '@hooks/useAuthContext';
 import hashPassword from '@utils/hashPassword';
 import styles from '../LogInModal.module.scss';
-import { passwordTooltip } from '@components/SignUpModal/steps/CoreInfo';
 
 type Inputs = {
   password: string;

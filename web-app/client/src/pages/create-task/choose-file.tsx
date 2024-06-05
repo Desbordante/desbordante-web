@@ -1,3 +1,7 @@
+import cn from 'classnames';
+import type { GetServerSideProps, NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useState } from 'react';
 import Button from '@components/Button';
 import { Collapse } from '@components/Collapse';
 import { DatasetCard } from '@components/DatasetCard';
@@ -10,10 +14,6 @@ import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithms
 import { useAuthContext } from '@hooks/useAuthContext';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ChooseFile.module.scss';
-import cn from 'classnames';
-import type { GetServerSideProps, NextPage } from 'next';
-import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
 import { AllowedDataset } from 'types/algorithms';
 import { MainPrimitiveType } from 'types/globalTypes';
 

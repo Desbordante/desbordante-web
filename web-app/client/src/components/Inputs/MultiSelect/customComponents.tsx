@@ -1,6 +1,3 @@
-import Icon from '@components/Icon';
-import { InputPropsBase } from '@components/Inputs';
-import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
 import cn from 'classnames';
 import { ComponentType } from 'react';
 import {
@@ -18,10 +15,13 @@ import {
   OptionProps,
   NoticeProps,
 } from 'react-select';
+import Icon from '@components/Icon';
+import { InputPropsBase } from '@components/Inputs';
+import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
+import { Option as OptionType } from 'types/inputs';
 import { OptionWithBadges } from 'types/multiSelect';
 import { OptionBadge } from './OptionBadge';
 import styles from './MultiSelect.module.scss';
-import { Option as OptionType } from 'types/inputs';
 
 export const colorStyles: StylesConfig = {
   control: () => ({}),

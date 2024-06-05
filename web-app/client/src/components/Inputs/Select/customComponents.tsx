@@ -1,5 +1,3 @@
-import Icon from '@components/Icon';
-import { InputPropsBase } from '@components/Inputs';
 import cn from 'classnames';
 import { ComponentType } from 'react';
 import {
@@ -12,11 +10,11 @@ import {
   SingleValueProps,
   ValueContainerProps,
   NoticeProps,
-  MenuProps,
 } from 'react-select';
+import Icon from '@components/Icon';
+import { InputPropsBase } from '@components/Inputs';
 import { Option as OptionType } from 'types/inputs';
 import styles from './Select.module.scss';
-import { FloatingPortal } from '@floating-ui/react';
 
 const Control: ComponentType<
   ControlProps<OptionType, false> & InputPropsBase

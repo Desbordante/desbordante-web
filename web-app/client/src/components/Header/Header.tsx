@@ -1,13 +1,13 @@
+import classNames from 'classnames';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import Button from '@components/Button';
 import Icon from '@components/Icon';
 import LogInModal from '@components/LogInModal';
 import NavBar from '@components/NavBar';
 import SignUpModal from '@components/SignUpModal';
 import { useAuthContext } from '@hooks/useAuthContext';
-import classNames from 'classnames';
-import { useEffect, useState } from 'react';
 import styles from './Header.module.scss';
-import Link from 'next/link';
 
 const Header = () => {
   const { user, signOut } = useAuthContext();

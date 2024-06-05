@@ -1,6 +1,6 @@
-import Icon from '@components/Icon';
 import cn from 'classnames';
 import { FC, HTMLProps } from 'react';
+import Icon from '@components/Icon';
 import styles from './ExternalLink.module.scss';
 
 const ExternalLink: FC<HTMLProps<HTMLAnchorElement>> = ({

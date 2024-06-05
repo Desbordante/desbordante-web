@@ -1,5 +1,8 @@
 import { DefaultContext, useMutation, useQuery } from '@apollo/client';
+import classNames from 'classnames';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import cardStyles from '@components/DatasetCard/DatasetCard.module.scss';
+import FilePropertiesModal from '@components/FilePropertiesModal';
 import Icon from '@components/Icon';
 import ProgressBar, { Progress } from '@components/ProgressBar/ProgressBar';
 import {
@@ -9,11 +12,8 @@ import {
 import { UPLOAD_DATASET } from '@graphql/operations/mutations/uploadDataset';
 import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
 import { GET_ALGORITHMS_CONFIG } from '@graphql/operations/queries/getAlgorithmsConfig';
-import classNames from 'classnames';
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { AllowedDataset } from 'types/algorithms';
 import styles from './DatasetUploader.module.scss';
-import FilePropertiesModal from '@components/FilePropertiesModal';
 
 type Props = {
   onUpload: (file: AllowedDataset) => void;

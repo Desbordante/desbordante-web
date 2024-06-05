@@ -1,8 +1,9 @@
+import Image from 'next/image';
+import { FC } from 'react';
 import Icon from '@components/Icon';
 import colors from '@constants/colors';
 import { getTeamMembers_teamMembers_data_attributes } from '@graphql/operations/queries/__generated__/getTeamMembers';
 import { cmsUrlWrapper } from '@utils/cmsUrlWrapper';
-import { FC } from 'react';
 import styles from './TeamMemberBadge.module.scss';
 
 type TeamMemberAttributes = getTeamMembers_teamMembers_data_attributes;

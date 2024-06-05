@@ -1,5 +1,5 @@
-import Icon from '@components/Icon';
 import { FC, useLayoutEffect, useReducer, useRef } from 'react';
+import Icon from '@components/Icon';
 import styles from './MobileBanner.module.scss';
 
 const isMobile = () =>

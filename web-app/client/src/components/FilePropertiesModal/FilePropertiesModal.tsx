@@ -22,7 +22,6 @@ type Props = ModalProps &
   );
 
 const FilePropertiesModal: FC<Props> = ({ isOpen, onClose, ...props }) => {
-  
   return (
     <ModalContainer isOpen={isOpen} onClose={onClose}>
       <h4 className={styles.header}>File Properties</h4>

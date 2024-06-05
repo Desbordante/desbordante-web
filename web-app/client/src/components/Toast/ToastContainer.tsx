@@ -1,10 +1,10 @@
-import Icon from '@components/Icon';
 import { FC } from 'react';
 import {
   ToastContainerProps,
   ToastContainer as TostifyToastContainer,
   CloseButtonProps,
 } from 'react-toastify';
+import Icon from '@components/Icon';
 import styles from './ToastContainer.module.scss';
 
 const CloseButton: FC<CloseButtonProps> = ({ closeToast, ariaLabel }) => (
