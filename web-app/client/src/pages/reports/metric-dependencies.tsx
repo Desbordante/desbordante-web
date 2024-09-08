@@ -29,6 +29,7 @@ import styles from '@styles/MetricDependencies.module.scss';
 import { MFDOrderingParameter, OrderDirection } from 'types/globalTypes';
 
 import { NextPageWithLayout } from 'types/pageWithLayout';
+import { NextSeo } from 'next-seo';
 
 type InsertedRow =
   | {
@@ -61,6 +62,7 @@ const ReportsMFD: NextPageWithLayout = () => {
     parameter,
     orderDirection,
   );
+  const isHoldsTitile = !data.clustersTotalCount ? 'holds' : 'not holds';
 
   useEffect(() => {
     if (!loading && !error && data) {
@@ -153,6 +155,7 @@ const ReportsMFD: NextPageWithLayout = () => {
 
   return (
     <>
+      <NextSeo title={"Metric dependency verified: " + isHoldsTitile} />
       {isOrderingShown && (
         <OrderingWindow
           isOrderingShown={isOrderingShown}

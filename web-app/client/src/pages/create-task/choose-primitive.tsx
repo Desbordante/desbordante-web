@@ -8,6 +8,7 @@ import primitiveInfo from '@constants/primitiveInfoType';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ChoosePrimitive.module.scss';
 import { MainPrimitiveType } from 'types/globalTypes';
+import { NextSeo } from 'next-seo';
 
 const header = (
   <>
@@ -52,35 +53,38 @@ const ChoosePrimitive = () => {
   );
 
   return (
-    <WizardLayout header={header} footer={footer}>
-      <article className={styles.root}>
-        <ul className={styles.inputsContainer}>
-          {Object.entries(primitiveInfo).map(([primitiveCode, info]) => (
-            <PrimitiveCard
-              key={primitiveCode}
-              name={primitiveCode}
-              info={info}
-              isSelected={primitive.value === primitiveCode}
-              onChange={(event) =>
-                primitive.set(event.currentTarget.value as MainPrimitiveType)
+    <>
+      <NextSeo title="Step 1: select a pattern to discover or verify" />
+      <WizardLayout header={header} footer={footer}>
+        <article className={styles.root}>
+          <ul className={styles.inputsContainer}>
+            {Object.entries(primitiveInfo).map(([primitiveCode, info]) => (
+              <PrimitiveCard
+                key={primitiveCode}
+                name={primitiveCode}
+                info={info}
+                isSelected={primitive.value === primitiveCode}
+                onChange={(event) =>
+                  primitive.set(event.currentTarget.value as MainPrimitiveType)
+                }
+              />
+            ))}
+          </ul>
+
+          {primitive.value && (
+            <PrimitiveDescription
+              className={styles.descriptionAside}
+              info={
+                primitiveInfo[primitive.value] || {
+                  label: 'Loading',
+                  description: '',
+                }
               }
             />
-          ))}
-        </ul>
-
-        {primitive.value && (
-          <PrimitiveDescription
-            className={styles.descriptionAside}
-            info={
-              primitiveInfo[primitive.value] || {
-                label: 'Loading',
-                description: '',
-              }
-            }
-          />
-        )}
-      </article>
-    </WizardLayout>
+          )}
+        </article>
+      </WizardLayout>
+    </>
   );
 };
 

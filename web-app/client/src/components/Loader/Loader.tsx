@@ -1,20 +1,34 @@
 import cn from 'classnames';
 import { useRouter } from 'next/router';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import Icon, { IconName } from '@components/Icon';
 import { primitivePathnames } from '@constants/primitiveReportPathnames';
 import useTaskState from '@hooks/useTaskState';
 import getTaskStatusData from '@utils/getTaskStatusData';
 import { PrimitiveType } from 'types/globalTypes';
 import styles from './Loader.module.scss';
+import { NextSeo } from 'next-seo';
+import { approximateAlgorithms } from '@constants/options';
 
 const Loader: FC = () => {
   const router = useRouter();
   const { data, error } = useTaskState();
+  const [title, setTitle] = useState<string>('');
   const status = getTaskStatusData(error, data.state);
 
   useEffect(() => {
-    const { state, type } = data;
+    const { state, type, algorithmName } = data;
+
+    if (type && algorithmName) {
+      setTitle(`${type} + ${algorithmName}`);
+      if (approximateAlgorithms.includes(algorithmName) || type === 'TypoFD') {
+        setTitle(`Discovery approximate functional dependencies is processing`);
+      } else if (type === 'MFD') {
+        setTitle(`Verification metric dependency is processing`);
+      } else {
+        setTitle(`Discovery functional dependencies is processing`);
+      }
+    }
 
     if (
       state &&
@@ -48,19 +62,22 @@ const Loader: FC = () => {
     <Icon name={status.icon as IconName} size={76} {...status.iconProps} />
   );
   return (
-    <div className={styles.container}>
-      {icon}
-      <div className={styles.text}>
-        <h6>
-          Task status:
-          <span className={cn(styles[status.className], styles.status)}>
-            {' '}
-            {status.label}
-          </span>
-        </h6>
-        <p className={styles.description}>{status.description}</p>
+    <>
+      <NextSeo title={title} />
+      <div className={styles.container}>
+        {icon}
+        <div className={styles.text}>
+          <h6>
+            Task status:
+            <span className={cn(styles[status.className], styles.status)}>
+              {' '}
+              {status.label}
+            </span>
+          </h6>
+          <p className={styles.description}>{status.description}</p>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 export default Loader;

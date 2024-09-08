@@ -8,6 +8,7 @@ import {
 } from '@constants/formPrimitives';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
+import { NextSeo } from 'next-seo';
 
 const ConfigureAlgorithm: NextPage = () => {
   const router = useRouter();
@@ -33,6 +34,7 @@ const ConfigureAlgorithm: NextPage = () => {
 
   return (
     <>
+      <NextSeo title="Step 3: configure algorithm" />
       {excludedPrimitives.includes(primitiveValue as UsedPrimitivesType) && (
         <div className={styles.filler}>
           <h6>

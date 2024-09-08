@@ -10,6 +10,7 @@ import {
 import { GET_PIE_CHART_DATA } from '@graphql/operations/queries/getPieChartData';
 import styles from '@styles/Charts.module.scss';
 import { NextPageWithLayout } from 'types/pageWithLayout';
+import { NextSeo } from 'next-seo';
 
 const getChartData = (data?: getPieChartData) => {
   if (
@@ -36,28 +37,31 @@ const ReportsCharts: NextPageWithLayout = () => {
   const { lhs, rhs } = getChartData(data);
 
   return (
-    <div className={styles.container}>
-      {loading && <h5>Loading..</h5>}
-      <LayeredChart
-        title="Left-hand side"
-        attributes={lhs}
-        {...{
-          selectedAttributeIndices: dependenciesFilter.lhs,
-          setSelectedAttributeIndices: (lhs) =>
-            setDependenciesFilter(({ rhs }) => ({ rhs, lhs })),
-        }}
-      />
+    <>
+      <NextSeo title="Statistics" />
+      <div className={styles.container}>
+        {loading && <h5>Loading..</h5>}
+        <LayeredChart
+          title="Left-hand side"
+          attributes={lhs}
+          {...{
+            selectedAttributeIndices: dependenciesFilter.lhs,
+            setSelectedAttributeIndices: (lhs) =>
+              setDependenciesFilter(({ rhs }) => ({ rhs, lhs })),
+          }}
+        />
 
-      <LayeredChart
-        title="Right-hand side"
-        attributes={rhs}
-        {...{
-          selectedAttributeIndices: dependenciesFilter.rhs,
-          setSelectedAttributeIndices: (rhs) =>
-            setDependenciesFilter(({ lhs }) => ({ rhs, lhs })),
-        }}
-      />
-    </div>
+        <LayeredChart
+          title="Right-hand side"
+          attributes={rhs}
+          {...{
+            selectedAttributeIndices: dependenciesFilter.rhs,
+            setSelectedAttributeIndices: (rhs) =>
+              setDependenciesFilter(({ lhs }) => ({ rhs, lhs })),
+          }}
+        />
+      </div>
+    </>
   );
 };
 

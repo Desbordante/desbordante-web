@@ -5,6 +5,7 @@ import cmsClient from '@graphql/cmsClient';
 import { getTeamMembers } from '@graphql/operations/queries/__generated__/getTeamMembers';
 import { GET_TEAM_MEMBERS } from '@graphql/operations/queries/getTeamMembers';
 import styles from '@styles/Team.module.scss';
+import { NextSeo } from 'next-seo';
 
 interface Props {
   team: getTeamMembers;
@@ -14,6 +15,8 @@ const Team: NextPage<Props> = ({ team }) => {
   const { teamMembers } = team;
 
   return (
+    <>
+    <NextSeo title='Team' />
     <div className={styles.teamPage}>
       <Icon name="backgroundHome" className={styles.background} />
 
@@ -26,6 +29,8 @@ const Team: NextPage<Props> = ({ team }) => {
         </ol>
       )}
     </div>
+    </>
+    
   );
 };
 

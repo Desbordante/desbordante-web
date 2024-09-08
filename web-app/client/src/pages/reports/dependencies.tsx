@@ -32,6 +32,8 @@ import {
   PrimitiveType,
 } from 'types/globalTypes';
 import { NextPageWithLayout } from 'types/pageWithLayout';
+import { Algorithms, approximateAlgorithms } from '@constants/options';
+import { NextSeo } from 'next-seo';
 
 type Props = {
   defaultData?: GetMainTaskDeps;
@@ -49,6 +51,12 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
 
   const primitive: PrimitiveType | undefined =
     taskInfo?.taskInfo.data.baseConfig.type;
+  const algorithm: Algorithms = taskInfo?.taskInfo.data.baseConfig
+    .algorithmName as Algorithms;
+  const title =
+    algorithm in approximateAlgorithms
+      ? 'Discovered approximate dependencies verified'
+      : 'Discovered functional dependencies';
   const methods = useFilters(primitive || PrimitiveType.FD);
   const { watch, register, setValue: setFilterParam } = methods;
   const { search, page, ordering, direction, showKeys } = watch();
@@ -113,6 +121,7 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
 
   return (
     <>
+      <NextSeo title={title} />
       <FormProvider {...methods}>
         {isOrderingShown && (
           <OrderingWindow
