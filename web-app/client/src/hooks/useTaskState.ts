@@ -19,11 +19,25 @@ import {
 import { GET_TASK_STATE } from '@graphql/operations/queries/getTaskState';
 import { GET_TASK_STATE_LITE } from '@graphql/operations/queries/getTaskStateLite';
 import { showError } from '@utils/toasts';
+import { GET_TASK_TYPE } from '@graphql/operations/queries/getTaskType';
 
 const useTaskState = () => {
   const router = useRouter();
   const taskID = router.query.taskID as string;
   const [taskState, setTaskState] = useAtom(taskStateAtom);
+
+  const {
+    loading: typeLoading,
+    error: typeError,
+    data: typeData,
+  } = useQuery(GET_TASK_TYPE, {
+    variables: {
+      taskID,
+    },
+    onError: (error) => {
+      showError(error.message, "Can't fetch task type. Please try later.");
+    },
+  });
 
   const {
     loading: liteLoading,
@@ -43,22 +57,23 @@ const useTaskState = () => {
     },
   );
 
-  const [
-    loadFullTaskState,
-    { loading: fullLoading, error: fullError, data: fullData },
-  ] = useLazyQuery<getTaskState, getTaskStateVariables>(GET_TASK_STATE, {
-    onError: (error) => {
-      showError(error.message, "Can't fetch task state. Please try later.");
-    },
-  });
-
   useEffect(() => {
     if (taskID !== taskState.taskID) {
       setTaskState(taskStateAtomDefaultValuesWithID(taskID));
       startPolling(2000);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    if (!taskState.algorithmName || !taskState.type) {
+      const baseConfig = typeData?.taskInfo.data.baseConfig;
+      const algorithmName = baseConfig?.algorithmName;
+      const type = baseConfig?.type;
+      setTaskState({
+        ...taskStateAtomDefaultValuesWithID(taskID),
+        algorithmName,
+        type,
+      });
+    }
+  }, [typeData]);
 
   useEffect(() => {
     if (
@@ -66,35 +81,16 @@ const useTaskState = () => {
       taskState.state.__typename === 'TaskState' &&
       taskState.state.processStatus === 'COMPLETED'
     ) {
-      if (taskState.type === '') {
-        stopPolling();
-        loadFullTaskState({
-          variables: {
-            taskID,
-          },
-        });
-      }
-
-      return;
+      stopPolling();
     }
 
     const state = liteData?.taskInfo.state as getTaskState_taskInfo_state;
 
     if (state && 'processStatus' in state) {
-      if (state.processStatus === 'COMPLETED') {
-        stopPolling();
-        if (taskState.type === '')
-          loadFullTaskState({
-            variables: {
-              taskID,
-            },
-          });
-      } else {
-        setTaskState({
-          ...taskStateAtomDefaultValuesWithID(taskID),
-          state, // || taskStateAtomDefaultValues.state,
-        });
-      }
+      setTaskState({
+        ...taskState,
+        state: state,
+      });
     }
     if (state && state.__typename !== 'TaskState') {
       stopPolling();
@@ -103,40 +99,15 @@ const useTaskState = () => {
         state,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liteData]);
-
-  useEffect(() => {
-    if (
-      taskState.taskID === taskID &&
-      taskState.state.__typename === 'TaskState' &&
-      taskState.state.processStatus === 'COMPLETED' &&
-      taskState.type !== ''
-    )
-      return;
-
-    const state = fullData?.taskInfo
-      .state as getTaskState_taskInfo_state_TaskState;
-    const data = fullData?.taskInfo.data;
-
-    if (data && state && 'processStatus' in state) {
-      setTaskState({
-        taskID,
-        algorithmName: data?.baseConfig.algorithmName || '',
-        type: data?.baseConfig.type || '',
-        state: state || taskStateAtomDefaultValues.state,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fullLoading, fullData]);
 
   return {
     data:
       taskState.taskID === taskID
         ? taskState
         : taskStateAtomDefaultValuesWithID(taskID),
-    loading: liteLoading || fullLoading || taskState.taskID !== taskID,
-    error: !fullError ? liteError : fullError,
+    loading: liteLoading || typeLoading || taskState.taskID !== taskID,
+    error: !liteError ? typeError : liteError,
   };
 };
 

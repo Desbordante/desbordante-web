@@ -13,6 +13,7 @@ import {
 import { GET_DATASET } from '@graphql/operations/queries/getDataset';
 import styles from '@styles/Snippet.module.scss';
 import { NextPageWithLayout } from 'types/pageWithLayout';
+import { NextSeo } from 'next-seo';
 
 type Snippet = getDataset_taskInfo_dataset_snippet;
 
@@ -72,6 +73,7 @@ const ReportsSnippet: NextPageWithLayout<Props> = ({ snippet }) => {
 ReportsSnippet.getLayout = function getLayout(page: ReactElement) {
   return (
     <TaskContextProvider>
+      <NextSeo title="Dataset Snippet" />
       <ReportsLayout pageClass={styles.page} containerClass={styles.container}>
         {page}
       </ReportsLayout>

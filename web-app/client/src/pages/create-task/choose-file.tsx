@@ -16,6 +16,7 @@ import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ChooseFile.module.scss';
 import { AllowedDataset } from 'types/algorithms';
 import { MainPrimitiveType } from 'types/globalTypes';
+import { NextSeo } from 'next-seo';
 
 const sortDatasetsBySupportedPrimitive = (
   datasets?: AllowedDataset[],
@@ -158,17 +159,20 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
   );
 
   return (
-    <WizardLayout
-      header={header}
-      footer={footer}
-      className={cn(
-        styles.content,
-        !user?.permissions.canUploadFiles && styles.reversed,
-      )}
-    >
-      {userFiles}
-      {builtinFiles}
-    </WizardLayout>
+    <>
+      <NextSeo title="Step 2: select a dataset" />
+      <WizardLayout
+        header={header}
+        footer={footer}
+        className={cn(
+          styles.content,
+          !user?.permissions.canUploadFiles && styles.reversed,
+        )}
+      >
+        {userFiles}
+        {builtinFiles}
+      </WizardLayout>
+    </>
   );
 };
 
