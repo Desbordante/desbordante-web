@@ -54,6 +54,7 @@ const MultiSelect: ForwardRefRenderFunction<RefElement, MultiSelectProps> = (
           ...colorStyles,
         }}
         menuPortalTarget={portalRoot}
+        menuPosition="fixed"
         components={{ ...customComponents, ...components }}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
