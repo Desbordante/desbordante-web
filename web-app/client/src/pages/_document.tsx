@@ -27,7 +27,7 @@ const MyDocument = () => {
         <NextScript />
         <div
           id="portals-container-node"
-          style={{ position: 'absolute', zIndex: 1001, inset: 0, height: 0 }}
+          style={{ position: 'fixed', zIndex: 1001, inset: 0, height: 0 }}
         />
       </body>
     </Html>

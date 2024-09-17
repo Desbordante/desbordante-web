@@ -53,6 +53,7 @@ const Select: ForwardRefRenderFunction<RefElement, Props> = (
           },
         }}
         menuPortalTarget={portalRoot}
+        menuPosition='fixed'
         components={{ ...customComponents, ...components }}
       />
       {error && <p className={styles.error}>{error}</p>}
