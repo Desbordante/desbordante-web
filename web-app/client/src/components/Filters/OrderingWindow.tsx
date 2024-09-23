@@ -1,18 +1,20 @@
-import _ from 'lodash';
-import React, { FC } from 'react';
-import { useForm, useFormContext } from 'react-hook-form';
 import { ControlledSelect } from '@components/Inputs/Select';
 import ListPropertiesModal from '@components/ListPropertiesModal';
 import { OrderingTitles } from '@constants/titles';
+import _ from 'lodash';
+import React, { FC } from 'react';
+import { useForm, useFormContext } from 'react-hook-form';
 import { OrderDirection, PrimitiveType } from 'types/globalTypes';
 import { FiltersFields } from './Filters';
 
 type OrderingProps = {
+  labelOrderBy?: string;
   setIsOrderingShown: (arg: boolean) => void;
   primitive: PrimitiveType;
 };
 
 export const OrderingWindow: FC<OrderingProps> = ({
+  labelOrderBy = 'Order by',
   setIsOrderingShown,
   primitive,
 }) => {
@@ -56,7 +58,7 @@ export const OrderingWindow: FC<OrderingProps> = ({
       <ControlledSelect
         control={control}
         controlName="ordering"
-        label="Order by"
+        label={labelOrderBy}
         options={_.values(orderingOptions)}
       />
       <ControlledSelect

@@ -23,6 +23,7 @@ const Table: FC<TableProps> = ({
   hiddenColumnIndices,
   onScroll,
   className,
+  alternateRowColors = true,
 }) => {
   const threshold = 200;
 
@@ -94,7 +95,7 @@ const Table: FC<TableProps> = ({
     >
       <table className={styles.table}>
         <thead>
-          <tr>
+          <tr className={classNames(alternateRowColors && styles.alternate)}>
             {displayHeader.map((item, columnIndex) => (
               <td
                 key={item}

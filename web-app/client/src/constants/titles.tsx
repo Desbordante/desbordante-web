@@ -1,4 +1,5 @@
 import {
+  AFDSortBy,
   AROrderingParameter,
   CFDOrderingParameter,
   FDOrderingParameter,
@@ -15,7 +16,7 @@ export const OrderingTitles: Record<PrimitiveType, Record<string, string>> = {
     [CFDOrderingParameter.RHS_COL_NAME]: 'RHS NAME',
     [CFDOrderingParameter.CONF]: 'Condfidence',
     [CFDOrderingParameter.LHS_PATTERN]: 'LHS PATTERN',
-    [CFDOrderingParameter.LHS_PATTERN]: 'RHS PATTERN',
+    [CFDOrderingParameter.RHS_PATTERN]: 'RHS PATTERN',
   },
   [PrimitiveType.AR]: {
     [AROrderingParameter.CONF]: 'Confidence',
@@ -30,5 +31,11 @@ export const OrderingTitles: Record<PrimitiveType, Record<string, string>> = {
   [PrimitiveType.TypoCluster]: {
     [FDOrderingParameter.LHS_NAME]: 'LHS NAME',
     [FDOrderingParameter.RHS_NAME]: 'RHS NAME',
+  },
+  [PrimitiveType.AFD]: {
+    [AFDSortBy.LHS_VALUES]: 'LHS values',
+    [AFDSortBy.DISTINCT_RHS_VALUES]: 'Distinct RHS values',
+    [AFDSortBy.FREQUENTNESS]: 'Frequentness',
+    [AFDSortBy.SIZE]: 'Size',
   },
 };
