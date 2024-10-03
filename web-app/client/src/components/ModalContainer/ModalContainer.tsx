@@ -70,6 +70,7 @@ const ModalContainer: FCWithChildren<ModalProps> = ({
                   onClick={onClose}
                   aria-label="Close"
                   className={styles.closeButton}
+                  role='close'
                 >
                   <Icon name="cross" />
                 </button>

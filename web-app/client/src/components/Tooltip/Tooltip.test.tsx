@@ -4,19 +4,18 @@ import Tooltip from './Tooltip';
 
 const user = userEvent.setup();
 
-describe('Text Component', () => {
+describe('Testing tooltip', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('Should render with text', async () => {
+  test('Should open with text by hover and close by unhover', async () => {
     render(<Tooltip>Test Tooltip</Tooltip>);
     const trigger = screen.getByRole('img');
-    const tooltip = screen.getByText(/test tooltip/i);
-    expect(tooltip).toHaveClass('hidden');
     await user.hover(trigger);
-    expect(tooltip).not.toHaveClass('hidden');
+    expect(screen.getByText(/test tooltip/i));
+
     await user.unhover(trigger);
-    expect(tooltip).toHaveClass('hidden');
+    expect(screen.queryByText(/test tooltip/i)).toBeNull();
   });
 });
