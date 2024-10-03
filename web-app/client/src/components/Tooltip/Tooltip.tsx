@@ -49,6 +49,7 @@ const Tooltip: FCWithChildren<Props> = ({ position = 'top', children }) => {
           size={16}
           color={colors.primary[100]}
           className={styles.icon}
+          role='img'
         />
       </div>
 
