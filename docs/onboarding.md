@@ -12,3 +12,9 @@
 
 #### Запуск проекта
 1. TBD
+
+#### Тесты
+1. `pnpm exec playwright install`
+
+*.jest.ts(x)
+*.e2e.ts(x)
