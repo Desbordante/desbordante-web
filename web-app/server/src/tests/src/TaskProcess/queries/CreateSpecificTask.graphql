@@ -1,5 +1,0 @@
-mutation CreateSpecificTask($props: IntersectionSpecificTaskProps!) {
-    createSpecificTask(props: $props) {
-        taskID
-    }
-}
