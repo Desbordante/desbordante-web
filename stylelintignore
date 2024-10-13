@@ -1,0 +1,6 @@
+/node_modules
+/coverage
+*.*
+client-envs
+!*.css
+!*.scss
