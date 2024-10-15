@@ -19,7 +19,6 @@ export const FilteringWindow: FC<FilteringProps> = ({
   return (
     <ListPropertiesModal
       isOpen={isFilteringShown}
-      setIsOpen={setIsFilteringShown}
       name="Filters"
       onClose={() => {
         setShowKeys(initialShowKeys);

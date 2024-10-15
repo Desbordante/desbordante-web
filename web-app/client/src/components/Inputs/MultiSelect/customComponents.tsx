@@ -23,7 +23,7 @@ import { OptionWithBadges } from 'types/multiSelect';
 import { OptionBadge } from './OptionBadge';
 import styles from './MultiSelect.module.scss';
 
-export const colorStyles: StylesConfig = {
+export const colorStyles: StylesConfig<OptionType, true> = {
   control: () => ({}),
   valueContainer: (styles) => ({ ...styles, padding: 0 }),
   indicatorSeparator: (styles) => ({ ...styles, margin: 0 }),
@@ -77,9 +77,11 @@ const MultiValueRemove: ComponentType<
   </div>
 );
 
-const Placeholder: ComponentType<PlaceholderProps & InputPropsBase> = (
-  props,
-) => <components.Placeholder className={styles.placeholder} {...props} />;
+const Placeholder: ComponentType<
+  PlaceholderProps<OptionType, true> & InputPropsBase
+> = (props) => (
+  <components.Placeholder className={styles.placeholder} {...props} />
+);
 
 const Input: ComponentType<InputProps<OptionType, true> & InputPropsBase> = (
   props,

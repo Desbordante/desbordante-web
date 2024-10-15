@@ -7,11 +7,11 @@ module.exports = async () => {
   const cmsIP = process.env.CMS_IP;
   const cmsPort = process.env.CMS_PORT;
 
-  const serverURL = `${serverProtocol}://${serverIP}`;
+  const serverURL = `${serverProtocol}://${serverIP}:${serverPort}`;
   const serverGraphQLEndpoint = `${serverURL}/graphql`;
   const serverProxyURL = '/api/backend';
 
-  const cmsURL = `${cmsProtocol}://${cmsIP}`;
+  const cmsURL = `${cmsProtocol}://${cmsIP}:${cmsPort}`;
   const cmsGraphQLEndpoint = `${cmsURL}/graphql`;
   const cmsProxyURL = '/api/cms';
 
