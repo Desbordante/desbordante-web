@@ -8,6 +8,7 @@ import {
 import ReactSelect, { Props as ReactSelectProps } from 'react-select';
 import { InputPropsBase } from '@components/Inputs';
 import Tooltip from '@components/Tooltip';
+import { portalRoot } from '@constants/portalRoot';
 import { Option } from 'types/inputs';
 import customComponents, { colorStyles } from './customComponents';
 import styles from './MultiSelect.module.scss';
@@ -46,8 +47,10 @@ const MultiSelect: ForwardRefRenderFunction<RefElement, MultiSelectProps> = (
         className={cn(styles.multiSelect, error && styles.error)}
         {...props}
         ref={ref}
-        components={{ ...customComponents, ...components }}
         styles={colorStyles}
+        menuPortalTarget={portalRoot}
+        menuPosition="fixed"
+        components={{ ...customComponents, ...components }}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         error={error}

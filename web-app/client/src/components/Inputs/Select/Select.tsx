@@ -8,6 +8,7 @@ import {
 import ReactSelect, { Props as ReactSelectProps } from 'react-select';
 import { InputPropsBase } from '@components/Inputs';
 import Tooltip from '@components/Tooltip';
+import { portalRoot } from '@constants/portalRoot';
 import { Option } from 'types/inputs';
 import customComponents from './customComponents';
 import styles from './Select.module.scss';
@@ -42,10 +43,13 @@ const Select: ForwardRefRenderFunction<RefElement, Props> = (
         {tooltip && <Tooltip>{tooltip}</Tooltip>}
       </div>
       <ReactSelect
+        id={id}
         className={styles.selectContainer}
         classNamePrefix={styles.selectContainer}
         {...props}
         ref={ref}
+        menuPortalTarget={portalRoot}
+        menuPosition="fixed"
         components={{ ...customComponents, ...components }}
       />
       {error && <p className={styles.error}>{error}</p>}

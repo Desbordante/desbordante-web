@@ -1,7 +1,7 @@
 import cn from 'classnames';
 import { Dispatch, FC, SetStateAction, useState } from 'react';
-import ThreeDotsIcon from '@assets/icons/three-dots.svg?component';
 import Button from '@components/Button';
+import Icon from '@components/Icon';
 import { Checkbox } from '@components/Inputs';
 import styles from './ClusterOptions.module.scss';
 
@@ -25,7 +25,7 @@ const ClusterOptions: FC<Props> = ({
       <Button
         variant="secondary"
         size="sm"
-        icon={<ThreeDotsIcon />}
+        icon={<Icon name="threeDots" />}
         onClick={() => setIsDropdownOpened((prev) => !prev)}
       />
       <div className={cn(styles.dropdown, !isDropdownOpened && styles.hidden)}>

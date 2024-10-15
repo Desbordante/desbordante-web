@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import isEmail from 'validator/lib/isEmail';
 import Button from '@components/Button';
 import { Text } from '@components/Inputs';
+import Password from '@components/Inputs/Password';
 import {
   logIn,
   logInVariables,
@@ -31,6 +32,7 @@ interface Props {
 const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
   const { applyTokens } = useAuthContext();
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -71,14 +73,12 @@ const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
             })}
             error={errors.email?.message}
           />
-          <Text
+          <Password
+            control={control}
+            controlName="password"
             label="Password"
-            type="password"
             placeholder="admin1234"
-            {...register('password', {
-              required: 'Required',
-            })}
-            error={errors.password?.message}
+            rules={{ required: 'Required' }}
           />
         </div>
 

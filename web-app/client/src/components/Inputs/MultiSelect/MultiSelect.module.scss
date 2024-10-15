@@ -23,9 +23,7 @@
   &.disabled {
     opacity: 0.5;
   }
-}
 
-.multiSelect {
   .control {
     display: flex;
     justify-content: space-between;
@@ -114,47 +112,38 @@
   .indicatorsContainer {
     margin: 0;
   }
+}
 
-  .option {
-    @include paragraph;
-    padding: 16px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px;
+.option {
+  @include paragraph;
+  padding: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
 
-    .optionText {
-      // min-width: 50%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    &.once {
-      justify-content: space-between;
-    }
-
-    &.focused {
-      background: $primary-02;
-    }
-
-    &.selected {
-      background: $primary-10;
-    }
+  .optionText {
+    // min-width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .noOptionsMessage {
-    color: $black-50;
-    text-align: center;
+  &.once {
+    justify-content: space-between;
   }
 
-  p.error {
-    @include paragraph-small;
-    margin: 8px 0 0;
-    color: $error;
+  &.focused {
+    background: $primary-02;
   }
 
-  &.disabled {
-    opacity: 0.5;
+  &.selected {
+    background: $primary-10;
   }
+}
+
+.noOptionsMessage {
+  color: $black-50;
+  display: block;
+  text-align: center;
 }

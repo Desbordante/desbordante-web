@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
-import FileIcon from '@assets/icons/file.svg?component';
+import { NextSeo } from 'next-seo';
 import Button from '@components/Button';
+import Icon from '@components/Icon';
 import PrimitiveCard from '@components/PrimitiveCard';
 import PrimitiveDescription from '@components/PrimitiveDescription';
 import WizardLayout from '@components/WizardLayout';
@@ -38,7 +39,7 @@ const ChoosePrimitive = () => {
   const footer = (
     <Button
       variant="primary"
-      icon={<FileIcon />}
+      icon={<Icon name="file" />}
       disabled={!primitive.value}
       onClick={() =>
         router.push({
@@ -52,35 +53,38 @@ const ChoosePrimitive = () => {
   );
 
   return (
-    <WizardLayout header={header} footer={footer}>
-      <article className={styles.root}>
-        <ul className={styles.inputsContainer}>
-          {Object.entries(primitiveInfo).map(([primitiveCode, info]) => (
-            <PrimitiveCard
-              key={primitiveCode}
-              name={primitiveCode}
-              info={info}
-              isSelected={primitive.value === primitiveCode}
-              onChange={(event) =>
-                primitive.set(event.currentTarget.value as MainPrimitiveType)
+    <>
+      <NextSeo title="Step 1: select a pattern to discover or verify" />
+      <WizardLayout header={header} footer={footer}>
+        <article className={styles.root}>
+          <ul className={styles.inputsContainer}>
+            {Object.entries(primitiveInfo).map(([primitiveCode, info]) => (
+              <PrimitiveCard
+                key={primitiveCode}
+                name={primitiveCode}
+                info={info}
+                isSelected={primitive.value === primitiveCode}
+                onChange={(event) =>
+                  primitive.set(event.currentTarget.value as MainPrimitiveType)
+                }
+              />
+            ))}
+          </ul>
+
+          {primitive.value && (
+            <PrimitiveDescription
+              className={styles.descriptionAside}
+              info={
+                primitiveInfo[primitive.value] || {
+                  label: 'Loading',
+                  description: '',
+                }
               }
             />
-          ))}
-        </ul>
-
-        {primitive.value && (
-          <PrimitiveDescription
-            className={styles.descriptionAside}
-            info={
-              primitiveInfo[primitive.value] || {
-                label: 'Loading',
-                description: '',
-              }
-            }
-          />
-        )}
-      </article>
-    </WizardLayout>
+          )}
+        </article>
+      </WizardLayout>
+    </>
   );
 };
 

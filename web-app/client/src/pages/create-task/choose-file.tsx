@@ -1,12 +1,13 @@
 import cn from 'classnames';
 import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo } from 'react';
-import SettingsIcon from '@assets/icons/settings.svg?component';
+import { NextSeo } from 'next-seo';
+import { useEffect, useMemo, useState } from 'react';
 import Button from '@components/Button';
 import { Collapse } from '@components/Collapse';
 import { DatasetCard } from '@components/DatasetCard';
 import { DatasetUploader } from '@components/DatasetUploader';
+import Icon from '@components/Icon';
 import WizardLayout from '@components/WizardLayout';
 import client from '@graphql/client';
 import { getAlgorithmsConfig } from '@graphql/operations/queries/__generated__/getAlgorithmsConfig';
@@ -37,6 +38,8 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
   const router = useRouter();
   const { primitive, fileID } = useTaskUrlParams();
   const { user, refreshUserData } = useAuthContext();
+
+  const [isOpen, setIsOpen] = useState(false);
 
   const userDatasets = useMemo(
     () => sortDatasetsBySupportedPrimitive(user?.datasets, primitive.value),
@@ -87,6 +90,8 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
       {(user?.permissions.canUploadFiles && (
         <div className={styles.files}>
           <DatasetUploader
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
             onUpload={(dataset) => {
               refreshUserData();
               fileID.set(dataset.fileID);
@@ -140,7 +145,7 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
       <Button
         disabled={!selectedDataset}
         variant="primary"
-        icon={<SettingsIcon />}
+        icon={<Icon name="settings" />}
         onClick={() =>
           router.push({
             pathname: '/create-task/configure-algorithm',
@@ -154,17 +159,20 @@ const ChooseFile: NextPage<Props> = ({ defaultAlgorithmConfig }) => {
   );
 
   return (
-    <WizardLayout
-      header={header}
-      footer={footer}
-      className={cn(
-        styles.content,
-        !user?.permissions.canUploadFiles && styles.reversed,
-      )}
-    >
-      {userFiles}
-      {builtinFiles}
-    </WizardLayout>
+    <>
+      <NextSeo title="Step 2: select a dataset" />
+      <WizardLayout
+        header={header}
+        footer={footer}
+        className={cn(
+          styles.content,
+          !user?.permissions.canUploadFiles && styles.reversed,
+        )}
+      >
+        {userFiles}
+        {builtinFiles}
+      </WizardLayout>
+    </>
   );
 };
 

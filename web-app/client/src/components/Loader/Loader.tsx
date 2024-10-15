@@ -1,7 +1,9 @@
 import cn from 'classnames';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { FC, useEffect } from 'react';
+import { NextSeo } from 'next-seo';
+import { FC, useEffect, useState } from 'react';
+import Icon, { IconName } from '@components/Icon';
+import { approximateAlgorithms } from '@constants/options';
 import { primitivePathnames } from '@constants/primitiveReportPathnames';
 import useTaskState from '@hooks/useTaskState';
 import getTaskStatusData from '@utils/getTaskStatusData';
@@ -11,10 +13,22 @@ import styles from './Loader.module.scss';
 const Loader: FC = () => {
   const router = useRouter();
   const { data, error } = useTaskState();
+  const [title, setTitle] = useState<string>('');
   const status = getTaskStatusData(error, data.state);
 
   useEffect(() => {
-    const { state, type } = data;
+    const { state, type, algorithmName } = data;
+
+    if (type && algorithmName) {
+      setTitle(`${type} + ${algorithmName}`);
+      if (approximateAlgorithms.includes(algorithmName) || type === 'TypoFD') {
+        setTitle(`Discovery approximate functional dependencies is processing`);
+      } else if (type === 'MFD') {
+        setTitle(`Verification metric dependency is processing`);
+      } else {
+        setTitle(`Discovery functional dependencies is processing`);
+      }
+    }
 
     if (
       state &&
@@ -45,22 +59,25 @@ const Loader: FC = () => {
       <source src={status.icon} type="video/webm" />
     </video>
   ) : (
-    <Image src={status.icon} alt="status" width={70} height={76} />
+    <Icon name={status.icon as IconName} size={76} {...status.iconProps} />
   );
   return (
-    <div className={styles.container}>
-      {icon}
-      <div className={styles.text}>
-        <h6>
-          Task status:
-          <span className={cn(styles[status.className], styles.status)}>
-            {' '}
-            {status.label}
-          </span>
-        </h6>
-        <p className={styles.description}>{status.description}</p>
+    <>
+      <NextSeo title={title} />
+      <div className={styles.container}>
+        {icon}
+        <div className={styles.text}>
+          <h6>
+            Task status:
+            <span className={cn(styles[status.className], styles.status)}>
+              {' '}
+              {status.label}
+            </span>
+          </h6>
+          <p className={styles.description}>{status.description}</p>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 export default Loader;

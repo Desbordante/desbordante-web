@@ -23,6 +23,8 @@ const FDAlgorithms = [
   'FUN',
 ] as const;
 
+export const approximateAlgorithms = ['Pyro', 'TaneX', 'Apriori'];
+
 type FDAlgorithm = (typeof FDAlgorithms)[number];
 type CFDAlgorithm = 'CTane';
 type ARAlgorithm = 'Apriori';

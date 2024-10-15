@@ -1,11 +1,11 @@
 import classNames from 'classnames';
 import { formatDistance } from 'date-fns';
-import { FC, PropsWithChildren } from 'react';
+import { FC, PropsWithChildren, useState } from 'react';
+import FilePropertiesModal from '@components/FilePropertiesModal';
+import Icon from '@components/Icon';
+import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import '@formatjs/intl-numberformat/polyfill';
 import '@formatjs/intl-numberformat/locale-data/en';
-import ThreeDotsIcon from '@assets/icons/three-dots.svg?component';
-import useModal from '@hooks/useModal';
-import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import { AllowedDataset } from 'types/algorithms';
 import styles from './DatasetCard.module.scss';
 
@@ -60,10 +60,11 @@ interface DatasetCardProps {
 }
 
 export const DatasetCard: FC<DatasetCardProps> = ({ file }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const { primitive, fileID } = useTaskUrlParams();
   const descriptionList = getFileDescription(file);
   const fileName = file.originalFileName;
-  const { open: openFilePropertiesModal } = useModal('FILE_PROPERTIES');
   const isDisabled =
     !primitive.value || !file.supportedPrimitives.includes(primitive.value);
 
@@ -75,12 +76,12 @@ export const DatasetCard: FC<DatasetCardProps> = ({ file }) => {
     >
       <div className={styles.cardTitle}>
         <p title={fileName}>{fileName}</p>
-        <ThreeDotsIcon
-          onClick={() =>
-            openFilePropertiesModal({ fileID: file.fileID, data: file })
-          }
-          width={20}
-          height={20}
+        <Icon name="threeDots" size={20} onClick={() => setIsOpen(true)} />
+        <FilePropertiesModal
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          fileID={file.fileID}
+          data={file}
         />
       </div>
       <div className={styles.cardDescription}>

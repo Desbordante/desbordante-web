@@ -1,5 +1,6 @@
 import { GetServerSideProps, NextPage } from 'next';
-import HomeBackground from '@assets/backgrounds/home.svg?component';
+import { NextSeo } from 'next-seo';
+import Icon from '@components/Icon';
 import PrPublicationCard from '@components/PrPublicationCard';
 import SciencePublicationCard from '@components/SciencePublicationCard';
 import cmsClient from '@graphql/cmsClient';
@@ -16,40 +17,40 @@ const Papers: NextPage<Props> = ({ papers }) => {
   const sciencePublications = papers?.sciencePublications?.data;
 
   return (
-    <div className={styles.papersPage}>
-      <HomeBackground
-        className={styles.background}
-        width="100%"
-        height="100%"
-        preserveAspectRatio="xMidYMid slice"
-      />
+    <>
+      <NextSeo title="Papers" />
+      <div className={styles.papersPage}>
+        <Icon name="backgroundHome" className={styles.background} />
 
-      {prPublications && prPublications.length > 0 && (
-        <section className={styles.prPublications}>
-          <h5 className={styles.sectionTitle}>Press</h5>
-          <ol className={styles.papersContainer}>
-            {prPublications.map(
-              ({ id, attributes }) =>
-                attributes && <PrPublicationCard key={id} data={attributes} />,
-            )}
-          </ol>
-        </section>
-      )}
+        {prPublications && prPublications.length > 0 && (
+          <section className={styles.prPublications}>
+            <h5 className={styles.sectionTitle}>Press</h5>
+            <ol className={styles.papersContainer}>
+              {prPublications.map(
+                ({ id, attributes }) =>
+                  attributes && (
+                    <PrPublicationCard key={id} data={attributes} />
+                  ),
+              )}
+            </ol>
+          </section>
+        )}
 
-      {sciencePublications && sciencePublications.length > 0 && (
-        <section className={styles.sciencePublications}>
-          <h5 className={styles.sectionTitle}>Publications</h5>
-          <ol className={styles.papersContainer}>
-            {sciencePublications.map(
-              ({ id, attributes }) =>
-                attributes && (
-                  <SciencePublicationCard key={id} data={attributes} />
-                ),
-            )}
-          </ol>
-        </section>
-      )}
-    </div>
+        {sciencePublications && sciencePublications.length > 0 && (
+          <section className={styles.sciencePublications}>
+            <h5 className={styles.sectionTitle}>Publications</h5>
+            <ol className={styles.papersContainer}>
+              {sciencePublications.map(
+                ({ id, attributes }) =>
+                  attributes && (
+                    <SciencePublicationCard key={id} data={attributes} />
+                  ),
+              )}
+            </ol>
+          </section>
+        )}
+      </div>
+    </>
   );
 };
 

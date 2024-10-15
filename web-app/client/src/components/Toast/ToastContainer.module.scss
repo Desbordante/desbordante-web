@@ -2,6 +2,7 @@
 
 
 .wrapper {
+  z-index: 1002;
   &:global(.Toastify__toast-container) {
     padding: 0;
     width: initial;
@@ -62,7 +63,7 @@
   padding: 0;
   border: none;
   font: inherit;
-  color: inherit;
+  color: $white;
   background-color: transparent;
   cursor: pointer;
   height: fit-content;

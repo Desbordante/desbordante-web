@@ -1,84 +1,85 @@
+import {
+  useFloating,
+  FloatingPortal,
+  FloatingOverlay,
+  FloatingFocusManager,
+  useTransitionStyles,
+  useDismiss,
+  useInteractions,
+  useRole,
+} from '@floating-ui/react';
 import cn from 'classnames';
-import { useEffect } from 'react';
-import { animated, useSpring } from 'react-spring';
-import CloseIcon from '@assets/icons/close.svg?component';
-import OutsideClickObserver from '@components/OutsideClickObserver';
+import Icon from '@components/Icon';
+import { portalRoot } from '@constants/portalRoot';
 import { FCWithChildren } from 'types/react';
 import styles from './ModalContainer.module.scss';
 
-const AnimatedOutsideClickObserver = animated(OutsideClickObserver);
-
 export interface ModalProps {
-  onClose?: () => void;
+  onClose: () => void;
   className?: string;
+  isOpen?: boolean;
 }
 
 const ModalContainer: FCWithChildren<ModalProps> = ({
+  onClose,
   children,
+  isOpen = true,
   className,
-  onClose = () => null,
 }) => {
-  const backgroundFadeProps = useSpring({
-    from: {
-      opacity: 0,
-    },
-    to: {
-      opacity: 1,
-    },
-    config: {
-      tension: 300,
-    },
+  const { refs, context } = useFloating({
+    open: isOpen,
+    onOpenChange: (prop: boolean) => !prop && onClose(),
   });
 
-  const containerProps = useSpring({
-    from: {
+  const stylesOverlay = useTransitionStyles(context, {
+    duration: 300,
+    initial: {
       opacity: 0,
+    },
+  }).styles;
+
+  const stylesDialog = useTransitionStyles(context, {
+    duration: 300,
+    initial: {
       transform: 'translate3d(0, 3%, 0)',
     },
-    to: [
-      {
-        opacity: 1,
-        transform: 'translate3d(0, 0, 0)',
-      },
-      {
-        transform: 'translate3d(0, 0, 0)',
-        immediate: true,
-      },
-    ],
-    config: {
-      tension: 300,
-    },
-  });
+  }).styles;
 
-  useEffect(() => {
-    const activeElement = document.activeElement;
+  const dismiss = useDismiss(context, { outsidePressEvent: 'click' });
+  const role = useRole(context, { role: 'dialog' });
 
-    if (!(activeElement instanceof HTMLElement)) {
-      return;
-    }
-
-    activeElement.blur();
-
-    return () => activeElement.focus();
-  }, []);
-
+  const { getFloatingProps } = useInteractions([dismiss, role]);
   return (
-    <animated.div className={styles.backgroundFade} style={backgroundFadeProps}>
-      <AnimatedOutsideClickObserver
-        className={cn(className, styles.container)}
-        style={containerProps}
-        onClickOutside={onClose}
-      >
-        <button
-          onClick={onClose}
-          aria-label="Close"
-          className={styles.closeButton}
-        >
-          <CloseIcon width={24} height={24} />
-        </button>
-        <>{children}</>
-      </AnimatedOutsideClickObserver>
-    </animated.div>
+    <>
+      {isOpen && (
+        <FloatingPortal root={portalRoot}>
+          <FloatingOverlay
+            style={stylesOverlay}
+            className={styles.dialogOverlay}
+            lockScroll
+          >
+            <FloatingFocusManager context={context}>
+              <div
+                style={stylesDialog}
+                className={cn(styles.dialog, className)}
+                ref={refs.setFloating}
+                {...getFloatingProps()}
+              >
+                {children}
+                <button
+                  onClick={onClose}
+                  aria-label="Close"
+                  className={styles.closeButton}
+                  role="close"
+                >
+                  <Icon name="cross" />
+                </button>
+              </div>
+            </FloatingFocusManager>
+          </FloatingOverlay>
+        </FloatingPortal>
+      )}
+    </>
   );
 };
 

@@ -1,5 +1,6 @@
 import { useLazyQuery } from '@apollo/client';
 import { GetServerSideProps } from 'next';
+import { NextSeo } from 'next-seo';
 import { ReactElement, useMemo, useRef, useState } from 'react';
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
 import ScrollableTable from '@components/ScrollableTable';
@@ -72,6 +73,7 @@ const ReportsSnippet: NextPageWithLayout<Props> = ({ snippet }) => {
 ReportsSnippet.getLayout = function getLayout(page: ReactElement) {
   return (
     <TaskContextProvider>
+      <NextSeo title="Dataset Snippet" />
       <ReportsLayout pageClass={styles.page} containerClass={styles.container}>
         {page}
       </ReportsLayout>

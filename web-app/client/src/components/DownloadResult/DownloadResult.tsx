@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { FC } from 'react';
-import DownloadIcon from '@assets/icons/download.svg?component';
 import Button from '@components/Button';
+import Icon from '@components/Icon';
 import { useTaskContext } from '@components/TaskContext';
 import {
   downloadResults,
@@ -43,7 +43,7 @@ const DownloadResult: FC<Props> = ({ filter, disabled }) => {
 
   return (
     <Button
-      icon={<DownloadIcon />}
+      icon={<Icon name="download" />}
       onClick={() => downloadResults()}
       disabled={loading || disabled}
     >

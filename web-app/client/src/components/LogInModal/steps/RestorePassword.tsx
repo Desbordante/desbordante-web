@@ -1,9 +1,8 @@
 import { useMutation } from '@apollo/client';
 import { FC } from 'react';
 import { useForm } from 'react-hook-form';
-import isStrongPassword from 'validator/lib/isStrongPassword';
 import Button from '@components/Button';
-import { Text } from '@components/Inputs';
+import Password from '@components/Inputs/Password';
 import {
   changePassword,
   changePasswordVariables,
@@ -26,16 +25,16 @@ interface Props {
   onSuccess: () => void;
 }
 
-const Password: FC<Props> = ({ onSuccess, email }) => {
+const RestorePassword: FC<Props> = ({ onSuccess, email }) => {
   const { applyTokens } = useAuthContext();
   const [changePassword] = useMutation<changePassword, changePasswordVariables>(
     CHANGE_PASSWORD,
   );
 
   const {
-    register,
+    control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<Inputs>({
     defaultValues,
   });
@@ -59,15 +58,12 @@ const Password: FC<Props> = ({ onSuccess, email }) => {
       <h4 className={styles.title}>Recovery</h4>
       <form onSubmit={onSubmit} className={styles.formContainer}>
         <div className={styles.inputGroup}>
-          <Text
+          <Password
+            control={control}
+            controlName="password"
             label="Password"
-            type="password"
             placeholder="admin1234"
-            {...register('password', {
-              required: 'Required',
-              validate: (value) => isStrongPassword(value) || 'Weak password',
-            })}
-            error={errors.password?.message}
+            rules={{ required: 'Required' }}
           />
         </div>
 
@@ -81,4 +77,4 @@ const Password: FC<Props> = ({ onSuccess, email }) => {
   );
 };
 
-export default Password;
+export default RestorePassword;

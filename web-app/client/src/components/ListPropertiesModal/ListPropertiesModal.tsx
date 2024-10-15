@@ -9,13 +9,14 @@ interface Props extends ModalProps {
 }
 
 const ListPropertiesModal: FCWithChildren<Props> = ({
+  isOpen,
   name,
   onClose,
   onApply,
   children,
 }) => {
   return (
-    <ModalContainer onClose={onClose}>
+    <ModalContainer isOpen={isOpen} onClose={onClose}>
       <h4 className={styles.title}>{name}</h4>
       <div className={styles.inputs}>{children}</div>
       <div className={styles.buttons}>

@@ -1,5 +1,6 @@
 import { GetServerSideProps, NextPage } from 'next';
-import HomeBackground from '@assets/backgrounds/home.svg?component';
+import { NextSeo } from 'next-seo';
+import Icon from '@components/Icon';
 import TeamMemberBadge from '@components/TeamMemberBadge';
 import cmsClient from '@graphql/cmsClient';
 import { getTeamMembers } from '@graphql/operations/queries/__generated__/getTeamMembers';
@@ -14,23 +15,21 @@ const Team: NextPage<Props> = ({ team }) => {
   const { teamMembers } = team;
 
   return (
-    <div className={styles.teamPage}>
-      <HomeBackground
-        className={styles.background}
-        width="100%"
-        height="100%"
-        preserveAspectRatio="xMidYMid slice"
-      />
+    <>
+      <NextSeo title="Team" />
+      <div className={styles.teamPage}>
+        <Icon name="backgroundHome" className={styles.background} />
 
-      {teamMembers && teamMembers.data && teamMembers.data.length > 0 && (
-        <ol className={styles.teamCardsContainer}>
-          {teamMembers.data.map(
-            ({ id, attributes }) =>
-              attributes && <TeamMemberBadge data={attributes} key={id} />,
-          )}
-        </ol>
-      )}
-    </div>
+        {teamMembers && teamMembers.data && teamMembers.data.length > 0 && (
+          <ol className={styles.teamCardsContainer}>
+            {teamMembers.data.map(
+              ({ id, attributes }) =>
+                attributes && <TeamMemberBadge data={attributes} key={id} />,
+            )}
+          </ol>
+        )}
+      </div>
+    </>
   );
 };
 

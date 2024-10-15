@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 import React from 'react';
 import AlgorithmFormConfigurator from '@components/AlgorithmFormConfigurator';
 import {
@@ -33,6 +34,7 @@ const ConfigureAlgorithm: NextPage = () => {
 
   return (
     <>
+      <NextSeo title="Step 3: configure algorithm" />
       {excludedPrimitives.includes(primitiveValue as UsedPrimitivesType) && (
         <div className={styles.filler}>
           <h6>

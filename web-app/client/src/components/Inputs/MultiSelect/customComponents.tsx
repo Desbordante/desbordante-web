@@ -15,8 +15,7 @@ import {
   OptionProps,
   NoticeProps,
 } from 'react-select';
-import ChevronDownIcon from '@assets/icons/arrow-down.svg?component';
-import EmptyButton from '@assets/icons/close.svg?component';
+import Icon from '@components/Icon';
 import { InputPropsBase } from '@components/Inputs';
 import badgeStyles from '@components/Inputs/MultiSelect/OptionBadge/OptionBadge.module.scss';
 import { Option as OptionType } from 'types/inputs';
@@ -74,7 +73,7 @@ const MultiValueRemove: ComponentType<
     {...props.innerProps}
     className={cn(styles.multiValueRemove, props.error && styles.error)}
   >
-    <EmptyButton />
+    <Icon name="cross" />
   </div>
 );
 
@@ -97,7 +96,7 @@ const ClearIndicator: ComponentType<
   ClearIndicatorProps<OptionType, true> & InputPropsBase
 > = ({ innerProps }) => (
   <div className={styles.clearIndicator} {...innerProps}>
-    <EmptyButton />
+    <Icon name="cross" />
   </div>
 );
 
@@ -105,7 +104,7 @@ const DropdownIndicator: ComponentType<
   DropdownIndicatorProps<OptionType, true> & InputPropsBase
 > = ({ innerProps }) => (
   <div className={styles.dropdownIndicator} {...innerProps}>
-    <ChevronDownIcon />
+    <Icon name="angle" />
   </div>
 );
 

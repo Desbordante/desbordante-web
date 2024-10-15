@@ -11,7 +11,7 @@ import {
   ValueContainerProps,
   NoticeProps,
 } from 'react-select';
-import ChevronDownIcon from '@assets/icons/arrow-down.svg?component';
+import Icon from '@components/Icon';
 import { InputPropsBase } from '@components/Inputs';
 import { Option as OptionType } from 'types/inputs';
 import styles from './Select.module.scss';
@@ -68,7 +68,7 @@ const IndicatorsContainer: ComponentType<
   IndicatorsContainerProps<OptionType, false> & InputPropsBase
 > = ({ innerProps }) => (
   <div className={styles.indicatorsContainer} {...innerProps}>
-    <ChevronDownIcon />
+    <Icon name="angle" />
   </div>
 );
 

@@ -3,9 +3,9 @@ import { countries } from 'countries-list';
 import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import isEmail from 'validator/lib/isEmail';
-import isStrongPassword from 'validator/lib/isStrongPassword';
 import Button from '@components/Button';
 import { Text } from '@components/Inputs';
+import Password from '@components/Inputs/Password';
 import { ControlledSelect } from '@components/Inputs/Select';
 import {
   createUser,
@@ -76,7 +76,6 @@ const CoreInfo: FC<Props> = ({ onSuccess }) => {
       }
     } catch (e) {}
   });
-
   return (
     <>
       <h4 className={styles.title}>Sign Up</h4>
@@ -108,15 +107,12 @@ const CoreInfo: FC<Props> = ({ onSuccess }) => {
             })}
             error={errors.email?.message}
           />
-          <Text
+          <Password
+            control={control}
+            controlName="password"
             label="Password"
-            type="password"
             placeholder="admin1234"
-            {...register('password', {
-              required: 'Required',
-              validate: (value) => isStrongPassword(value) || 'Weak password',
-            })}
-            error={errors.password?.message}
+            rules={{ required: 'Required' }}
           />
           <ControlledSelect
             control={control}

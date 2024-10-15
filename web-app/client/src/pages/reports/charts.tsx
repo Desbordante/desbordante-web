@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { NextSeo } from 'next-seo';
 import { ReactElement } from 'react';
 import LayeredChart from '@components/Chart';
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
@@ -36,28 +37,31 @@ const ReportsCharts: NextPageWithLayout = () => {
   const { lhs, rhs } = getChartData(data);
 
   return (
-    <div className={styles.container}>
-      {loading && <h5>Loading..</h5>}
-      <LayeredChart
-        title="Left-hand side"
-        attributes={lhs}
-        {...{
-          selectedAttributeIndices: dependenciesFilter.lhs,
-          setSelectedAttributeIndices: (lhs) =>
-            setDependenciesFilter(({ rhs }) => ({ rhs, lhs })),
-        }}
-      />
+    <>
+      <NextSeo title="Statistics" />
+      <div className={styles.container}>
+        {loading && <h5>Loading..</h5>}
+        <LayeredChart
+          title="Left-hand side"
+          attributes={lhs}
+          {...{
+            selectedAttributeIndices: dependenciesFilter.lhs,
+            setSelectedAttributeIndices: (lhs) =>
+              setDependenciesFilter(({ rhs }) => ({ rhs, lhs })),
+          }}
+        />
 
-      <LayeredChart
-        title="Right-hand side"
-        attributes={rhs}
-        {...{
-          selectedAttributeIndices: dependenciesFilter.rhs,
-          setSelectedAttributeIndices: (rhs) =>
-            setDependenciesFilter(({ lhs }) => ({ rhs, lhs })),
-        }}
-      />
-    </div>
+        <LayeredChart
+          title="Right-hand side"
+          attributes={rhs}
+          {...{
+            selectedAttributeIndices: dependenciesFilter.rhs,
+            setSelectedAttributeIndices: (rhs) =>
+              setDependenciesFilter(({ lhs }) => ({ rhs, lhs })),
+          }}
+        />
+      </div>
+    </>
   );
 };
 

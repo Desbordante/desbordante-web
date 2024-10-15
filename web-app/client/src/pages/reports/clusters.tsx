@@ -1,6 +1,5 @@
-import Image from 'next/image';
 import { FC, ReactElement, useState } from 'react';
-import longArrowIcon from '@assets/icons/long-arrow.svg';
+import Icon from '@components/Icon';
 import Pagination from '@components/Pagination/Pagination';
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
 import ClusterTable from '@components/ScrollableTable/ClusterTable';
@@ -93,7 +92,7 @@ const Loader: FC<LoaderProps> = ({ lhs, rhs }) => {
               {attr}
             </span>
           ))}
-          <Image src={longArrowIcon} width={66} height={15} alt="" />
+          <Icon name="longArrow" />
           <span className={styles.attr}>{rhs}</span>
         </div>
       </div>
