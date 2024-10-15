@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import Button from '@components/Button';
+import Password from '@components/Inputs/Password';
 import {
   changePassword,
   changePasswordVariables,
@@ -10,7 +11,6 @@ import { CHANGE_PASSWORD } from '@graphql/operations/mutations/changePassword';
 import { useAuthContext } from '@hooks/useAuthContext';
 import hashPassword from '@utils/hashPassword';
 import styles from '../LogInModal.module.scss';
-import Password from '@components/Inputs/Password';
 
 type Inputs = {
   password: string;
@@ -34,7 +34,7 @@ const RestorePassword: FC<Props> = ({ onSuccess, email }) => {
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<Inputs>({
     defaultValues,
   });

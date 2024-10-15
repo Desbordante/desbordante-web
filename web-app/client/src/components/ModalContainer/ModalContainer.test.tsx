@@ -9,11 +9,11 @@ describe('Modal Container as Test Modal window', () => {
     jest.clearAllMocks();
   });
 
-const renderAndOpen = async () => {
-  render(<TestModal />);
-  const triggerOpen = screen.getByText('Test Button');
-  await user.click(triggerOpen);
-};
+  const renderAndOpen = async () => {
+    render(<TestModal />);
+    const triggerOpen = screen.getByText('Test Button');
+    await user.click(triggerOpen);
+  };
 
   test('Should open', async () => {
     await renderAndOpen();
@@ -32,6 +32,4 @@ const renderAndOpen = async () => {
     await user.click(screen.getByText('Outside'));
     expect(screen.queryByText('Test Modal')).toBeNull();
   });
-
-
 });

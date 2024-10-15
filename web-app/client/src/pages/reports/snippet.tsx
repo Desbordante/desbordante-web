@@ -1,5 +1,6 @@
 import { useLazyQuery } from '@apollo/client';
 import { GetServerSideProps } from 'next';
+import { NextSeo } from 'next-seo';
 import { ReactElement, useMemo, useRef, useState } from 'react';
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
 import ScrollableTable from '@components/ScrollableTable';
@@ -13,7 +14,6 @@ import {
 import { GET_DATASET } from '@graphql/operations/queries/getDataset';
 import styles from '@styles/Snippet.module.scss';
 import { NextPageWithLayout } from 'types/pageWithLayout';
-import { NextSeo } from 'next-seo';
 
 type Snippet = getDataset_taskInfo_dataset_snippet;
 

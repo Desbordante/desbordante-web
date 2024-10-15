@@ -1,5 +1,5 @@
-import Button from '@components/Button';
 import { FC, useState } from 'react';
+import Button from '@components/Button';
 import ModalContainer from './ModalContainer';
 
 export const TestModal: FC = () => {

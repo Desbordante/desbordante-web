@@ -1,25 +1,18 @@
-import { useLazyQuery, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import taskStateAtom, {
-  taskStateAtomDefaultValues,
   taskStateAtomDefaultValuesWithID,
 } from '@atoms/primaryAtoms/taskStateAtom';
-import {
-  getTaskState,
-  getTaskState_taskInfo_state,
-  getTaskState_taskInfo_state_TaskState,
-  getTaskStateVariables,
-} from '@graphql/operations/queries/__generated__/getTaskState';
+import { getTaskState_taskInfo_state } from '@graphql/operations/queries/__generated__/getTaskState';
 import {
   getTaskStateLite,
   getTaskStateLiteVariables,
 } from '@graphql/operations/queries/__generated__/getTaskStateLite';
-import { GET_TASK_STATE } from '@graphql/operations/queries/getTaskState';
 import { GET_TASK_STATE_LITE } from '@graphql/operations/queries/getTaskStateLite';
-import { showError } from '@utils/toasts';
 import { GET_TASK_TYPE } from '@graphql/operations/queries/getTaskType';
+import { showError } from '@utils/toasts';
 
 const useTaskState = () => {
   const router = useRouter();
@@ -89,7 +82,7 @@ const useTaskState = () => {
     if (state && 'processStatus' in state) {
       setTaskState({
         ...taskState,
-        state: state,
+        state,
       });
     }
     if (state && state.__typename !== 'TaskState') {

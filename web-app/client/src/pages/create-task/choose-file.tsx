@@ -1,6 +1,7 @@
 import cn from 'classnames';
 import type { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 import { useEffect, useMemo, useState } from 'react';
 import Button from '@components/Button';
 import { Collapse } from '@components/Collapse';
@@ -16,7 +17,6 @@ import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ChooseFile.module.scss';
 import { AllowedDataset } from 'types/algorithms';
 import { MainPrimitiveType } from 'types/globalTypes';
-import { NextSeo } from 'next-seo';
 
 const sortDatasetsBySupportedPrimitive = (
   datasets?: AllowedDataset[],

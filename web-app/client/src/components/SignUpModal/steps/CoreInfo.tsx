@@ -3,9 +3,9 @@ import { countries } from 'countries-list';
 import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import isEmail from 'validator/lib/isEmail';
-import isStrongPassword from 'validator/lib/isStrongPassword';
 import Button from '@components/Button';
 import { Text } from '@components/Inputs';
+import Password from '@components/Inputs/Password';
 import { ControlledSelect } from '@components/Inputs/Select';
 import {
   createUser,
@@ -15,7 +15,6 @@ import { CREATE_USER } from '@graphql/operations/mutations/createUser';
 import { useAuthContext } from '@hooks/useAuthContext';
 import hashPassword from '@utils/hashPassword';
 import styles from '../../LogInModal/LogInModal.module.scss';
-import Password from '@components/Inputs/Password';
 
 const countryNames = Object.entries(countries).map(([, country]) => country);
 
