@@ -4,13 +4,13 @@ import Icon from './Icon';
 
 const user = userEvent.setup();
 
-describe('Testing Icon Component', () => {
+describe('Icon Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('Should render icon', async () => {
-    render(<Icon name="info" role="img" />);
+    render(<Icon name="info" />);
     expect(screen.getByRole('img'));
   });
 });

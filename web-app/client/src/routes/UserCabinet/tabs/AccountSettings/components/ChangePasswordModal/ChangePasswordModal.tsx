@@ -1,9 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { FC, useId } from 'react';
 import { useForm } from 'react-hook-form';
-import isStrongPassword from 'validator/lib/isStrongPassword';
 import Button from '@components/Button';
-import { Text } from '@components/Inputs';
 import ModalContainer, { ModalProps } from '@components/ModalContainer';
 import {
   changePassword,
@@ -12,6 +10,7 @@ import {
 import { CHANGE_PASSWORD } from '@graphql/operations/mutations/changePassword';
 import hashPassword from '@utils/hashPassword';
 import styles from './ChangePasswordModal.module.scss';
+import Password from '@components/Inputs/Password';
 
 type Inputs = {
   oldPassword: string;
@@ -19,10 +18,9 @@ type Inputs = {
   repeatPassword: string;
 };
 
-const ChangePasswordModal: FC<ModalProps> = ({ onClose }) => {
+const ChangePasswordModal: FC<ModalProps> = ({ isOpen, onClose }) => {
   const {
-    register,
-    formState: { errors },
+    control,
     handleSubmit,
   } = useForm<Inputs>();
   const formId = useId();
@@ -43,41 +41,34 @@ const ChangePasswordModal: FC<ModalProps> = ({ onClose }) => {
   });
 
   return (
-    <ModalContainer onClose={onClose} className={styles.changePasswordModal}>
+    <ModalContainer isOpen={isOpen} onClose={onClose} className={styles.changePasswordModal}>
       <h4 className={styles.title}>Change password</h4>
       <form onSubmit={onSubmit} id={formId}>
-        <Text
+        <Password
+          control={control}
+          controlName="oldPassword"
           label="Old password"
-          type="password"
           placeholder="admin1234"
-          {...register('oldPassword', {
-            required: 'Required',
-          })}
-          error={errors.oldPassword?.message}
+          rules={{ required: 'Required' }}
+          needStrengthValidation={false}
         />
-        <Text
+        <Password
+          control={control}
+          controlName="newPassword"
           label="New password"
-          type="password"
           placeholder="admin1234"
-          {...register('newPassword', {
-            required: 'Required',
-            validate: (value) => isStrongPassword(value) || 'Weak password',
-          })}
-          error={errors.newPassword?.message}
+          rules={{ required: 'Required' }}
         />
-        <Text
+        <Password
+          control={control}
+          controlName="repeatPassword"
           label="Repeat password"
-          type="password"
           placeholder="admin1234"
-          {...register('repeatPassword', {
+          rules={{
             required: 'Required',
-            validate: {
-              isStrong: (value) => isStrongPassword(value) || 'Weak password',
-              isSame: (value, { newPassword }) =>
-                value === newPassword || 'Passwords do not match',
-            },
-          })}
-          error={errors.repeatPassword?.message}
+            validate: (value, { newPassword }) =>
+              value === newPassword || 'Passwords do not match',
+          }}
         />
       </form>
       <div className={styles.actions}>

@@ -4,7 +4,7 @@ import ModalContainer, { ModalProps } from '../ModalContainer';
 import Code from './steps/Code';
 import Email from './steps/Email';
 import LogIn from './steps/LogIn';
-import Password from './steps/Password';
+import RestorePassword from './steps/RestorePassword';
 
 const LogInModal: FC<ModalProps> = ({ isOpen, onClose }) => {
   const [stage, setStage] = useState(1);
@@ -29,7 +29,7 @@ const LogInModal: FC<ModalProps> = ({ isOpen, onClose }) => {
           <Email email={email} setEmail={setEmail} onSuccess={goToNextStage} />
         )}
         {stage === 3 && <Code email={email} onSuccess={goToNextStage} />}
-        {stage === 4 && <Password email={email} onSuccess={onSuccess} />}
+        {stage === 4 && <RestorePassword email={email} onSuccess={onSuccess} />}
       </ModalContainer>
       <AuthSuccessModal
         isOpen={isOpenPasswordChanged}

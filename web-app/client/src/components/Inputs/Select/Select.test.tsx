@@ -1,46 +1,46 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Select from './Select';
-import { countries } from 'countries-list';
 
 const user = userEvent.setup();
+const options = [
+  { label: 'aaa', value: 1 },
+  { label: 'bbb', value: 2 },
+  { label: 'ccc', value: 3 },
+];
 
-describe('Testing select dropdown', () => {
+const renderAndOpen = async () => {
+  render(
+    <>
+      <Select label="Label" placeholder="Placeholder" options={options} />
+      <div>Outside</div>
+    </>,
+  );
+  const trigger = screen.getByText('Placeholder');
+  await user.click(trigger);
+};
+
+describe('Select with Dropdown', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  const countryNames = Object.entries(countries).map(([, country]) => country);
+  test('Should open dropdown', async () => {
+    await renderAndOpen();
+    expect(screen.getByText('aaa'));
+  });
 
-  test('Should open dropdown, select option, close by click outside', async () => {
-    render(
-      <>
-        <Select
-          label="Country"
-          placeholder="Germany"
-          options={countryNames.map(({ emoji, native, name }) => ({
-            label: `${emoji} ${native}`,
-            value: name,
-          }))}
-        />
-        <div>Outside</div>
-      </>,
-    );
-    const trigger = screen.getByText('Germany');
-    await user.click(trigger);
-    const andorra = () => screen.getByText('🇦🇩 Andorra');
-    const anguilla = screen.getByText('🇦🇮 Anguilla');
-    const anguillaQuery = () => screen.queryByText('🇦🇮 Anguilla');
-    expect(andorra());
-    expect(anguilla);
+  test('Should select option', async () => {
+    await renderAndOpen();
+    await user.click(screen.getByText('aaa'));
+    expect(screen.queryByText('aaa')).toBeTruthy();
+    expect(screen.queryByText('bbb')).toBeNull();
+  });
 
-    await user.click(andorra());
-    expect(andorra());
-    expect(anguillaQuery()).toBeNull();
-
-    await user.click(andorra());
-    expect(anguillaQuery()).not.toBeNull();
-    await user.click(screen.getByText('Outside'));
-    expect(anguillaQuery()).toBeNull();
+  test('Should close by click outside', async () => {
+    await renderAndOpen();
+    const outside = screen.getByText('Outside');
+    await user.click(outside);
+    expect(screen.queryByText('aaa')).toBeNull();
   });
 });

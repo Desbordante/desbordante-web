@@ -26,7 +26,7 @@ const SignUpModal: FC<ModalProps> = ({ isOpen, onClose }) => {
       </ModalContainer>
       <AuthSuccessModal
         isOpen={isOpenSuccessVerified}
-        onClose={() => onCloseSuccessVerified}
+        onClose={onCloseSuccessVerified}
       />
     </>
   );

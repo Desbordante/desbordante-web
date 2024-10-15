@@ -47,12 +47,7 @@ const MultiSelect: ForwardRefRenderFunction<RefElement, MultiSelectProps> = (
         className={cn(styles.multiSelect, error && styles.error)}
         {...props}
         ref={ref}
-        styles={{
-          menuPortal: (base) => {
-            return { ...base };
-          },
-          ...colorStyles,
-        }}
+        styles={colorStyles}
         menuPortalTarget={portalRoot}
         menuPosition="fixed"
         components={{ ...customComponents, ...components }}

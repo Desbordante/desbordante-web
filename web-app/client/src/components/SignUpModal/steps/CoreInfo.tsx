@@ -15,21 +15,9 @@ import { CREATE_USER } from '@graphql/operations/mutations/createUser';
 import { useAuthContext } from '@hooks/useAuthContext';
 import hashPassword from '@utils/hashPassword';
 import styles from '../../LogInModal/LogInModal.module.scss';
+import Password from '@components/Inputs/Password';
 
 const countryNames = Object.entries(countries).map(([, country]) => country);
-
-export const passwordTooltip = (
-  <div className={styles.tooltip}>
-    The password must contain
-    <ul>
-      <li>at least 8 characters</li>
-      <li>at least 1 uppercase letter</li>
-      <li>at least 1 lowercase letter</li>
-      <li>at least 1 digit</li>
-      <li>at least 1 special character</li>
-    </ul>
-  </div>
-);
 
 type Inputs = {
   fullName: string;
@@ -89,7 +77,6 @@ const CoreInfo: FC<Props> = ({ onSuccess }) => {
       }
     } catch (e) {}
   });
-
   return (
     <>
       <h4 className={styles.title}>Sign Up</h4>
@@ -121,21 +108,12 @@ const CoreInfo: FC<Props> = ({ onSuccess }) => {
             })}
             error={errors.email?.message}
           />
-          <Text
+          <Password
+            control={control}
+            controlName="password"
             label="Password"
-            type="password"
-            tooltip={passwordTooltip}
             placeholder="admin1234"
-            {...register('password', {
-              required: 'Required',
-              validate: (value) => {
-                return (
-                  isStrongPassword(value) ||
-                  'The password does not match the pattern (see tooltip)'
-                );
-              },
-            })}
-            error={errors.password?.message}
+            rules={{ required: 'Required' }}
           />
           <ControlledSelect
             control={control}

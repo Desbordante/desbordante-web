@@ -4,49 +4,50 @@ import MultiSelect from './MultiSelect';
 import { countries } from 'countries-list';
 
 const user = userEvent.setup();
+const options = [
+  { label: 'aaa', value: 1 },
+  { label: 'bbb', value: 2 },
+  { label: 'ccc', value: 3 },
+];
 
-describe('Testing multi select dropdown', () => {
+const renderAndOpen = async () => {
+  render(
+    <>
+      <MultiSelect label="Label" placeholder="Placeholder" options={options} />
+      <div>Outside</div>
+    </>,
+  );
+  const trigger = screen.getByText('Placeholder');
+  await user.click(trigger);
+};
+
+describe('Multiselect with dropdown', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  const countryNames = Object.entries(countries).map(
-      ([, country]) => country,
-    );
-
-  test('Should open dropdown, select first and second option, close by click outside', async () => {
-    render(
-      <>
-        <MultiSelect
-          label="Country"
-          placeholder="Germany"
-          options={countryNames.map(({ emoji, native, name }) => ({
-            label: `${emoji} ${native}`,
-            value: name,
-          }))}
-        />
-        <div>Outside</div>
-      </>,
-    );
-    const trigger = screen.getByText('Germany');
-    await user.click(trigger);
-    const andorra = () => screen.getByText('🇦🇩 Andorra');
-    const anguilla = () => screen.getByText('🇦🇮 Anguilla');
-    const antiguaQuery = () => screen.queryByText('🇦🇬 Antigua and Barbuda');
-    const anguillaQuery = () => screen.queryByText('🇦🇮 Anguilla');
-    expect(andorra() && anguilla());
-    expect(antiguaQuery()).not.toBeNull();
-
-    await user.click(andorra());
-    expect(andorra());
-    expect(anguillaQuery()).toBeNull();
-
-    await user.click(andorra());
-    await user.click(anguilla());
-    expect(anguillaQuery()).not.toBeNull();
-    expect(antiguaQuery()).toBeNull();
-
+  test('Should open dropdown', async () => {
+    await renderAndOpen();
+    expect(screen.getByText('aaa'));
+  });
+  test('Should select first option', async () => {
+    await renderAndOpen();
+    await user.click(screen.getByText('aaa'));
+    expect(screen.queryByText('aaa'));
+    expect(screen.queryByText('bbb')).toBeNull();
+  });
+  test('Should select second option', async () => {
+    await renderAndOpen();
+    await user.click(screen.getByText('aaa'));
+    await user.click(screen.getByText('aaa'));
+    screen.getByText('bbb');
+    await user.click(screen.getByText('bbb'));
+    expect(screen.queryByText('aaa')).toBeTruthy();
+    expect(screen.queryByText('bbb')).toBeTruthy();
+  });
+  test('Should close by click outside', async () => {
+    await renderAndOpen();
     await user.click(screen.getByText('Outside'));
-    expect(antiguaQuery()).toBeNull();
+    expect(screen.queryByText('aaa')).toBeNull();
   });
 });
