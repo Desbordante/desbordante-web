@@ -23,7 +23,6 @@ type Props = {
 
 const DatasetUploader: FC<Props> = ({ onUpload, isOpen, setIsOpen }) => {
   const inputFile = useRef<HTMLInputElement>(null);
-  //const [isOpen, setIsOpen] = useState(false);
   const [filesState, setFiles] = useState<FileList | null>(null);
   const [isFileDragged, setIsFileDragged] = useState(false);
   const [isDraggedInside, setIsDraggedInside] = useState(false);

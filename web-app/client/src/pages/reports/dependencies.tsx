@@ -53,10 +53,9 @@ const ReportsDependencies: NextPageWithLayout<Props> = ({ defaultData }) => {
     taskInfo?.taskInfo.data.baseConfig.type;
   const algorithm: Algorithms = taskInfo?.taskInfo.data.baseConfig
     .algorithmName as Algorithms;
-  const title =
-    algorithm in approximateAlgorithms
-      ? 'Discovered approximate dependencies verified'
-      : 'Discovered functional dependencies';
+  const title = approximateAlgorithms.includes(algorithm)
+    ? 'Discovered approximate dependencies verified'
+    : 'Discovered functional dependencies';
   const methods = useFilters(primitive || PrimitiveType.FD);
   const { watch, register, setValue: setFilterParam } = methods;
   const { search, page, ordering, direction, showKeys } = watch();

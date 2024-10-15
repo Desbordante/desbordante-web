@@ -17,7 +17,7 @@ import styles from './ModalContainer.module.scss';
 export interface ModalProps {
   onClose: () => void;
   className?: string;
-  isOpen: boolean;
+  isOpen?: boolean;
 }
 
 const ModalContainer: FCWithChildren<ModalProps> = ({

@@ -34,7 +34,10 @@ const AccountSettings: FC = () => {
         </Button>
       </div>
       {isModalOpen && (
-        <ChangePasswordModal onClose={() => setIsModalOpen(false)} />
+        <ChangePasswordModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
       )}
     </div>
   );

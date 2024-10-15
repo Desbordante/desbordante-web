@@ -62,7 +62,6 @@ const ReportsMFD: NextPageWithLayout = () => {
     parameter,
     orderDirection,
   );
-  const isHoldsTitile = !data.clustersTotalCount ? 'holds' : 'not holds';
 
   useEffect(() => {
     if (!loading && !error && data) {
@@ -155,7 +154,7 @@ const ReportsMFD: NextPageWithLayout = () => {
 
   return (
     <>
-      <NextSeo title={"Metric dependency verified: " + isHoldsTitile} />
+      <NextSeo title={"Metric dependency verified: " + (!data.clustersTotalCount ? 'holds' : 'not holds')} />
       {isOrderingShown && (
         <OrderingWindow
           isOrderingShown={isOrderingShown}

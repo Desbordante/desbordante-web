@@ -1,10 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { FC } from 'react';
 import { useForm } from 'react-hook-form';
-import isStrongPassword from 'validator/lib/isStrongPassword';
 import Button from '@components/Button';
-import { Text } from '@components/Inputs';
-import { passwordTooltip } from '@components/SignUpModal/steps/CoreInfo';
 import {
   changePassword,
   changePasswordVariables,
@@ -13,6 +10,7 @@ import { CHANGE_PASSWORD } from '@graphql/operations/mutations/changePassword';
 import { useAuthContext } from '@hooks/useAuthContext';
 import hashPassword from '@utils/hashPassword';
 import styles from '../LogInModal.module.scss';
+import Password from '@components/Inputs/Password';
 
 type Inputs = {
   password: string;
@@ -27,14 +25,14 @@ interface Props {
   onSuccess: () => void;
 }
 
-const Password: FC<Props> = ({ onSuccess, email }) => {
+const RestorePassword: FC<Props> = ({ onSuccess, email }) => {
   const { applyTokens } = useAuthContext();
   const [changePassword] = useMutation<changePassword, changePasswordVariables>(
     CHANGE_PASSWORD,
   );
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>({
@@ -60,18 +58,12 @@ const Password: FC<Props> = ({ onSuccess, email }) => {
       <h4 className={styles.title}>Recovery</h4>
       <form onSubmit={onSubmit} className={styles.formContainer}>
         <div className={styles.inputGroup}>
-          <Text
+          <Password
+            control={control}
+            controlName="password"
             label="Password"
-            type="password"
             placeholder="admin1234"
-            tooltip={passwordTooltip}
-            {...register('password', {
-              required: 'Required',
-              validate: (value) =>
-                isStrongPassword(value) ||
-                'The password does not match the pattern (see tooltip)',
-            })}
-            error={errors.password?.message}
+            rules={{ required: 'Required' }}
           />
         </div>
 
@@ -85,4 +77,4 @@ const Password: FC<Props> = ({ onSuccess, email }) => {
   );
 };
 
-export default Password;
+export default RestorePassword;

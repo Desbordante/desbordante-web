@@ -43,17 +43,13 @@ const Select: ForwardRefRenderFunction<RefElement, Props> = (
         {tooltip && <Tooltip>{tooltip}</Tooltip>}
       </div>
       <ReactSelect
+        id={id}
         className={styles.selectContainer}
         classNamePrefix={styles.selectContainer}
         {...props}
         ref={ref}
-        styles={{
-          menuPortal: (base) => {
-            return { ...base };
-          },
-        }}
         menuPortalTarget={portalRoot}
-        menuPosition='fixed'
+        menuPosition="fixed"
         components={{ ...customComponents, ...components }}
       />
       {error && <p className={styles.error}>{error}</p>}

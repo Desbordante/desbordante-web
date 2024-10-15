@@ -12,6 +12,7 @@ import { LOG_IN } from '@graphql/operations/mutations/logIn';
 import { useAuthContext } from '@hooks/useAuthContext';
 import hashPassword from '@utils/hashPassword';
 import styles from '../LogInModal.module.scss';
+import Password from '@components/Inputs/Password';
 
 type Inputs = {
   email: string;
@@ -31,6 +32,7 @@ interface Props {
 const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
   const { applyTokens } = useAuthContext();
   const {
+    control, 
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -73,14 +75,12 @@ const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
             })}
             error={errors.email?.message}
           />
-          <Text
+          <Password
+            control={control}
+            controlName="password"
             label="Password"
-            type="password"
             placeholder="admin1234"
-            {...register('password', {
-              required: 'Required',
-            })}
-            error={errors.password?.message}
+            rules={{ required: 'Required' }}
           />
         </div>
 
