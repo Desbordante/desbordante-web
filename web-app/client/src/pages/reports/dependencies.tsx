@@ -1,5 +1,6 @@
 import { useLazyQuery } from '@apollo/client';
 import type { GetServerSideProps } from 'next';
+import { NextSeo } from 'next-seo';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import Button from '@components/Button';
@@ -16,6 +17,7 @@ import { Text } from '@components/Inputs';
 import Pagination from '@components/Pagination/Pagination';
 import ReportsLayout from '@components/ReportsLayout';
 import { TaskContextProvider, useTaskContext } from '@components/TaskContext';
+import { Algorithms, approximateAlgorithms } from '@constants/options';
 import client from '@graphql/client';
 import {
   GetMainTaskDeps,
@@ -32,8 +34,6 @@ import {
   PrimitiveType,
 } from 'types/globalTypes';
 import { NextPageWithLayout } from 'types/pageWithLayout';
-import { Algorithms, approximateAlgorithms } from '@constants/options';
-import { NextSeo } from 'next-seo';
 
 type Props = {
   defaultData?: GetMainTaskDeps;

@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import isEmail from 'validator/lib/isEmail';
 import Button from '@components/Button';
 import { Text } from '@components/Inputs';
+import Password from '@components/Inputs/Password';
 import {
   logIn,
   logInVariables,
@@ -12,7 +13,6 @@ import { LOG_IN } from '@graphql/operations/mutations/logIn';
 import { useAuthContext } from '@hooks/useAuthContext';
 import hashPassword from '@utils/hashPassword';
 import styles from '../LogInModal.module.scss';
-import Password from '@components/Inputs/Password';
 
 type Inputs = {
   email: string;
@@ -32,7 +32,7 @@ interface Props {
 const LogIn: FC<Props> = ({ onSuccess, onRecovery }) => {
   const { applyTokens } = useAuthContext();
   const {
-    control, 
+    control,
     register,
     handleSubmit,
     formState: { errors, isSubmitting },

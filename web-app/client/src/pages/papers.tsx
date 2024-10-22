@@ -1,4 +1,5 @@
 import { GetServerSideProps, NextPage } from 'next';
+import { NextSeo } from 'next-seo';
 import Icon from '@components/Icon';
 import PrPublicationCard from '@components/PrPublicationCard';
 import SciencePublicationCard from '@components/SciencePublicationCard';
@@ -6,7 +7,6 @@ import cmsClient from '@graphql/cmsClient';
 import { getPublications } from '@graphql/operations/queries/__generated__/getPublications';
 import { GET_PUBLICATIONS } from '@graphql/operations/queries/getPublications';
 import styles from '@styles/Papers.module.scss';
-import { NextSeo } from 'next-seo';
 
 interface Props {
   papers: getPublications;
@@ -18,7 +18,7 @@ const Papers: NextPage<Props> = ({ papers }) => {
 
   return (
     <>
-    <NextSeo title='Papers' />
+      <NextSeo title="Papers" />
       <div className={styles.papersPage}>
         <Icon name="backgroundHome" className={styles.background} />
 

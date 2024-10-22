@@ -12,37 +12,36 @@ const defaultValues: Inputs = {
 };
 
 export const TestPassword: FC = () => {
-
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<Inputs>({
     defaultValues,
   });
 
   const onSubmit = handleSubmit(async () => {
-    console.log('submit')
+    console.log('submit');
   });
 
   return (
     <>
       <form onSubmit={onSubmit}>
-          <Password
-            control={control}
-            controlName="password"
-            label="Password"
-            placeholder="admin1234"
-            rules={{ required: 'Required' }}
-          />
-          <Button
-            variant="primary"
-            type="submit"
-            disabled={isSubmitting}
-            role="submit"
-          >
-            Test Button
-          </Button>
+        <Password
+          control={control}
+          controlName="password"
+          label="Password"
+          placeholder="admin1234"
+          rules={{ required: 'Required' }}
+        />
+        <Button
+          variant="primary"
+          type="submit"
+          disabled={isSubmitting}
+          role="submit"
+        >
+          Test Button
+        </Button>
       </form>
     </>
   );

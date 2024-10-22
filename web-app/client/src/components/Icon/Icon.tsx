@@ -10,7 +10,7 @@ const Icon = <TName extends IconName>(
   if (!icons[props.name]) {
     throw new Error(`There is no icon with name "${props.name}!"`);
   }
-  return icons[props.name]({...props, role: 'img'});
+  return icons[props.name]({ ...props, role: 'img' });
 };
 
 export default Icon;

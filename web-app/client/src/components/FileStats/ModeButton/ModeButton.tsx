@@ -15,7 +15,7 @@ export const ModeButton: FC<ModeButtonProps> = ({
 }: ModeButtonProps) => (
   <Button
     variant="secondary"
-    icon={ <Icon name={!tableMode ? "grid" : "list"} />}
+    icon={<Icon name={!tableMode ? 'grid' : 'list'} />}
     className={classNames(className, styles.wrapper, styles.modeButton)}
     aria-label="Change mode"
     {...props}

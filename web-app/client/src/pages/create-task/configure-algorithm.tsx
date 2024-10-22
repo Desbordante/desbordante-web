@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 import React from 'react';
 import AlgorithmFormConfigurator from '@components/AlgorithmFormConfigurator';
 import {
@@ -8,7 +9,6 @@ import {
 } from '@constants/formPrimitives';
 import { useTaskUrlParams } from '@hooks/useTaskUrlParams';
 import styles from '@styles/ConfigureAlgorithm.module.scss';
-import { NextSeo } from 'next-seo';
 
 const ConfigureAlgorithm: NextPage = () => {
   const router = useRouter();

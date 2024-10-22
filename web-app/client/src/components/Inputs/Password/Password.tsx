@@ -1,8 +1,8 @@
-import { ComponentProps, FC } from 'react';
-import { Text } from '@components/Inputs';
-import styles from './Password.module.scss';
+import { ComponentProps } from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import isStrongPassword from 'validator/lib/isStrongPassword';
+import { Text } from '@components/Inputs';
+import styles from './Password.module.scss';
 
 const passwordTooltip = (
   <div className={styles.tooltip}>
@@ -68,7 +68,7 @@ const Password = <T extends FieldValues>({
       control={control}
       rules={{
         ...rules,
-        validate: validate as any,
+        validate,
       }}
       render={({ field, fieldState }) => (
         <Text

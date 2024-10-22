@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { NextSeo } from 'next-seo';
 import { ReactElement } from 'react';
 import LayeredChart from '@components/Chart';
 import { ReportsLayout } from '@components/ReportsLayout/ReportsLayout';
@@ -10,7 +11,6 @@ import {
 import { GET_PIE_CHART_DATA } from '@graphql/operations/queries/getPieChartData';
 import styles from '@styles/Charts.module.scss';
 import { NextPageWithLayout } from 'types/pageWithLayout';
-import { NextSeo } from 'next-seo';
 
 const getChartData = (data?: getPieChartData) => {
   if (

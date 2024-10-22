@@ -13,11 +13,11 @@ describe('Tooltip', () => {
     render(<Tooltip>Test Tooltip</Tooltip>);
     const trigger = screen.getByRole('img');
     await user.hover(trigger);
-    return trigger
-  }
+    return trigger;
+  };
 
   test('Should open with text by hover', async () => {
-    await renderAndOpen()
+    await renderAndOpen();
     expect(screen.getByText(/test tooltip/i));
   });
 
