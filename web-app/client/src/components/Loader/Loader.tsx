@@ -1,14 +1,14 @@
 import cn from 'classnames';
 import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 import { FC, useEffect, useState } from 'react';
 import Icon, { IconName } from '@components/Icon';
+import { approximateAlgorithms } from '@constants/options';
 import { primitivePathnames } from '@constants/primitiveReportPathnames';
 import useTaskState from '@hooks/useTaskState';
 import getTaskStatusData from '@utils/getTaskStatusData';
 import { PrimitiveType } from 'types/globalTypes';
 import styles from './Loader.module.scss';
-import { NextSeo } from 'next-seo';
-import { approximateAlgorithms } from '@constants/options';
 
 const Loader: FC = () => {
   const router = useRouter();

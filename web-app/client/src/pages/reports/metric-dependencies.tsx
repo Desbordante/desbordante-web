@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 import React, {
   FC,
   ReactElement,
@@ -29,7 +30,6 @@ import styles from '@styles/MetricDependencies.module.scss';
 import { MFDOrderingParameter, OrderDirection } from 'types/globalTypes';
 
 import { NextPageWithLayout } from 'types/pageWithLayout';
-import { NextSeo } from 'next-seo';
 
 type InsertedRow =
   | {
@@ -154,7 +154,12 @@ const ReportsMFD: NextPageWithLayout = () => {
 
   return (
     <>
-      <NextSeo title={"Metric dependency verified: " + (!data.clustersTotalCount ? 'holds' : 'not holds')} />
+      <NextSeo
+        title={
+          'Metric dependency verified: ' +
+          (!data.clustersTotalCount ? 'holds' : 'not holds')
+        }
+      />
       {isOrderingShown && (
         <OrderingWindow
           isOrderingShown={isOrderingShown}

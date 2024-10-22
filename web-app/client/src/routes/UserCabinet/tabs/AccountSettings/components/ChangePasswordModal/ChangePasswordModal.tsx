@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import { FC, useId } from 'react';
 import { useForm } from 'react-hook-form';
 import Button from '@components/Button';
+import Password from '@components/Inputs/Password';
 import ModalContainer, { ModalProps } from '@components/ModalContainer';
 import {
   changePassword,
@@ -10,7 +11,6 @@ import {
 import { CHANGE_PASSWORD } from '@graphql/operations/mutations/changePassword';
 import hashPassword from '@utils/hashPassword';
 import styles from './ChangePasswordModal.module.scss';
-import Password from '@components/Inputs/Password';
 
 type Inputs = {
   oldPassword: string;
@@ -19,10 +19,7 @@ type Inputs = {
 };
 
 const ChangePasswordModal: FC<ModalProps> = ({ isOpen, onClose }) => {
-  const {
-    control,
-    handleSubmit,
-  } = useForm<Inputs>();
+  const { control, handleSubmit } = useForm<Inputs>();
   const formId = useId();
   const [changePassword] = useMutation<changePassword, changePasswordVariables>(
     CHANGE_PASSWORD,
@@ -41,7 +38,11 @@ const ChangePasswordModal: FC<ModalProps> = ({ isOpen, onClose }) => {
   });
 
   return (
-    <ModalContainer isOpen={isOpen} onClose={onClose} className={styles.changePasswordModal}>
+    <ModalContainer
+      isOpen={isOpen}
+      onClose={onClose}
+      className={styles.changePasswordModal}
+    >
       <h4 className={styles.title}>Change password</h4>
       <form onSubmit={onSubmit} id={formId}>
         <Password
